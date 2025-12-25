@@ -1,0 +1,38 @@
+datasource db {
+  provider = "postgresql"
+}
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/client"
+}
+model Project {
+  id        String   @id @default(cuid())
+  title     String
+  color     String?
+  habits    Habit[]
+  tasks     Task[]
+  createdAt DateTime @default(now())
+}
+
+model Habit {
+  id          String   @id @default(cuid())
+  title       String
+  projectId   String
+  project     Project  @relation(fields: [projectId], references: [id])
+  streak      Int      @default(0)
+  history     String[] // Example: ["2025-12-25", "2025-12-26"]
+  frequency   String   // e.g., "daily"
+  tasks       Task[]   
+}
+
+model Task {
+  id          String   @id @default(cuid())
+  title       String
+  completed   Boolean  @default(false)
+  date        DateTime @default(now())
+  projectId   String
+  project     Project  @relation(fields: [projectId], references: [id])
+  habitId     String?  // Links the task to the habit that generated it
+  habit       Habit?   @relation(fields: [habitId], references: [id])
+}

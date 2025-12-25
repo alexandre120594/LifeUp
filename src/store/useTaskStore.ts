@@ -13,31 +13,50 @@ interface TaskState {
   addTask: (title: string) => void;
   toggleTask: (id: string) => void;
   deleteTask: (id: string) => void;
+  editTask: (id: string, text: string) => void;
 }
 
-export const useTaskStore = create<TaskState>((set) => ({
-  tasks: [
-    { id: "1", title: "Plan the app structure", completed: true },
-    { id: "2", title: "Build the frontend store", completed: false },
-  ],
-  addTask: (title) =>
-    set((state) => ({
+export const useTaskStore = create<TaskState>()(
+  persist(
+    (set) => ({
       tasks: [
-        ...state.tasks,
-        { id: Date.now().toString(), title, completed: false },
+        { id: "1", title: "Plan the app structure", completed: true },
+        { id: "2", title: "Build the frontend store", completed: false },
       ],
-    })),
-  toggleTask: (id) =>
-    set((state) => ({
-      tasks: state.tasks.map((t) =>
-        t.id === id ? { ...t, completed: !t.completed } : t
-      ),
-    })),
-  deleteTask: (id) =>
-    set((state) => ({
-      tasks: state.tasks.filter((t) => t.id !== id),
-    })),
-}));
+      addTask: (title) =>
+        set((state) => ({
+          tasks: [
+            ...state.tasks,
+            { id: Date.now().toString(), title, completed: false },
+          ],
+        })),
+      toggleTask: (id) =>
+        set((state) => ({
+          tasks: state.tasks.map((t) =>
+            t.id === id ? { ...t, completed: !t.completed } : t
+          ),
+        })),
+      deleteTask: (id) =>
+        set((state) => ({
+          tasks: state.tasks.filter((t) => t.id !== id),
+        })),
+      editTask: (id, text) =>
+        set((state) => ({
+          tasks: state.tasks.map((h) => {
+            if (h.id === id) {
+              return {
+                id: h.id,
+                title: text,
+                completed: h.completed,
+              };
+            }
+            return h;
+          }),
+        })),
+    }),
+    { name: "lifeup-storage" }
+  )
+);
 
 export type Habit = {
   id: string;
@@ -108,11 +127,13 @@ export const useHabitStore = create<HabitState>()(
             return h;
           }),
         })),
-      deleteHabit: (id) => set((state) => ({
-        habits: state.habits.filter((t) => t.id !== id),
-      })),
-      editHabit: (id, text) => set((state) => ({
-        habits: state.habits.map((h) => {
+      deleteHabit: (id) =>
+        set((state) => ({
+          habits: state.habits.filter((t) => t.id !== id),
+        })),
+      editHabit: (id, text) =>
+        set((state) => ({
+          habits: state.habits.map((h) => {
             if (h.id === id) {
               const today = new Date().toISOString().split("T")[0];
               return {
@@ -120,12 +141,12 @@ export const useHabitStore = create<HabitState>()(
                 history: [...h.history, today],
                 streak: h.streak,
                 id: h.id,
-                title: text
+                title: text,
               };
             }
             return h;
-          })
-      }))
+          }),
+        })),
     }),
     { name: "lifeup-storage" }
   )
