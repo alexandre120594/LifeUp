@@ -1,114 +1,111 @@
 "use client";
-import { useTaskStore } from "@/store/useTaskStore";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { useState } from "react";
-import { Edit, Send } from "lucide-react";
 
-export default function Home() {
-  const { tasks, toggleTask, addTask, editTask } = useTaskStore();
-  const [text, setText] = useState("");
-  const [isEdit, setisEdit] = useState("");
-  const [editarTask, seteditarTask] = useState("");
+import { useEffect, useState } from "react";
+import { Project } from "@/types/BaseInterfaces";
 
-  const handleAdd = () => {
-    if (text.trim()) {
-      addTask(text);
-      setText("");
+export default function ProjectsPage() {
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [title, setTitle] = useState("");
+  const [color, setColor] = useState("#3b82f6");
+  const [loading, setLoading] = useState(true);
+
+  const fetchProjects = async () => {
+    setLoading(true);
+    const res = await fetch("/api/projects");
+    const data = await res.json();
+    setProjects(data);
+    setLoading(false);
+  };
+
+  useEffect(() => { fetchProjects(); }, []);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!title) return;
+
+    const res = await fetch("/api/projects", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ title, color }),
+    });
+
+    if (res.ok) {
+      setTitle("");
+      fetchProjects();
     }
   };
 
   return (
-    <main className="flex min-h-screen flex-col items-center p-8 bg-slate-100">
-      <div className="w-full max-w-md">
-        <h1 className="text-3xl font-bold mb-8 text-center">LifeUp</h1>
-        <Card>
-          <CardHeader>
-            <CardTitle>Daily Tasks</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {tasks.map((task) => (
-              <div
-                key={task.id}
-                className="flex items-center space-x-3 p-2 border-b last:border-0"
-              >
-                <Checkbox
-                  checked={task.completed}
-                  onCheckedChange={() => toggleTask(task.id)}
-                />
+    <div className="p-8 max-w-3xl mx-auto">
+      <header className="mb-10">
+        <h1 className="text-3xl font-bold">LifeUp Projects</h1>
+        <p className="text-gray-500">Organize your habits and tasks by project.</p>
+      </header>
 
-                {isEdit === task.id ? (
-                  <>
-                    <Input
-                      onChange={(e) => {
-                        seteditarTask(e.target.value);
-                      }}
-                      value={editarTask}
-                    ></Input>
-                    <Button
-                      variant={"outline"}
-                      size={"icon"}
-                      onClick={() => {
-                        editTask(task.id, editarTask);
-                        setisEdit("");
-                      }}
-                    >
-                      <Send className="text-green-600"></Send>
-                    </Button>
-                  </>
-                ) : (
-                  <span
-                    className={
-                      task.completed ? "line-through text-muted-foreground" : ""
-                    }
-                  >
-                    {task.title}
+      {/* CREATION FORM */}
+      <section className="bg-white p-6 rounded-xl border shadow-sm mb-10">
+        <form onSubmit={handleSubmit} className="flex flex-col md:flex-row gap-4 items-end">
+          <div className="flex-1 w-full">
+            <label className="text-sm font-semibold mb-2 block">Project Title</label>
+            <input 
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder="e.g., Physical Health"
+              className="w-full border rounded-lg p-2.5 outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+          <div className="w-full md:w-20">
+            <label className="text-sm font-semibold mb-2 block">Color</label>
+            <input 
+              type="color" 
+              value={color} 
+              onChange={(e) => setColor(e.target.value)}
+              className="w-full h-11 p-1 rounded-lg border cursor-pointer"
+            />
+          </div>
+          <button 
+            type="submit"
+            className="w-full md:w-auto bg-blue-600 text-white px-6 py-2.5 rounded-lg font-medium hover:bg-blue-700 transition"
+          >
+            Create Project
+          </button>
+        </form>
+      </section>
+
+      {/* PROJECTS LIST */}
+      <section className="grid gap-4">
+        {loading ? (
+          <p>Loading your projects...</p>
+        ) : projects.length === 0 ? (
+          <div className="text-center p-10 border-2 border-dashed rounded-xl">
+            <p className="text-gray-400">No projects found. Create your first one above!</p>
+          </div>
+        ) : (
+          projects.map((project) => (
+            <div 
+              key={project.id} 
+              className="flex items-center justify-between p-5 bg-white border rounded-xl hover:border-blue-300 transition shadow-sm"
+              style={{ borderLeft: `12px solid ${project.color}` }}
+            >
+              <div>
+                <h3 className="text-lg font-bold">{project.title}</h3>
+                <div className="flex gap-3 mt-1">
+                  <span className="text-xs bg-gray-100 px-2 py-1 rounded text-gray-600">
+                    {project.habits?.length || 0} Habits
                   </span>
-                )}
-
-                {isEdit !== task.id && (
-                  <Button
-                    variant={"outline"}
-                    size={"icon"}
-                    onClick={(e) => {
-                      setisEdit(task.id)
-                      seteditarTask(task.title)
-                    }}
-                  >
-                    <Edit className="text-red-600"></Edit>
-                  </Button>
-                )}
+                  <span className="text-xs bg-gray-100 px-2 py-1 rounded text-gray-600">
+                    {project.tasks?.length || 0} Tasks
+                  </span>
+                </div>
               </div>
-            ))}
-            {tasks.length === 0 && (
-              <p className="text-sm text-center text-muted-foreground">
-                No tasks yet!
-              </p>
-            )}
-          </CardContent>
-        </Card>
-      </div>
-
-      <div className="w-full max-w-md mt-4">
-        <Card>
-          <CardHeader>
-            <CardTitle>Add Tasks</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <Input
-              title="Adicione uma task"
-              placeholder="Digite uma task..."
-              value={text}
-              onChange={(e) => setText(e.target.value)}
-            ></Input>
-          </CardContent>
-          <CardContent>
-            <Button onClick={handleAdd}>Adicionar task</Button>
-          </CardContent>
-        </Card>
-      </div>
-    </main>
+              <button className="text-gray-400 hover:text-red-500">
+                {/* Add a trash icon here later */}
+                View Details →
+              </button>
+            </div>
+          ))
+        )}
+      </section>
+    </div>
   );
 }
