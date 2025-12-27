@@ -5,9 +5,10 @@ import HabitItem from "./components/HabitItem";
 import { useHabitStore, useTaskStore } from "@/store/useTaskStore";
 import { useState } from "react";
 import InputHabit from "./components/InputHabit";
+import { useHabit } from "@/hooks/useHabitMutations";
 
 export default function Habits() {
-  const habits = useHabitStore((state) => state.habits);
+  const {data: habits, isLoading} = useHabit();
 
   console.log(habits);
   return (
@@ -18,7 +19,7 @@ export default function Habits() {
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-2 gap-12">
-            {habits.map((habit) => (
+            {habits?.map((habit) => (
               <HabitItem habit={habit} key={habit.id}></HabitItem>
             ))}
           </div>

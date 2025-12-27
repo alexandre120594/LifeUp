@@ -72,6 +72,7 @@ interface HabitState {
   addTask: (text: string) => void;
   deleteHabit: (text: string) => void;
   editHabit: (id: string, text: string) => void;
+  // fetchProjects: () => Promise<void>;
 }
 
 export const useHabitStore = create<HabitState>()(

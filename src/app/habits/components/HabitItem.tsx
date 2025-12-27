@@ -9,16 +9,17 @@ import {
   Send,
   Trash,
 } from "lucide-react";
-import { Habit, useHabitStore } from "@/store/useTaskStore";
+import { useHabitStore } from "@/store/useTaskStore";
 import { format, subDays } from "date-fns";
 import { Button } from "@/components/ui/button";
 import { ChangeEventHandler, useState } from "react";
 import { Input } from "@/components/ui/input";
+import { Habit } from "@/types/BaseInterfaces";
 
-export default function HabitItem({ habit }: { habit: Habit }) {
+export default function HabitItem({ habit }: { habit?: Habit }) {
   const { toggleHabit, deleteHabit, editHabit } = useHabitStore();
 
-  const [editarHabito, setEditarHabito] = useState(habit.title);
+  const [editarHabito, setEditarHabito] = useState(habit?.title);
   const [isEdit, setisEdit] = useState("");
 
   const last7Days = Array.from({ length: 7 })
@@ -26,23 +27,26 @@ export default function HabitItem({ habit }: { habit: Habit }) {
     .reverse();
 
   return (
-    <Card className="p-4 flex items-center justify-between border-l-4 border-l-orange-500 shadow-sm">
+    <Card
+      className="p-4 flex items-center justify-between border-l-4 shadow-sm"
+      style={{ borderLeftColor: habit?.project?.color || "#ccc" }}
+    >
       <div className="flex items-center gap-10">
-        <Checkbox
-          checked={habit.completedToday}
-          onCheckedChange={() => toggleHabit(habit.id)}
+        {/* <Checkbox
+          checked={habit?.completedToday}
+          onCheckedChange={() => toggleHabit(habit?.id)}
           className="h-6 w-6"
-        />
+        /> */}
         <div>
-          <p
+          {/* <p
             className={`font-semibold ${
               habit.completedToday ? "line-through text-muted-foreground" : ""
             }`}
-          >
-            {isEdit === habit.id ? (
-              <>
-                <div className="flex gap-2">
-                  <Input
+          > */}
+          {isEdit === habit?.id ? (
+            <>
+              <div className="flex gap-2 font-bold">
+                {/* <Input
                     onChange={(e) => {
                       setEditarHabito(e.target.value);
                     }}
@@ -58,22 +62,30 @@ export default function HabitItem({ habit }: { habit: Habit }) {
                     }}
                   >
                     <Send className="text-green-600"></Send>
-                  </Button>
-                </div>
-              </>
-            ) : (
-              habit.title
-            )}
-          </p>
+                  </Button> */}
+              </div>
+            </>
+          ) : (
+            <>
+              {habit?.title}
+              <div
+                className="font-bold text-[16px]"
+                style={{ color: habit?.project?.color ?? "#000" }}
+              >
+                Projeto: {habit?.project?.title}
+              </div>
+            </>
+          )}
+          {/* </p> */}
           <div className="flex items-center gap-3">
             <div className="flex items-center text-sm text-orange-600 font-medium">
               <Flame className="w-4 h-4 mr-1 fill-orange-500" />
-              {habit.streak} day streak
+              {habit?.streak} day streak
             </div>
 
             <div className="flex gap-1">
               {last7Days.map((date) => {
-                const isCompleted = habit.history.includes(date);
+                const isCompleted = habit?.history.includes(date);
                 return (
                   <div
                     key={date}
@@ -87,22 +99,22 @@ export default function HabitItem({ habit }: { habit: Habit }) {
             </div>
           </div>
         </div>
-        <Button
+        {/* <Button
           variant={"outline"}
           size={"icon"}
-          onClick={() => deleteHabit(habit.id)}
+          onClick={() => deleteHabit(habit?.id)}
         >
           <Trash className="text-red-600"></Trash>
-        </Button>
-        {isEdit !== habit.id && (
+        </Button> */}
+        {/* {isEdit !== habit?.id && (
           <Button
             variant={"outline"}
             size={"icon"}
-            onClick={(e) => setisEdit(habit.id)}
+            onClick={(e) => setisEdit(habit?.id)}
           >
             <Edit className="text-red-600"></Edit>
           </Button>
-        )}
+        )} */}
       </div>
     </Card>
   );

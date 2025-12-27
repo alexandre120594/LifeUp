@@ -16,7 +16,8 @@ export interface Habit {
   streak: number;
   history: string[];
   frequency: string;
-  tasks?: Task[]; // Optional nested tasks
+  tasks?: Task[];
+  project?: Project; 
 }
 
 export interface Project {
@@ -25,8 +26,8 @@ export interface Project {
   color: string | null;
   userId: number;
   createdAt: Date | string;
-  habits?: Habit[]; // Nested habits
-  tasks?: Task[];   // Nested tasks
+  habits?: Habit[]; 
+  tasks?: Task[]; 
 }
 
 export interface ProjectRequest {
@@ -43,5 +44,15 @@ export interface ProjectCreateInput {
   color: string;
 }
 
-// Interface specifically for the API Response
+export interface HabitCreateInput {
+  title: string;
+  projectId: string;
+}
+
+export interface TaskCreateInput {
+  title: string;
+  projectId: string;
+  habitId: string
+}
+
 export type ProjectsResponse = Project[];
