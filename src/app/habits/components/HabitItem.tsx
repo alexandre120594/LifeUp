@@ -14,22 +14,50 @@ import { format, subDays } from "date-fns";
 import { Button } from "@/components/ui/button";
 import { ChangeEventHandler, useState } from "react";
 import { Input } from "@/components/ui/input";
-import { Habit } from "@/types/BaseInterfaces";
+import { Habit, HabitCreateInput } from "@/types/BaseInterfaces";
+import { useDeleteHabits, useUpdateHabits } from "@/hooks/useHabitMutations";
+import { useForm } from "react-hook-form";
 
-export default function HabitItem({ habit }: { habit?: Habit }) {
-  const { toggleHabit, deleteHabit, editHabit } = useHabitStore();
+export default function HabitItem({
+  habit,
+  colorHabit,
+}: {
+  habit: Habit;
+  colorHabit?: string;
+}) {
+  const { register, handleSubmit, reset, setValue } = useForm<HabitCreateInput>(
+    {
+      defaultValues: { title: habit.title, projectId: habit.projectId },
+    }
+  );
 
-  const [editarHabito, setEditarHabito] = useState(habit?.title);
-  const [isEdit, setisEdit] = useState("");
+  const [isEdit, setisEdit] = useState<any>();
 
+  const { mutate, isPending } = useDeleteHabits(habit?.id);
+
+  const { mutate: mutateTaskUpdate } = useUpdateHabits();
+
+  const onSubmitUpdate = (data: HabitCreateInput) => {
+    mutateTaskUpdate(
+      { id: habit?.id, data },
+      {
+        onSuccess: () => {
+          setisEdit(false);
+        },
+      }
+    );
+  };
+
+  const onSubmitDelete = (id?: string) => {
+    mutate(id);
+  };
   const last7Days = Array.from({ length: 7 })
     .map((_, i) => format(subDays(new Date(), i), "yyyy-MM-dd"))
     .reverse();
-
   return (
     <Card
       className="p-4 flex items-center justify-between border-l-4 shadow-sm"
-      style={{ borderLeftColor: habit?.project?.color || "#ccc" }}
+      style={{ borderLeftColor: colorHabit || "#ccc" }}
     >
       <div className="flex items-center gap-10">
         {/* <Checkbox
@@ -46,23 +74,16 @@ export default function HabitItem({ habit }: { habit?: Habit }) {
           {isEdit === habit?.id ? (
             <>
               <div className="flex gap-2 font-bold">
-                {/* <Input
-                    onChange={(e) => {
-                      setEditarHabito(e.target.value);
-                    }}
-                    value={editarHabito}
+                <form onSubmit={handleSubmit(onSubmitUpdate)}>
+                  <Input
+                    {...register("title", { required: "Insira algum habito" })}
+                    disabled={isPending}
+                    placeholder="Insira um habito"
                   ></Input>
-
-                  <Button
-                    variant={"outline"}
-                    size={"icon"}
-                    onClick={() => {
-                      editHabit(habit.id, editarHabito);
-                      setisEdit("");
-                    }}
-                  >
-                    <Send className="text-green-600"></Send>
-                  </Button> */}
+                  <Button type="submit" disabled={isPending} className="mt-4">
+                    {isPending ? "Adicionando..." : "Adicionar Hábito"}
+                  </Button>
+                </form>
               </div>
             </>
           ) : (
@@ -99,14 +120,14 @@ export default function HabitItem({ habit }: { habit?: Habit }) {
             </div>
           </div>
         </div>
-        {/* <Button
+        <Button
           variant={"outline"}
           size={"icon"}
-          onClick={() => deleteHabit(habit?.id)}
+          onClick={() => onSubmitDelete(habit?.id)}
         >
           <Trash className="text-red-600"></Trash>
-        </Button> */}
-        {/* {isEdit !== habit?.id && (
+        </Button>
+        {isEdit !== habit?.id && (
           <Button
             variant={"outline"}
             size={"icon"}
@@ -114,7 +135,7 @@ export default function HabitItem({ habit }: { habit?: Habit }) {
           >
             <Edit className="text-red-600"></Edit>
           </Button>
-        )} */}
+        )}
       </div>
     </Card>
   );

@@ -2,10 +2,10 @@
 
 export interface Task {
   id: string;
-  title: string;
-  completed: boolean;
-  date: Date | string;
-  projectId: string;
+  title?: string;
+  completed?: boolean;
+  date?: Date | string;
+  projectId?: string;
   habitId?: string | null;
 }
 
@@ -23,7 +23,7 @@ export interface Habit {
 export interface Project {
   id: string;
   title: string;  
-  color: string | null;
+  color: string;
   userId: number;
   createdAt: Date | string;
   habits?: Habit[]; 
@@ -40,19 +40,19 @@ export interface ProjectRequest {
 }
 
 export interface ProjectCreateInput {
-  title: string;
-  color: string;
+  title?: string;
+  color?: string;
 }
 
 export interface HabitCreateInput {
   title: string;
-  projectId: string;
+  projectId?: string;
 }
 
 export interface TaskCreateInput {
   title: string;
   projectId: string;
-  habitId: string
+  habitId: string;
 }
 
 export type ProjectsResponse = Project[];

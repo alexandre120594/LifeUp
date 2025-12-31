@@ -115,6 +115,22 @@
   --sidebar-ring: oklch(0.551 0.027 264.364);
 }
 
+/* Garante que o dropdown tenha fundo e sombra */
+[data-radix-popper-content-wrapper] {
+  background-color: white !important;
+  border: 1px solid oklch(0.929 0.013 255.508) !important; /* Sua cor --border */
+  border-radius: var(--radius);
+  box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  padding: 4px;
+  z-index: 9999;
+}
+
+/* Ajuste para o Dark Mode se você estiver usando */
+.dark [data-radix-popper-content-wrapper] {
+  background-color: oklch(0.208 0.042 265.755) !important; /* Sua cor --popover dark */
+  border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;

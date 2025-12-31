@@ -1,6 +1,5 @@
 // src/app/api/habits/[id]/route.ts
 import prisma from "@/lib/prisma";
-import { Task } from "@/types/BaseInterfaces";
 import { NextRequest, NextResponse } from "next/server";
 
 interface RouteParams {
@@ -11,15 +10,19 @@ export async function GET(req: NextRequest, { params }: RouteParams) {
   const { id } = await params;
 
   try {
-    const habit = await prisma.habit.findUnique({
+    const project = await prisma.project.findUnique({
       where: { id },
+      include: {
+        habits: true,
+        tasks: true,
+      },
     });
 
-    if (!habit) {
-      return NextResponse.json({ error: "Habit not found" }, { status: 404 });
+    if (!project) {
+      return NextResponse.json({ error: "Project not found" }, { status: 404 });
     }
 
-    return NextResponse.json(habit);
+    return NextResponse.json(project);
   } catch (error) {
     return NextResponse.json(
       { error: "Internal Server Error" },
@@ -35,17 +38,20 @@ export async function DELETE(req: NextRequest, { params }: RouteParams) {
     await prisma.$transaction([
       prisma.task.deleteMany({
         where: {
-          habitId: id,
+          projectId: id,
         },
       }),
-      prisma.habit.delete({
-        where: {
-          id,
-        },
+      prisma.habit.deleteMany({
+        where: { projectId: id },
+      }),
+
+      prisma.project.delete({
+        where: { id },
       }),
     ]);
-    return NextResponse.json({ message: "Habit deleted" });
+    return NextResponse.json({ message: "Projeto e dependências deletados" });
   } catch (error) {
+    console.log(error);
     return NextResponse.json(
       { error: "Failed to delete habit" },
       { status: 500 }
@@ -57,13 +63,10 @@ export async function PATCH(req: NextRequest, { params }: RouteParams) {
   const { id } = await params;
 
   try {
-    const { title, streak, history, frequency } = await req.json();
-    const habit = await prisma.habit.update({
+    const { title, color } = await req.json();
+    const habit = await prisma.project.update({
       where: { id },
-      include: {
-        tasks: true,
-      },
-      data: { title, streak, history, frequency },
+      data: { title, color },
     });
 
     return NextResponse.json(habit);

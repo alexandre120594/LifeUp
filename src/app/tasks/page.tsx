@@ -6,18 +6,28 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
 import { Edit, Send } from "lucide-react";
+import { useCreateTask, useTask } from "@/hooks/useTaskMutation";
+import { useForm } from "react-hook-form";
+import { TaskCreateInput } from "@/types/BaseInterfaces";
 
 export default function Home() {
-  const { tasks, toggleTask, addTask, editTask } = useTaskStore();
+  const { toggleTask, addTask, editTask } = useTaskStore();
   const [text, setText] = useState("");
   const [isEdit, setisEdit] = useState("");
   const [editarTask, seteditarTask] = useState("");
+  const { register, reset, handleSubmit } = useForm<TaskCreateInput>();
+  const { data: tasks, isLoading } = useTask();
+  const { mutate, isPending } = useCreateTask();
 
-  const handleAdd = () => {
-    if (text.trim()) {
-      addTask(text);
-      setText("");
-    }
+  const onSubmit = (data: TaskCreateInput) => {
+    const dataSubmit: TaskCreateInput = {
+      title: data.title,
+      projectId: "cmjof086d0000h0uu0l59g7p5",
+      habitId: "cmjoucplc0001o4uupkn02txm",
+    };
+    mutate(dataSubmit, {
+      onSuccess: () => reset,
+    });
   };
 
   return (
@@ -29,7 +39,7 @@ export default function Home() {
             <CardTitle>Daily Tasks</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            {tasks.map((task) => (
+            {tasks?.map((task) => (
               <div
                 key={task.id}
                 className="flex items-center space-x-3 p-2 border-b last:border-0"
@@ -68,7 +78,7 @@ export default function Home() {
                   </span>
                 )}
 
-                {isEdit !== task.id && (
+                {/* {isEdit !== task.id && (
                   <Button
                     variant={"outline"}
                     size={"icon"}
@@ -79,10 +89,10 @@ export default function Home() {
                   >
                     <Edit className="text-red-600"></Edit>
                   </Button>
-                )}
+                )} */}
               </div>
             ))}
-            {tasks.length === 0 && (
+            {tasks?.length === 0 && (
               <p className="text-sm text-center text-muted-foreground">
                 No tasks yet!
               </p>
@@ -97,16 +107,20 @@ export default function Home() {
             <CardTitle>Add Tasks</CardTitle>
           </CardHeader>
           <CardContent>
-            <Input
-              title="Adicione uma task"
-              placeholder="Digite uma task..."
-              value={text}
-              onChange={(e) => setText(e.target.value)}
-            ></Input>
+            <form onSubmit={handleSubmit(onSubmit)} className="flex gap-3">
+              <Input
+                {...register("title", {
+                  required: "Campo não pode ser vazio!",
+                })}
+                title="Adicione uma task"
+                placeholder="Digite uma task..."
+                value={text}
+                onChange={(e) => setText(e.target.value)}
+              ></Input>
+              <Button type="submit">Adicionar task</Button>
+            </form>
           </CardContent>
-          <CardContent>
-            <Button onClick={handleAdd}>Adicionar task</Button>
-          </CardContent>
+          <CardContent></CardContent>
         </Card>
       </div>
     </main>

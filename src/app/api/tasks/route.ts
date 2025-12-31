@@ -19,7 +19,7 @@ export async function POST(req: NextRequest) {
   try {
     const { title ,projectId, habitId  } = await req.json();
     const task = await prisma.task.create({
-      data: { title, projectId , habitId, completed: false, date: Date.now.toString()},
+      data: { title, projectId , habitId, completed: false},
     });
     return NextResponse.json(task, { status: 201 });
   } catch (error) {
