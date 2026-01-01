@@ -4,6 +4,19 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
+
+  /*
+  Tema Global
+  */
+
+  --color-yevox-primary: var(--primary-yevox);
+  --color-yevox-secondary: var(--secondary-yevox);
+  --color-yevox-white: var(--background-yevox);
+  --color-yevox-accent: var(--accent-yevox);
+  --color-yevox-border: var(--border-yevox);
+
+
+
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
@@ -47,6 +60,20 @@
 }
 
 :root {
+
+  --p-hue: 232.06;
+  --p-chroma: 0.125;
+  --s-hue: 226.81;
+  --s-chroma: 0.027;
+
+  /* Aplicação nas variáveis Yevox que o @theme consome */
+  --background-yevox: oklch(1 0 0);
+  --primary-yevox: oklch(0.70 var(--p-chroma) var(--p-hue));
+  --secondary-yevox: oklch(0.97 var(--s-chroma) var(--s-hue));
+  --accent-yevox: oklch(0.97 var(--s-chroma) var(--s-hue));
+  --border-yevox: oklch(0.922 var(--p-chroma) var(--p-hue));
+  
+
   --radius: 0.625rem;
   --background: oklch(1 0 0);
   --foreground: oklch(0.129 0.042 264.695);
