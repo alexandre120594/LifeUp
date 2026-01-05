@@ -30,7 +30,7 @@ export function useCreateProject() {
 export function useUpdateProject() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, data }: { id: string; data: ProjectCreateInput }) =>
+    mutationFn: ({ id, data }: { id?: string; data?: ProjectCreateInput }) =>
       projectServices.update(data, id),
     onSuccess: (data, variables) => {
       const id = variables.id;

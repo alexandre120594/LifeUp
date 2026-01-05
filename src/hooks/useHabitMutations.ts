@@ -2,10 +2,11 @@ import { HabitsServices } from "@/services/HabitsServices";
 import { HabitCreateInput } from "@/types/BaseInterfaces";
 import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
 
-export function useHabit() {
+export function useHabit(projectId?: string) {
   return useQuery({
-    queryKey: ["habits"],
-    queryFn: HabitsServices.getAll,
+    queryKey: ["habits", { projectId }],
+    queryFn: () => HabitsServices.getAll(projectId),
+    enabled: !projectId,
   });
 }
 

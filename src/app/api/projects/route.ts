@@ -6,7 +6,7 @@ const DEV_USER_ID = 1
 
 
 export async function GET() {
-  const projects: Project[] = await prisma.project.findMany({
+  const projects = await prisma.project.findMany({
     where: {
       userId: DEV_USER_ID,
     },

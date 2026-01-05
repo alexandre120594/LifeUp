@@ -21,9 +21,13 @@ import { useForm } from "react-hook-form";
 export default function HabitItem({
   habit,
   colorHabit,
+  NameProject,
+  onClickHabit
 }: {
   habit: Habit;
   colorHabit?: string;
+  NameProject?: string;
+  onClickHabit?: (id:string) => void
 }) {
   const { register, handleSubmit, reset, setValue } = useForm<HabitCreateInput>(
     {
@@ -47,7 +51,6 @@ export default function HabitItem({
       }
     );
   };
-
   const onSubmitDelete = (id?: string) => {
     mutate(id);
   };
@@ -56,10 +59,11 @@ export default function HabitItem({
     .reverse();
   return (
     <Card
-      className="p-4 flex items-center justify-between border-l-4 shadow-sm"
+      className="p-4 items-center justify-between border-l-4 shadow-sm"
       style={{ borderLeftColor: colorHabit || "#ccc" }}
+      onClick={() => { console.log("1. Item Clicked", habit.id); onClickHabit?.(habit.id); }}
     >
-      <div className="flex items-center gap-10">
+      <div className="">
         {/* <Checkbox
           checked={habit?.completedToday}
           onCheckedChange={() => toggleHabit(habit?.id)}
@@ -78,7 +82,7 @@ export default function HabitItem({
                   <Input
                     {...register("title", { required: "Insira algum habito" })}
                     disabled={isPending}
-                    placeholder="Insira um habito"
+                    placeholder="Ex: Concurso Receita Federal..."
                   ></Input>
                   <Button type="submit" disabled={isPending} className="mt-4">
                     {isPending ? "Adicionando..." : "Adicionar Hábito"}
@@ -90,10 +94,10 @@ export default function HabitItem({
             <>
               {habit?.title}
               <div
-                className="font-bold text-[16px]"
+                className="font-bold"
                 style={{ color: habit?.project?.color ?? "#000" }}
               >
-                Projeto: {habit?.project?.title}
+                Projeto: {NameProject}
               </div>
             </>
           )}
@@ -110,7 +114,7 @@ export default function HabitItem({
                 return (
                   <div
                     key={date}
-                    title={date} // Shows date on hover
+                    title={date}
                     className={`w-2 h-2 rounded-full transition-colors ${
                       isCompleted ? "bg-orange-500" : "bg-slate-200"
                     }`}
@@ -120,6 +124,7 @@ export default function HabitItem({
             </div>
           </div>
         </div>
+        <div className="grid grid-cols-2 mt-4">
         <Button
           variant={"outline"}
           size={"icon"}
@@ -127,6 +132,7 @@ export default function HabitItem({
         >
           <Trash className="text-red-600"></Trash>
         </Button>
+        <div className="text-end">
         {isEdit !== habit?.id && (
           <Button
             variant={"outline"}
@@ -136,6 +142,8 @@ export default function HabitItem({
             <Edit className="text-red-600"></Edit>
           </Button>
         )}
+        </div>
+        </div>
       </div>
     </Card>
   );

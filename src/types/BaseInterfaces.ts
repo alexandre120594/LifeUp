@@ -7,6 +7,8 @@ export interface Task {
   date?: Date | string;
   projectId?: string;
   habitId?: string | null;
+  dateFinish?: Date | string;
+  time?: string;
 }
 
 export interface Habit {
@@ -25,16 +27,19 @@ export interface Project {
   title: string;  
   color: string;
   userId: number;
+  lastActivityDate?: Date | string;
+  streakGlobal?:number
   createdAt: Date | string;
   habits?: Habit[]; 
   tasks?: Task[]; 
 }
-
 export interface ProjectRequest {
   title: string;
   color: string | null;
   userId: number;
   createdAt: Date | string;
+  lastActivityDate?: Date | string;
+  streakGlobal?:number
   habits?: Habit[]; 
   tasks?: Task[]; 
 }

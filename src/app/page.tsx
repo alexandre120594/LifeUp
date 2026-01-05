@@ -10,7 +10,7 @@ import {
   useUpdateProject,
 } from "@/hooks/useProjectMutations";
 import { redirect } from "next/navigation";
-import { Edit, Trash } from "lucide-react";
+import { Edit, Goal, List, Repeat, Trash, TrendingUp } from "lucide-react";
 import ProjectItem from "./projects/components/ProjectItem";
 import {
   Card,
@@ -22,6 +22,10 @@ import {
 import { ChartRadialText } from "@/components/ChartsComponent/RadialChart";
 import { ChartConfig } from "@/components/ui/chart";
 import { useTask } from "@/hooks/useTaskMutation";
+import { useHabit } from "@/hooks/useHabitMutations";
+import Counter from "@/components/counter-with-icon";
+import TaskItem from "./tasks/components/TaskItem";
+import TaskList from "./tasks/components/TaskListWithPagination";
 
 const chartConfig = {
   data: {
@@ -39,8 +43,7 @@ export default function ProjectsPage() {
   const { mutate, isPending } = useCreateProject();
   const { data: projects, isLoading, isError } = useProjects();
   const { data: tasks } = useTask();
-
-  console.log(tasks);
+  const { data: habits } = useHabit();
 
   const { mutate: mutateDelete } = useDeleteProject("");
 
@@ -82,12 +85,40 @@ export default function ProjectsPage() {
   };
 
   return (
-    <div className="p-8 ">
-      <header className="mb-10">
-        <h1 className="text-3xl font-bold">Yevox Projects</h1>
-        <p className="text-gray-500">
-          Organize your habits and tasks by project.
-        </p>
+    <div className="p-8">
+      <header className="mb-10 grid md:grid-cols-3">
+        <div className="md:col-span-2">
+          <h1 className="md:text-3xl font-bold">Yevox Projects</h1>
+          <p className="text-gray-500">
+            Organize your habits and tasks by project.
+          </p>
+        </div>
+
+        <div className="md:grid flex gap-12 mt-10 md:mt-0 md:grid-cols-3 md:justify-items-end">
+          <div>
+            <Counter
+              icon={<Goal></Goal>}
+              number={projects?.length}
+              name={"Projetos"}
+            />
+          </div>
+          <div>
+            {" "}
+            <Counter
+              icon={<Repeat></Repeat>}
+              number={habits?.length}
+              name={"Habitos"}
+            />
+          </div>
+          <div>
+            {" "}
+            <Counter
+              icon={<List></List>}
+              number={tasks?.length}
+              name={"Tarefas"}
+            />
+          </div>
+        </div>
       </header>
       <section className="bg-white p-6 rounded-xl border shadow-sm mb-10">
         <form
@@ -97,7 +128,7 @@ export default function ProjectsPage() {
           <div className="flex w-full md:gap-1 gap-2">
             <input
               {...register("title", { required: "Name is required" })}
-              placeholder="Project Name"
+              placeholder="Ex: Concurso Receita Federal..."
               className="border p-2 md:flex-1 rounded"
             />
             <input
@@ -130,7 +161,10 @@ export default function ProjectsPage() {
               tamanho={tasks?.length}
             />
           </div>
-          <div className="md:col-span-3">
+          <div>
+            <TaskList tasks={tasks} key={"taskslist"}></TaskList>
+          </div>
+          <div className="md:col-span-2">
             <section className="grid gap-4">
               {isLoading ? (
                 <p>Loading your projects...</p>

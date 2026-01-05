@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { Project, ProjectCreateInput } from "@/types/BaseInterfaces";
 import { useDeleteProject, useUpdateProject } from "@/hooks/useProjectMutations";
@@ -25,6 +25,13 @@ export default function ProjectItem({ project }: { project: Project }) {
       { onSuccess: () => setIsEditing(false) }
     );
   };
+
+  useEffect(() => {
+    console.log(project)
+  }, [])
+  
+
+  console.log(project)
 
   return (
     <div
@@ -52,6 +59,9 @@ export default function ProjectItem({ project }: { project: Project }) {
           <div className="flex-1">
             <h3 className="text-lg font-bold">{project.title}</h3>
             <p className="text-xs text-gray-500">{project.habits?.length || 0} Habits • {project.tasks?.length || 0} Tasks</p>
+          </div>
+          <div>
+            Streak: {project.streakGlobal}
           </div>
           <div className="flex gap-3">
             <button onClick={() => router.push(`/projects/${project.id}`)} className="text-blue-500 text-sm font-medium px-2">

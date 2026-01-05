@@ -46,7 +46,7 @@ export default function TaskInput({ projectId }: { projectId: string }) {
 
   return (
     <div>
-      <div className="w-full mt-4">
+      <div className="w-full">
         <Card>
           <CardHeader>
             <CardTitle>Add Tasks</CardTitle>
@@ -58,7 +58,7 @@ export default function TaskInput({ projectId }: { projectId: string }) {
                   required: "Campo não pode ser vazio!",
                 })}
                 title="Adicione uma task"
-                placeholder="Digite uma task..."
+                placeholder="Ex: Resolver 20 questões de Crase..."
               ></Input>
               <div className="my-4">
                 <Controller
@@ -71,7 +71,7 @@ export default function TaskInput({ projectId }: { projectId: string }) {
                       value={field.value || ""}
                     >
                       <SelectTrigger className="w-full h-10 px-3 py-2 text-sm bg-white border border-input rounded-md ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 flex items-center justify-between">
-                        <SelectValue placeholder="Selecione um hábito" />
+                        <SelectValue placeholder="Em qual hábito isso vai somar?" />
                       </SelectTrigger>
                       <SelectContent className=" w-lg bg-popover text-popover-foreground border border-border shadow-md">
                         <SelectGroup>

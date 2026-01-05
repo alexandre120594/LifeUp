@@ -58,7 +58,7 @@ export default function RootLayout({
         <Providers>
           <SidebarProvider>
             <AppSidebar />
-            <main className="w-full min-h-screen flex flex-col bg-background">
+            <main className="w-full min-h-screen flex flex-col bg-background md:h-screen md:overflow-y-hidden">
               <header className="flex items-center justify-between p-4 border-b bg-yevox-white">
                 <div className="flex items-center gap-2">
                   <SidebarTrigger />
@@ -70,7 +70,7 @@ export default function RootLayout({
               </header>
 
               {/* Conteúdo da Página */}
-              <div className="flex-1 p-4 md:p-8 md:max-w-dvw max-w-7xl mx-auto w-full">
+              <div className="flex-1 p-4 md:p-8 md:max-w-dvw max-w-7xl mx-auto w-full ">
                 {children}
               </div>
             </main>

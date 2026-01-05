@@ -2,10 +2,11 @@ import { TaskService } from "@/services/TasksServices";
 import { Task, TaskCreateInput } from "@/types/BaseInterfaces";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
-export function useTask() {
+export function useTask(habitId?: string) {
   return useQuery({
-    queryKey: ["task"],
-    queryFn: TaskService.getAll,
+    queryKey: ["task", { habitId }],
+    queryFn: () => TaskService.getAll(habitId),
+    enabled: !habitId,
   });
 }
 
@@ -37,9 +38,10 @@ export function useUpdateTask() {
     onSuccess: (data, variables) => {
       const id = variables.id;
 
-      queryClient.invalidateQueries({ queryKey: ["projects"] });
-      queryClient.invalidateQueries({ queryKey: ["projects", id] });
       queryClient.invalidateQueries({ queryKey: ["habits"] });
+      queryClient.invalidateQueries({ queryKey: ["task", id] });
+      queryClient.invalidateQueries({ queryKey: ["projects"] });
+      queryClient.invalidateQueries({ queryKey: ["task"] });
     },
   });
 }
@@ -50,9 +52,9 @@ export function useDeleteTask(id?: string) {
     mutationKey: ["deleteTask", id],
     mutationFn: (id: string) => TaskService.delete(id),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["projects"] });
-      queryClient.invalidateQueries({ queryKey: ["projects", id] });
+      queryClient.invalidateQueries({ queryKey: ["task", id] });
       queryClient.invalidateQueries({ queryKey: ["habits"] });
+      queryClient.invalidateQueries({ queryKey: ["projects"] });
     },
   });
 }

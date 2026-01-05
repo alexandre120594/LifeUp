@@ -2,7 +2,13 @@ import { Habit, HabitCreateInput } from "@/types/BaseInterfaces";
 import { apiClient } from "./api-client";
 
 export const HabitsServices = {
-  getAll: () => apiClient<Habit[]>("/api/habits"),
+  getAll: (projectId?: string) => {
+    const url = projectId 
+      ? `/api/habits?projectId=${projectId}` 
+      : "/api/habits";
+    
+    return apiClient<Habit[]>(url);
+  },
   getById: (id: string) => apiClient<Habit>(`/api/habits/${id}`),
   create: (data: HabitCreateInput) =>
     apiClient<Habit>("/api/habits", {

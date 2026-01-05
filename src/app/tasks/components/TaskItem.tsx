@@ -28,7 +28,20 @@ export default function TaskItem({ task }: { task: Task }) {
 
   // Handle Completion Toggle
   const onToggleComplete = (checked: boolean) => {
-    updateTask({ id: task.id, data: { id: task.id,  completed: checked } });
+    const taskFinishedAt = new Date();
+    const formattedTime = new Intl.DateTimeFormat("pt-BR", {
+      hour: "2-digit",
+      minute: "2-digit",
+    }).format(taskFinishedAt);
+    updateTask({
+      id: task.id,
+      data: {
+        id: task.id,
+        completed: checked,
+        dateFinish: taskFinishedAt,
+        time: formattedTime,
+      },
+    });
   };
 
   return (
@@ -37,26 +50,39 @@ export default function TaskItem({ task }: { task: Task }) {
         <Checkbox
           checked={task.completed}
           onCheckedChange={(checked) => onToggleComplete(!!checked)}
+          className="data-[state=checked]:bg-yevox-primary data-[state=checked]:border-green-500 border-slate-300"
         />
 
         {isEditing ? (
-          <form onSubmit={handleSubmit(onSaveTitle)} className="flex items-center gap-2 flex-1">
+          <form
+            onSubmit={handleSubmit(onSaveTitle)}
+            className="flex items-center gap-2 flex-1"
+          >
             <Input {...register("title")} className="h-8 py-0" autoFocus />
-            <Button size="icon" variant="ghost" type="submit" className="h-8 w-8 text-green-600">
+            <Button
+              size="icon"
+              variant="ghost"
+              type="submit"
+              className="h-8 w-8 text-green-600"
+            >
               <Check size={16} />
             </Button>
-            <Button 
-              size="icon" 
-              variant="ghost" 
-              type="button" 
-              onClick={() => setIsEditing(false)} 
+            <Button
+              size="icon"
+              variant="ghost"
+              type="button"
+              onClick={() => setIsEditing(false)}
               className="h-8 w-8 text-slate-400"
             >
               <X size={16} />
             </Button>
           </form>
         ) : (
-          <span className={`${task.completed ? "line-through text-slate-400" : "text-slate-700"}`}>
+          <span
+            className={`${
+              task.completed ? "line-through text-slate-400" : "text-slate-700"
+            }`}
+          >
             {task.title}
           </span>
         )}

@@ -2,7 +2,7 @@
 
 import { use } from "react"; // Hook para desempacotar a Promise dos params
 import HabitItem from "@/app/habits/components/HabitItem";
-import { useHabitDetail } from "@/hooks/useHabitMutations";
+import { useHabit, useHabitDetail } from "@/hooks/useHabitMutations";
 import { useProjectsById } from "@/hooks/useProjectMutations";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -12,6 +12,7 @@ import { useDeleteTask } from "@/hooks/useTaskMutation";
 import { Button } from "@/components/ui/button";
 import { Trash } from "lucide-react";
 import TaskItem from "@/app/tasks/components/TaskItem";
+import { HabitList } from "@/app/habits/components/HabitList";
 
 export default function ProjectPage({
   params,
@@ -24,6 +25,15 @@ export default function ProjectPage({
   const { data: project, isLoading, isError } = useProjectsById(id);
 
   const { mutate } = useDeleteTask("");
+
+  console.log(id)
+
+  const { data: habits } = useHabit(id);
+
+  const handleHabitClick = (habitId: string) => {
+    console.log("Clicked Habit ID:", habitId);
+    // You can also use router.push(`/habits/${habitId}`) here
+  };
 
   const onSubmitDelete = (id: string) => {
     mutate(id);
@@ -38,15 +48,17 @@ export default function ProjectPage({
       <div className="p-4">
         <Card>
           <CardHeader className="text-center font-bold text-[20px]">
-            Habit Tracker
+            {project.title}
           </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-2 gap-12">
-              {project?.habits?.map((habit) => (
+          <CardContent className="">
+            <div className="">
+              <HabitList habits={project?.habits}  colorHabit={project.color ?? "#ccc"} onHabitClick={(id) => handleHabitClick(id)}></HabitList>
+              {/* {project?.habits?.map((habit) => (
                 <div key={habit.id} className="space-y-2">
                   <HabitItem
                     habit={habit}
                     colorHabit={project.color ?? "#ccc"}
+                    NameProject={project.title}
                   />
                   <div className="grid grid-cols-2 gap-2 border">
                     {project.tasks
@@ -56,7 +68,7 @@ export default function ProjectPage({
                       ))}
                   </div>
                 </div>
-              ))}
+              ))} */}
             </div>
           </CardContent>
         </Card>

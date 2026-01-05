@@ -37,7 +37,7 @@ function InputHabit({ projectId }: { projectId?: string }) {
             <Input
               {...register("title", { required: "Insira algum habito" })}
               disabled={isPending}
-              placeholder="Insira um habito"
+              placeholder="Ex: Estudar Direito Tributário..."
             ></Input>
             <Button type="submit" disabled={isPending} className="mt-4">
               {isPending ? "Adicionando..." : "Adicionar Hábito"}

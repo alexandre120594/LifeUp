@@ -8,13 +8,12 @@ const ProjectID = "1"
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const projectId = searchParams.get("projectId");
-  const habits : Habit[] = await prisma.habit.findMany({
+  const habits = await prisma.habit.findMany({
     where: {
-        // Se projectId existir, filtra. Se não, traz todos.
         ...(projectId ? { projectId } : {}),
       },
     include: {
-      project: true
+      tasks: true
     }
   });
   return NextResponse.json(habits);

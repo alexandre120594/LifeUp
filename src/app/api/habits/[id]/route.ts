@@ -13,6 +13,9 @@ export async function GET(req: NextRequest, { params }: RouteParams) {
   try {
     const habit = await prisma.habit.findUnique({
       where: { id },
+      include: {
+        tasks: true
+      }
     });
 
     if (!habit) {
