@@ -2,11 +2,13 @@
 
 export interface Task {
   id: string;
-  title: string;
-  completed: boolean;
-  date: Date | string;
-  projectId: string;
+  title?: string;
+  completed?: boolean;
+  date?: Date | string;
+  projectId?: string;
   habitId?: string | null;
+  dateFinish?: Date | string;
+  time?: string;
 }
 
 export interface Habit {
@@ -23,36 +25,39 @@ export interface Habit {
 export interface Project {
   id: string;
   title: string;  
-  color: string | null;
+  color: string;
   userId: number;
+  lastActivityDate?: Date | string;
+  streakGlobal?:number
   createdAt: Date | string;
   habits?: Habit[]; 
   tasks?: Task[]; 
 }
-
 export interface ProjectRequest {
   title: string;
   color: string | null;
   userId: number;
   createdAt: Date | string;
+  lastActivityDate?: Date | string;
+  streakGlobal?:number
   habits?: Habit[]; 
   tasks?: Task[]; 
 }
 
 export interface ProjectCreateInput {
-  title: string;
-  color: string;
+  title?: string;
+  color?: string;
 }
 
 export interface HabitCreateInput {
   title: string;
-  projectId: string;
+  projectId?: string;
 }
 
 export interface TaskCreateInput {
   title: string;
   projectId: string;
-  habitId: string
+  habitId: string;
 }
 
 export type ProjectsResponse = Project[];

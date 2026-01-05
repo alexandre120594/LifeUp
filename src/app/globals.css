@@ -4,6 +4,19 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
+
+  /*
+  Tema Global
+  */
+
+  --color-yevox-primary: var(--primary-yevox);
+  --color-yevox-secondary: var(--secondary-yevox);
+  --color-yevox-white: var(--background-yevox);
+  --color-yevox-accent: var(--accent-yevox);
+  --color-yevox-border: var(--border-yevox);
+
+
+
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
@@ -47,6 +60,20 @@
 }
 
 :root {
+
+  --p-hue: 232.06;
+  --p-chroma: 0.125;
+  --s-hue: 226.81;
+  --s-chroma: 0.027;
+
+  /* Aplicação nas variáveis Yevox que o @theme consome */
+  --background-yevox: oklch(1 0 0);
+  --primary-yevox: oklch(0.70 var(--p-chroma) var(--p-hue));
+  --secondary-yevox: oklch(0.97 var(--s-chroma) var(--s-hue));
+  --accent-yevox: oklch(0.97 var(--s-chroma) var(--s-hue));
+  --border-yevox: oklch(0.922 var(--p-chroma) var(--p-hue));
+  
+
   --radius: 0.625rem;
   --background: oklch(1 0 0);
   --foreground: oklch(0.129 0.042 264.695);
@@ -113,6 +140,22 @@
   --sidebar-accent-foreground: oklch(0.984 0.003 247.858);
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.551 0.027 264.364);
+}
+
+/* Garante que o dropdown tenha fundo e sombra */
+[data-radix-popper-content-wrapper] {
+  background-color: white !important;
+  border: 1px solid oklch(0.929 0.013 255.508) !important; /* Sua cor --border */
+  border-radius: var(--radius);
+  box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  padding: 4px;
+  z-index: 9999;
+}
+
+/* Ajuste para o Dark Mode se você estiver usando */
+.dark [data-radix-popper-content-wrapper] {
+  background-color: oklch(0.208 0.042 265.755) !important; /* Sua cor --popover dark */
+  border-color: rgba(255, 255, 255, 0.1) !important;
 }
 
 @layer base {

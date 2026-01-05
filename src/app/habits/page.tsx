@@ -5,12 +5,13 @@ import HabitItem from "./components/HabitItem";
 import { useHabitStore, useTaskStore } from "@/store/useTaskStore";
 import { useState } from "react";
 import InputHabit from "./components/InputHabit";
-import { useHabit } from "@/hooks/useHabitMutations";
+import { useHabit, useHabitDetail } from "@/hooks/useHabitMutations";
+// Só é permitido tarefas recentes e diarias.
+export default function Habits({ id }: { id: string }) {
+  const { data: habit, isLoading } = useHabitDetail(id);
 
-export default function Habits() {
-  const {data: habits, isLoading} = useHabit();
-
-  console.log(habits);
+  if (isLoading) return <div>Carregando hábito...</div>;
+  if (!habit) return <div>Hábito não encontrado.</div>;
   return (
     <>
       <Card>
@@ -19,9 +20,9 @@ export default function Habits() {
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-2 gap-12">
-            {habits?.map((habit) => (
-              <HabitItem habit={habit} key={habit.id}></HabitItem>
-            ))}
+            {/* {habits?.map((habit) => ( */}
+            <HabitItem habit={habit} key={habit?.id}></HabitItem>
+            {/* ))} */}
           </div>
         </CardContent>
 
