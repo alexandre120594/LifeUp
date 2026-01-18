@@ -49,4 +49,28 @@ model Task {
   habit       Habit?   @relation(fields: [habitId], references: [id])
   dateFinish DateTime? 
   time        String?
+
+  pomodoros   PomodoroSession[]
+
+  totalFocusSeconds Int @default(0) 
+}
+
+model PomodoroSession {
+  id          String   @id @default(cuid())
+  taskId      String
+  task        Task     @relation(fields: [taskId], references: [id])
+
+  startedAt   DateTime
+  endedAt     DateTime?
+  duration    Int      // duration in seconds (e.g. 1500)
+  
+  status      PomodoroStatus @default(IN_PROGRESS)
+
+  createdAt   DateTime @default(now())
+}
+
+enum PomodoroStatus {
+  IN_PROGRESS
+  COMPLETED
+  INTERRUPTED
 }

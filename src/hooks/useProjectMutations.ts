@@ -1,5 +1,5 @@
 import { projectServices } from "@/services/ProjectsServices";
-import { ProjectCreateInput } from "@/types/BaseInterfaces";
+import { Project, ProjectCreateInput, ProjectInsert } from "@/types/BaseInterfaces";
 import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
 
 export function useProjects() {
@@ -30,7 +30,7 @@ export function useCreateProject() {
 export function useUpdateProject() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, data }: { id?: string; data?: ProjectCreateInput }) =>
+    mutationFn: ({ id, data }: { id?: string; data?: ProjectInsert }) =>
       projectServices.update(data, id),
     onSuccess: (data, variables) => {
       const id = variables.id;

@@ -33,6 +33,8 @@ export interface Project {
   habits?: Habit[]; 
   tasks?: Task[]; 
 }
+
+export type ProjectInsert = Partial<Omit<Project, 'id' | 'createdAt' | 'habits' | 'tasks'>>;
 export interface ProjectRequest {
   title: string;
   color: string | null;
@@ -47,6 +49,7 @@ export interface ProjectRequest {
 export interface ProjectCreateInput {
   title?: string;
   color?: string;
+
 }
 
 export interface HabitCreateInput {

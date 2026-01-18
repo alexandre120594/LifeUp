@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import { Project, ProjectCreateInput } from "@/types/BaseInterfaces";
+import { Project, ProjectCreateInput, ProjectInsert } from "@/types/BaseInterfaces";
 import { useDeleteProject, useUpdateProject } from "@/hooks/useProjectMutations";
 import { Edit, Trash, Check, X } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -19,19 +19,37 @@ export default function ProjectItem({ project }: { project: Project }) {
   const { mutate: updateProject, isPending: isUpdating } = useUpdateProject();
   const { mutate: deleteProject } = useDeleteProject(project.id);
 
-  const onUpdate = (data: ProjectCreateInput) => {
+  const onUpdate = (data: ProjectInsert) => {
     updateProject(
       { id: project.id, data }, 
       { onSuccess: () => setIsEditing(false) }
     );
   };
 
-  useEffect(() => {
-    console.log(project)
-  }, [])
-  
+  const resetStreak = (project: Project) => {
+  updateProject({
+    id: project.id,
+    data: {
+      streakGlobal: 0,
+      lastActivityDate: new Date() 
+    }
+  });
+};
 
-  console.log(project)
+useEffect(() => {
+  if (project.lastActivityDate && (project.streakGlobal || 0) > 0) {
+    const last = new Date(project.lastActivityDate);
+    const now = new Date();
+    last.setHours(0, 0, 0, 0);
+    now.setHours(0, 0, 0, 0);
+    
+    const diffInDays = Math.floor((now.getTime() - last.getTime()) / (1000 * 3600 * 24));
+    if (diffInDays > 1) {
+      resetStreak(project);
+    }
+  }
+}, [project.id, project.lastActivityDate]);
+  
 
   return (
     <div

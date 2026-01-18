@@ -63,10 +63,10 @@ export async function PATCH(req: NextRequest, { params }: RouteParams) {
   const { id } = await params;
 
   try {
-    const { title, color } = await req.json();
+    const { title, color, lastActivityDate, streakGlobal} = await req.json();
     const habit = await prisma.project.update({
       where: { id },
-      data: { title, color },
+      data: { title, color, lastActivityDate, streakGlobal},
     });
 
     return NextResponse.json(habit);

@@ -11,7 +11,7 @@ export const projectServices = {
     }),
   delete: (id: string) =>
     apiClient(`/api/projects/${id}`, { method: "DELETE" }),
-  update: (data?: ProjectCreateInput, id?: string) =>
+  update: (data?: Project, id?: string) =>
     apiClient<Project>(`/api/projects/${id}`, {
       method: "PATCH",
       body: JSON.stringify(data),

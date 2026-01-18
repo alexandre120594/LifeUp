@@ -48,9 +48,6 @@ export default function TaskInput({ projectId }: { projectId: string }) {
     <div>
       <div className="w-full">
         <Card>
-          <CardHeader>
-            <CardTitle>Add Tasks</CardTitle>
-          </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit(onSubmit)} className="gap-3">
               <Input
