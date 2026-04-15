@@ -1,90 +1,109 @@
 "use client";
 
-import { use } from "react"; // Hook para desempacotar a Promise dos params
-import HabitItem from "@/app/habits/components/HabitItem";
-import { useHabit, useHabitDetail } from "@/hooks/useHabitMutations";
-import { useProjectsById } from "@/hooks/useProjectMutations";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { Checkbox } from "@/components/ui/checkbox";
+import { use } from "react";
+import { Goal, ListChecks, Repeat } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import InputHabit from "@/app/habits/components/InputHabit";
 import TaskInput from "@/app/tasks/components/TaskInput";
-import { useDeleteTask } from "@/hooks/useTaskMutation";
-import { Button } from "@/components/ui/button";
-import { Trash } from "lucide-react";
-import TaskItem from "@/app/tasks/components/TaskItem";
 import { HabitList } from "@/app/habits/components/HabitList";
+import { useProjectsById } from "@/hooks/useProjectMutations";
+import {
+  ActivityTrendChart,
+  HabitPerformanceChart,
+} from "@/components/ChartsComponent/InsightsCharts";
+import {
+  buildActivityTrend,
+  buildHabitPerformance,
+  getTaskSummary,
+} from "@/lib/analytics";
 
 export default function ProjectPage({
   params,
 }: {
   params: Promise<{ id: string }>;
 }) {
-  // No cliente, usamos o hook use() para obter o ID da Promise
   const { id } = use(params);
-
   const { data: project, isLoading, isError } = useProjectsById(id);
 
-  const { mutate } = useDeleteTask("");
+  if (isLoading) {
+    return <div>Loading project...</div>;
+  }
 
-  console.log(id)
+  if (isError || !project) {
+    return <div>Project not found.</div>;
+  }
 
-  const { data: habits } = useHabit(id);
-
-  const handleHabitClick = (habitId: string) => {
-    console.log("Clicked Habit ID:", habitId);
-    // You can also use router.push(`/habits/${habitId}`) here
-  };
-
-  const onSubmitDelete = (id: string) => {
-    mutate(id);
-  };
-
-  if (isLoading) return <div>Carregando hábito...</div>;
-  if (isError || !project)
-    return <div>Erro ao carregar ou hábito não encontrado.</div>;
+  const taskSummary = getTaskSummary(project.tasks ?? []);
+  const activityTrend = buildActivityTrend(project.tasks ?? [], project.habits ?? []);
+  const habitPerformance = buildHabitPerformance(
+    project.habits ?? [],
+    project.tasks ?? []
+  );
 
   return (
-    <>
-      <div className="p-4">
-        <Card>
-          <CardHeader className="text-center font-bold text-[20px]">
-            {project.title}
-          </CardHeader>
-          <CardContent className="">
-            <div className="">
-              <HabitList habits={project?.habits}  colorHabit={project.color ?? "#ccc"} onHabitClick={(id) => handleHabitClick(id)}></HabitList>
-              {/* {project?.habits?.map((habit) => (
-                <div key={habit.id} className="space-y-2">
-                  <HabitItem
-                    habit={habit}
-                    colorHabit={project.color ?? "#ccc"}
-                    NameProject={project.title}
-                  />
-                  <div className="grid grid-cols-2 gap-2 border">
-                    {project.tasks
-                      ?.filter((t) => t.habitId === habit.id)
-                      .map((task) => (
-                        <TaskItem key={task.id} task={task} />
-                      ))}
-                  </div>
-                </div>
-              ))} */}
+    <div className="space-y-6 p-4 md:p-8">
+      <Card className="border shadow-sm">
+        <CardHeader className="gap-4">
+          <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
+            <div>
+              <CardTitle className="text-2xl">{project.title}</CardTitle>
+              <p className="text-sm text-muted-foreground">
+                Monitor habits and task execution for this project.
+              </p>
             </div>
-          </CardContent>
-        </Card>
+            <div className="flex flex-wrap gap-3 text-sm">
+              <span className="rounded-full bg-slate-100 px-3 py-1">
+                <Goal className="mr-2 inline h-4 w-4" />
+                {project.streakGlobal ?? 0} day streak
+              </span>
+              <span className="rounded-full bg-slate-100 px-3 py-1">
+                <Repeat className="mr-2 inline h-4 w-4" />
+                {project.habits?.length ?? 0} habits
+              </span>
+              <span className="rounded-full bg-slate-100 px-3 py-1">
+                <ListChecks className="mr-2 inline h-4 w-4" />
+                {taskSummary.completed}/{taskSummary.total} tasks complete
+              </span>
+            </div>
+          </div>
+        </CardHeader>
+      </Card>
 
-        <Card>
-          <CardHeader className="text-center font-bold text-[20px]">
-            Habit Insert
-          </CardHeader>
+      <section className="grid gap-4 xl:grid-cols-2">
+        <ActivityTrendChart
+          title="Project Activity"
+          description="Last 7 days of completed tasks and habit check-ins"
+          data={activityTrend}
+        />
+        <HabitPerformanceChart
+          title="Habit Performance"
+          description="Completed tasks and recent check-ins per habit"
+          data={habitPerformance}
+        />
+      </section>
 
-          <CardContent className="grid grid-cols-2 gap-4">
-            <InputHabit key={project.id} projectId={project.id}></InputHabit>
+      <Card className="border shadow-sm">
+        <CardHeader>
+          <CardTitle>Habits</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <HabitList
+            habits={project.habits}
+            colorHabit={project.color ?? "#ccc"}
+            onHabitClick={() => undefined}
+          />
+        </CardContent>
+      </Card>
 
-            <TaskInput key={"task-input"} projectId={project.id}></TaskInput>
-          </CardContent>
-        </Card>
-      </div>
-    </>
+      <Card className="border shadow-sm">
+        <CardHeader>
+          <CardTitle>Add New Items</CardTitle>
+        </CardHeader>
+        <CardContent className="grid gap-4 md:grid-cols-2">
+          <InputHabit projectId={project.id} />
+          <TaskInput projectId={project.id} />
+        </CardContent>
+      </Card>
+    </div>
   );
 }

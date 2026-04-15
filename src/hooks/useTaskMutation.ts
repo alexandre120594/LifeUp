@@ -1,12 +1,11 @@
 import { TaskService } from "@/services/TasksServices";
-import { Task, TaskCreateInput } from "@/types/BaseInterfaces";
+import { Task } from "@/types/BaseInterfaces";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
-export function useTask(habitId?: string) {
+export function useTask(filters?: { habitId?: string; projectId?: string }) {
   return useQuery({
-    queryKey: ["task", { habitId }],
-    queryFn: () => TaskService.getAll(habitId),
-    enabled: !habitId,
+    queryKey: ["task", filters],
+    queryFn: () => TaskService.getAll(filters),
   });
 }
 
@@ -22,7 +21,7 @@ export function useCreateTask() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: TaskService.create,
-    onSuccess: (data) => {
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["task"] });
       queryClient.invalidateQueries({ queryKey: ["projects"] });
       queryClient.invalidateQueries({ queryKey: ["habits"] });

@@ -1,6 +1,5 @@
 "use client";
 
-import { TrendingUp } from "lucide-react";
 import {
   Label,
   PolarGrid,
@@ -19,30 +18,20 @@ import {
 } from "@/components/ui/card";
 import { ChartContainer, type ChartConfig } from "@/components/ui/chart";
 
-export const description = "A radial chart with text";
-
-const chartData = [
-  { browser: "safari", visitors: 200, fill: "bg-yevox-primary" },
-];
-
-const chartConfig = {
-  visitors: {
-    label: "Visitors",
-  },
-  safari: {
-    label: "Safari",
-    color: "bg-yevox-primary",
-  },
-} satisfies ChartConfig;
+type RadialChartDatum = {
+  data: number;
+  fill?: string;
+  [key: string]: string | number | undefined;
+};
 
 interface RadialText {
   title: string;
   description: string;
   chartConfig: ChartConfig;
-  chartData: any[] | undefined;
+  chartData: RadialChartDatum[] | undefined;
   type: string;
   children: React.ReactNode;
-  tamanho: number | undefined
+  tamanho: number | undefined;
 }
 
 export function ChartRadialText({
@@ -52,12 +41,12 @@ export function ChartRadialText({
   children,
   description,
   type,
-  tamanho
+  tamanho,
 }: RadialText) {
   const valorAtual = chartData?.[0]?.data || 0;
-  const meta = tamanho;
+  const meta = tamanho || 0;
 
-  const anguloDinamico = (valorAtual / Number(meta)) * 360;
+  const anguloDinamico = meta > 0 ? (valorAtual / meta) * 360 : 0;
   return (
     <Card className="grid grid-cols-2  md:flex md:flex-col">
       <CardHeader className="items-center pb-0">
@@ -100,7 +89,7 @@ export function ChartRadialText({
                           y={viewBox.cy}
                           className="fill-foreground text-[18px] font-bold"
                         >
-                          {chartData?.[0]?.data?.toLocaleString()} / {meta}
+                          {valorAtual.toLocaleString()} / {meta}
                         </tspan>
                         <tspan
                           x={viewBox.cx}

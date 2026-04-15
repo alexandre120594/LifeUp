@@ -1,15 +1,14 @@
 import prisma from "@/lib/prisma";
-import { Habit, Project, ProjectRequest, Task } from "@/types/BaseInterfaces";
 import { NextRequest, NextResponse } from "next/server";
-
-const ProjectID = "1";
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const habitId = searchParams.get("habitId");
+  const projectId = searchParams.get("projectId");
   const tasks = await prisma.task.findMany({
     where: {
       ...(habitId ? { habitId } : {}),
+      ...(projectId ? { projectId } : {}),
     },
     include: {
       project: true,

@@ -12,15 +12,13 @@ import {
 import { Habit } from "@/types/BaseInterfaces";
 
 export function HabitList({ habits, colorHabit, onHabitClick }: { habits?: Habit[], colorHabit?: string, onHabitClick: (id: string) => void }) {
-  if (!habits) {
-    return;
-  }
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
+  const safeHabits = habits ?? [];
 
-  const totalPages = Math.ceil(habits.length / itemsPerPage);
+  const totalPages = Math.ceil(safeHabits.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
-  const currentHabits = habits.slice(startIndex, startIndex + itemsPerPage);
+  const currentHabits = safeHabits.slice(startIndex, startIndex + itemsPerPage);
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
@@ -38,7 +36,7 @@ export function HabitList({ habits, colorHabit, onHabitClick }: { habits?: Habit
             habit={habit}
             NameProject={""}
             colorHabit={colorHabit}
-            onClickHabit={(id) => { console.log("2. List Received", id); onHabitClick(id); }}
+            onClickHabit={(id) => onHabitClick(id)}
           />
         ))}
       </div>
