@@ -1,13 +1,14 @@
 "use client";
 
+import Link from "next/link";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
+import { Check, Edit, Eye, Trash, X } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Trash, Edit, Check, X } from "lucide-react";
-import { Task, TaskCreateInput } from "@/types/BaseInterfaces";
-import { useUpdateTask, useDeleteTask } from "@/hooks/useTaskMutation"; // Assuming these hooks exist
+import { Task } from "@/types/BaseInterfaces";
+import { useDeleteTask, useUpdateTask } from "@/hooks/useTaskMutation";
 
 export default function TaskItem({ task }: { task: Task }) {
   const [isEditing, setIsEditing] = useState(false);
@@ -18,7 +19,6 @@ export default function TaskItem({ task }: { task: Task }) {
   const { mutate: updateTask } = useUpdateTask();
   const { mutate: deleteTask } = useDeleteTask();
 
-  // Handle Title Update
   const onSaveTitle = (data: Task) => {
     updateTask(
       { id: task.id, data: { ...data } },
@@ -26,13 +26,13 @@ export default function TaskItem({ task }: { task: Task }) {
     );
   };
 
-  // Handle Completion Toggle
   const onToggleComplete = (checked: boolean) => {
     const taskFinishedAt = new Date();
     const formattedTime = new Intl.DateTimeFormat("pt-BR", {
       hour: "2-digit",
       minute: "2-digit",
     }).format(taskFinishedAt);
+
     updateTask({
       id: task.id,
       data: {
@@ -45,18 +45,18 @@ export default function TaskItem({ task }: { task: Task }) {
   };
 
   return (
-    <div className="flex items-center justify-between my-3 mx-4 p-2 hover:bg-slate-50 rounded-lg group transition-colors">
-      <div className="flex items-center gap-3 flex-1">
+    <div className="group my-3 mx-4 flex items-center justify-between rounded-lg p-2 transition-colors hover:bg-slate-50">
+      <div className="flex flex-1 items-center gap-3">
         <Checkbox
           checked={task.completed}
           onCheckedChange={(checked) => onToggleComplete(!!checked)}
-          className="data-[state=checked]:bg-yevox-primary data-[state=checked]:border-green-500 border-slate-300"
+          className="border-slate-300 data-[state=checked]:border-green-500 data-[state=checked]:bg-yevox-primary"
         />
 
         {isEditing ? (
           <form
             onSubmit={handleSubmit(onSaveTitle)}
-            className="flex items-center gap-2 flex-1"
+            className="flex flex-1 items-center gap-2"
           >
             <Input {...register("title")} className="h-8 py-0" autoFocus />
             <Button
@@ -78,18 +78,33 @@ export default function TaskItem({ task }: { task: Task }) {
             </Button>
           </form>
         ) : (
-          <span
-            className={`${
-              task.completed ? "line-through text-slate-400" : "text-slate-700"
-            }`}
-          >
-            {task.title}
-          </span>
+          <div className="flex min-w-0 flex-1 flex-col">
+            <span
+              className={
+                task.completed ? "text-slate-400 line-through" : "text-slate-700"
+              }
+            >
+              {task.title}
+            </span>
+            <span className="text-xs text-muted-foreground">
+              {task.project?.title ?? "Project task"}
+            </span>
+          </div>
         )}
       </div>
 
       {!isEditing && (
-        <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+        <div className="flex gap-1 opacity-0 transition-opacity group-hover:opacity-100">
+          <Button
+            asChild
+            variant="ghost"
+            size="icon"
+            className="h-8 w-8 text-slate-400 hover:text-primary"
+          >
+            <Link href={`/tasks/${task.id}`}>
+              <Eye size={16} />
+            </Link>
+          </Button>
           <Button
             variant="ghost"
             size="icon"

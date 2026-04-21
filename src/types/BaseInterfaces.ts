@@ -9,6 +9,8 @@ export interface Task {
   habitId?: string | null;
   dateFinish?: Date | string;
   time?: string;
+  project?: Project;
+  habit?: Habit | null;
 }
 
 export interface Habit {

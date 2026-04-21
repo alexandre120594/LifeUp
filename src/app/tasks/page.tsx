@@ -1,128 +1,104 @@
 "use client";
-import { useTaskStore } from "@/store/useTaskStore";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { useState } from "react";
-import { Edit, Send } from "lucide-react";
-import { useCreateTask, useTask } from "@/hooks/useTaskMutation";
-import { useForm } from "react-hook-form";
-import { TaskCreateInput } from "@/types/BaseInterfaces";
 
-export default function Home() {
-  const { toggleTask, addTask, editTask } = useTaskStore();
-  const [text, setText] = useState("");
-  const [isEdit, setisEdit] = useState("");
-  const [editarTask, seteditarTask] = useState("");
-  const { register, reset, handleSubmit } = useForm<TaskCreateInput>();
-  const { data: tasks, isLoading } = useTask();
-  const { mutate, isPending } = useCreateTask();
+import { ListTodo, CheckCircle2, Clock3 } from "lucide-react";
+import Counter from "@/components/counter-with-icon";
+import { PageHero } from "@/components/page-hero";
+import TaskInput from "./components/TaskInput";
+import TaskList from "./components/TaskListWithPagination";
+import { ChartRadialText } from "@/components/ChartsComponent/RadialChart";
+import {
+  ActivityTrendChart,
+  ProjectPerformanceChart,
+} from "@/components/ChartsComponent/InsightsCharts";
+import type { ChartConfig } from "@/components/ui/chart";
+import { useProjects } from "@/hooks/useProjectMutations";
+import { useTask } from "@/hooks/useTaskMutation";
+import { useHabit } from "@/hooks/useHabitMutations";
+import {
+  buildActivityTrend,
+  buildProjectPerformance,
+  getTaskSummary,
+} from "@/lib/analytics";
 
-  const onSubmit = (data: TaskCreateInput) => {
-    const dataSubmit: TaskCreateInput = {
-      title: data.title,
-      projectId: "cmjof086d0000h0uu0l59g7p5",
-      habitId: "cmjoucplc0001o4uupkn02txm",
-    };
-    mutate(dataSubmit, {
-      onSuccess: () => reset,
-    });
-  };
+const radialChartConfig = {
+  data: {
+    label: "Tasks",
+  },
+  progress: {
+    label: "Progress",
+    color: "var(--primary-yevox)",
+  },
+} satisfies ChartConfig;
+
+export default function TasksPage() {
+  const { data: tasks } = useTask();
+  const { data: projects } = useProjects();
+  const { data: habits } = useHabit();
+
+  const taskSummary = getTaskSummary(tasks ?? []);
+  const activityTrend = buildActivityTrend(tasks ?? [], habits ?? []);
+  const projectPerformance = buildProjectPerformance(projects ?? []);
 
   return (
-    <main className="flex min-h-screen flex-col items-center p-8 bg-slate-100">
-      <div className="w-full max-w-md">
-        <h1 className="text-3xl font-bold mb-8 text-center">Yevox</h1>
-        <Card>
-          <CardHeader>
-            <CardTitle>Daily Tasks</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {tasks?.map((task) => (
-              <div
-                key={task.id}
-                className="flex items-center space-x-3 p-2 border-b last:border-0"
-              >
-                <Checkbox
-                  checked={task.completed}
-                  onCheckedChange={() => toggleTask(task.id)}
-                />
+    <div className="space-y-8 p-4 md:p-8">
+      <section className="grid gap-4 xl:grid-cols-[1fr_1fr]">
+        <PageHero
+          badgeIcon={ListTodo}
+          badgeLabel="Task center"
+          title="Tasks and execution flow"
+          description="Review the task queue by project, add new work with project and habit context, and drill into specific tasks for details."
+          stats={[
+            { label: "Completed", value: taskSummary.completed },
+            { label: "Pending", value: taskSummary.pending },
+          ]}
+        />
 
-                {isEdit === task.id ? (
-                  <>
-                    <Input
-                      onChange={(e) => {
-                        seteditarTask(e.target.value);
-                      }}
-                      value={editarTask}
-                    ></Input>
-                    <Button
-                      variant={"outline"}
-                      size={"icon"}
-                      onClick={() => {
-                        editTask(task.id, editarTask);
-                        setisEdit("");
-                      }}
-                    >
-                      <Send className="text-green-600"></Send>
-                    </Button>
-                  </>
-                ) : (
-                  <span
-                    className={
-                      task.completed ? "line-through text-muted-foreground" : ""
-                    }
-                  >
-                    {task.title}
-                  </span>
-                )}
+        <TaskInput />
+      </section>
 
-                {/* {isEdit !== task.id && (
-                  <Button
-                    variant={"outline"}
-                    size={"icon"}
-                    onClick={(e) => {
-                      setisEdit(task.id)
-                      seteditarTask(task.title)
-                    }}
-                  >
-                    <Edit className="text-red-600"></Edit>
-                  </Button>
-                )} */}
-              </div>
-            ))}
-            {tasks?.length === 0 && (
-              <p className="text-sm text-center text-muted-foreground">
-                No tasks yet!
-              </p>
-            )}
-          </CardContent>
-        </Card>
-      </div>
+      <section className="grid gap-4 md:grid-cols-3">
+        <Counter icon={<ListTodo />} number={taskSummary.total} name="Tasks" />
+        <Counter
+          icon={<CheckCircle2 />}
+          number={taskSummary.completed}
+          name="Completed"
+        />
+        <Counter icon={<Clock3 />} number={taskSummary.pending} name="Pending" />
+      </section>
 
-      <div className="w-full max-w-md mt-4">
-        <Card>
-          <CardHeader>
-            <CardTitle>Add Tasks</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={handleSubmit(onSubmit)} className="flex gap-3">
-              <Input
-                {...register("title", {
-                  required: "Campo não pode ser vazio!",
-                })}
-                title="Adicione uma task"
-                placeholder="Digite uma task..."
-                value={text}
-                onChange={(e) => setText(e.target.value)}
-              ></Input>
-              <Button type="submit">Adicionar task</Button>
-            </form>
-          </CardContent>
-          <CardContent></CardContent>
-        </Card>
-      </div>
-    </main>
+      <section className="grid gap-4 xl:grid-cols-[1.45fr_1fr]">
+        <ActivityTrendChart
+          title="Execution Trend"
+          description="Completed tasks and habit check-ins over the last 7 days"
+          data={activityTrend}
+        />
+        <ChartRadialText
+          title="Task completion"
+          description="Progress across the full queue"
+          type="done"
+          chartConfig={radialChartConfig}
+          chartData={[
+            {
+              bucket: "progress",
+              data: taskSummary.completed,
+              fill: "var(--color-progress)",
+            },
+          ]}
+          tamanho={taskSummary.total}
+        >
+          <div className="text-center text-sm text-muted-foreground">
+            {taskSummary.completionRate}% completion rate
+          </div>
+        </ChartRadialText>
+      </section>
+
+      <ProjectPerformanceChart
+        title="Tasks By Project"
+        description="Completed vs pending tasks in each project"
+        data={projectPerformance}
+      />
+
+      <TaskList tasks={tasks} />
+    </div>
   );
 }

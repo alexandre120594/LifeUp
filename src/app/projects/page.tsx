@@ -4,19 +4,12 @@ import { useForm } from "react-hook-form";
 import {
   FolderKanban,
   Goal,
-  List,
+  ListChecks,
   Palette,
   Repeat,
   Sparkles,
 } from "lucide-react";
-import { useCreateProject, useProjects } from "@/hooks/useProjectMutations";
-import { useTask } from "@/hooks/useTaskMutation";
-import { useHabit } from "@/hooks/useHabitMutations";
-import { ChartRadialText } from "@/components/ChartsComponent/RadialChart";
-import {
-  ActivityTrendChart,
-  ProjectPerformanceChart,
-} from "@/components/ChartsComponent/InsightsCharts";
+import { Button } from "@/components/ui/button";
 import {
   CreationFlowCard,
   CreationStep,
@@ -24,47 +17,33 @@ import {
 } from "@/components/creation-flow-card";
 import { ListSection } from "@/components/list-section";
 import { PageHero } from "@/components/page-hero";
-import { type ChartConfig } from "@/components/ui/chart";
+import { Input } from "@/components/ui/input";
 import Counter from "@/components/counter-with-icon";
-import ProjectItem from "./projects/components/ProjectItem";
-import TaskList from "./tasks/components/TaskListWithPagination";
+import ProjectItem from "./components/ProjectItem";
+import {
+  ActivityTrendChart,
+  ProjectPerformanceChart,
+} from "@/components/ChartsComponent/InsightsCharts";
+import { useCreateProject, useProjects } from "@/hooks/useProjectMutations";
+import { useHabit } from "@/hooks/useHabitMutations";
+import { useTask } from "@/hooks/useTaskMutation";
 import { ProjectCreateInput } from "@/types/BaseInterfaces";
 import {
   buildActivityTrend,
   buildProjectPerformance,
   getTaskSummary,
 } from "@/lib/analytics";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 
-const radialChartConfig = {
-  data: {
-    label: "Tasks",
-  },
-  progress: {
-    label: "Progress",
-    color: "var(--primary-yevox)",
-  },
-} satisfies ChartConfig;
-
-export default function DashboardPage() {
+export default function ProjectsPage() {
   const { register, handleSubmit, setValue } = useForm<ProjectCreateInput>();
   const { mutate, isPending } = useCreateProject();
   const { data: projects, isLoading } = useProjects();
-  const { data: tasks } = useTask();
   const { data: habits } = useHabit();
+  const { data: tasks } = useTask();
 
   const taskSummary = getTaskSummary(tasks ?? []);
-  const activityTrend = buildActivityTrend(tasks ?? [], habits ?? []);
   const projectPerformance = buildProjectPerformance(projects ?? []);
-
-  const radialChartData = [
-    {
-      bucket: "progress",
-      data: taskSummary.completed,
-      fill: "var(--color-progress)",
-    },
-  ];
+  const activityTrend = buildActivityTrend(tasks ?? [], habits ?? []);
 
   const onSubmit = (data: ProjectCreateInput) => {
     mutate(data, {
@@ -79,31 +58,31 @@ export default function DashboardPage() {
     <div className="space-y-8 p-4 md:p-8">
       <section className="grid gap-4 xl:grid-cols-[1fr_1fr]">
         <PageHero
-          badgeIcon={Sparkles}
-          badgeLabel="Productivity overview"
-          title="LifeUp Dashboard"
-          description="Follow the current pace of your projects, compare habit consistency, and see where unfinished tasks are accumulating."
+          badgeIcon={FolderKanban}
+          badgeLabel="Project center"
+          title="Projects and delivery visibility"
+          description="Track project throughput, compare active workloads, and open a project detail page to manage its habits and tasks."
           stats={[
-            { label: "Completion Rate", value: `${taskSummary.completionRate}%` },
-            { label: "Pending Tasks", value: taskSummary.pending },
+            { label: "Active Projects", value: projects?.length ?? 0 },
+            { label: "Completed Tasks", value: taskSummary.completed },
           ]}
         />
 
         <CreationFlowCard
           badgeIcon={Sparkles}
-          badgeLabel="Quick project setup"
-          title="Start a new workspace"
-          description="Add the project here, then open it to create habits and tasks."
+          badgeLabel="Project setup"
+          title="Create a new project"
+          description="Give it a clear name and a strong color so it reads well across the app."
         >
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-3">
             <CreationStep
               eyebrow="Name"
               label="Project name"
-              helper="Keep it short and readable."
+              helper="Use a name that still works in reports and lists."
             >
               <Input
                 {...register("title", { required: "Name is required" })}
-                placeholder="Example: Growth Experiments"
+                placeholder="Example: Product Launch Sprint"
                 className="h-10 rounded-lg"
               />
             </CreationStep>
@@ -114,9 +93,9 @@ export default function DashboardPage() {
                   <Palette className="h-4 w-4" />
                 </div>
                 <div className="flex-1">
-                  <div className="text-sm font-medium">Visual marker</div>
+                  <div className="text-sm font-medium">Visual identity</div>
                   <div className="text-xs text-muted-foreground">
-                    Helps it stand out in lists.
+                    Helps distinguish the project in cards and lists.
                   </div>
                 </div>
                 <input
@@ -131,7 +110,7 @@ export default function DashboardPage() {
             <CreationSummary
               icon={FolderKanban}
               title="Ready"
-              description="Create it, then continue inside the project page."
+              description="Create it, then continue with habits and tasks."
             >
               <Button
                 type="submit"
@@ -148,42 +127,24 @@ export default function DashboardPage() {
       <section className="grid gap-4 md:grid-cols-3">
         <Counter icon={<Goal />} number={projects?.length} name="Projects" />
         <Counter icon={<Repeat />} number={habits?.length} name="Habits" />
-        <Counter icon={<List />} number={tasks?.length} name="Tasks" />
+        <Counter icon={<ListChecks />} number={tasks?.length} name="Tasks" />
       </section>
 
-      <section className="grid gap-4 xl:grid-cols-[1.5fr_1fr]">
-        <ActivityTrendChart
-          title="Last 7 Days Activity"
-          description="Tasks completed and habit check-ins by day"
-          data={activityTrend}
-        />
-
-        <ChartRadialText
-          title="Task Completion"
-          description="Current progress across all tasks"
-          type="done"
-          chartConfig={radialChartConfig}
-          chartData={radialChartData}
-          tamanho={taskSummary.total}
-        >
-          <div className="text-center text-sm text-muted-foreground">
-            {taskSummary.pending} pending tasks left
-          </div>
-        </ChartRadialText>
-      </section>
-
-      <section className="grid gap-4 xl:grid-cols-[1.15fr_0.85fr]">
+      <section className="grid gap-4 xl:grid-cols-2">
         <ProjectPerformanceChart
           title="Project Throughput"
           description="Completed vs pending tasks by project"
           data={projectPerformance}
         />
-        <TaskList tasks={tasks} />
+        <ActivityTrendChart
+          title="Recent Team Activity"
+          description="Completed tasks and habit check-ins in the last 7 days"
+          data={activityTrend}
+        />
       </section>
 
       <ListSection
-        title="Projects"
-        description="Open each project to inspect habit-level performance."
+        title="Project List"
         isLoading={isLoading}
         isEmpty={!projects?.length}
         loadingLabel="Loading projects..."

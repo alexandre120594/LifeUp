@@ -1,7 +1,7 @@
 "use client";
 
 import { use } from "react";
-import { Goal, ListChecks, Repeat } from "lucide-react";
+import { Goal, ListChecks, Repeat, Sparkles } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import InputHabit from "@/app/habits/components/InputHabit";
 import TaskInput from "@/app/tasks/components/TaskInput";
@@ -95,15 +95,59 @@ export default function ProjectPage({
         </CardContent>
       </Card>
 
-      <Card className="border shadow-sm">
-        <CardHeader>
-          <CardTitle>Add New Items</CardTitle>
-        </CardHeader>
-        <CardContent className="grid gap-4 md:grid-cols-2">
-          <InputHabit projectId={project.id} />
-          <TaskInput projectId={project.id} />
-        </CardContent>
-      </Card>
+      <section className="space-y-4">
+        <div className="rounded-3xl border border-border/70 bg-gradient-to-br from-[var(--primary-yevox)]/12 via-card to-card p-6 shadow-sm">
+          <div className="inline-flex items-center gap-2 rounded-full border border-border/60 bg-background/80 px-3 py-1 text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">
+            <Sparkles className="h-3.5 w-3.5 text-primary" />
+            Creation flow
+          </div>
+          <div className="mt-4 grid gap-4 lg:grid-cols-[0.8fr_1.2fr] lg:items-start">
+            <div className="space-y-3">
+              <h2 className="text-2xl font-semibold tracking-tight">
+                Add work without losing structure
+              </h2>
+              <p className="text-sm leading-6 text-muted-foreground">
+                Create the next habit or task directly inside this project. The
+                forms below already inherit the current project, so the only
+                remaining decisions are what to name and how to organize the
+                work.
+              </p>
+              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-1">
+                <div className="rounded-2xl border border-border/70 bg-background/80 p-4">
+                  <div className="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">
+                    Habit flow
+                  </div>
+                  <div className="mt-2 text-sm font-medium">
+                    Create routines first
+                  </div>
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    Add the repeated behavior you want this project to reinforce.
+                  </p>
+                </div>
+                <div className="rounded-2xl border border-border/70 bg-background/80 p-4">
+                  <div className="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">
+                    Task flow
+                  </div>
+                  <div className="mt-2 text-sm font-medium">
+                    Attach execution to a habit
+                  </div>
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    Add concrete tasks that contribute to the right streak and
+                    metrics.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="grid gap-4 xl:grid-cols-2">
+              <div className="[&>div]:mt-0">
+                <InputHabit projectId={project.id} />
+              </div>
+              <TaskInput projectId={project.id} />
+            </div>
+          </div>
+        </div>
+      </section>
     </div>
   );
 }

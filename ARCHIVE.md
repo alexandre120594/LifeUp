@@ -6,11 +6,13 @@ If a new agent needs to know where work stopped, start here.
 ## Current Snapshot
 
 Date of latest update:
-- 2026-04-15
+- 2026-04-21
 
 Current app position:
 - dashboard exists and is actively used as the main overview
+- section pages exist for projects, habits, and tasks
 - project detail page exists and includes analytics
+- habit and task detail pages now exist and include contextual analytics
 - local seed data exists for visual/testing flows
 - Prisma relations were hardened with cascade behavior
 - chart colors now follow the active app theme
@@ -42,6 +44,40 @@ Implemented:
 
 Main file:
 - `src/app/projects/[id]/page.tsx`
+
+### Section navigation and detail routes
+
+Implemented:
+- sidebar navigation now points to real routes for dashboard, projects, habits, and tasks
+- new projects index page with project throughput overview
+- habits index page with streak/check-in analytics and drill-down links
+- tasks index page with queue analytics and improved creation flow
+- habit detail page with linked task completion and habit activity charts
+- task detail page with parent-project activity context
+
+Main files:
+- `src/components/app-sidebar.tsx`
+- `src/app/projects/page.tsx`
+- `src/app/habits/page.tsx`
+- `src/app/tasks/page.tsx`
+- `src/app/habits/[id]/page.tsx`
+- `src/app/tasks/[id]/page.tsx`
+- `src/app/habits/components/InputHabit.tsx`
+- `src/app/tasks/components/TaskInput.tsx`
+
+### Streak persistence hardening
+
+Implemented:
+- new habits no longer start with fake streak/history values
+- project streak is recomputed from persisted completed task dates when tasks change
+- habit history and streak are recomputed from persisted completed habit-task dates when tasks change
+- one-time backfill script is available for existing databases with drifted streak values
+
+Main files:
+- `src/app/api/habits/route.ts`
+- `src/app/api/tasks/[id]/route.ts`
+- `prisma/backfill-streaks.ts`
+- `package.json`
 
 ### Theme-aware charts
 
@@ -132,11 +168,10 @@ These are known unfinished areas:
 
 - auth is not implemented
 - some server logic still assumes a development user
-- older pages are not fully aligned with the new dashboard architecture:
-  - `src/app/tasks/page.tsx`
-  - `src/app/habits/page.tsx`
+- section pages are aligned, but some lower-level item components still reflect older implementation style
 - analytics are currently derived from task timestamps and habit history arrays
 - there is no dedicated historical events model yet
+- existing environments still need `npm run db:backfill-streaks` once if they were populated before the streak fix
 - repo-wide lint baseline is still noisy outside recently touched files
 
 ## Recommended Next Steps
@@ -145,7 +180,7 @@ Recommended order:
 
 1. Add real auth/session handling and remove hardcoded user assumptions.
 2. Decide whether analytics should keep using derived data or move to a dedicated history/event model.
-3. Refactor older pages so they follow the same data and UI patterns as the dashboard.
+3. Continue cleaning lower-level components so their interactions and styling fully match the new section pages.
 4. Add request validation and cleaner error responses to route handlers.
 5. Improve repo-wide lint health incrementally while touching adjacent files.
 
@@ -171,7 +206,7 @@ Start with:
 - `src/app/globals.css`
 
 Priority UI debt:
-- unify the older `tasks` and `habits` pages with the newer dashboard styling
+- keep refining list item interactions so they feel as cohesive as the new section pages
 - reduce mixed old/new wording across pages
 - clean up inconsistent spacing and naming
 
@@ -189,7 +224,8 @@ Not claimed:
 ## Stop Point
 
 Development currently stops at:
-- dashboard and project-detail analytics working
+- dashboard, section pages, and detail analytics working
+- streak persistence logic corrected for new and updated records
 - seeded local data available
 - docs updated to reflect current structure
 

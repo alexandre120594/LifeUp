@@ -8,6 +8,9 @@ The app currently supports:
 - project creation and listing
 - habit creation and editing inside projects
 - task creation, completion, and listing
+- section navigation for dashboard, projects, habits, and tasks
+- dedicated detail pages for habits and tasks
+- persisted project and habit streaks derived from real task completion dates
 - dashboard analytics for:
   - overall task completion
   - 7-day activity trend
@@ -15,6 +18,12 @@ The app currently supports:
 - project detail analytics for:
   - project-level activity trend
   - habit performance
+- habit detail analytics for:
+  - habit-specific activity trend
+  - linked task completion
+- task detail analytics for:
+  - project context activity trend
+  - parent project completion snapshot
 
 There is also repeatable local seed data for testing charts and flows.
 
@@ -47,10 +56,16 @@ There is also repeatable local seed data for testing charts and flows.
   - main dashboard
 - `src/app/projects/[id]/page.tsx`
   - project detail page with project-specific analytics
+- `src/app/projects/page.tsx`
+  - project index page with throughput overview and navigation into project detail
 - `src/app/habits/page.tsx`
-  - older habit page, currently less integrated than the project detail flow
+  - habit index page with streak, check-in, and linked-task analytics
+- `src/app/habits/[id]/page.tsx`
+  - habit detail page with linked tasks and habit-specific charts
 - `src/app/tasks/page.tsx`
-  - older task page, still contains development assumptions and is not the primary workflow
+  - task index page with queue overview, creation form, and task list
+- `src/app/tasks/[id]/page.tsx`
+  - task detail page with parent project context
 
 ### Charts and Analytics
 
@@ -135,6 +150,12 @@ Run local seed:
 npm run db:seed
 ```
 
+Backfill persisted streaks from existing task data:
+
+```bash
+npm run db:backfill-streaks
+```
+
 Validate Prisma:
 
 ```bash
@@ -169,13 +190,17 @@ What is stable enough to continue from:
 - dashboard charts are wired through shared analytics helpers
 - chart colors now follow the active app theme
 - dashboard layout is more structured than before
+- section pages for projects, habits, and tasks now follow the newer dashboard structure
 - project detail analytics are present and usable
+- habit and task detail pages are present and usable
+- project and habit streak persistence now derives from stored completed task dates
 - seed data is available for testing visual states
 
 What is still incomplete or older:
 - authentication is not implemented; current code still relies on a dev user assumption
-- some older pages and components are still inconsistent with the newer dashboard structure
+- some lower-level list item components still carry older interaction patterns internally
 - the analytics layer is derived from task dates and habit history arrays, not from a dedicated historical events table
+- existing databases may need the streak backfill command run once if they contain older fake or drifted streak values
 - the repository still has an older global lint baseline outside the touched files
 
 ## Where To Continue
@@ -184,7 +209,7 @@ Recommended next work order:
 
 1. Replace hardcoded user assumptions with a real auth/session path.
 2. Normalize historical tracking if analytics need to become more accurate.
-3. Unify older pages (`tasks`, `habits`) with the newer dashboard/project-detail design and data patterns.
+3. Continue unifying the remaining lower-level components with the newer dashboard/project-detail design and data patterns.
 4. Add validation and cleaner error handling to API routes.
 5. Reduce the old lint baseline incrementally in files that are actively touched.
 

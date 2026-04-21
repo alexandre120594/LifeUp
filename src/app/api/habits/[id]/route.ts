@@ -1,6 +1,5 @@
 // src/app/api/habits/[id]/route.ts
 import prisma from "@/lib/prisma";
-import { Task } from "@/types/BaseInterfaces";
 import { NextRequest, NextResponse } from "next/server";
 
 interface RouteParams {
@@ -14,8 +13,9 @@ export async function GET(req: NextRequest, { params }: RouteParams) {
     const habit = await prisma.habit.findUnique({
       where: { id },
       include: {
-        tasks: true
-      }
+        tasks: true,
+        project: true,
+      },
     });
 
     if (!habit) {
@@ -23,7 +23,7 @@ export async function GET(req: NextRequest, { params }: RouteParams) {
     }
 
     return NextResponse.json(habit);
-  } catch (error) {
+  } catch {
     return NextResponse.json(
       { error: "Internal Server Error" },
       { status: 500 }
@@ -48,7 +48,7 @@ export async function DELETE(req: NextRequest, { params }: RouteParams) {
       }),
     ]);
     return NextResponse.json({ message: "Habit deleted" });
-  } catch (error) {
+  } catch {
     return NextResponse.json(
       { error: "Failed to delete habit" },
       { status: 500 }
@@ -65,6 +65,7 @@ export async function PATCH(req: NextRequest, { params }: RouteParams) {
       where: { id },
       include: {
         tasks: true,
+        project: true,
       },
       data: { title, streak, history, frequency },
     });
