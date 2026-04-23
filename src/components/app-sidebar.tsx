@@ -8,6 +8,7 @@ import {
   Home,
   ListTodo,
   Repeat,
+  WalletCards,
 } from "lucide-react";
 import { useHabit } from "@/hooks/useHabitMutations";
 import { useProjects } from "@/hooks/useProjectMutations";
@@ -50,6 +51,12 @@ const items = [
     icon: ListTodo,
     description: "Execution queue",
   },
+  {
+    title: "Finance",
+    url: "/finance",
+    icon: WalletCards,
+    description: "Cash flow and plans",
+  },
 ];
 
 export function AppSidebar() {
@@ -62,6 +69,7 @@ export function AppSidebar() {
     "/projects": projects?.length ?? 0,
     "/habits": habits?.length ?? 0,
     "/tasks": tasks?.length ?? 0,
+    "/finance": 0,
   };
 
   return (

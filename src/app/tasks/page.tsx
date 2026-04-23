@@ -1,9 +1,9 @@
 "use client";
 
-import { ListTodo, CheckCircle2, Clock3 } from "lucide-react";
-import Counter from "@/components/counter-with-icon";
-import { PageHero } from "@/components/page-hero";
-import TaskInput from "./components/TaskInput";
+import { CheckCircle2, Clock3, FolderKanban, ListTodo } from "lucide-react";
+import { EntityCreateDialog } from "@/components/entity-create-dialog";
+import { MenuPageHeader } from "@/components/menu-page-header";
+import { OverviewPanel } from "@/components/overview-panel";
 import TaskList from "./components/TaskListWithPagination";
 import { ChartRadialText } from "@/components/ChartsComponent/RadialChart";
 import {
@@ -40,31 +40,54 @@ export default function TasksPage() {
   const projectPerformance = buildProjectPerformance(projects ?? []);
 
   return (
-    <div className="space-y-8 p-4 md:p-8">
-      <section className="grid gap-4 xl:grid-cols-[1fr_1fr]">
-        <PageHero
-          badgeIcon={ListTodo}
-          badgeLabel="Task center"
-          title="Tasks and execution flow"
-          description="Review the task queue by project, add new work with project and habit context, and drill into specific tasks for details."
-          stats={[
-            { label: "Completed", value: taskSummary.completed },
-            { label: "Pending", value: taskSummary.pending },
-          ]}
-        />
+    <div className="space-y-6 p-4 md:p-8">
+      <MenuPageHeader
+        eyebrow="Task center"
+        title="Tasks"
+        action={<EntityCreateDialog defaultMode="task" />}
+      />
 
-        <TaskInput />
-      </section>
-
-      <section className="grid gap-4 md:grid-cols-3">
-        <Counter icon={<ListTodo />} number={taskSummary.total} name="Tasks" />
-        <Counter
-          icon={<CheckCircle2 />}
-          number={taskSummary.completed}
-          name="Completed"
-        />
-        <Counter icon={<Clock3 />} number={taskSummary.pending} name="Pending" />
-      </section>
+      <OverviewPanel
+        title="Execution flow without noise"
+        description="Review the task queue by project, add new work with context, and drill into specific tasks for details."
+        stats={[
+          {
+            label: "Tasks",
+            value: taskSummary.total,
+            icon: ListTodo,
+          },
+          {
+            label: "Completed",
+            value: taskSummary.completed,
+            icon: CheckCircle2,
+          },
+          {
+            label: "Pending",
+            value: taskSummary.pending,
+            icon: Clock3,
+          },
+        ]}
+        progress={{
+          label: `${taskSummary.completionRate}% complete`,
+          value: taskSummary.completionRate,
+          detail: `${taskSummary.completed} done, ${taskSummary.pending} pending`,
+          icon: CheckCircle2,
+        }}
+        focusTitle="Protect the queue"
+        focusDescription="Use the popup to create tasks with project and habit context from one place."
+        focusItems={[
+          {
+            label: "Projects",
+            value: projects?.length ?? 0,
+            icon: FolderKanban,
+          },
+          {
+            label: "Pending tasks",
+            value: taskSummary.pending,
+            icon: Clock3,
+          },
+        ]}
+      />
 
       <section className="grid gap-4 xl:grid-cols-[1.45fr_1fr]">
         <ActivityTrendChart

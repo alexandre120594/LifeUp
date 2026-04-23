@@ -1,6 +1,6 @@
 # LifeUp
 
-LifeUp is a Next.js productivity app for managing projects, habits, and tasks, with dashboard analytics layered on top of the current operational data.
+LifeUp is a Next.js productivity app for managing projects, habits, tasks, and personal finance basics, with dashboard analytics layered on top of the current operational data.
 
 ## What Exists Now
 
@@ -8,7 +8,16 @@ The app currently supports:
 - project creation and listing
 - habit creation and editing inside projects
 - task creation, completion, and listing
-- section navigation for dashboard, projects, habits, and tasks
+- popup creation for projects, habits, and tasks across the main menu pages
+- section navigation for dashboard, projects, habits, tasks, and finance
+- Personal Financial Organizer MVP for:
+  - income and expense tracking
+  - spending categories
+  - monthly budgets
+  - recurring bills
+  - savings goals
+  - simple cash-flow insights
+  - editing and deleting finance records
 - dedicated detail pages for habits and tasks
 - persisted project and habit streaks derived from real task completion dates
 - dashboard analytics for:
@@ -66,6 +75,8 @@ There is also repeatable local seed data for testing charts and flows.
   - task index page with queue overview, creation form, and task list
 - `src/app/tasks/[id]/page.tsx`
   - task detail page with parent project context
+- `src/app/finance/page.tsx`
+  - Personal Financial Organizer MVP with summary, forms, recent transactions, plans, and insights
 
 ### Charts and Analytics
 
@@ -73,19 +84,27 @@ There is also repeatable local seed data for testing charts and flows.
   - activity trend, project throughput, habit performance charts
 - `src/components/ChartsComponent/RadialChart.tsx`
   - radial progress summary
+- `src/components/entity-create-dialog.tsx`
+  - shared popup creation flow for projects, habits, and tasks
+- `src/components/overview-panel.tsx`
+  - reusable overview/focus layout used by the main menu pages
 - `src/lib/analytics.ts`
   - shared metric builders for charts
+- `src/lib/finance.ts`
+  - shared finance calculations for cash flow, budgets, savings progress, and insights
 
 ### Data Fetching
 
 - `src/hooks/useProjectMutations.ts`
 - `src/hooks/useHabitMutations.ts`
 - `src/hooks/useTaskMutation.ts`
+- `src/hooks/useFinanceMutations.ts`
   - React Query hooks for fetching and mutations
 
 - `src/services/ProjectsServices.ts`
 - `src/services/HabitsServices.ts`
 - `src/services/TasksServices.ts`
+- `src/services/FinanceServices.ts`
   - API client wrappers
 
 ### API
@@ -96,6 +115,12 @@ There is also repeatable local seed data for testing charts and flows.
 - `src/app/api/habits/[id]/route.ts`
 - `src/app/api/tasks/route.ts`
 - `src/app/api/tasks/[id]/route.ts`
+- `src/app/api/finance/route.ts`
+- `src/app/api/finance/categories/route.ts`
+- `src/app/api/finance/transactions/route.ts`
+- `src/app/api/finance/budgets/route.ts`
+- `src/app/api/finance/recurring-bills/route.ts`
+- `src/app/api/finance/savings-goals/route.ts`
 
 ### Data Layer
 
@@ -127,6 +152,21 @@ There is also repeatable local seed data for testing charts and flows.
   - belongs to project
   - optionally belongs to habit
   - stores `completed`, `date`, `dateFinish`, and `time`
+- `FinancialCategory`
+  - belongs to user
+  - organizes income and expense records
+- `FinancialTransaction`
+  - belongs to user and category
+  - stores income or expense records
+- `Budget`
+  - belongs to user and category
+  - stores monthly category limits
+- `RecurringBill`
+  - belongs to user and category
+  - tracks expected monthly bills
+- `SavingsGoal`
+  - belongs to user
+  - tracks current amount against a target
 
 Current Prisma relations use explicit cascade behavior for cleanup.
 
@@ -190,6 +230,9 @@ What is stable enough to continue from:
 - dashboard charts are wired through shared analytics helpers
 - chart colors now follow the active app theme
 - dashboard layout is more structured than before
+- dashboard and section-page creation are consolidated into a shared popup so overview pages stay lighter
+- finance MVP is available from the sidebar and persists finance records through Prisma
+- finance records can be edited or deleted from the Finance management section; default categories are protected from deletion
 - section pages for projects, habits, and tasks now follow the newer dashboard structure
 - project detail analytics are present and usable
 - habit and task detail pages are present and usable

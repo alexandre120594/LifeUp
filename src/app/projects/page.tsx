@@ -1,33 +1,24 @@
 "use client";
 
-import { useForm } from "react-hook-form";
 import {
+  CheckCircle2,
+  Clock3,
   FolderKanban,
-  Goal,
   ListChecks,
-  Palette,
   Repeat,
-  Sparkles,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import {
-  CreationFlowCard,
-  CreationStep,
-  CreationSummary,
-} from "@/components/creation-flow-card";
+import { EntityCreateDialog } from "@/components/entity-create-dialog";
 import { ListSection } from "@/components/list-section";
-import { PageHero } from "@/components/page-hero";
-import { Input } from "@/components/ui/input";
-import Counter from "@/components/counter-with-icon";
+import { MenuPageHeader } from "@/components/menu-page-header";
+import { OverviewPanel } from "@/components/overview-panel";
 import ProjectItem from "./components/ProjectItem";
 import {
   ActivityTrendChart,
   ProjectPerformanceChart,
 } from "@/components/ChartsComponent/InsightsCharts";
-import { useCreateProject, useProjects } from "@/hooks/useProjectMutations";
+import { useProjects } from "@/hooks/useProjectMutations";
 import { useHabit } from "@/hooks/useHabitMutations";
 import { useTask } from "@/hooks/useTaskMutation";
-import { ProjectCreateInput } from "@/types/BaseInterfaces";
 import {
   buildActivityTrend,
   buildProjectPerformance,
@@ -35,8 +26,6 @@ import {
 } from "@/lib/analytics";
 
 export default function ProjectsPage() {
-  const { register, handleSubmit, setValue } = useForm<ProjectCreateInput>();
-  const { mutate, isPending } = useCreateProject();
   const { data: projects, isLoading } = useProjects();
   const { data: habits } = useHabit();
   const { data: tasks } = useTask();
@@ -45,90 +34,55 @@ export default function ProjectsPage() {
   const projectPerformance = buildProjectPerformance(projects ?? []);
   const activityTrend = buildActivityTrend(tasks ?? [], habits ?? []);
 
-  const onSubmit = (data: ProjectCreateInput) => {
-    mutate(data, {
-      onSuccess: () => {
-        setValue("title", "");
-        setValue("color", "");
-      },
-    });
-  };
-
   return (
-    <div className="space-y-8 p-4 md:p-8">
-      <section className="grid gap-4 xl:grid-cols-[1fr_1fr]">
-        <PageHero
-          badgeIcon={FolderKanban}
-          badgeLabel="Project center"
-          title="Projects and delivery visibility"
-          description="Track project throughput, compare active workloads, and open a project detail page to manage its habits and tasks."
-          stats={[
-            { label: "Active Projects", value: projects?.length ?? 0 },
-            { label: "Completed Tasks", value: taskSummary.completed },
-          ]}
-        />
+    <div className="space-y-6 p-4 md:p-8">
+      <MenuPageHeader
+        eyebrow="Project center"
+        title="Projects"
+        action={<EntityCreateDialog defaultMode="project" />}
+      />
 
-        <CreationFlowCard
-          badgeIcon={Sparkles}
-          badgeLabel="Project setup"
-          title="Create a new project"
-          description="Give it a clear name and a strong color so it reads well across the app."
-        >
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-3">
-            <CreationStep
-              eyebrow="Name"
-              label="Project name"
-              helper="Use a name that still works in reports and lists."
-            >
-              <Input
-                {...register("title", { required: "Name is required" })}
-                placeholder="Example: Product Launch Sprint"
-                className="h-10 rounded-lg"
-              />
-            </CreationStep>
-
-            <CreationStep eyebrow="Color" label="Project color">
-              <div className="flex items-center gap-3 rounded-xl border border-border/60 bg-secondary/40 p-2.5">
-                <div className="rounded-lg bg-background p-2 text-primary shadow-sm">
-                  <Palette className="h-4 w-4" />
-                </div>
-                <div className="flex-1">
-                  <div className="text-sm font-medium">Visual identity</div>
-                  <div className="text-xs text-muted-foreground">
-                    Helps distinguish the project in cards and lists.
-                  </div>
-                </div>
-                <input
-                  {...register("color")}
-                  type="color"
-                  defaultValue="#3b82f6"
-                  className="h-10 w-12 cursor-pointer rounded-lg border-0 bg-transparent"
-                />
-              </div>
-            </CreationStep>
-
-            <CreationSummary
-              icon={FolderKanban}
-              title="Ready"
-              description="Create it, then continue with habits and tasks."
-            >
-              <Button
-                type="submit"
-                disabled={isPending}
-                className="h-10 w-full rounded-lg"
-              >
-                {isPending ? "Saving..." : "Create Project"}
-              </Button>
-            </CreationSummary>
-          </form>
-        </CreationFlowCard>
-      </section>
-
-      <section className="grid gap-4 md:grid-cols-3">
-        <Counter icon={<Goal />} number={projects?.length} name="Projects" />
-        <Counter icon={<Repeat />} number={habits?.length} name="Habits" />
-        <Counter icon={<ListChecks />} number={tasks?.length} name="Tasks" />
-      </section>
+      <OverviewPanel
+        title="Delivery visibility without clutter"
+        description="Track project throughput, compare active workloads, and open a project detail page when you need deeper context."
+        stats={[
+          {
+            label: "Projects",
+            value: projects?.length ?? 0,
+            icon: FolderKanban,
+          },
+          {
+            label: "Habits",
+            value: habits?.length ?? 0,
+            icon: Repeat,
+          },
+          {
+            label: "Tasks",
+            value: tasks?.length ?? 0,
+            icon: ListChecks,
+          },
+        ]}
+        progress={{
+          label: `${taskSummary.completionRate}% complete`,
+          value: taskSummary.completionRate,
+          detail: `${taskSummary.completed} completed tasks`,
+          icon: CheckCircle2,
+        }}
+        focusTitle="Balance project workload"
+        focusDescription="Use the popup to add projects, habits, or tasks while keeping this page focused on visibility."
+        focusItems={[
+          {
+            label: "Completed tasks",
+            value: taskSummary.completed,
+            icon: CheckCircle2,
+          },
+          {
+            label: "Pending tasks",
+            value: taskSummary.pending,
+            icon: Clock3,
+          },
+        ]}
+      />
 
       <section className="grid gap-4 xl:grid-cols-2">
         <ProjectPerformanceChart

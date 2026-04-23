@@ -6,11 +6,13 @@ If a new agent needs to know where work stopped, start here.
 ## Current Snapshot
 
 Date of latest update:
-- 2026-04-21
+- 2026-04-23
 
 Current app position:
 - dashboard exists and is actively used as the main overview
+- dashboard and main section pages now use a lighter reusable overview layout with popup creation
 - section pages exist for projects, habits, and tasks
+- finance section exists as a Phase 1 Personal Financial Organizer MVP
 - project detail page exists and includes analytics
 - habit and task detail pages now exist and include contextual analytics
 - local seed data exists for visual/testing flows
@@ -27,9 +29,17 @@ Implemented:
 - 7-day activity trend chart
 - project throughput chart
 - structured dashboard layout with clearer sections
+- shared popup creation flow for projects, habits, and tasks from main menu pages
+- reusable header and overview panel for Dashboard, Projects, Habits, and Tasks
 
 Main files:
 - `src/app/page.tsx`
+- `src/app/projects/page.tsx`
+- `src/app/habits/page.tsx`
+- `src/app/tasks/page.tsx`
+- `src/components/entity-create-dialog.tsx`
+- `src/components/menu-page-header.tsx`
+- `src/components/overview-panel.tsx`
 - `src/components/ChartsComponent/InsightsCharts.tsx`
 - `src/components/ChartsComponent/RadialChart.tsx`
 - `src/lib/analytics.ts`
@@ -48,7 +58,7 @@ Main file:
 ### Section navigation and detail routes
 
 Implemented:
-- sidebar navigation now points to real routes for dashboard, projects, habits, and tasks
+- sidebar navigation now points to real routes for dashboard, projects, habits, tasks, and finance
 - new projects index page with project throughput overview
 - habits index page with streak/check-in analytics and drill-down links
 - tasks index page with queue analytics and improved creation flow
@@ -62,6 +72,7 @@ Main files:
 - `src/app/tasks/page.tsx`
 - `src/app/habits/[id]/page.tsx`
 - `src/app/tasks/[id]/page.tsx`
+- `src/app/finance/page.tsx`
 - `src/app/habits/components/InputHabit.tsx`
 - `src/app/tasks/components/TaskInput.tsx`
 
@@ -107,6 +118,36 @@ Implemented:
 
 Main file:
 - `prisma/schema.prisma`
+
+### Personal Financial Organizer Phase 1
+
+Implemented:
+- finance menu entry and `/finance` page
+- persisted finance categories, transactions, budgets, recurring bills, savings goals, summaries, and notifications schema
+- default finance categories generated on first finance dashboard load
+- finance summary calculations for income, expenses, net cash flow, budgets, bills, savings progress, and basic insights
+- create flows for transactions, custom categories, monthly budgets, recurring bills, and savings goals
+- edit and delete flows for finance transactions, categories, budgets, recurring bills, and savings goals
+- default finance categories are protected from deletion
+
+Main files:
+- `prisma/schema.prisma`
+- `src/app/finance/page.tsx`
+- `src/app/api/finance/route.ts`
+- `src/app/api/finance/categories/route.ts`
+- `src/app/api/finance/transactions/route.ts`
+- `src/app/api/finance/budgets/route.ts`
+- `src/app/api/finance/recurring-bills/route.ts`
+- `src/app/api/finance/savings-goals/route.ts`
+- `src/app/api/finance/categories/[id]/route.ts`
+- `src/app/api/finance/transactions/[id]/route.ts`
+- `src/app/api/finance/budgets/[id]/route.ts`
+- `src/app/api/finance/recurring-bills/[id]/route.ts`
+- `src/app/api/finance/savings-goals/[id]/route.ts`
+- `src/app/finance/components/FinanceRecordActions.tsx`
+- `src/hooks/useFinanceMutations.ts`
+- `src/services/FinanceServices.ts`
+- `src/lib/finance.ts`
 
 ### Local test data
 
@@ -168,6 +209,7 @@ These are known unfinished areas:
 
 - auth is not implemented
 - some server logic still assumes a development user
+- finance API currently follows the same development user assumption
 - section pages are aligned, but some lower-level item components still reflect older implementation style
 - analytics are currently derived from task timestamps and habit history arrays
 - there is no dedicated historical events model yet

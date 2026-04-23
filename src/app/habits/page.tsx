@@ -1,11 +1,11 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { Repeat, Flame, ListChecks } from "lucide-react";
-import Counter from "@/components/counter-with-icon";
+import { CheckCircle2, Clock3, Flame, ListChecks, Repeat } from "lucide-react";
+import { EntityCreateDialog } from "@/components/entity-create-dialog";
 import { ListSection } from "@/components/list-section";
-import { PageHero } from "@/components/page-hero";
-import InputHabit from "./components/InputHabit";
+import { MenuPageHeader } from "@/components/menu-page-header";
+import { OverviewPanel } from "@/components/overview-panel";
 import { HabitList } from "./components/HabitList";
 import { ChartRadialText } from "@/components/ChartsComponent/RadialChart";
 import {
@@ -45,34 +45,60 @@ export default function HabitsPage() {
     (total, habit) => total + (habit.history?.length ?? 0),
     0
   );
-  const highestStreak = Math.max(0, ...(habits ?? []).map((habit) => habit.streak ?? 0));
+  const highestStreak = Math.max(
+    0,
+    ...(habits ?? []).map((habit) => habit.streak ?? 0)
+  );
 
   return (
-    <div className="space-y-8 p-4 md:p-8">
-      <section className="grid gap-4 xl:grid-cols-[1fr_1fr]">
-        <PageHero
-          badgeIcon={Repeat}
-          badgeLabel="Habit center"
-          title="Habit navigation and performance"
-          description="Review streaks, recent check-ins, and linked task output before opening a habit detail page."
-          stats={[
-            { label: "Total Check-ins", value: totalCheckIns },
-            { label: "Best Streak", value: highestStreak },
-          ]}
-        />
+    <div className="space-y-6 p-4 md:p-8">
+      <MenuPageHeader
+        eyebrow="Habit center"
+        title="Habits"
+        action={<EntityCreateDialog defaultMode="habit" />}
+      />
 
-        <InputHabit />
-      </section>
-
-      <section className="grid gap-4 md:grid-cols-3">
-        <Counter icon={<Repeat />} number={habits?.length} name="Habits" />
-        <Counter icon={<Flame />} number={highestStreak} name="Top Streak" />
-        <Counter
-          icon={<ListChecks />}
-          number={habitTaskSummary.completed}
-          name="Completed Habit Tasks"
-        />
-      </section>
+      <OverviewPanel
+        title="Routine performance at a glance"
+        description="Review streaks, recent check-ins, and linked task output before opening a habit detail page."
+        stats={[
+          {
+            label: "Habits",
+            value: habits?.length ?? 0,
+            icon: Repeat,
+          },
+          {
+            label: "Top Streak",
+            value: highestStreak,
+            icon: Flame,
+          },
+          {
+            label: "Done Tasks",
+            value: habitTaskSummary.completed,
+            icon: ListChecks,
+          },
+        ]}
+        progress={{
+          label: `${habitTaskSummary.completionRate}% habit tasks complete`,
+          value: habitTaskSummary.completionRate,
+          detail: `${habitTaskSummary.pending} habit tasks still open`,
+          icon: CheckCircle2,
+        }}
+        focusTitle="Keep routines connected"
+        focusDescription="Use the popup to add habits or supporting tasks without crowding this page."
+        focusItems={[
+          {
+            label: "Total check-ins",
+            value: totalCheckIns,
+            icon: CheckCircle2,
+          },
+          {
+            label: "Open habit tasks",
+            value: habitTaskSummary.pending,
+            icon: Clock3,
+          },
+        ]}
+      />
 
       <section className="grid gap-4 xl:grid-cols-[1.45fr_1fr]">
         <HabitPerformanceChart
