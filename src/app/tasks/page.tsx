@@ -89,7 +89,7 @@ export default function TasksPage() {
         ]}
       />
 
-      <section className="grid gap-4 xl:grid-cols-[1.45fr_1fr]">
+      <section className="grid min-w-0 gap-4 xl:grid-cols-[minmax(0,1.45fr)_minmax(0,1fr)]">
         <ActivityTrendChart
           title="Execution Trend"
           description="Completed tasks and habit check-ins over the last 7 days"

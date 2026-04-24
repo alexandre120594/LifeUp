@@ -46,11 +46,11 @@ export default function HabitItem({
 
   return (
     <Card
-      className="cursor-pointer items-center justify-between border-l-4 p-4 shadow-sm"
+      className="min-w-0 cursor-pointer items-center justify-between overflow-hidden border-l-4 p-4 shadow-sm"
       style={{ borderLeftColor: colorHabit || habit.project?.color || "#ccc" }}
       onClick={() => onClickHabit?.(habit.id)}
     >
-      <div>
+      <div className="min-w-0">
         {isEdit === habit.id ? (
           <form onSubmit={handleSubmit(onSubmitUpdate)} className="space-y-4">
             <Input
@@ -64,21 +64,21 @@ export default function HabitItem({
           </form>
         ) : (
           <>
-            <div className="font-medium">{habit.title}</div>
+            <div className="break-words font-medium">{habit.title}</div>
             <div
-              className="font-bold"
+              className="break-words font-bold"
               style={{ color: habit.project?.color ?? "#000" }}
             >
               Project: {NameProject || habit.project?.title || "Unassigned"}
             </div>
 
-            <div className="mt-3 flex items-center gap-3">
+            <div className="mt-3 flex flex-wrap items-center gap-3">
               <div className="flex items-center text-sm font-medium text-orange-600">
                 <Flame className="mr-1 h-4 w-4 fill-orange-500" />
                 {habit.streak} day streak
               </div>
 
-              <div className="flex gap-1">
+              <div className="flex flex-wrap gap-1">
                 {last7Days.map((date) => {
                   const isCompleted = habit.history.includes(date);
 

@@ -1,44 +1,90 @@
 "use client";
 
-import React from "react";
+import { useState } from "react";
 
-// Dados extraídos da sua paleta de cores (Imagem 1)
 const themes = {
-  evergreen: { p: { h: "168.48", c: "0.157" }, s: { h: "172.44", c: "0.035" } },
-  spruce:    { p: { h: "180.73", c: "0.139" }, s: { h: "181.45", c: "0.033" } },
-  seafoam:   { p: { h: "138.00", c: "0.111" }, s: { h: "138.74", c: "0.010" } },
-  turquoise: { p: { h: "184.05", c: "0.136" }, s: { h: "187.91", c: "0.031" } },
-  skyblue:   { p: { h: "232.06", c: "0.125" }, s: { h: "226.81", c: "0.027" } }
+  grove: {
+    label: "Grove",
+    p: { h: "156", c: "0.118" },
+    s: { h: "104", c: "0.038" },
+    a: { h: "34", c: "0.132" },
+  },
+  harbor: {
+    label: "Harbor",
+    p: { h: "224", c: "0.112" },
+    s: { h: "188", c: "0.044" },
+    a: { h: "42", c: "0.135" },
+  },
+  ember: {
+    label: "Ember",
+    p: { h: "24", c: "0.118" },
+    s: { h: "82", c: "0.035" },
+    a: { h: "188", c: "0.092" },
+  },
+  berry: {
+    label: "Berry",
+    p: { h: "350", c: "0.108" },
+    s: { h: "42", c: "0.04" },
+    a: { h: "170", c: "0.088" },
+  },
+  graphite: {
+    label: "Graphite",
+    p: { h: "250", c: "0.038" },
+    s: { h: "182", c: "0.03" },
+    a: { h: "32", c: "0.12" },
+  },
 };
 
+type ThemeName = keyof typeof themes;
+
 export function ThemeSwitcher() {
-  const changeTheme = (name: keyof typeof themes) => {
+  const [activeTheme, setActiveTheme] = useState<ThemeName>(() => {
+    if (typeof window === "undefined") {
+      return "grove";
+    }
+
+    const saved = localStorage.getItem("app-theme-choice");
+    return saved && saved in themes ? (saved as ThemeName) : "grove";
+  });
+
+  const changeTheme = (name: ThemeName) => {
     const theme = themes[name];
     const root = document.documentElement;
 
-    // Atualiza o DOM imediatamente
     root.style.setProperty("--p-hue", theme.p.h);
     root.style.setProperty("--p-chroma", theme.p.c);
     root.style.setProperty("--s-hue", theme.s.h);
     root.style.setProperty("--s-chroma", theme.s.c);
+    root.style.setProperty("--a-hue", theme.a.h);
+    root.style.setProperty("--a-chroma", theme.a.c);
 
-    // Salva a escolha
     localStorage.setItem("app-theme-choice", name);
+    setActiveTheme(name);
   };
 
   return (
-    <div className="flex gap-2 p-2 bg-white border rounded-full w-fit shadow-sm mx-auto">
+    <div className="flex w-fit gap-1 rounded-lg border bg-card/90 p-1 shadow-sm backdrop-blur">
       {Object.entries(themes).map(([key, value]) => (
         <button
           key={key}
-          onClick={() => changeTheme(key as keyof typeof themes)}
-          className="flex items-center gap-2 px-3 py-1.5 rounded-full border border-gray-100 hover:bg-gray-50 transition-colors text-sm font-medium"
+          onClick={() => changeTheme(key as ThemeName)}
+          className={`group flex h-9 w-9 items-center justify-center rounded-md border transition-colors hover:border-border hover:bg-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:w-auto sm:px-2.5 ${
+            activeTheme === key
+              ? "border-primary bg-secondary text-foreground"
+              : "border-transparent"
+          }`}
+          title={value.label}
+          aria-label={`Use ${value.label} theme`}
         >
-          <span 
-            className="w-3 h-3 rounded-full" 
-            style={{ backgroundColor: `oklch(0.6 ${value.p.c} ${value.p.h})` }}
+          <span
+            className="h-4 w-4 rounded-full ring-2 ring-background"
+            style={{
+              backgroundColor: `oklch(0.52 ${value.p.c} ${value.p.h})`,
+            }}
           />
-          <span className="capitalize">{key}</span>
+          <span className="ml-2 hidden text-xs font-medium text-muted-foreground group-hover:text-foreground lg:inline">
+            {value.label}
+          </span>
         </button>
       ))}
     </div>

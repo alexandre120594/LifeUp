@@ -18,18 +18,18 @@ export function ListSection({
   children: React.ReactNode;
 }) {
   return (
-    <Card className="border shadow-sm">
+    <Card className="min-w-0 overflow-hidden border shadow-sm">
       <CardHeader>
-        <CardTitle>{title}</CardTitle>
+        <CardTitle className="break-words">{title}</CardTitle>
         {description ? (
           <p className="text-sm text-muted-foreground">{description}</p>
         ) : null}
       </CardHeader>
-      <CardContent className="grid gap-4">
+      <CardContent className="grid min-w-0 gap-4">
         {isLoading ? (
           <p>{loadingLabel ?? "Loading..."}</p>
         ) : isEmpty ? (
-          <div className="rounded-2xl border-2 border-dashed p-10 text-center text-muted-foreground">
+          <div className="rounded-lg border-2 border-dashed p-6 text-center text-muted-foreground sm:p-10">
             {emptyLabel}
           </div>
         ) : (

@@ -45,8 +45,8 @@ export default function TaskItem({ task }: { task: Task }) {
   };
 
   return (
-    <div className="group my-3 mx-4 flex items-center justify-between rounded-lg p-2 transition-colors hover:bg-slate-50">
-      <div className="flex flex-1 items-center gap-3">
+    <div className="group mx-2 my-3 flex min-w-0 flex-col gap-3 rounded-lg p-2 transition-colors hover:bg-slate-50 sm:mx-4 sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex min-w-0 flex-1 items-center gap-3">
         <Checkbox
           checked={task.completed}
           onCheckedChange={(checked) => onToggleComplete(!!checked)}
@@ -56,9 +56,13 @@ export default function TaskItem({ task }: { task: Task }) {
         {isEditing ? (
           <form
             onSubmit={handleSubmit(onSaveTitle)}
-            className="flex flex-1 items-center gap-2"
+            className="flex min-w-0 flex-1 flex-wrap items-center gap-2"
           >
-            <Input {...register("title")} className="h-8 py-0" autoFocus />
+            <Input
+              {...register("title")}
+              className="h-8 min-w-40 flex-1 py-0"
+              autoFocus
+            />
             <Button
               size="icon"
               variant="ghost"
@@ -81,7 +85,9 @@ export default function TaskItem({ task }: { task: Task }) {
           <div className="flex min-w-0 flex-1 flex-col">
             <span
               className={
-                task.completed ? "text-slate-400 line-through" : "text-slate-700"
+                task.completed
+                  ? "break-words text-slate-400 line-through"
+                  : "break-words text-slate-700"
               }
             >
               {task.title}
@@ -94,7 +100,7 @@ export default function TaskItem({ task }: { task: Task }) {
       </div>
 
       {!isEditing && (
-        <div className="flex gap-1 opacity-0 transition-opacity group-hover:opacity-100">
+        <div className="flex justify-end gap-1 opacity-100 transition-opacity sm:opacity-0 sm:group-hover:opacity-100">
           <Button
             asChild
             variant="ghost"

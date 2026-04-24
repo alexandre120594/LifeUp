@@ -74,7 +74,7 @@ function ActionShell({
   title: string;
 }) {
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex flex-wrap items-center justify-end gap-2">
       <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogTrigger asChild>
           <Button size="sm" variant="outline">
@@ -82,7 +82,7 @@ function ActionShell({
             Edit
           </Button>
         </DialogTrigger>
-        <DialogContent className="rounded-3xl sm:max-w-xl">
+        <DialogContent className="max-h-[90vh] overflow-y-auto rounded-lg sm:max-w-xl">
           <DialogHeader>
             <DialogTitle>{title}</DialogTitle>
             <DialogDescription>

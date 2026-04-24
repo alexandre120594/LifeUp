@@ -20,6 +20,10 @@ export function getCurrentMonthKey(date = new Date()) {
   return date.toISOString().slice(0, 7);
 }
 
+export function getCurrentYearKey(date = new Date()) {
+  return date.toISOString().slice(0, 4);
+}
+
 export function formatCurrency(value: number) {
   return new Intl.NumberFormat("en-US", {
     currency: "USD",
@@ -32,6 +36,30 @@ function isTransactionInMonth(
   month: string
 ) {
   return new Date(transaction.date).toISOString().slice(0, 7) === month;
+}
+
+export type FinancePeriodMode = "month" | "year";
+
+export function isTransactionInFinancePeriod(
+  transaction: FinancialTransaction,
+  periodMode: FinancePeriodMode,
+  periodKey: string
+) {
+  const transactionDate = new Date(transaction.date).toISOString();
+
+  return periodMode === "month"
+    ? transactionDate.slice(0, 7) === periodKey
+    : transactionDate.slice(0, 4) === periodKey;
+}
+
+function isBudgetInFinancePeriod(
+  budget: Budget,
+  periodMode: FinancePeriodMode,
+  periodKey: string
+) {
+  return periodMode === "month"
+    ? budget.month === periodKey
+    : budget.month.slice(0, 4) === periodKey;
 }
 
 export function buildFinanceSummary({
@@ -90,6 +118,85 @@ export function buildFinanceSummary({
 
   return {
     month,
+    totalIncome,
+    totalExpenses,
+    netCashFlow,
+    upcomingBillsTotal,
+    savingsProgress,
+    budgetUsedPercent,
+    insights: buildFinanceInsights({
+      budgetUsedPercent,
+      netCashFlow,
+      savingsGoals,
+      totalExpenses,
+      totalIncome,
+      upcomingBillsTotal,
+    }),
+  };
+}
+
+export function buildFinancePeriodSummary({
+  transactions,
+  budgets,
+  recurringBills,
+  savingsGoals,
+  periodMode,
+  periodKey,
+}: {
+  transactions: FinancialTransaction[];
+  budgets: Budget[];
+  recurringBills: RecurringBill[];
+  savingsGoals: SavingsGoal[];
+  periodMode: FinancePeriodMode;
+  periodKey: string;
+}): FinanceSummary {
+  const periodTransactions = transactions.filter((transaction) =>
+    isTransactionInFinancePeriod(transaction, periodMode, periodKey)
+  );
+  const totalIncome = periodTransactions.reduce((total, transaction) => {
+    return (
+      total +
+      (transaction.type === "income" ? moneyToNumber(transaction.amount) : 0)
+    );
+  }, 0);
+  const totalExpenses = periodTransactions.reduce((total, transaction) => {
+    return (
+      total +
+      (transaction.type === "expense" ? moneyToNumber(transaction.amount) : 0)
+    );
+  }, 0);
+  const netCashFlow = totalIncome - totalExpenses;
+  const activeBills = recurringBills.filter((bill) => bill.isActive);
+  const monthlyBillsTotal = activeBills.reduce(
+    (total, bill) => total + moneyToNumber(bill.amount),
+    0
+  );
+  const upcomingBillsTotal =
+    periodMode === "year" ? monthlyBillsTotal * 12 : monthlyBillsTotal;
+  const periodBudgets = budgets.filter((budget) =>
+    isBudgetInFinancePeriod(budget, periodMode, periodKey)
+  );
+  const budgetLimit = periodBudgets.reduce(
+    (total, budget) => total + moneyToNumber(budget.amount),
+    0
+  );
+  const budgetUsedPercent =
+    budgetLimit > 0 ? Math.round((totalExpenses / budgetLimit) * 100) : 0;
+  const totalSavingsTarget = savingsGoals.reduce(
+    (total, goal) => total + moneyToNumber(goal.targetAmount),
+    0
+  );
+  const totalSavingsCurrent = savingsGoals.reduce(
+    (total, goal) => total + moneyToNumber(goal.currentAmount),
+    0
+  );
+  const savingsProgress =
+    totalSavingsTarget > 0
+      ? Math.round((totalSavingsCurrent / totalSavingsTarget) * 100)
+      : 0;
+
+  return {
+    month: periodKey,
     totalIncome,
     totalExpenses,
     netCashFlow,

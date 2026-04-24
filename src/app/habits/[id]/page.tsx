@@ -64,26 +64,28 @@ export default function HabitDetailPage({
         ) : null}
       </div>
 
-      <Card className="border shadow-sm">
+      <Card className="min-w-0 overflow-hidden border shadow-sm">
         <CardHeader className="gap-4">
           <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
-            <div>
-              <CardTitle className="text-2xl">{habit.title}</CardTitle>
+            <div className="min-w-0">
+              <CardTitle className="break-words text-xl sm:text-2xl">
+                {habit.title}
+              </CardTitle>
               <p className="text-sm text-muted-foreground">
                 Detail view for this habit, its linked tasks, and recent
                 completion behavior.
               </p>
             </div>
-            <div className="flex flex-wrap gap-3 text-sm">
-              <span className="rounded-full bg-slate-100 px-3 py-1">
+            <div className="flex flex-wrap gap-2 text-sm">
+              <span className="rounded-full bg-secondary px-3 py-1">
                 <Flame className="mr-2 inline h-4 w-4" />
                 {habit.streak} day streak
               </span>
-              <span className="rounded-full bg-slate-100 px-3 py-1">
+              <span className="rounded-full bg-secondary px-3 py-1">
                 <ListChecks className="mr-2 inline h-4 w-4" />
                 {taskSummary.completed}/{taskSummary.total} linked tasks done
               </span>
-              <span className="rounded-full bg-slate-100 px-3 py-1">
+              <span className="max-w-full truncate rounded-full bg-secondary px-3 py-1">
                 <FolderKanban className="mr-2 inline h-4 w-4" />
                 {habit.project?.title ?? "Project"}
               </span>
@@ -92,7 +94,7 @@ export default function HabitDetailPage({
         </CardHeader>
       </Card>
 
-      <section className="grid gap-4 xl:grid-cols-[1.45fr_1fr]">
+      <section className="grid min-w-0 gap-4 xl:grid-cols-[minmax(0,1.45fr)_minmax(0,1fr)]">
         <ActivityTrendChart
           title="Habit Activity"
           description="Completed tasks and habit check-ins for the last 7 days"

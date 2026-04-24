@@ -42,25 +42,27 @@ export default function ProjectPage({
 
   return (
     <div className="space-y-6 p-4 md:p-8">
-      <Card className="border shadow-sm">
+      <Card className="min-w-0 overflow-hidden border shadow-sm">
         <CardHeader className="gap-4">
           <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
-            <div>
-              <CardTitle className="text-2xl">{project.title}</CardTitle>
+            <div className="min-w-0">
+              <CardTitle className="break-words text-xl sm:text-2xl">
+                {project.title}
+              </CardTitle>
               <p className="text-sm text-muted-foreground">
                 Monitor habits and task execution for this project.
               </p>
             </div>
-            <div className="flex flex-wrap gap-3 text-sm">
-              <span className="rounded-full bg-slate-100 px-3 py-1">
+            <div className="flex flex-wrap gap-2 text-sm">
+              <span className="rounded-full bg-secondary px-3 py-1">
                 <Goal className="mr-2 inline h-4 w-4" />
                 {project.streakGlobal ?? 0} day streak
               </span>
-              <span className="rounded-full bg-slate-100 px-3 py-1">
+              <span className="rounded-full bg-secondary px-3 py-1">
                 <Repeat className="mr-2 inline h-4 w-4" />
                 {project.habits?.length ?? 0} habits
               </span>
-              <span className="rounded-full bg-slate-100 px-3 py-1">
+              <span className="rounded-full bg-secondary px-3 py-1">
                 <ListChecks className="mr-2 inline h-4 w-4" />
                 {taskSummary.completed}/{taskSummary.total} tasks complete
               </span>
@@ -69,7 +71,7 @@ export default function ProjectPage({
         </CardHeader>
       </Card>
 
-      <section className="grid gap-4 xl:grid-cols-2">
+      <section className="grid min-w-0 gap-4 xl:grid-cols-2">
         <ActivityTrendChart
           title="Project Activity"
           description="Last 7 days of completed tasks and habit check-ins"
@@ -82,11 +84,11 @@ export default function ProjectPage({
         />
       </section>
 
-      <Card className="border shadow-sm">
+      <Card className="min-w-0 overflow-hidden border shadow-sm">
         <CardHeader>
           <CardTitle>Habits</CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="min-w-0">
           <HabitList
             habits={project.habits}
             colorHabit={project.color ?? "#ccc"}
@@ -96,14 +98,14 @@ export default function ProjectPage({
       </Card>
 
       <section className="space-y-4">
-        <div className="rounded-3xl border border-border/70 bg-gradient-to-br from-[var(--primary-yevox)]/12 via-card to-card p-6 shadow-sm">
-          <div className="inline-flex items-center gap-2 rounded-full border border-border/60 bg-background/80 px-3 py-1 text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">
+        <div className="min-w-0 rounded-lg border border-border/70 bg-gradient-to-br from-[var(--primary-yevox)]/12 via-card to-card p-4 shadow-sm sm:p-6">
+          <div className="inline-flex items-center gap-2 rounded-full border border-border/60 bg-background/80 px-3 py-1 text-xs font-medium uppercase tracking-[0.14em] text-muted-foreground sm:tracking-[0.18em]">
             <Sparkles className="h-3.5 w-3.5 text-primary" />
             Creation flow
           </div>
-          <div className="mt-4 grid gap-4 lg:grid-cols-[0.8fr_1.2fr] lg:items-start">
-            <div className="space-y-3">
-              <h2 className="text-2xl font-semibold tracking-tight">
+          <div className="mt-4 grid min-w-0 gap-4 lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)] lg:items-start">
+            <div className="min-w-0 space-y-3">
+              <h2 className="text-xl font-semibold tracking-tight sm:text-2xl">
                 Add work without losing structure
               </h2>
               <p className="text-sm leading-6 text-muted-foreground">
@@ -112,9 +114,9 @@ export default function ProjectPage({
                 remaining decisions are what to name and how to organize the
                 work.
               </p>
-              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-1">
-                <div className="rounded-2xl border border-border/70 bg-background/80 p-4">
-                  <div className="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">
+              <div className="grid min-w-0 gap-3 sm:grid-cols-2 lg:grid-cols-1">
+                <div className="rounded-lg border border-border/70 bg-background/80 p-4">
+                  <div className="text-xs font-medium uppercase tracking-[0.14em] text-muted-foreground">
                     Habit flow
                   </div>
                   <div className="mt-2 text-sm font-medium">
@@ -124,8 +126,8 @@ export default function ProjectPage({
                     Add the repeated behavior you want this project to reinforce.
                   </p>
                 </div>
-                <div className="rounded-2xl border border-border/70 bg-background/80 p-4">
-                  <div className="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">
+                <div className="rounded-lg border border-border/70 bg-background/80 p-4">
+                  <div className="text-xs font-medium uppercase tracking-[0.14em] text-muted-foreground">
                     Task flow
                   </div>
                   <div className="mt-2 text-sm font-medium">
@@ -139,7 +141,7 @@ export default function ProjectPage({
               </div>
             </div>
 
-            <div className="grid gap-4 xl:grid-cols-2">
+            <div className="grid min-w-0 gap-4 xl:grid-cols-2">
               <div className="[&>div]:mt-0">
                 <InputHabit projectId={project.id} />
               </div>

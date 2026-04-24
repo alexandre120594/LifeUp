@@ -107,7 +107,7 @@ export default function DashboardPage() {
         ]}
       />
 
-      <section className="grid gap-4 xl:grid-cols-[minmax(0,1.45fr)_minmax(320px,0.55fr)]">
+      <section className="grid min-w-0 gap-4 xl:grid-cols-[minmax(0,1.45fr)_minmax(0,0.55fr)]">
         <ActivityTrendChart
           title="Last 7 Days Activity"
           description="Tasks completed and habit check-ins by day"
@@ -128,7 +128,7 @@ export default function DashboardPage() {
         </ChartRadialText>
       </section>
 
-      <section className="grid gap-4 xl:grid-cols-[minmax(0,1.1fr)_minmax(320px,0.9fr)]">
+      <section className="grid min-w-0 gap-4 xl:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]">
         <ProjectPerformanceChart
           title="Project Throughput"
           description="Completed vs pending tasks by project"

@@ -6,13 +6,16 @@ If a new agent needs to know where work stopped, start here.
 ## Current Snapshot
 
 Date of latest update:
-- 2026-04-23
+- 2026-04-24
 
 Current app position:
 - dashboard exists and is actively used as the main overview
 - dashboard and main section pages now use a lighter reusable overview layout with popup creation
+- shared app shell, charts, lists, cards, and main page layouts now respond better across phone, tablet, and desktop widths
+- theme system now has cleaner Grove, Harbor, Ember, Berry, and Graphite palettes with improved contrast
 - section pages exist for projects, habits, and tasks
 - finance section exists as a Phase 1 Personal Financial Organizer MVP
+- finance now surfaces a total tracked money view, monthly/yearly tracking, bill visualization, savings visualization, and single-popup creation flow
 - project detail page exists and includes analytics
 - habit and task detail pages now exist and include contextual analytics
 - local seed data exists for visual/testing flows
@@ -31,6 +34,7 @@ Implemented:
 - structured dashboard layout with clearer sections
 - shared popup creation flow for projects, habits, and tasks from main menu pages
 - reusable header and overview panel for Dashboard, Projects, Habits, and Tasks
+- responsive shell/content behavior, safer chart sizing, wrapping list controls, and mobile-friendly action rows
 
 Main files:
 - `src/app/page.tsx`
@@ -95,6 +99,8 @@ Main files:
 Implemented:
 - chart tokens now derive from theme hue/chroma variables
 - graphs update visually when theme changes
+- app theme tokens now include primary, secondary, and accent hues for clearer sidebar, card, button, and chart contrast
+- theme switcher is now a compact swatch control for the responsive header
 
 Main file:
 - `src/app/globals.css`
@@ -127,6 +133,9 @@ Implemented:
 - default finance categories generated on first finance dashboard load
 - finance summary calculations for income, expenses, net cash flow, budgets, bills, savings progress, and basic insights
 - create flows for transactions, custom categories, monthly budgets, recurring bills, and savings goals
+- single Add record popup that switches between transaction, bill, savings, budget, and category creation
+- visual bill, savings, and total money sections on the finance page
+- monthly/yearly period selector for finance totals, insights, and recent transaction history
 - edit and delete flows for finance transactions, categories, budgets, recurring bills, and savings goals
 - default finance categories are protected from deletion
 

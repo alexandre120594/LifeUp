@@ -164,12 +164,12 @@ export function EntityCreateDialog({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button className="h-11 rounded-full px-5">
+        <Button className="h-11 w-full rounded-lg px-4 sm:w-auto">
           <Plus className="h-4 w-4" />
           {triggerLabel}
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-h-[90vh] overflow-y-auto rounded-3xl p-5 sm:max-w-2xl md:p-6">
+      <DialogContent className="max-h-[90vh] overflow-y-auto rounded-lg p-4 sm:max-w-2xl sm:p-5 md:p-6">
         <DialogHeader className="pr-8">
           <DialogTitle className="text-2xl tracking-tight">
             Add to LifeUp
@@ -179,7 +179,7 @@ export function EntityCreateDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <div className="grid grid-cols-3 gap-2 rounded-2xl border border-border/70 bg-secondary/35 p-1.5">
+        <div className="grid gap-2 rounded-lg border border-border/70 bg-secondary/35 p-1.5 sm:grid-cols-3">
           {createModes.map((item) => {
             const Icon = item.icon;
             const isActive = mode === item.value;
@@ -190,7 +190,7 @@ export function EntityCreateDialog({
                 type="button"
                 onClick={() => setMode(item.value)}
                 className={cn(
-                  "flex items-center justify-center gap-2 rounded-xl px-3 py-2 text-sm font-medium transition",
+                  "flex items-center justify-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition",
                   isActive
                     ? "bg-background text-foreground shadow-sm"
                     : "text-muted-foreground hover:bg-background/70 hover:text-foreground"
@@ -206,7 +206,7 @@ export function EntityCreateDialog({
         {mode === "project" ? (
           <form
             onSubmit={projectForm.handleSubmit(onProjectSubmit)}
-            className="space-y-4 rounded-3xl border border-border/70 bg-card p-4"
+            className="space-y-4 rounded-lg border border-border/70 bg-card p-4"
           >
             <div>
               <label className="text-sm font-medium">Project name</label>
@@ -219,11 +219,11 @@ export function EntityCreateDialog({
               />
             </div>
 
-            <div className="flex items-center gap-3 rounded-2xl border border-border/70 bg-secondary/35 p-3">
-              <div className="rounded-xl bg-background p-2 text-primary shadow-sm">
+            <div className="flex flex-wrap items-center gap-3 rounded-lg border border-border/70 bg-secondary/35 p-3">
+              <div className="rounded-lg bg-background p-2 text-primary shadow-sm">
                 <Palette className="h-4 w-4" />
               </div>
-              <div className="flex-1">
+              <div className="min-w-40 flex-1">
                 <div className="text-sm font-medium">Project color</div>
                 <div className="text-xs text-muted-foreground">
                   Used as a quick visual marker.
@@ -239,7 +239,7 @@ export function EntityCreateDialog({
             <Button
               type="submit"
               disabled={isCreatingProject}
-              className="h-11 w-full rounded-xl"
+              className="h-11 w-full rounded-lg"
             >
               {isCreatingProject ? "Creating..." : "Create project"}
             </Button>
@@ -249,7 +249,7 @@ export function EntityCreateDialog({
         {mode === "habit" ? (
           <form
             onSubmit={habitForm.handleSubmit(onHabitSubmit)}
-            className="space-y-4 rounded-3xl border border-border/70 bg-card p-4"
+            className="space-y-4 rounded-lg border border-border/70 bg-card p-4"
           >
             <div>
               <label className="text-sm font-medium">Project</label>
@@ -262,7 +262,7 @@ export function EntityCreateDialog({
                     value={field.value || ""}
                     onValueChange={field.onChange}
                   >
-                    <SelectTrigger className="mt-2 h-11 w-full rounded-xl">
+                    <SelectTrigger className="mt-2 h-11 w-full rounded-lg">
                       <SelectValue placeholder="Choose where this habit belongs" />
                     </SelectTrigger>
                     <SelectContent>
@@ -286,12 +286,12 @@ export function EntityCreateDialog({
                 {...habitForm.register("title", {
                   required: "Habit name is required",
                 })}
-                className="mt-2 h-11 rounded-xl"
+                className="mt-2 h-11 rounded-lg"
                 placeholder="Example: Read 10 pages"
               />
             </div>
 
-            <div className="rounded-2xl bg-secondary/35 p-3 text-sm text-muted-foreground">
+            <div className="rounded-lg bg-secondary/35 p-3 text-sm text-muted-foreground">
               <CheckCircle2 className="mr-2 inline h-4 w-4 text-primary" />
               {selectedHabitProject?.title
                 ? `This habit will live in ${selectedHabitProject.title}.`
@@ -301,7 +301,7 @@ export function EntityCreateDialog({
             <Button
               type="submit"
               disabled={isCreatingHabit || !selectedHabitProjectId}
-              className="h-11 w-full rounded-xl"
+              className="h-11 w-full rounded-lg"
             >
               {isCreatingHabit ? "Creating..." : "Create habit"}
             </Button>
@@ -311,7 +311,7 @@ export function EntityCreateDialog({
         {mode === "task" ? (
           <form
             onSubmit={taskForm.handleSubmit(onTaskSubmit)}
-            className="space-y-4 rounded-3xl border border-border/70 bg-card p-4"
+            className="space-y-4 rounded-lg border border-border/70 bg-card p-4"
           >
             <div>
               <label className="text-sm font-medium">Project</label>
@@ -327,7 +327,7 @@ export function EntityCreateDialog({
                       taskForm.setValue("habitId", "");
                     }}
                   >
-                    <SelectTrigger className="mt-2 h-11 w-full rounded-xl">
+                    <SelectTrigger className="mt-2 h-11 w-full rounded-lg">
                       <SelectValue placeholder="Choose the project that owns this task" />
                     </SelectTrigger>
                     <SelectContent>
@@ -351,7 +351,7 @@ export function EntityCreateDialog({
                 {...taskForm.register("title", {
                   required: "Task name is required",
                 })}
-                className="mt-2 h-11 rounded-xl"
+                className="mt-2 h-11 rounded-lg"
                 placeholder="Example: Finish onboarding checklist"
               />
             </div>
@@ -368,7 +368,7 @@ export function EntityCreateDialog({
                     onValueChange={field.onChange}
                     disabled={!selectedTaskProjectId || availableHabits.length === 0}
                   >
-                    <SelectTrigger className="mt-2 h-11 w-full rounded-xl">
+                    <SelectTrigger className="mt-2 h-11 w-full rounded-lg">
                       <SelectValue placeholder="Choose the habit this task supports" />
                     </SelectTrigger>
                     <SelectContent>
@@ -386,7 +386,7 @@ export function EntityCreateDialog({
               />
             </div>
 
-            <div className="rounded-2xl bg-secondary/35 p-3 text-sm text-muted-foreground">
+            <div className="rounded-lg bg-secondary/35 p-3 text-sm text-muted-foreground">
               <CheckCircle2 className="mr-2 inline h-4 w-4 text-primary" />
               {selectedTaskHabit?.title
                 ? `This task will support ${selectedTaskHabit.title}.`
@@ -398,7 +398,7 @@ export function EntityCreateDialog({
               disabled={
                 isCreatingTask || !selectedTaskProjectId || !selectedTaskHabitId
               }
-              className="h-11 w-full rounded-xl"
+              className="h-11 w-full rounded-lg"
             >
               {isCreatingTask ? "Creating..." : "Create task"}
             </Button>

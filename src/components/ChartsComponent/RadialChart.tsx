@@ -48,22 +48,22 @@ export function ChartRadialText({
 
   const anguloDinamico = meta > 0 ? (valorAtual / meta) * 360 : 0;
   return (
-    <Card className="grid grid-cols-2  md:flex md:flex-col">
-      <CardHeader className="items-center pb-0">
-        <CardTitle>{title}</CardTitle>
+    <Card className="flex min-w-0 flex-col overflow-hidden">
+      <CardHeader className="items-center pb-0 text-center">
+        <CardTitle className="break-words text-base sm:text-lg">{title}</CardTitle>
         <CardDescription>{description}</CardDescription>
       </CardHeader>
       <CardContent className="flex-1 pb-0">
         <ChartContainer
           config={chartConfig}
-          className="mx-auto aspect-square max-h-62.5"
+          className="mx-auto aspect-square h-[220px] max-h-[260px] w-full max-w-[260px]"
         >
           <RadialBarChart
             data={chartData}
             startAngle={0}
             endAngle={anguloDinamico}
-            innerRadius={80}
-            outerRadius={110}
+            innerRadius="62%"
+            outerRadius="86%"
           >
             <PolarGrid
               gridType="circle"
@@ -87,7 +87,7 @@ export function ChartRadialText({
                         <tspan
                           x={viewBox.cx}
                           y={viewBox.cy}
-                          className="fill-foreground text-[18px] font-bold"
+                          className="fill-foreground text-sm font-bold sm:text-[18px]"
                         >
                           {valorAtual.toLocaleString()} / {meta}
                         </tspan>
@@ -107,7 +107,9 @@ export function ChartRadialText({
           </RadialBarChart>
         </ChartContainer>
       </CardContent>
-      <CardFooter className="flex-col  gap-2 text-sm">{children}</CardFooter>
+      <CardFooter className="flex-col gap-2 text-center text-sm">
+        {children}
+      </CardFooter>
     </Card>
   );
 }

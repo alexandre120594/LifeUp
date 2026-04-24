@@ -86,13 +86,13 @@ export function ActivityTrendChart({
   description: string;
 }) {
   return (
-    <Card className="border shadow-sm">
+    <Card className="min-w-0 overflow-hidden border shadow-sm">
       <CardHeader>
         <CardTitle>{title}</CardTitle>
         <CardDescription>{description}</CardDescription>
       </CardHeader>
       <CardContent>
-        <ChartContainer config={activityConfig} className="h-[280px] w-full">
+        <ChartContainer config={activityConfig} className="h-[240px] w-full sm:h-[280px]">
           <LineChart accessibilityLayer data={data}>
             <CartesianGrid vertical={false} />
             <XAxis dataKey="date" tickLine={false} axisLine={false} />
@@ -129,13 +129,13 @@ export function ProjectPerformanceChart({
   description: string;
 }) {
   return (
-    <Card className="border shadow-sm">
+    <Card className="min-w-0 overflow-hidden border shadow-sm">
       <CardHeader>
         <CardTitle>{title}</CardTitle>
         <CardDescription>{description}</CardDescription>
       </CardHeader>
       <CardContent>
-        <ChartContainer config={projectConfig} className="h-[280px] w-full">
+        <ChartContainer config={projectConfig} className="h-[240px] w-full sm:h-[280px]">
           <BarChart accessibilityLayer data={data}>
             <CartesianGrid vertical={false} />
             <XAxis
@@ -176,13 +176,13 @@ export function HabitPerformanceChart({
   description: string;
 }) {
   return (
-    <Card className="border shadow-sm">
+    <Card className="min-w-0 overflow-hidden border shadow-sm">
       <CardHeader>
         <CardTitle>{title}</CardTitle>
         <CardDescription>{description}</CardDescription>
       </CardHeader>
       <CardContent>
-        <ChartContainer config={habitConfig} className="h-[280px] w-full">
+        <ChartContainer config={habitConfig} className="h-[240px] w-full sm:h-[280px]">
           <BarChart accessibilityLayer data={data}>
             <CartesianGrid vertical={false} />
             <XAxis

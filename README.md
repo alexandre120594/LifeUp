@@ -10,6 +10,8 @@ The app currently supports:
 - task creation, completion, and listing
 - popup creation for projects, habits, and tasks across the main menu pages
 - section navigation for dashboard, projects, habits, tasks, and finance
+- responsive layouts for mobile, tablet, and desktop screens
+- updated theme palettes with compact swatch switching and stronger contrast
 - Personal Financial Organizer MVP for:
   - income and expense tracking
   - spending categories
@@ -17,6 +19,8 @@ The app currently supports:
   - recurring bills
   - savings goals
   - simple cash-flow insights
+  - total tracked money, bill, and savings visualizations
+  - monthly and yearly finance period tracking
   - editing and deleting finance records
 - dedicated detail pages for habits and tasks
 - persisted project and habit streaks derived from real task completion dates
@@ -76,7 +80,7 @@ There is also repeatable local seed data for testing charts and flows.
 - `src/app/tasks/[id]/page.tsx`
   - task detail page with parent project context
 - `src/app/finance/page.tsx`
-  - Personal Financial Organizer MVP with summary, forms, recent transactions, plans, and insights
+  - Personal Financial Organizer MVP with summary, one-popup creation, visual totals, recent transactions, plans, and insights
 
 ### Charts and Analytics
 
@@ -230,8 +234,13 @@ What is stable enough to continue from:
 - dashboard charts are wired through shared analytics helpers
 - chart colors now follow the active app theme
 - dashboard layout is more structured than before
+- app shell, overview panels, charts, lists, dialogs, and detail pages are responsive across smaller and larger screens
+- theme colors now use richer primary, secondary, and accent tokens so the sidebar, buttons, cards, and charts read more clearly
 - dashboard and section-page creation are consolidated into a shared popup so overview pages stay lighter
 - finance MVP is available from the sidebar and persists finance records through Prisma
+- finance creation now uses a single Add record popup for transactions, bills, savings goals, budgets, and categories
+- finance displays total tracked money, cash after active bills, bill charts, and savings progress charts
+- finance totals, insights, and recent transactions can switch between monthly and yearly tracking
 - finance records can be edited or deleted from the Finance management section; default categories are protected from deletion
 - section pages for projects, habits, and tasks now follow the newer dashboard structure
 - project detail analytics are present and usable

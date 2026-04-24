@@ -27,9 +27,9 @@ export function HabitList({ habits, colorHabit, onHabitClick }: { habits?: Habit
 
 
   return (
-    <div className="space-y-4">
+    <div className="min-w-0 space-y-4">
       {/* The List */}
-      <div className="grid md:grid-cols-3 gap-3">
+      <div className="grid min-w-0 gap-3 sm:grid-cols-2 xl:grid-cols-3">
         {currentHabits.map((habit) => (
           <HabitItem
             key={habit.id}
@@ -44,7 +44,7 @@ export function HabitList({ habits, colorHabit, onHabitClick }: { habits?: Habit
       {/* Shadcn Pagination Controls */}
       {totalPages > 1 && (
         <Pagination className="mt-8">
-          <PaginationContent>
+          <PaginationContent className="flex-wrap">
             <PaginationItem>
               <PaginationPrevious
                 href="#"

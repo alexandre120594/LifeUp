@@ -37,9 +37,9 @@ export default function TaskList({ tasks }: TaskListProps) {
   });
 
   return (
-    <div className="space-y-4">
-      <div className="min-h-max rounded-2xl border bg-card/80 p-2 shadow-sm">
-        <h4 className="scroll-m-20 p-4 text-xl font-medium">
+    <div className="min-w-0 space-y-4">
+      <div className="min-h-max min-w-0 overflow-hidden rounded-lg border bg-card/80 p-2 shadow-sm">
+        <h4 className="scroll-m-20 p-3 text-lg font-medium sm:p-4 sm:text-xl">
           Task Queue
         </h4>
         {sortedTasks.length > 0 ? (
@@ -51,7 +51,7 @@ export default function TaskList({ tasks }: TaskListProps) {
 
       {totalPages > 1 && (
         <Pagination>
-          <PaginationContent>
+          <PaginationContent className="flex-wrap">
             <PaginationItem>
               <PaginationPrevious
                 href="#"

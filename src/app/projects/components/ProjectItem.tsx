@@ -41,20 +41,20 @@ export default function ProjectItem({ project }: { project: Project }) {
   if (isEditing) {
     return (
       <div
-        className="rounded-2xl border border-border/70 bg-card p-4 shadow-sm"
+        className="min-w-0 overflow-hidden rounded-lg border border-border/70 bg-card p-4 shadow-sm"
         style={{
           boxShadow: `inset 4px 0 0 ${project.color || "#94a3b8"}`,
         }}
       >
         <form onSubmit={handleSubmit(onUpdate)} className="space-y-4">
-          <div className="flex items-center gap-3">
+          <div className="flex min-w-0 flex-wrap items-center gap-3">
             <div
               className="h-9 w-2 rounded-full"
               style={{ backgroundColor: project.color || "#94a3b8" }}
             />
             <input
               {...register("title", { required: true })}
-              className="h-10 flex-1 rounded-lg border bg-background px-3 text-sm outline-none ring-0"
+              className="h-10 min-w-44 flex-1 rounded-lg border bg-background px-3 text-sm outline-none ring-0"
             />
             <input
               {...register("color")}
@@ -63,7 +63,7 @@ export default function ProjectItem({ project }: { project: Project }) {
             />
           </div>
 
-          <div className="flex justify-end gap-2">
+          <div className="flex flex-wrap justify-end gap-2">
             <button
               type="button"
               onClick={() => setIsEditing(false)}
@@ -88,7 +88,7 @@ export default function ProjectItem({ project }: { project: Project }) {
 
   return (
     <div
-      className="group rounded-2xl border border-border/70 bg-card p-4 shadow-sm transition hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-md"
+      className="group min-w-0 overflow-hidden rounded-lg border border-border/70 bg-card p-4 shadow-sm transition hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-md"
       style={{
         backgroundImage:
           "linear-gradient(135deg, color-mix(in oklab, var(--card) 84%, white 16%), var(--card))",
@@ -117,23 +117,23 @@ export default function ProjectItem({ project }: { project: Project }) {
             </div>
           </div>
 
-          <div className="flex flex-wrap gap-2">
-            <div className="rounded-xl border border-border/70 bg-background/80 px-3 py-2">
-              <div className="flex items-center gap-1.5 text-[10px] uppercase tracking-[0.16em] text-muted-foreground">
+          <div className="grid gap-2 sm:grid-cols-3 lg:flex lg:flex-wrap">
+            <div className="min-w-0 rounded-lg border border-border/70 bg-background/80 px-3 py-2">
+              <div className="flex items-center gap-1.5 text-[10px] uppercase tracking-[0.12em] text-muted-foreground">
                 <Repeat size={14} />
                 Habits
               </div>
               <div className="mt-1 text-lg font-semibold">{habitCount}</div>
             </div>
-            <div className="rounded-xl border border-border/70 bg-background/80 px-3 py-2">
-              <div className="flex items-center gap-1.5 text-[10px] uppercase tracking-[0.16em] text-muted-foreground">
+            <div className="min-w-0 rounded-lg border border-border/70 bg-background/80 px-3 py-2">
+              <div className="flex items-center gap-1.5 text-[10px] uppercase tracking-[0.12em] text-muted-foreground">
                 <ListChecks size={14} />
                 Tasks
               </div>
               <div className="mt-1 text-lg font-semibold">{taskCount}</div>
             </div>
-            <div className="rounded-xl border border-border/70 bg-background/80 px-3 py-2">
-              <div className="flex items-center gap-1.5 text-[10px] uppercase tracking-[0.16em] text-muted-foreground">
+            <div className="min-w-0 rounded-lg border border-border/70 bg-background/80 px-3 py-2">
+              <div className="flex items-center gap-1.5 text-[10px] uppercase tracking-[0.12em] text-muted-foreground">
                 <Flame size={14} />
                 Streak
               </div>
@@ -144,8 +144,8 @@ export default function ProjectItem({ project }: { project: Project }) {
           </div>
         </div>
 
-        <div className="flex w-full flex-col gap-2 lg:w-[190px]">
-          <div className="rounded-xl border border-border/70 bg-background/80 p-3">
+        <div className="flex w-full min-w-0 flex-col gap-2 lg:w-[190px]">
+          <div className="rounded-lg border border-border/70 bg-background/80 p-3">
             <div className="flex items-center gap-2 text-xs text-muted-foreground">
               <FolderKanban size={16} />
               Delivery progress
@@ -159,7 +159,7 @@ export default function ProjectItem({ project }: { project: Project }) {
           <div className="flex flex-wrap gap-2">
             <button
               onClick={() => router.push(`/projects/${project.id}`)}
-              className="inline-flex h-9 flex-1 items-center justify-center rounded-lg bg-yevox-primary px-3 text-sm font-medium text-white transition hover:opacity-90"
+              className="inline-flex h-9 min-w-24 flex-1 items-center justify-center rounded-lg bg-yevox-primary px-3 text-sm font-medium text-white transition hover:opacity-90"
             >
               View
             </button>

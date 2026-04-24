@@ -100,7 +100,7 @@ export default function HabitsPage() {
         ]}
       />
 
-      <section className="grid gap-4 xl:grid-cols-[1.45fr_1fr]">
+      <section className="grid min-w-0 gap-4 xl:grid-cols-[minmax(0,1.45fr)_minmax(0,1fr)]">
         <HabitPerformanceChart
           title="Habit Performance"
           description="Completed tasks and recent check-ins per habit"

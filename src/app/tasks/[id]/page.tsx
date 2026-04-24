@@ -67,26 +67,28 @@ export default function TaskDetailPage({
         ) : null}
       </div>
 
-      <Card className="border shadow-sm">
+      <Card className="min-w-0 overflow-hidden border shadow-sm">
         <CardHeader className="gap-4">
           <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
-            <div>
-              <CardTitle className="text-2xl">{task.title}</CardTitle>
+            <div className="min-w-0">
+              <CardTitle className="break-words text-xl sm:text-2xl">
+                {task.title}
+              </CardTitle>
               <p className="text-sm text-muted-foreground">
                 Task detail with project context so you can understand how this
                 item fits into the wider workload.
               </p>
             </div>
-            <div className="flex flex-wrap gap-3 text-sm">
-              <span className="rounded-full bg-slate-100 px-3 py-1">
+            <div className="flex flex-wrap gap-2 text-sm">
+              <span className="rounded-full bg-secondary px-3 py-1">
                 <CheckCircle2 className="mr-2 inline h-4 w-4" />
                 {task.completed ? "Completed" : "Pending"}
               </span>
-              <span className="rounded-full bg-slate-100 px-3 py-1">
+              <span className="max-w-full truncate rounded-full bg-secondary px-3 py-1">
                 <Repeat className="mr-2 inline h-4 w-4" />
                 {task.habit?.title ?? "No linked habit"}
               </span>
-              <span className="rounded-full bg-slate-100 px-3 py-1">
+              <span className="rounded-full bg-secondary px-3 py-1">
                 <CalendarClock className="mr-2 inline h-4 w-4" />
                 {task.time ?? "No finish time"}
               </span>
@@ -105,7 +107,7 @@ export default function TaskDetailPage({
         </CardContent>
       </Card>
 
-      <section className="grid gap-4 xl:grid-cols-[1.45fr_1fr]">
+      <section className="grid min-w-0 gap-4 xl:grid-cols-[minmax(0,1.45fr)_minmax(0,1fr)]">
         <ActivityTrendChart
           title="Project Activity Around This Task"
           description="Recent completed tasks and habit check-ins for the same project"
