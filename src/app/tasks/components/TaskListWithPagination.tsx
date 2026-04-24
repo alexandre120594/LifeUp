@@ -6,7 +6,6 @@ import { Task } from "@/types/BaseInterfaces";
 import {
   Pagination,
   PaginationContent,
-  PaginationEllipsis,
   PaginationItem,
   PaginationLink,
   PaginationNext,
@@ -18,16 +17,14 @@ interface TaskListProps {
 }
 
 export default function TaskList({ tasks }: TaskListProps) {
-  if (!tasks) {
-    return;
-  }
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
+  const safeTasks = tasks ?? [];
 
   // Logic to slice the data
-  const totalPages = Math.ceil(tasks.length / itemsPerPage);
+  const totalPages = Math.ceil(safeTasks.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
-  const currentTasks = tasks.slice(startIndex, startIndex + itemsPerPage);
+  const currentTasks = safeTasks.slice(startIndex, startIndex + itemsPerPage);
 
   const handlePageChange = (page: number) => {
     if (page >= 1 && page <= totalPages) {
@@ -40,21 +37,21 @@ export default function TaskList({ tasks }: TaskListProps) {
   });
 
   return (
-    <div className="space-y-4">
-      <div className="bg-white rounded-lg shadow-sm border p-2 min-h-max">
-        <h4 className="p-4 scroll-m-20 text-xl font-medium">
-          Tarefas Por Habitos
+    <div className="min-w-0 space-y-4">
+      <div className="min-h-max min-w-0 overflow-hidden rounded-lg border bg-card/80 p-2 shadow-sm">
+        <h4 className="scroll-m-20 p-3 text-lg font-medium sm:p-4 sm:text-xl">
+          Task Queue
         </h4>
         {sortedTasks.length > 0 ? (
           sortedTasks.map((task) => <TaskItem key={task.id} task={task} />)
         ) : (
-          <p className="p-4 text-center text-slate-500">No tasks found.</p>
+          <p className="p-4 text-center text-muted-foreground">No tasks found.</p>
         )}
       </div>
 
       {totalPages > 1 && (
         <Pagination>
-          <PaginationContent>
+          <PaginationContent className="flex-wrap">
             <PaginationItem>
               <PaginationPrevious
                 href="#"

@@ -1,36 +1,272 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# LifeUp
 
-## Getting Started
+LifeUp is a Next.js productivity app for managing projects, habits, tasks, and personal finance basics, with dashboard analytics layered on top of the current operational data.
 
-First, run the development server:
+## What Exists Now
+
+The app currently supports:
+- project creation and listing
+- habit creation and editing inside projects
+- task creation, completion, and listing
+- popup creation for projects, habits, and tasks across the main menu pages
+- section navigation for dashboard, projects, habits, tasks, and finance
+- responsive layouts for mobile, tablet, and desktop screens
+- updated theme palettes with compact swatch switching and stronger contrast
+- Personal Financial Organizer MVP for:
+  - income and expense tracking
+  - spending categories
+  - monthly budgets
+  - recurring bills
+  - savings goals
+  - simple cash-flow insights
+  - total tracked money, bill, and savings visualizations
+  - monthly and yearly finance period tracking
+  - editing and deleting finance records
+- dedicated detail pages for habits and tasks
+- persisted project and habit streaks derived from real task completion dates
+- dashboard analytics for:
+  - overall task completion
+  - 7-day activity trend
+  - project throughput
+- project detail analytics for:
+  - project-level activity trend
+  - habit performance
+- habit detail analytics for:
+  - habit-specific activity trend
+  - linked task completion
+- task detail analytics for:
+  - project context activity trend
+  - parent project completion snapshot
+
+There is also repeatable local seed data for testing charts and flows.
+
+## Stack
+
+- Next.js 16 App Router
+- React 19
+- TypeScript
+- Tailwind CSS
+- Prisma
+- PostgreSQL
+- TanStack Query
+- Zustand
+- Recharts
+
+## Main File Map
+
+### App Shell
+
+- `src/app/layout.tsx`
+  - root layout, providers, sidebar, header, theme bootstrap script
+- `src/app/ThemeSwitcher.tsx`
+  - updates theme hue/chroma values in CSS variables and stores theme in `localStorage`
+- `src/app/globals.css`
+  - theme tokens, chart tokens, global UI variables
+
+### Pages
+
+- `src/app/page.tsx`
+  - main dashboard
+- `src/app/projects/[id]/page.tsx`
+  - project detail page with project-specific analytics
+- `src/app/projects/page.tsx`
+  - project index page with throughput overview and navigation into project detail
+- `src/app/habits/page.tsx`
+  - habit index page with streak, check-in, and linked-task analytics
+- `src/app/habits/[id]/page.tsx`
+  - habit detail page with linked tasks and habit-specific charts
+- `src/app/tasks/page.tsx`
+  - task index page with queue overview, creation form, and task list
+- `src/app/tasks/[id]/page.tsx`
+  - task detail page with parent project context
+- `src/app/finance/page.tsx`
+  - Personal Financial Organizer MVP with summary, one-popup creation, visual totals, recent transactions, plans, and insights
+
+### Charts and Analytics
+
+- `src/components/ChartsComponent/InsightsCharts.tsx`
+  - activity trend, project throughput, habit performance charts
+- `src/components/ChartsComponent/RadialChart.tsx`
+  - radial progress summary
+- `src/components/entity-create-dialog.tsx`
+  - shared popup creation flow for projects, habits, and tasks
+- `src/components/overview-panel.tsx`
+  - reusable overview/focus layout used by the main menu pages
+- `src/lib/analytics.ts`
+  - shared metric builders for charts
+- `src/lib/finance.ts`
+  - shared finance calculations for cash flow, budgets, savings progress, and insights
+
+### Data Fetching
+
+- `src/hooks/useProjectMutations.ts`
+- `src/hooks/useHabitMutations.ts`
+- `src/hooks/useTaskMutation.ts`
+- `src/hooks/useFinanceMutations.ts`
+  - React Query hooks for fetching and mutations
+
+- `src/services/ProjectsServices.ts`
+- `src/services/HabitsServices.ts`
+- `src/services/TasksServices.ts`
+- `src/services/FinanceServices.ts`
+  - API client wrappers
+
+### API
+
+- `src/app/api/projects/route.ts`
+- `src/app/api/projects/[id]/route.tsx`
+- `src/app/api/habits/route.ts`
+- `src/app/api/habits/[id]/route.ts`
+- `src/app/api/tasks/route.ts`
+- `src/app/api/tasks/[id]/route.ts`
+- `src/app/api/finance/route.ts`
+- `src/app/api/finance/categories/route.ts`
+- `src/app/api/finance/transactions/route.ts`
+- `src/app/api/finance/budgets/route.ts`
+- `src/app/api/finance/recurring-bills/route.ts`
+- `src/app/api/finance/savings-goals/route.ts`
+
+### Data Layer
+
+- `prisma/schema.prisma`
+  - source of truth for the current schema
+- `src/lib/prisma.ts`
+  - Prisma client bootstrap
+- `src/generated/client`
+  - generated Prisma client, do not edit manually
+
+### Seed Data
+
+- `prisma/seed.ts`
+  - repeatable demo data for local testing
+
+## Current Data Model
+
+- `User`
+  - owns many projects
+- `Project`
+  - belongs to user
+  - owns many habits
+  - owns many tasks
+- `Habit`
+  - belongs to project
+  - owns many tasks
+  - stores streak and `history` array used by current analytics
+- `Task`
+  - belongs to project
+  - optionally belongs to habit
+  - stores `completed`, `date`, `dateFinish`, and `time`
+- `FinancialCategory`
+  - belongs to user
+  - organizes income and expense records
+- `FinancialTransaction`
+  - belongs to user and category
+  - stores income or expense records
+- `Budget`
+  - belongs to user and category
+  - stores monthly category limits
+- `RecurringBill`
+  - belongs to user and category
+  - tracks expected monthly bills
+- `SavingsGoal`
+  - belongs to user
+  - tracks current amount against a target
+
+Current Prisma relations use explicit cascade behavior for cleanup.
+
+## Local Development
+
+Install:
+
+```bash
+npm install
+```
+
+Run app:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Run local seed:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+npm run db:seed
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Backfill persisted streaks from existing task data:
 
-## Learn More
+```bash
+npm run db:backfill-streaks
+```
 
-To learn more about Next.js, take a look at the following resources:
+Validate Prisma:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```bash
+npx prisma validate
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Targeted lint example:
 
-## Deploy on Vercel
+```bash
+npx eslint src/app/page.tsx
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+App URL:
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- `http://localhost:3001`
+
+## Current Seed Snapshot
+
+The current seed creates test data for the dev user `id = 1`:
+- 3 projects
+- 5 habits
+- 9 tasks
+
+Seeded project names:
+- `Health Reset`
+- `Frontend Mastery`
+- `Language Sprint`
+
+## Current State and Limits
+
+What is stable enough to continue from:
+- dashboard charts are wired through shared analytics helpers
+- chart colors now follow the active app theme
+- dashboard layout is more structured than before
+- app shell, overview panels, charts, lists, dialogs, and detail pages are responsive across smaller and larger screens
+- theme colors now use richer primary, secondary, and accent tokens so the sidebar, buttons, cards, and charts read more clearly
+- dashboard and section-page creation are consolidated into a shared popup so overview pages stay lighter
+- finance MVP is available from the sidebar and persists finance records through Prisma
+- finance creation now uses a single Add record popup for transactions, bills, savings goals, budgets, and categories
+- finance displays total tracked money, cash after active bills, bill charts, and savings progress charts
+- finance totals, insights, and recent transactions can switch between monthly and yearly tracking
+- finance records can be edited or deleted from the Finance management section; default categories are protected from deletion
+- section pages for projects, habits, and tasks now follow the newer dashboard structure
+- project detail analytics are present and usable
+- habit and task detail pages are present and usable
+- project and habit streak persistence now derives from stored completed task dates
+- seed data is available for testing visual states
+
+What is still incomplete or older:
+- authentication is not implemented; current code still relies on a dev user assumption
+- some lower-level list item components still carry older interaction patterns internally
+- the analytics layer is derived from task dates and habit history arrays, not from a dedicated historical events table
+- existing databases may need the streak backfill command run once if they contain older fake or drifted streak values
+- the repository still has an older global lint baseline outside the touched files
+
+## Where To Continue
+
+Recommended next work order:
+
+1. Replace hardcoded user assumptions with a real auth/session path.
+2. Normalize historical tracking if analytics need to become more accurate.
+3. Continue unifying the remaining lower-level components with the newer dashboard/project-detail design and data patterns.
+4. Add validation and cleaner error handling to API routes.
+5. Reduce the old lint baseline incrementally in files that are actively touched.
+
+## Handoff
+
+For active repo rules and implementation expectations, read `AGENTS.md`.
+
+For project status, completed work, and next-step mapping, read `ARCHIVE.md`.

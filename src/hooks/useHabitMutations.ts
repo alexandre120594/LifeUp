@@ -6,7 +6,6 @@ export function useHabit(projectId?: string) {
   return useQuery({
     queryKey: ["habits", { projectId }],
     queryFn: () => HabitsServices.getAll(projectId),
-    enabled: !projectId,
   });
 }
 
@@ -21,7 +20,7 @@ export function useCreateHabits() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: HabitsServices.create,
-    onSuccess: (data) => {
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["habits"] });
       queryClient.invalidateQueries({ queryKey: ["projects"] });
     },

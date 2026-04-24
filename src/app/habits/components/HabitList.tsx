@@ -12,15 +12,13 @@ import {
 import { Habit } from "@/types/BaseInterfaces";
 
 export function HabitList({ habits, colorHabit, onHabitClick }: { habits?: Habit[], colorHabit?: string, onHabitClick: (id: string) => void }) {
-  if (!habits) {
-    return;
-  }
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
+  const safeHabits = habits ?? [];
 
-  const totalPages = Math.ceil(habits.length / itemsPerPage);
+  const totalPages = Math.ceil(safeHabits.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
-  const currentHabits = habits.slice(startIndex, startIndex + itemsPerPage);
+  const currentHabits = safeHabits.slice(startIndex, startIndex + itemsPerPage);
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
@@ -29,16 +27,16 @@ export function HabitList({ habits, colorHabit, onHabitClick }: { habits?: Habit
 
 
   return (
-    <div className="space-y-4">
+    <div className="min-w-0 space-y-4">
       {/* The List */}
-      <div className="grid md:grid-cols-3 gap-3">
+      <div className="grid min-w-0 gap-3 sm:grid-cols-2 xl:grid-cols-3">
         {currentHabits.map((habit) => (
           <HabitItem
             key={habit.id}
             habit={habit}
             NameProject={""}
             colorHabit={colorHabit}
-            onClickHabit={(id) => { console.log("2. List Received", id); onHabitClick(id); }}
+            onClickHabit={(id) => onHabitClick(id)}
           />
         ))}
       </div>
@@ -46,7 +44,7 @@ export function HabitList({ habits, colorHabit, onHabitClick }: { habits?: Habit
       {/* Shadcn Pagination Controls */}
       {totalPages > 1 && (
         <Pagination className="mt-8">
-          <PaginationContent>
+          <PaginationContent className="flex-wrap">
             <PaginationItem>
               <PaginationPrevious
                 href="#"

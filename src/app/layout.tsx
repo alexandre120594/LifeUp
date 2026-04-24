@@ -1,18 +1,10 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, Plus_Jakarta_Sans } from "next/font/google";
+import { Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/app-sidebar";
 import Providers from "@/components/providers";
 import { ThemeSwitcher } from "./ThemeSwitcher";
-
-const themes = {
-  emerald: { hue: "160", chroma: "0.12" },
-  ocean: { hue: "230", chroma: "0.10" },
-  gold: { hue: "85", chroma: "0.11" },
-  rose: { hue: "0", chroma: "0.10" },
-  grayscale: { hue: "0", chroma: "0" },
-};
 
 const jakartaSans = Plus_Jakarta_Sans({
   variable: "--font-plus_jakarta_-sans",
@@ -32,21 +24,23 @@ export default function RootLayout({
   const themeScript = `
   (function() {
     const themes = {
-      evergreen: { p: { h: "168.48", c: "0.157" }, s: { h: "172.44", c: "0.035" } },
-      spruce:    { p: { h: "180.73", c: "0.139" }, s: { h: "181.45", c: "0.033" } },
-      seafoam:   { p: { h: "138.00", c: "0.111" }, s: { h: "138.74", c: "0.010" } },
-      turquoise: { p: { h: "184.05", c: "0.136" }, s: { h: "187.91", c: "0.031" } },
-      skyblue:   { p: { h: "232.06", c: "0.125" }, s: { h: "226.81", c: "0.027" } }
+      grove:    { p: { h: "156", c: "0.118" }, s: { h: "104", c: "0.038" }, a: { h: "34", c: "0.132" } },
+      harbor:   { p: { h: "224", c: "0.112" }, s: { h: "188", c: "0.044" }, a: { h: "42", c: "0.135" } },
+      ember:    { p: { h: "24", c: "0.118" }, s: { h: "82", c: "0.035" }, a: { h: "188", c: "0.092" } },
+      berry:    { p: { h: "350", c: "0.108" }, s: { h: "42", c: "0.04" }, a: { h: "170", c: "0.088" } },
+      graphite: { p: { h: "250", c: "0.038" }, s: { h: "182", c: "0.03" }, a: { h: "32", c: "0.12" } }
     };
 
-    const saved = localStorage.getItem('app-theme-choice') || 'seafoam';
-    const theme = themes[saved] || themes.seafoam;
+    const saved = localStorage.getItem('app-theme-choice') || 'grove';
+    const theme = themes[saved] || themes.grove;
     
     const root = document.documentElement;
     root.style.setProperty('--p-hue', theme.p.h);
     root.style.setProperty('--p-chroma', theme.p.c);
     root.style.setProperty('--s-hue', theme.s.h);
     root.style.setProperty('--s-chroma', theme.s.c);
+    root.style.setProperty('--a-hue', theme.a.h);
+    root.style.setProperty('--a-chroma', theme.a.c);
   })()
 `;
   return (
@@ -58,19 +52,21 @@ export default function RootLayout({
         <Providers>
           <SidebarProvider>
             <AppSidebar />
-            <main className="w-full min-h-screen flex flex-col bg-background md:h-screen md:overflow-y-hidden">
-              <header className="flex items-center justify-between p-4 border-b bg-yevox-white">
-                <div className="flex items-center gap-2">
+            <main className="flex min-h-screen min-w-0 w-full flex-col overflow-x-hidden bg-background">
+              <header className="sticky top-0 z-30 flex min-w-0 items-center justify-between gap-3 border-b bg-yevox-white/95 p-3 backdrop-blur sm:p-4">
+                <div className="flex min-w-0 items-center gap-2">
                   <SidebarTrigger />
-                  <h1 className="text-sm font-semibold hidden sm:block">
+                  <h1 className="hidden truncate text-sm font-semibold sm:block">
                     Dashboard
                   </h1>
                 </div>
-              <ThemeSwitcher />
+                <div className="shrink-0">
+                  <ThemeSwitcher />
+                </div>
               </header>
 
               {/* Conteúdo da Página */}
-              <div className="flex-1 p-4 md:p-8 md:max-w-dvw max-w-7xl mx-auto w-full ">
+              <div className="mx-auto w-full min-w-0 max-w-7xl flex-1">
                 {children}
               </div>
             </main>

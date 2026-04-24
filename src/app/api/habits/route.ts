@@ -13,7 +13,8 @@ export async function GET(req: NextRequest) {
         ...(projectId ? { projectId } : {}),
       },
     include: {
-      tasks: true
+      tasks: true,
+      project: true,
     }
   });
   return NextResponse.json(habits);
@@ -22,9 +23,8 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   try {
     const { title ,projectId  } = await req.json();
-    const dateStr = new Date().toISOString().split("T")[0];
     const project = await prisma.habit.create({
-      data: { title, projectId , streak: 1, history: [dateStr], frequency: ""},
+      data: { title, projectId, streak: 0, history: [], frequency: "" },
     });
     
     return NextResponse.json(project, { status: 201 });

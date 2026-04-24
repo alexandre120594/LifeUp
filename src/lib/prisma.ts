@@ -3,14 +3,18 @@ import { PrismaClient } from '@/generated/client'
 import { PrismaPg } from '@prisma/adapter-pg'
 
 const globalForPrisma = global as unknown as {
-    prisma: PrismaClient
+    prisma?: PrismaClient
 }
 
 const adapter = new PrismaPg({
   connectionString: process.env.DATABASE_URL,
 })
 
-const prisma = globalForPrisma.prisma || new PrismaClient({
+const cachedPrisma = globalForPrisma.prisma;
+const hasCurrentFinanceDelegates =
+  cachedPrisma && "financialCategory" in cachedPrisma;
+
+const prisma: PrismaClient = hasCurrentFinanceDelegates ? cachedPrisma : new PrismaClient({
   adapter,
 })
 
