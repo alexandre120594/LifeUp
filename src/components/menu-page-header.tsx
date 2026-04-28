@@ -6,7 +6,7 @@ export function MenuPageHeader({
   action,
 }: {
   eyebrow: string;
-  title: string;
+  title: ReactNode;
   action?: ReactNode;
 }) {
   return (

@@ -1,5 +1,6 @@
 // src/app/api/habits/[id]/route.ts
 import prisma from "@/lib/prisma";
+import { requireCurrentUserId } from "@/lib/auth";
 import { NextRequest, NextResponse } from "next/server";
 
 interface RouteParams {
@@ -8,10 +9,15 @@ interface RouteParams {
 
 export async function GET(req: NextRequest, { params }: RouteParams) {
   const { id } = await params;
+  const { response, userId } = await requireCurrentUserId();
+
+  if (response) {
+    return response;
+  }
 
   try {
-    const habit = await prisma.habit.findUnique({
-      where: { id },
+    const habit = await prisma.habit.findFirst({
+      where: { id, project: { userId } },
       include: {
         tasks: true,
         project: true,
@@ -33,8 +39,22 @@ export async function GET(req: NextRequest, { params }: RouteParams) {
 
 export async function DELETE(req: NextRequest, { params }: RouteParams) {
   const { id } = await params;
+  const { response, userId } = await requireCurrentUserId();
+
+  if (response) {
+    return response;
+  }
 
   try {
+    const habit = await prisma.habit.findFirst({
+      where: { id, project: { userId } },
+      select: { id: true },
+    });
+
+    if (!habit) {
+      return NextResponse.json({ error: "Habit not found" }, { status: 404 });
+    }
+
     await prisma.$transaction([
       prisma.task.deleteMany({
         where: {
@@ -58,9 +78,23 @@ export async function DELETE(req: NextRequest, { params }: RouteParams) {
 
 export async function PATCH(req: NextRequest, { params }: RouteParams) {
   const { id } = await params;
+  const { response, userId } = await requireCurrentUserId();
+
+  if (response) {
+    return response;
+  }
 
   try {
     const { title, streak, history, frequency, reminderTime } = await req.json();
+    const existingHabit = await prisma.habit.findFirst({
+      where: { id, project: { userId } },
+      select: { id: true },
+    });
+
+    if (!existingHabit) {
+      return NextResponse.json({ error: "Habit not found" }, { status: 404 });
+    }
+
     const habit = await prisma.habit.update({
       where: { id },
       include: {

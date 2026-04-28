@@ -1,13 +1,18 @@
 import { Prisma } from "@/generated/client";
 import prisma from "@/lib/prisma";
+import { requireCurrentUserId } from "@/lib/auth";
 import { NextRequest, NextResponse } from "next/server";
-
-const DEV_USER_ID = 1;
 
 export async function PATCH(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const { response, userId } = await requireCurrentUserId();
+
+  if (response) {
+    return response;
+  }
+
   try {
     const { id } = await params;
     const { color, name, type } = await req.json();
@@ -21,7 +26,7 @@ export async function PATCH(
     }
 
     const category = await prisma.financialCategory.update({
-      where: { id, userId: DEV_USER_ID },
+      where: { id, userId },
       data: {
         color,
         name: normalizedName,
@@ -52,10 +57,16 @@ export async function DELETE(
   _req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const { response, userId } = await requireCurrentUserId();
+
+  if (response) {
+    return response;
+  }
+
   try {
     const { id } = await params;
     const category = await prisma.financialCategory.findUnique({
-      where: { id, userId: DEV_USER_ID },
+      where: { id, userId },
     });
 
     if (!category) {
@@ -73,7 +84,7 @@ export async function DELETE(
     }
 
     await prisma.financialCategory.delete({
-      where: { id, userId: DEV_USER_ID },
+      where: { id, userId },
     });
 
     return NextResponse.json({ ok: true });

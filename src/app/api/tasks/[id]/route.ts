@@ -1,5 +1,6 @@
 // src/app/api/habits/[id]/route.ts
 import prisma from "@/lib/prisma";
+import { requireCurrentUserId } from "@/lib/auth";
 import { NextRequest, NextResponse } from "next/server";
 
 interface RouteParams {
@@ -83,10 +84,15 @@ function calculateHabitState(dates: Date[]) {
 
 export async function GET(req: NextRequest, { params }: RouteParams) {
   const { id } = await params;
+  const { response, userId } = await requireCurrentUserId();
+
+  if (response) {
+    return response;
+  }
 
   try {
-    const task = await prisma.task.findUnique({
-      where: { id },
+    const task = await prisma.task.findFirst({
+      where: { id, project: { userId } },
       include: {
         habit: true,
         project: true,
@@ -108,8 +114,22 @@ export async function GET(req: NextRequest, { params }: RouteParams) {
 
 export async function DELETE(req: NextRequest, { params }: RouteParams) {
   const { id } = await params;
+  const { response, userId } = await requireCurrentUserId();
+
+  if (response) {
+    return response;
+  }
 
   try {
+    const task = await prisma.task.findFirst({
+      where: { id, project: { userId } },
+      select: { id: true },
+    });
+
+    if (!task) {
+      return NextResponse.json({ error: "Task not found" }, { status: 404 });
+    }
+
     await prisma.task.delete({
       where: { id },
     });
@@ -124,6 +144,11 @@ export async function DELETE(req: NextRequest, { params }: RouteParams) {
 
 export async function PATCH(req: NextRequest, { params }: RouteParams) {
   const { id } = await params;
+  const { response, userId } = await requireCurrentUserId();
+
+  if (response) {
+    return response;
+  }
 
   try {
     const { completed, date, dateFinish, time, title } = await req.json();
@@ -140,6 +165,15 @@ export async function PATCH(req: NextRequest, { params }: RouteParams) {
     }
 
     return await prisma.$transaction(async (tx) => {
+      const existingTask = await tx.task.findFirst({
+        where: { id, project: { userId } },
+        select: { id: true },
+      });
+
+      if (!existingTask) {
+        return NextResponse.json({ error: "Task not found" }, { status: 404 });
+      }
+
       const task = await tx.task.update({
         where: { id },
         data: {

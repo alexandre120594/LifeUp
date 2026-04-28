@@ -1,7 +1,6 @@
 import prisma from "@/lib/prisma";
+import { requireCurrentUserId } from "@/lib/auth";
 import { NextRequest, NextResponse } from "next/server";
-
-const DEV_USER_ID = 1;
 
 function parseDate(value: unknown) {
   if (typeof value !== "string") {
@@ -16,6 +15,12 @@ export async function PATCH(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const { response, userId } = await requireCurrentUserId();
+
+  if (response) {
+    return response;
+  }
+
   try {
     const { id } = await params;
     const { amount, categoryId, isPaid = false, notes, plannedDate, title } =
@@ -37,7 +42,7 @@ export async function PATCH(
     }
 
     const plannedExpense = await prisma.plannedExpense.update({
-      where: { id, userId: DEV_USER_ID },
+      where: { id, userId },
       data: {
         amount: parsedAmount,
         categoryId,
@@ -65,11 +70,17 @@ export async function DELETE(
   _req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const { response, userId } = await requireCurrentUserId();
+
+  if (response) {
+    return response;
+  }
+
   try {
     const { id } = await params;
 
     await prisma.plannedExpense.delete({
-      where: { id, userId: DEV_USER_ID },
+      where: { id, userId },
     });
 
     return NextResponse.json({ ok: true });

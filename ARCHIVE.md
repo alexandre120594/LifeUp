@@ -14,6 +14,8 @@ Current app position:
 - calendar menu now includes a task calendar for day-level task review and future task scheduling
 - habit tracker menu now includes habit creation, daily/weekly frequency, reminder time, completion tracking, streaks, calendar progress, and basic statistics
 - all habit creation flows now ask for daily or weekly frequency
+- simple email login now gates the app and scopes projects, habits, tasks, and finance records to the logged-in user
+- dashboard greeting now resolves the current logged-in user's name from the session instead of a fixed placeholder
 - dashboard and main section pages now use a lighter reusable overview layout with popup creation
 - shared app shell, charts, lists, cards, and main page layouts now respond better across phone, tablet, and desktop widths
 - theme system now has cleaner Grove, Harbor, Ember, Berry, and Graphite palettes with improved contrast
@@ -31,6 +33,7 @@ Current app position:
 ### Dashboard analytics and layout
 
 Implemented:
+- simple authenticated app shell with login/logout
 - main dashboard metrics
 - current finance income, expenses, and total cash in the dashboard top line
 - calendar page with a large month view, task names on each day, selected-day popup with edit/delete actions, and button-triggered future-date task creation
@@ -44,6 +47,12 @@ Implemented:
 - responsive shell/content behavior, safer chart sizing, wrapping list controls, and mobile-friendly action rows
 
 Main files:
+- `src/app/login/page.tsx`
+- `src/app/api/auth/login/route.ts`
+- `src/app/api/auth/logout/route.ts`
+- `src/app/api/auth/me/route.ts`
+- `src/components/app-shell.tsx`
+- `src/middleware.ts`
 - `src/app/page.tsx`
 - `src/app/projects/page.tsx`
 - `src/app/habits/page.tsx`
@@ -230,9 +239,8 @@ Important detail:
 
 These are known unfinished areas:
 
-- auth is not implemented
-- some server logic still assumes a development user
-- finance API currently follows the same development user assumption
+- login is simple and email-only, without password/OAuth/session rotation
+- some older seed/dev assumptions remain in local seed data and docs, but primary app APIs now use the login cookie
 - section pages are aligned, but some lower-level item components still reflect older implementation style
 - analytics are currently derived from task timestamps and habit history arrays
 - there is no dedicated historical events model yet
@@ -243,7 +251,7 @@ These are known unfinished areas:
 
 Recommended order:
 
-1. Add real auth/session handling and remove hardcoded user assumptions.
+1. Replace simple email login with a production-grade auth/session path when needed.
 2. Decide whether analytics should keep using derived data or move to a dedicated history/event model.
 3. Continue cleaning lower-level components so their interactions and styling fully match the new section pages.
 4. Add request validation and cleaner error responses to route handlers.

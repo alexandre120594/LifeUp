@@ -10,6 +10,7 @@ The app currently supports:
 - task creation, completion, and listing
 - popup creation for projects, habits, and tasks across the main menu pages
 - section navigation for dashboard, projects, habits, tasks, and finance
+- simple email login with per-user project, habit, task, and finance data isolation
 - task calendar menu for day-level planning
 - habit creation flows include daily/weekly frequency, and the habit tracker adds reminder time, completions, streaks, and statistics progress
 - responsive layouts for mobile, tablet, and desktop screens
@@ -62,7 +63,9 @@ There is also repeatable local seed data for testing charts and flows.
 ### App Shell
 
 - `src/app/layout.tsx`
-  - root layout, providers, sidebar, header, theme bootstrap script
+  - root layout, providers, app shell, theme bootstrap script
+- `src/components/app-shell.tsx`
+  - authenticated app chrome, sidebar/header, logout action
 - `src/app/ThemeSwitcher.tsx`
   - updates theme hue/chroma values in CSS variables and stores theme in `localStorage`
 - `src/app/globals.css`
@@ -72,6 +75,8 @@ There is also repeatable local seed data for testing charts and flows.
 
 - `src/app/page.tsx`
   - main dashboard
+- `src/app/login/page.tsx`
+  - simple email login page
 - `src/app/projects/[id]/page.tsx`
   - project detail page with project-specific analytics
 - `src/app/projects/page.tsx`
@@ -132,6 +137,9 @@ There is also repeatable local seed data for testing charts and flows.
 - `src/app/api/habits/[id]/route.ts`
 - `src/app/api/tasks/route.ts`
 - `src/app/api/tasks/[id]/route.ts`
+- `src/app/api/auth/login/route.ts`
+- `src/app/api/auth/logout/route.ts`
+- `src/app/api/auth/me/route.ts`
 - `src/app/api/finance/route.ts`
 - `src/app/api/finance/categories/route.ts`
 - `src/app/api/finance/transactions/route.ts`
@@ -157,7 +165,7 @@ There is also repeatable local seed data for testing charts and flows.
 ## Current Data Model
 
 - `User`
-  - owns many projects
+  - owns many projects and finance records
 - `Project`
   - belongs to user
   - owns many habits
@@ -250,6 +258,8 @@ Seeded project names:
 What is stable enough to continue from:
 - dashboard charts are wired through shared analytics helpers
 - dashboard top line includes current finance income, expenses, and total cash from the finance summary
+- login stores the current user in an HTTP-only cookie and API routes scope records to that user
+- the dashboard greeting shows the logged-in user name or email prefix instead of a fixed placeholder
 - calendar page shows task names in a large month view, opens selected-day tasks in a popup, supports task edit/delete, and creates multiple future-dated tasks from an Add task button
 - habit tracker page creates habits, marks daily progress, stores daily/weekly frequency and reminder time, and shows streak/calendar/statistics progress
 - chart colors now follow the active app theme
@@ -269,7 +279,7 @@ What is stable enough to continue from:
 - seed data is available for testing visual states
 
 What is still incomplete or older:
-- authentication is not implemented; current code still relies on a dev user assumption
+- login is intentionally simple and email-only; there is no password, OAuth, or production-grade session hardening yet
 - some lower-level list item components still carry older interaction patterns internally
 - the analytics layer is derived from task dates and habit history arrays, not from a dedicated historical events table
 - existing databases may need the streak backfill command run once if they contain older fake or drifted streak values
@@ -279,7 +289,7 @@ What is still incomplete or older:
 
 Recommended next work order:
 
-1. Replace hardcoded user assumptions with a real auth/session path.
+1. Replace simple email login with a production-grade auth/session path when needed.
 2. Normalize historical tracking if analytics need to become more accurate.
 3. Continue unifying the remaining lower-level components with the newer dashboard/project-detail design and data patterns.
 4. Add validation and cleaner error handling to API routes.
