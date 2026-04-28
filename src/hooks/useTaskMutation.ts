@@ -52,6 +52,7 @@ export function useDeleteTask(id?: string) {
     mutationFn: (id: string) => TaskService.delete(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["task", id] });
+      queryClient.invalidateQueries({ queryKey: ["task"] });
       queryClient.invalidateQueries({ queryKey: ["habits"] });
       queryClient.invalidateQueries({ queryKey: ["projects"] });
     },

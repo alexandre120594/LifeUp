@@ -6,16 +6,20 @@ If a new agent needs to know where work stopped, start here.
 ## Current Snapshot
 
 Date of latest update:
-- 2026-04-24
+- 2026-04-27
 
 Current app position:
 - dashboard exists and is actively used as the main overview
+- dashboard top line now includes current finance income, expenses, and total cash
+- calendar menu now includes a task calendar for day-level task review and future task scheduling
+- habit tracker menu now includes habit creation, daily/weekly frequency, reminder time, completion tracking, streaks, calendar progress, and basic statistics
+- all habit creation flows now ask for daily or weekly frequency
 - dashboard and main section pages now use a lighter reusable overview layout with popup creation
 - shared app shell, charts, lists, cards, and main page layouts now respond better across phone, tablet, and desktop widths
 - theme system now has cleaner Grove, Harbor, Ember, Berry, and Graphite palettes with improved contrast
 - section pages exist for projects, habits, and tasks
 - finance section exists as a Phase 1 Personal Financial Organizer MVP
-- finance now surfaces a total tracked money view, monthly/yearly tracking, bill visualization, savings visualization, and single-popup creation flow
+- finance now surfaces a total tracked money view, monthly/yearly tracking, bill visualization, savings visualization, planned expenses, and single-popup creation flow
 - project detail page exists and includes analytics
 - habit and task detail pages now exist and include contextual analytics
 - local seed data exists for visual/testing flows
@@ -28,6 +32,9 @@ Current app position:
 
 Implemented:
 - main dashboard metrics
+- current finance income, expenses, and total cash in the dashboard top line
+- calendar page with a large month view, task names on each day, selected-day popup with edit/delete actions, and button-triggered future-date task creation
+- habit tracker page with habit creation, a 21-day completion grid, daily/weekly cadence, reminder time, current streaks, calendar progress, and basic statistics
 - radial completion chart
 - 7-day activity trend chart
 - project throughput chart
@@ -40,10 +47,14 @@ Main files:
 - `src/app/page.tsx`
 - `src/app/projects/page.tsx`
 - `src/app/habits/page.tsx`
+- `src/app/habit-tracker/page.tsx`
 - `src/app/tasks/page.tsx`
+- `src/app/calendar/page.tsx`
 - `src/components/entity-create-dialog.tsx`
 - `src/components/menu-page-header.tsx`
 - `src/components/overview-panel.tsx`
+- `src/components/task-calendar.tsx`
+- `src/components/habit-tracker.tsx`
 - `src/components/ChartsComponent/InsightsCharts.tsx`
 - `src/components/ChartsComponent/RadialChart.tsx`
 - `src/lib/analytics.ts`
@@ -132,11 +143,12 @@ Implemented:
 - persisted finance categories, transactions, budgets, recurring bills, savings goals, summaries, and notifications schema
 - default finance categories generated on first finance dashboard load
 - finance summary calculations for income, expenses, net cash flow, budgets, bills, savings progress, and basic insights
-- create flows for transactions, custom categories, monthly budgets, recurring bills, and savings goals
-- single Add record popup that switches between transaction, bill, savings, budget, and category creation
+- persisted planned expenses for one-time future spending with paid/pending state
+- create flows for transactions, custom categories, monthly budgets, recurring bills, planned expenses, and savings goals
+- single Add record popup that switches between transaction, planned expense, bill, savings, budget, and category creation
 - visual bill, savings, and total money sections on the finance page
 - monthly/yearly period selector for finance totals, insights, and recent transaction history
-- edit and delete flows for finance transactions, categories, budgets, recurring bills, and savings goals
+- edit and delete flows for finance transactions, categories, budgets, recurring bills, planned expenses, and savings goals
 - default finance categories are protected from deletion
 
 Main files:
@@ -147,11 +159,13 @@ Main files:
 - `src/app/api/finance/transactions/route.ts`
 - `src/app/api/finance/budgets/route.ts`
 - `src/app/api/finance/recurring-bills/route.ts`
+- `src/app/api/finance/planned-expenses/route.ts`
 - `src/app/api/finance/savings-goals/route.ts`
 - `src/app/api/finance/categories/[id]/route.ts`
 - `src/app/api/finance/transactions/[id]/route.ts`
 - `src/app/api/finance/budgets/[id]/route.ts`
 - `src/app/api/finance/recurring-bills/[id]/route.ts`
+- `src/app/api/finance/planned-expenses/[id]/route.ts`
 - `src/app/api/finance/savings-goals/[id]/route.ts`
 - `src/app/finance/components/FinanceRecordActions.tsx`
 - `src/hooks/useFinanceMutations.ts`

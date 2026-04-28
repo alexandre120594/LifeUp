@@ -5,6 +5,7 @@ import { Controller, useForm, useWatch } from "react-hook-form";
 import { Pencil, Trash2 } from "lucide-react";
 import { MoneyInput } from "@/components/money-input";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Dialog,
   DialogContent,
@@ -25,11 +26,13 @@ import {
   useDeleteBudget,
   useDeleteFinancialCategory,
   useDeleteFinancialTransaction,
+  useDeletePlannedExpense,
   useDeleteRecurringBill,
   useDeleteSavingsGoal,
   useUpdateBudget,
   useUpdateFinancialCategory,
   useUpdateFinancialTransaction,
+  useUpdatePlannedExpense,
   useUpdateRecurringBill,
   useUpdateSavingsGoal,
 } from "@/hooks/useFinanceMutations";
@@ -42,6 +45,8 @@ import type {
   FinancialCategoryCreateInput,
   FinancialTransaction,
   FinancialTransactionCreateInput,
+  PlannedExpense,
+  PlannedExpenseCreateInput,
   RecurringBill,
   RecurringBillCreateInput,
   SavingsGoal,
@@ -431,6 +436,102 @@ export function BillActions({
                   ))}
                 </SelectContent>
               </Select>
+            )}
+          />
+          <Button disabled={isUpdating} type="submit">
+            {isUpdating ? "Saving..." : "Save changes"}
+          </Button>
+      </form>
+    </ActionShell>
+  );
+}
+
+export function PlannedExpenseActions({
+  expense,
+  expenseCategories,
+}: {
+  expense: PlannedExpense;
+  expenseCategories: FinancialCategory[];
+}) {
+  const [open, setOpen] = useState(false);
+  const form = useForm<PlannedExpenseCreateInput>({
+    defaultValues: {
+      amount: moneyToNumber(expense.amount),
+      categoryId: expense.categoryId,
+      isPaid: expense.isPaid,
+      notes: expense.notes ?? "",
+      plannedDate: toDateInputValue(expense.plannedDate),
+      title: expense.title,
+    },
+  });
+  const { error: deleteError, mutate: deleteExpense, isPending: isDeleting } =
+    useDeletePlannedExpense();
+  const { mutate: updateExpense, isPending: isUpdating } =
+    useUpdatePlannedExpense();
+
+  const onSubmit = (data: PlannedExpenseCreateInput) => {
+    updateExpense(
+      { data, id: expense.id },
+      {
+        onSuccess: () => setOpen(false),
+      }
+    );
+  };
+
+  return (
+    <ActionShell
+      error={deleteError}
+      isDeleting={isDeleting}
+      onDelete={() => deleteExpense(expense.id)}
+      onOpenChange={setOpen}
+      open={open}
+      title="Edit planned expense"
+    >
+      <form onSubmit={form.handleSubmit(onSubmit)} className="grid gap-3">
+          <Input {...form.register("title", { required: true })} />
+          <Controller
+            name="amount"
+            control={form.control}
+            rules={{ min: 0.01, required: true }}
+            render={({ field }) => (
+              <MoneyInput value={field.value} onValueChange={field.onChange} />
+            )}
+          />
+          <Input
+            {...form.register("plannedDate", { required: true })}
+            type="date"
+          />
+          <Controller
+            name="categoryId"
+            control={form.control}
+            rules={{ required: true }}
+            render={({ field }) => (
+              <Select value={field.value} onValueChange={field.onChange}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Category" />
+                </SelectTrigger>
+                <SelectContent>
+                  {expenseCategories.map((category) => (
+                    <SelectItem key={category.id} value={category.id}>
+                      {category.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
+          />
+          <Input {...form.register("notes")} placeholder="Optional note" />
+          <Controller
+            name="isPaid"
+            control={form.control}
+            render={({ field }) => (
+              <label className="flex items-center gap-2 text-sm">
+                <Checkbox
+                  checked={field.value}
+                  onCheckedChange={(checked) => field.onChange(Boolean(checked))}
+                />
+                Mark as paid
+              </label>
             )}
           />
           <Button disabled={isUpdating} type="submit">

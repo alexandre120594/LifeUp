@@ -1,8 +1,5 @@
 import prisma from "@/lib/prisma";
-import { Habit, Project, ProjectRequest } from "@/types/BaseInterfaces";
 import { NextRequest, NextResponse } from "next/server";
-
-const ProjectID = "1"
 
 
 export async function GET(req: NextRequest) {
@@ -22,9 +19,24 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
-    const { title ,projectId  } = await req.json();
+    const { frequency = "daily", reminderTime, title, projectId } = await req.json();
+
+    if (!title || !projectId || !["daily", "weekly"].includes(frequency)) {
+      return NextResponse.json(
+        { error: "Valid title, project, and frequency are required." },
+        { status: 400 }
+      );
+    }
+
     const project = await prisma.habit.create({
-      data: { title, projectId, streak: 0, history: [], frequency: "" },
+      data: {
+        title,
+        projectId,
+        streak: 0,
+        history: [],
+        frequency,
+        reminderTime: reminderTime || null,
+      },
     });
     
     return NextResponse.json(project, { status: 201 });

@@ -126,16 +126,32 @@ export async function PATCH(req: NextRequest, { params }: RouteParams) {
   const { id } = await params;
 
   try {
-    const { title, completed, dateFinish, time } = await req.json();
+    const { completed, date, dateFinish, time, title } = await req.json();
+    const parsedDate =
+      typeof date === "string" && date
+        ? new Date(date.includes("T") ? date : `${date}T00:00:00.000Z`)
+        : undefined;
+
+    if (parsedDate && Number.isNaN(parsedDate.getTime())) {
+      return NextResponse.json(
+        { error: "Valid task date is required." },
+        { status: 400 }
+      );
+    }
 
     return await prisma.$transaction(async (tx) => {
       const task = await tx.task.update({
         where: { id },
         data: {
           title,
-          completed,
-          dateFinish: completed ? dateFinish : null,
-          time: completed ? time : null,
+          ...(typeof completed === "boolean"
+            ? {
+                completed,
+                dateFinish: completed ? dateFinish : null,
+                time: completed ? time : null,
+              }
+            : {}),
+          date: parsedDate,
         },
       });
 

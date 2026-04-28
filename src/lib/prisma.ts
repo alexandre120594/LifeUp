@@ -12,7 +12,9 @@ const adapter = new PrismaPg({
 
 const cachedPrisma = globalForPrisma.prisma;
 const hasCurrentFinanceDelegates =
-  cachedPrisma && "financialCategory" in cachedPrisma;
+  cachedPrisma &&
+  "financialCategory" in cachedPrisma &&
+  "plannedExpense" in cachedPrisma;
 
 const prisma: PrismaClient = hasCurrentFinanceDelegates ? cachedPrisma : new PrismaClient({
   adapter,

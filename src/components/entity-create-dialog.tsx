@@ -73,6 +73,7 @@ export function EntityCreateDialog({
   });
   const habitForm = useForm<HabitCreateInput>({
     defaultValues: {
+      frequency: "daily",
       projectId: "",
       title: "",
     },
@@ -137,11 +138,16 @@ export function EntityCreateDialog({
     createHabit(
       {
         projectId: data.projectId,
+        frequency: data.frequency ?? "daily",
         title: data.title,
       },
       {
         onSuccess: () => {
-          habitForm.reset({ projectId: "", title: "" });
+          habitForm.reset({
+            frequency: data.frequency ?? "daily",
+            projectId: "",
+            title: "",
+          });
           closeAfterCreate();
         },
       }
@@ -288,6 +294,28 @@ export function EntityCreateDialog({
                 })}
                 className="mt-2 h-11 rounded-lg"
                 placeholder="Example: Read 10 pages"
+              />
+            </div>
+
+            <div>
+              <label className="text-sm font-medium">Frequency</label>
+              <Controller
+                name="frequency"
+                control={habitForm.control}
+                render={({ field }) => (
+                  <Select
+                    value={field.value || "daily"}
+                    onValueChange={field.onChange}
+                  >
+                    <SelectTrigger className="mt-2 h-11 w-full rounded-lg">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="daily">Daily</SelectItem>
+                      <SelectItem value="weekly">Weekly</SelectItem>
+                    </SelectContent>
+                  </Select>
+                )}
               />
             </div>
 

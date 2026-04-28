@@ -10,6 +10,8 @@ The app currently supports:
 - task creation, completion, and listing
 - popup creation for projects, habits, and tasks across the main menu pages
 - section navigation for dashboard, projects, habits, tasks, and finance
+- task calendar menu for day-level planning
+- habit creation flows include daily/weekly frequency, and the habit tracker adds reminder time, completions, streaks, and statistics progress
 - responsive layouts for mobile, tablet, and desktop screens
 - updated theme palettes with compact swatch switching and stronger contrast
 - Personal Financial Organizer MVP for:
@@ -17,6 +19,7 @@ The app currently supports:
   - spending categories
   - monthly budgets
   - recurring bills
+  - planned one-time expenses
   - savings goals
   - simple cash-flow insights
   - total tracked money, bill, and savings visualizations
@@ -28,6 +31,8 @@ The app currently supports:
   - overall task completion
   - 7-day activity trend
   - project throughput
+  - top-line finance income, expenses, and total cash
+- calendar page for reviewing tasks by day and scheduling future tasks
 - project detail analytics for:
   - project-level activity trend
   - habit performance
@@ -75,10 +80,14 @@ There is also repeatable local seed data for testing charts and flows.
   - habit index page with streak, check-in, and linked-task analytics
 - `src/app/habits/[id]/page.tsx`
   - habit detail page with linked tasks and habit-specific charts
+- `src/app/habit-tracker/page.tsx`
+  - habit tracker page with a recent-day completion grid
 - `src/app/tasks/page.tsx`
   - task index page with queue overview, creation form, and task list
 - `src/app/tasks/[id]/page.tsx`
   - task detail page with parent project context
+- `src/app/calendar/page.tsx`
+  - task calendar page for day-level planning and future task creation
 - `src/app/finance/page.tsx`
   - Personal Financial Organizer MVP with summary, one-popup creation, visual totals, recent transactions, plans, and insights
 
@@ -92,6 +101,10 @@ There is also repeatable local seed data for testing charts and flows.
   - shared popup creation flow for projects, habits, and tasks
 - `src/components/overview-panel.tsx`
   - reusable overview/focus layout used by the main menu pages
+- `src/components/task-calendar.tsx`
+  - task calendar for day-level task review and future task scheduling
+- `src/components/habit-tracker.tsx`
+  - recent-day habit completion grid with check-in toggles
 - `src/lib/analytics.ts`
   - shared metric builders for charts
 - `src/lib/finance.ts`
@@ -124,6 +137,7 @@ There is also repeatable local seed data for testing charts and flows.
 - `src/app/api/finance/transactions/route.ts`
 - `src/app/api/finance/budgets/route.ts`
 - `src/app/api/finance/recurring-bills/route.ts`
+- `src/app/api/finance/planned-expenses/route.ts`
 - `src/app/api/finance/savings-goals/route.ts`
 
 ### Data Layer
@@ -151,7 +165,7 @@ There is also repeatable local seed data for testing charts and flows.
 - `Habit`
   - belongs to project
   - owns many tasks
-  - stores streak and `history` array used by current analytics
+  - stores streak, daily/weekly frequency, reminder time, and `history` array used by current analytics and habit tracking
 - `Task`
   - belongs to project
   - optionally belongs to habit
@@ -168,6 +182,9 @@ There is also repeatable local seed data for testing charts and flows.
 - `RecurringBill`
   - belongs to user and category
   - tracks expected monthly bills
+- `PlannedExpense`
+  - belongs to user and category
+  - tracks one-time planned expenses with paid/pending state
 - `SavingsGoal`
   - belongs to user
   - tracks current amount against a target
@@ -232,14 +249,17 @@ Seeded project names:
 
 What is stable enough to continue from:
 - dashboard charts are wired through shared analytics helpers
+- dashboard top line includes current finance income, expenses, and total cash from the finance summary
+- calendar page shows task names in a large month view, opens selected-day tasks in a popup, supports task edit/delete, and creates multiple future-dated tasks from an Add task button
+- habit tracker page creates habits, marks daily progress, stores daily/weekly frequency and reminder time, and shows streak/calendar/statistics progress
 - chart colors now follow the active app theme
 - dashboard layout is more structured than before
 - app shell, overview panels, charts, lists, dialogs, and detail pages are responsive across smaller and larger screens
 - theme colors now use richer primary, secondary, and accent tokens so the sidebar, buttons, cards, and charts read more clearly
 - dashboard and section-page creation are consolidated into a shared popup so overview pages stay lighter
 - finance MVP is available from the sidebar and persists finance records through Prisma
-- finance creation now uses a single Add record popup for transactions, bills, savings goals, budgets, and categories
-- finance displays total tracked money, cash after active bills, bill charts, and savings progress charts
+- finance creation now uses a single Add record popup for transactions, planned expenses, bills, savings goals, budgets, and categories
+- finance displays total tracked money, cash after active bills and unpaid planned expenses, bill charts, and savings progress charts
 - finance totals, insights, and recent transactions can switch between monthly and yearly tracking
 - finance records can be edited or deleted from the Finance management section; default categories are protected from deletion
 - section pages for projects, habits, and tasks now follow the newer dashboard structure

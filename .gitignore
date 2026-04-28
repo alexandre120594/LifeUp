@@ -51,3 +51,8 @@ node_modules
 # Prisma generated client
 /src/generated
 
+.env
+.env.local
+.env.production
+node_modules
+.next
