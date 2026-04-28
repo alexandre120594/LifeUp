@@ -1,7 +1,14 @@
 import prisma from "@/lib/prisma";
+import { requireCurrentUserId } from "@/lib/auth";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(req: NextRequest) {
+  const { response, userId } = await requireCurrentUserId();
+
+  if (response) {
+    return response;
+  }
+
   const { searchParams } = new URL(req.url);
   const habitId = searchParams.get("habitId");
   const projectId = searchParams.get("projectId");
@@ -9,6 +16,7 @@ export async function GET(req: NextRequest) {
     where: {
       ...(habitId ? { habitId } : {}),
       ...(projectId ? { projectId } : {}),
+      project: { userId },
     },
     include: {
       project: true,
@@ -19,6 +27,12 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
+  const { response, userId } = await requireCurrentUserId();
+
+  if (response) {
+    return response;
+  }
+
   try {
     const { title, projectId, habitId, date } = await req.json();
     const parsedDate =
@@ -30,6 +44,22 @@ export async function POST(req: NextRequest) {
       return NextResponse.json(
         { error: "Valid title, project, habit, and date are required." },
         { status: 400 }
+      );
+    }
+
+    const habit = await prisma.habit.findFirst({
+      where: {
+        id: habitId,
+        projectId,
+        project: { userId },
+      },
+      select: { id: true },
+    });
+
+    if (!habit) {
+      return NextResponse.json(
+        { error: "Project or habit not found." },
+        { status: 404 }
       );
     }
 

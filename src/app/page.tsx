@@ -30,6 +30,7 @@ import {
 } from "@/lib/analytics";
 import { formatCurrency } from "@/lib/finance";
 import { cn } from "@/lib/utils";
+import { CurrentUserName } from "@/components/current-user-name";
 
 const radialChartConfig = {
   data: {
@@ -83,7 +84,7 @@ export default function DashboardPage() {
     <div className="space-y-6 p-4 md:p-8">
       <MenuPageHeader
         eyebrow="Welcome back,"
-        title="Alexandre"
+        title={<CurrentUserName />}
         action={<EntityCreateDialog />}
       />
 

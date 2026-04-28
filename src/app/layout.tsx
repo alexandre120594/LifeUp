@@ -1,10 +1,8 @@
 import type { Metadata } from "next";
 import { Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
-import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
-import { AppSidebar } from "@/components/app-sidebar";
+import { AppShell } from "@/components/app-shell";
 import Providers from "@/components/providers";
-import { ThemeSwitcher } from "./ThemeSwitcher";
 
 const jakartaSans = Plus_Jakarta_Sans({
   variable: "--font-plus_jakarta_-sans",
@@ -43,6 +41,7 @@ export default function RootLayout({
     root.style.setProperty('--a-chroma', theme.a.c);
   })()
 `;
+
   return (
     <html lang="pt-BR" suppressHydrationWarning>
       <head>
@@ -50,27 +49,7 @@ export default function RootLayout({
       </head>
       <body className={`${jakartaSans.variable} antialiased font-sans`}>
         <Providers>
-          <SidebarProvider>
-            <AppSidebar />
-            <main className="flex min-h-screen min-w-0 w-full flex-col overflow-x-hidden bg-background">
-              <header className="sticky top-0 z-30 flex min-w-0 items-center justify-between gap-3 border-b bg-yevox-white/95 p-3 backdrop-blur sm:p-4">
-                <div className="flex min-w-0 items-center gap-2">
-                  <SidebarTrigger />
-                  <h1 className="hidden truncate text-sm font-semibold sm:block">
-                    Dashboard
-                  </h1>
-                </div>
-                <div className="shrink-0">
-                  <ThemeSwitcher />
-                </div>
-              </header>
-
-              {/* Conteúdo da Página */}
-              <div className="mx-auto w-full min-w-0 max-w-7xl flex-1">
-                {children}
-              </div>
-            </main>
-          </SidebarProvider>
+          <AppShell>{children}</AppShell>
         </Providers>
       </body>
     </html>

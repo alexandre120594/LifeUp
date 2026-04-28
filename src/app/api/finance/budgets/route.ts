@@ -1,9 +1,14 @@
 import prisma from "@/lib/prisma";
+import { requireCurrentUserId } from "@/lib/auth";
 import { NextRequest, NextResponse } from "next/server";
 
-const DEV_USER_ID = 1;
-
 export async function POST(req: NextRequest) {
+  const { response, userId } = await requireCurrentUserId();
+
+  if (response) {
+    return response;
+  }
+
   try {
     const { amount, categoryId, month, title } = await req.json();
     const parsedAmount = Number(amount);
@@ -26,7 +31,7 @@ export async function POST(req: NextRequest) {
         userId_categoryId_month: {
           categoryId,
           month,
-          userId: DEV_USER_ID,
+          userId,
         },
       },
       create: {
@@ -34,7 +39,7 @@ export async function POST(req: NextRequest) {
         categoryId,
         month,
         title,
-        userId: DEV_USER_ID,
+        userId,
       },
       update: {
         amount: parsedAmount,

@@ -1,5 +1,6 @@
 // src/app/api/habits/[id]/route.ts
 import prisma from "@/lib/prisma";
+import { requireCurrentUserId } from "@/lib/auth";
 import { NextRequest, NextResponse } from "next/server";
 
 interface RouteParams {
@@ -8,10 +9,15 @@ interface RouteParams {
 
 export async function GET(req: NextRequest, { params }: RouteParams) {
   const { id } = await params;
+  const { response, userId } = await requireCurrentUserId();
+
+  if (response) {
+    return response;
+  }
 
   try {
-    const project = await prisma.project.findUnique({
-      where: { id },
+    const project = await prisma.project.findFirst({
+      where: { id, userId },
       include: {
         habits: true,
         tasks: true,
@@ -33,8 +39,22 @@ export async function GET(req: NextRequest, { params }: RouteParams) {
 
 export async function DELETE(req: NextRequest, { params }: RouteParams) {
   const { id } = await params;
+  const { response, userId } = await requireCurrentUserId();
+
+  if (response) {
+    return response;
+  }
 
   try {
+    const project = await prisma.project.findFirst({
+      where: { id, userId },
+      select: { id: true },
+    });
+
+    if (!project) {
+      return NextResponse.json({ error: "Project not found" }, { status: 404 });
+    }
+
     await prisma.$transaction([
       prisma.task.deleteMany({
         where: {
@@ -61,9 +81,23 @@ export async function DELETE(req: NextRequest, { params }: RouteParams) {
 
 export async function PATCH(req: NextRequest, { params }: RouteParams) {
   const { id } = await params;
+  const { response, userId } = await requireCurrentUserId();
+
+  if (response) {
+    return response;
+  }
 
   try {
     const { title, color } = await req.json();
+    const project = await prisma.project.findFirst({
+      where: { id, userId },
+      select: { id: true },
+    });
+
+    if (!project) {
+      return NextResponse.json({ error: "Project not found" }, { status: 404 });
+    }
+
     const habit = await prisma.project.update({
       where: { id },
       data: { title, color },

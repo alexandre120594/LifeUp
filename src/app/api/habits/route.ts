@@ -1,13 +1,21 @@
 import prisma from "@/lib/prisma";
+import { requireCurrentUserId } from "@/lib/auth";
 import { NextRequest, NextResponse } from "next/server";
 
 
 export async function GET(req: NextRequest) {
+  const { response, userId } = await requireCurrentUserId();
+
+  if (response) {
+    return response;
+  }
+
   const { searchParams } = new URL(req.url);
   const projectId = searchParams.get("projectId");
   const habits = await prisma.habit.findMany({
     where: {
         ...(projectId ? { projectId } : {}),
+        project: { userId },
       },
     include: {
       tasks: true,
@@ -18,6 +26,12 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
+  const { response, userId } = await requireCurrentUserId();
+
+  if (response) {
+    return response;
+  }
+
   try {
     const { frequency = "daily", reminderTime, title, projectId } = await req.json();
 
@@ -28,7 +42,16 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const project = await prisma.habit.create({
+    const project = await prisma.project.findUnique({
+      where: { id: projectId, userId },
+      select: { id: true },
+    });
+
+    if (!project) {
+      return NextResponse.json({ error: "Project not found" }, { status: 404 });
+    }
+
+    const habit = await prisma.habit.create({
       data: {
         title,
         projectId,
@@ -39,7 +62,7 @@ export async function POST(req: NextRequest) {
       },
     });
     
-    return NextResponse.json(project, { status: 201 });
+    return NextResponse.json(habit, { status: 201 });
   } catch (error) {
     console.log(error)
     return NextResponse.json(

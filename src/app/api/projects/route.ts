@@ -1,14 +1,17 @@
 import prisma from "@/lib/prisma";
-import { Project, ProjectRequest } from "@/types/BaseInterfaces";
+import { requireCurrentUserId } from "@/lib/auth";
 import { NextRequest, NextResponse } from "next/server";
 
-const DEV_USER_ID = 1
-
-
 export async function GET() {
+  const { response, userId } = await requireCurrentUserId();
+
+  if (response) {
+    return response;
+  }
+
   const projects = await prisma.project.findMany({
     where: {
-      userId: DEV_USER_ID,
+      userId,
     },
     include: {
       habits: true,
@@ -19,10 +22,16 @@ export async function GET() {
 }
 
 export async function POST(req: NextRequest) {
+  const { response, userId } = await requireCurrentUserId();
+
+  if (response) {
+    return response;
+  }
+
   try {
-    const { title, color, userId } = await req.json();
+    const { title, color } = await req.json();
     const project = await prisma.project.create({
-      data: { title, color, userId: DEV_USER_ID },
+      data: { title, color, userId },
     });
     return NextResponse.json(project, { status: 201 });
   } catch (error) {

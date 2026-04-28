@@ -1,10 +1,15 @@
 import prisma from "@/lib/prisma";
 import { Prisma } from "@/generated/client";
+import { requireCurrentUserId } from "@/lib/auth";
 import { NextRequest, NextResponse } from "next/server";
 
-const DEV_USER_ID = 1;
-
 export async function POST(req: NextRequest) {
+  const { response, userId } = await requireCurrentUserId();
+
+  if (response) {
+    return response;
+  }
+
   try {
     const { name, type, color } = await req.json();
     const normalizedName = typeof name === "string" ? name.trim() : "";
@@ -21,7 +26,7 @@ export async function POST(req: NextRequest) {
         color,
         name: normalizedName,
         type,
-        userId: DEV_USER_ID,
+        userId,
       },
     });
 

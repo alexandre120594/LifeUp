@@ -1,12 +1,17 @@
 import prisma from "@/lib/prisma";
+import { requireCurrentUserId } from "@/lib/auth";
 import { NextRequest, NextResponse } from "next/server";
-
-const DEV_USER_ID = 1;
 
 export async function PATCH(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const { response, userId } = await requireCurrentUserId();
+
+  if (response) {
+    return response;
+  }
+
   try {
     const { id } = await params;
     const { amount, categoryId, dueDay, title } = await req.json();
@@ -29,7 +34,7 @@ export async function PATCH(
     }
 
     const bill = await prisma.recurringBill.update({
-      where: { id, userId: DEV_USER_ID },
+      where: { id, userId },
       data: {
         amount: parsedAmount,
         categoryId,
@@ -52,11 +57,17 @@ export async function DELETE(
   _req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const { response, userId } = await requireCurrentUserId();
+
+  if (response) {
+    return response;
+  }
+
   try {
     const { id } = await params;
 
     await prisma.recurringBill.delete({
-      where: { id, userId: DEV_USER_ID },
+      where: { id, userId },
     });
 
     return NextResponse.json({ ok: true });

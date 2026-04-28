@@ -1,18 +1,17 @@
 import prisma from "@/lib/prisma";
 import { DEFAULT_FINANCE_CATEGORIES } from "@/lib/finance-defaults";
 import { buildFinanceSummary } from "@/lib/finance";
+import { requireCurrentUserId } from "@/lib/auth";
 import type { FinanceRecordType, FinancialCategory } from "@/types/BaseInterfaces";
 import { NextResponse } from "next/server";
 
-const DEV_USER_ID = 1;
-
-async function ensureDefaultCategories() {
+async function ensureDefaultCategories(userId: number) {
   await Promise.all(
     DEFAULT_FINANCE_CATEGORIES.map((category) =>
       prisma.financialCategory.upsert({
         where: {
           userId_name_type: {
-            userId: DEV_USER_ID,
+            userId,
             name: category.name,
             type: category.type,
           },
@@ -20,7 +19,7 @@ async function ensureDefaultCategories() {
         create: {
           ...category,
           isDefault: true,
-          userId: DEV_USER_ID,
+          userId,
         },
         update: {
           color: category.color,
@@ -50,7 +49,13 @@ function normalizeCategory(category: {
 }
 
 export async function GET() {
-  await ensureDefaultCategories();
+  const { response, userId } = await requireCurrentUserId();
+
+  if (response) {
+    return response;
+  }
+
+  await ensureDefaultCategories(userId);
 
   const [
     categories,
@@ -62,31 +67,31 @@ export async function GET() {
   ] =
     await Promise.all([
       prisma.financialCategory.findMany({
-        where: { userId: DEV_USER_ID },
+        where: { userId },
         orderBy: [{ type: "asc" }, { name: "asc" }],
       }),
       prisma.financialTransaction.findMany({
-        where: { userId: DEV_USER_ID },
+        where: { userId },
         include: { category: true },
         orderBy: { date: "desc" },
       }),
       prisma.budget.findMany({
-        where: { userId: DEV_USER_ID },
+        where: { userId },
         include: { category: true },
         orderBy: { month: "desc" },
       }),
       prisma.recurringBill.findMany({
-        where: { userId: DEV_USER_ID },
+        where: { userId },
         include: { category: true },
         orderBy: { dueDay: "asc" },
       }),
       prisma.plannedExpense.findMany({
-        where: { userId: DEV_USER_ID },
+        where: { userId },
         include: { category: true },
         orderBy: { plannedDate: "asc" },
       }),
       prisma.savingsGoal.findMany({
-        where: { userId: DEV_USER_ID },
+        where: { userId },
         orderBy: { createdAt: "desc" },
       }),
     ]);
