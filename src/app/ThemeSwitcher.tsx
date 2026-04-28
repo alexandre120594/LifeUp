@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useSyncExternalStore } from "react";
 
 const themes = {
   grove: {
@@ -37,29 +37,58 @@ const themes = {
 
 type ThemeName = keyof typeof themes;
 
-export function ThemeSwitcher() {
-  const [activeTheme, setActiveTheme] = useState<ThemeName>(() => {
-    if (typeof window === "undefined") {
-      return "grove";
-    }
+const themeChangeEvent = "app-theme-choice-change";
 
-    const saved = localStorage.getItem("app-theme-choice");
-    return saved && saved in themes ? (saved as ThemeName) : "grove";
-  });
+function getThemeSnapshot(): ThemeName {
+  if (typeof window === "undefined") {
+    return getServerThemeSnapshot();
+  }
+
+  const saved = localStorage.getItem("app-theme-choice");
+  return saved && saved in themes ? (saved as ThemeName) : "grove";
+}
+
+function getServerThemeSnapshot(): ThemeName {
+  return "grove";
+}
+
+function subscribeToThemeChanges(callback: () => void) {
+  window.addEventListener("storage", callback);
+  window.addEventListener(themeChangeEvent, callback);
+
+  return () => {
+    window.removeEventListener("storage", callback);
+    window.removeEventListener(themeChangeEvent, callback);
+  };
+}
+
+function applyTheme(name: ThemeName) {
+  const theme = themes[name];
+  const root = document.documentElement;
+
+  root.style.setProperty("--p-hue", theme.p.h);
+  root.style.setProperty("--p-chroma", theme.p.c);
+  root.style.setProperty("--s-hue", theme.s.h);
+  root.style.setProperty("--s-chroma", theme.s.c);
+  root.style.setProperty("--a-hue", theme.a.h);
+  root.style.setProperty("--a-chroma", theme.a.c);
+}
+
+export function ThemeSwitcher() {
+  const activeTheme = useSyncExternalStore(
+    subscribeToThemeChanges,
+    getThemeSnapshot,
+    getServerThemeSnapshot,
+  );
+
+  useEffect(() => {
+    applyTheme(activeTheme);
+  }, [activeTheme]);
 
   const changeTheme = (name: ThemeName) => {
-    const theme = themes[name];
-    const root = document.documentElement;
-
-    root.style.setProperty("--p-hue", theme.p.h);
-    root.style.setProperty("--p-chroma", theme.p.c);
-    root.style.setProperty("--s-hue", theme.s.h);
-    root.style.setProperty("--s-chroma", theme.s.c);
-    root.style.setProperty("--a-hue", theme.a.h);
-    root.style.setProperty("--a-chroma", theme.a.c);
-
+    applyTheme(name);
     localStorage.setItem("app-theme-choice", name);
-    setActiveTheme(name);
+    window.dispatchEvent(new Event(themeChangeEvent));
   };
 
   return (

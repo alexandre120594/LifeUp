@@ -4,8 +4,10 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   BarChart3,
+  CalendarDays,
   FolderKanban,
   Home,
+  ListChecks,
   ListTodo,
   Repeat,
   WalletCards,
@@ -46,10 +48,22 @@ const items = [
     description: "Consistency and streaks",
   },
   {
+    title: "Habit Tracker",
+    url: "/habit-tracker",
+    icon: ListChecks,
+    description: "Daily routine grid",
+  },
+  {
     title: "Tasks",
     url: "/tasks",
     icon: ListTodo,
     description: "Execution queue",
+  },
+  {
+    title: "Calendar",
+    url: "/calendar",
+    icon: CalendarDays,
+    description: "Plan tasks by day",
   },
   {
     title: "Finance",
@@ -68,7 +82,9 @@ export function AppSidebar() {
   const badges: Record<string, number> = {
     "/projects": projects?.length ?? 0,
     "/habits": habits?.length ?? 0,
+    "/habit-tracker": habits?.length ?? 0,
     "/tasks": tasks?.length ?? 0,
+    "/calendar": tasks?.length ?? 0,
     "/finance": 0,
   };
 

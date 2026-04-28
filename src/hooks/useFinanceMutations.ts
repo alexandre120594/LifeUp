@@ -140,6 +140,39 @@ export function useDeleteRecurringBill() {
   });
 }
 
+export function useCreatePlannedExpense() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: FinanceServices.createPlannedExpense,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["finance"] });
+    },
+  });
+}
+
+export function useUpdatePlannedExpense() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: FinanceServices.updatePlannedExpense,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["finance"] });
+    },
+  });
+}
+
+export function useDeletePlannedExpense() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: FinanceServices.deletePlannedExpense,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["finance"] });
+    },
+  });
+}
+
 export function useCreateSavingsGoal() {
   const queryClient = useQueryClient();
 

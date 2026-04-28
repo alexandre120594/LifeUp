@@ -20,9 +20,21 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
-    const { title, projectId, habitId } = await req.json();
+    const { title, projectId, habitId, date } = await req.json();
+    const parsedDate =
+      typeof date === "string" && date
+        ? new Date(date.includes("T") ? date : `${date}T00:00:00.000Z`)
+        : new Date();
+
+    if (!title || !projectId || !habitId || Number.isNaN(parsedDate.getTime())) {
+      return NextResponse.json(
+        { error: "Valid title, project, habit, and date are required." },
+        { status: 400 }
+      );
+    }
+
     const task = await prisma.task.create({
-      data: { title, projectId, habitId, completed: false },
+      data: { title, projectId, habitId, date: parsedDate, completed: false },
     });
     return NextResponse.json(task, { status: 201 });
   } catch (error) {

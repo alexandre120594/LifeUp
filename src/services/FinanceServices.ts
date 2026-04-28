@@ -7,6 +7,8 @@ import type {
   FinancialCategoryCreateInput,
   FinancialTransaction,
   FinancialTransactionCreateInput,
+  PlannedExpense,
+  PlannedExpenseCreateInput,
   RecurringBill,
   RecurringBillCreateInput,
   SavingsGoal,
@@ -87,6 +89,26 @@ export const FinanceServices = {
     }),
   deleteRecurringBill: (id: string) =>
     apiClient<{ ok: boolean }>(`/api/finance/recurring-bills/${id}`, {
+      method: "DELETE",
+    }),
+  createPlannedExpense: (data: PlannedExpenseCreateInput) =>
+    apiClient<PlannedExpense>("/api/finance/planned-expenses", {
+      method: "POST",
+      body: JSON.stringify(data),
+    }),
+  updatePlannedExpense: ({
+    data,
+    id,
+  }: {
+    data: PlannedExpenseCreateInput;
+    id: string;
+  }) =>
+    apiClient<PlannedExpense>(`/api/finance/planned-expenses/${id}`, {
+      method: "PATCH",
+      body: JSON.stringify(data),
+    }),
+  deletePlannedExpense: (id: string) =>
+    apiClient<{ ok: boolean }>(`/api/finance/planned-expenses/${id}`, {
       method: "DELETE",
     }),
   createSavingsGoal: (data: SavingsGoalCreateInput) =>

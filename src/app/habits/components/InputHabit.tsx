@@ -24,6 +24,7 @@ function InputHabit({ projectId }: { projectId?: string }) {
   const { register, handleSubmit, setValue, control } =
     useForm<HabitCreateInput>({
       defaultValues: {
+        frequency: "daily",
         projectId: projectId ?? "",
       },
     });
@@ -32,6 +33,11 @@ function InputHabit({ projectId }: { projectId?: string }) {
       control,
       name: "projectId",
     }) || projectId;
+  const selectedFrequency =
+    useWatch({
+      control,
+      name: "frequency",
+    }) ?? "daily";
   const { mutate, isPending } = useCreateHabits();
   const { data: projects } = useProjects();
   const selectedProject = projects?.find(
@@ -47,12 +53,14 @@ function InputHabit({ projectId }: { projectId?: string }) {
 
     mutate(
       {
+        frequency: data.frequency ?? "daily",
         title: data.title,
         projectId: resolvedProjectId,
       },
       {
         onSuccess: () => {
           setValue("title", "");
+          setValue("frequency", data.frequency ?? "daily");
           if (!projectId) {
             setValue("projectId", "");
           }
@@ -105,6 +113,25 @@ function InputHabit({ projectId }: { projectId?: string }) {
               className="h-11 rounded-xl"
               placeholder="Example: Read 10 pages every morning"
             />
+          </CreationStep>
+
+          <CreationStep
+            eyebrow={projectId ? "Cadence" : "Step 3"}
+            label="Choose the frequency"
+            helper="Daily habits expect regular check-ins; weekly habits are for routines that happen once or a few times per week."
+          >
+            <Select
+              value={selectedFrequency}
+              onValueChange={(value) => setValue("frequency", value)}
+            >
+              <SelectTrigger className="h-11 w-full rounded-xl">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="daily">Daily</SelectItem>
+                <SelectItem value="weekly">Weekly</SelectItem>
+              </SelectContent>
+            </Select>
           </CreationStep>
 
           <CreationSummary

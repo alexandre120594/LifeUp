@@ -20,6 +20,7 @@ export interface Habit {
   streak: number;
   history: string[];
   frequency: string;
+  reminderTime?: string | null;
   tasks?: Task[];
   project?: Project; 
 }
@@ -54,12 +55,17 @@ export interface ProjectCreateInput {
 export interface HabitCreateInput {
   title: string;
   projectId?: string;
+  frequency?: string;
+  history?: string[];
+  reminderTime?: string;
+  streak?: number;
 }
 
 export interface TaskCreateInput {
   title: string;
   projectId: string;
   habitId: string;
+  date?: string;
 }
 
 export type ProjectsResponse = Project[];
@@ -106,6 +112,17 @@ export interface RecurringBill {
   category?: FinancialCategory;
 }
 
+export interface PlannedExpense {
+  id: string;
+  title: string;
+  amount: number | string;
+  plannedDate: Date | string;
+  isPaid: boolean;
+  notes?: string | null;
+  categoryId: string;
+  category?: FinancialCategory;
+}
+
 export interface SavingsGoal {
   id: string;
   title: string;
@@ -137,6 +154,7 @@ export interface FinanceDashboardResponse {
   transactions: FinancialTransaction[];
   budgets: Budget[];
   recurringBills: RecurringBill[];
+  plannedExpenses: PlannedExpense[];
   savingsGoals: SavingsGoal[];
   summary: FinanceSummary;
 }
@@ -168,6 +186,15 @@ export interface RecurringBillCreateInput {
   amount: number;
   dueDay: number;
   categoryId: string;
+}
+
+export interface PlannedExpenseCreateInput {
+  title: string;
+  amount: number;
+  plannedDate: string;
+  categoryId: string;
+  isPaid?: boolean;
+  notes?: string;
 }
 
 export interface SavingsGoalCreateInput {

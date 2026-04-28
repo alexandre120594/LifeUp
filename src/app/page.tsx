@@ -10,6 +10,7 @@ import {
 import { useProjects } from "@/hooks/useProjectMutations";
 import { useTask } from "@/hooks/useTaskMutation";
 import { useHabit } from "@/hooks/useHabitMutations";
+import { useFinanceDashboard } from "@/hooks/useFinanceMutations";
 import { ChartRadialText } from "@/components/ChartsComponent/RadialChart";
 import {
   ActivityTrendChart,
@@ -27,6 +28,8 @@ import {
   buildProjectPerformance,
   getTaskSummary,
 } from "@/lib/analytics";
+import { formatCurrency } from "@/lib/finance";
+import { cn } from "@/lib/utils";
 
 const radialChartConfig = {
   data: {
@@ -42,10 +45,13 @@ export default function DashboardPage() {
   const { data: projects, isLoading } = useProjects();
   const { data: tasks } = useTask();
   const { data: habits } = useHabit();
+  const { data: finance } = useFinanceDashboard();
 
   const taskSummary = getTaskSummary(tasks ?? []);
   const activityTrend = buildActivityTrend(tasks ?? [], habits ?? []);
   const projectPerformance = buildProjectPerformance(projects ?? []);
+  const financeSummary = finance?.summary;
+  const totalCash = financeSummary?.netCashFlow ?? 0;
 
   const radialChartData = [
     {
@@ -80,6 +86,23 @@ export default function DashboardPage() {
         title="Alexandre"
         action={<EntityCreateDialog />}
       />
+
+      <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-sm font-semibold sm:text-base">
+        <span className="text-muted-foreground">
+          Here&apos;s our situation now:
+        </span>
+        <span className="text-emerald-600">
+          Income {formatCurrency(financeSummary?.totalIncome ?? 0)}
+        </span>
+        <span className="text-red-600">
+          Expenses {formatCurrency(financeSummary?.totalExpenses ?? 0)}
+        </span>
+        <span
+          className={cn(totalCash < 0 ? "text-red-600" : "text-emerald-600")}
+        >
+          Total cash {formatCurrency(totalCash)}
+        </span>
+      </div>
 
       <OverviewPanel
         title="Your workspace at a glance"

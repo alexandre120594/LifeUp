@@ -52,7 +52,14 @@ function normalizeCategory(category: {
 export async function GET() {
   await ensureDefaultCategories();
 
-  const [categories, transactions, budgets, recurringBills, savingsGoals] =
+  const [
+    categories,
+    transactions,
+    budgets,
+    recurringBills,
+    plannedExpenses,
+    savingsGoals,
+  ] =
     await Promise.all([
       prisma.financialCategory.findMany({
         where: { userId: DEV_USER_ID },
@@ -72,6 +79,11 @@ export async function GET() {
         where: { userId: DEV_USER_ID },
         include: { category: true },
         orderBy: { dueDay: "asc" },
+      }),
+      prisma.plannedExpense.findMany({
+        where: { userId: DEV_USER_ID },
+        include: { category: true },
+        orderBy: { plannedDate: "asc" },
       }),
       prisma.savingsGoal.findMany({
         where: { userId: DEV_USER_ID },
@@ -108,6 +120,16 @@ export async function GET() {
     isActive: bill.isActive,
     title: bill.title,
   }));
+  const normalizedPlannedExpenses = plannedExpenses.map((expense) => ({
+    amount: Number(expense.amount),
+    category: normalizeCategory(expense.category),
+    categoryId: expense.categoryId,
+    id: expense.id,
+    isPaid: expense.isPaid,
+    notes: expense.notes,
+    plannedDate: expense.plannedDate,
+    title: expense.title,
+  }));
   const normalizedGoals = savingsGoals.map((goal) => ({
     ...goal,
     currentAmount: Number(goal.currentAmount),
@@ -119,6 +141,7 @@ export async function GET() {
     transactions: normalizedTransactions,
     budgets: normalizedBudgets,
     recurringBills: normalizedBills,
+    plannedExpenses: normalizedPlannedExpenses,
     savingsGoals: normalizedGoals,
     summary: buildFinanceSummary({
       transactions: normalizedTransactions,
