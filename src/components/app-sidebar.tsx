@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import {
   BarChart3,
   CalendarDays,
+  CalendarRange,
   FolderKanban,
   Home,
   ListChecks,
@@ -66,6 +67,12 @@ const items = [
     description: "Plan tasks by day",
   },
   {
+    title: "Weekly Plan",
+    url: "/weekly-organizer",
+    icon: CalendarRange,
+    description: "Organize this week",
+  },
+  {
     title: "Finance",
     url: "/finance",
     icon: WalletCards,
@@ -85,6 +92,7 @@ export function AppSidebar() {
     "/habit-tracker": habits?.length ?? 0,
     "/tasks": tasks?.length ?? 0,
     "/calendar": tasks?.length ?? 0,
+    "/weekly-organizer": tasks?.length ?? 0,
     "/finance": 0,
   };
 
