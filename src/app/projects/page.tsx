@@ -87,7 +87,7 @@ export default function ProjectsPage() {
       <section className="grid gap-4 xl:grid-cols-2">
         <ProjectPerformanceChart
           title="Project Throughput"
-          description="Completed vs pending tasks by project"
+          description="Done vs pending tasks by project"
           data={projectPerformance}
         />
         <ActivityTrendChart

@@ -8,7 +8,7 @@ export interface Task {
   projectId?: string;
   habitId?: string | null;
   dateFinish?: Date | string;
-  time?: string;
+  time?: string | null;
   project?: Project;
   habit?: Habit | null;
 }
@@ -66,6 +66,7 @@ export interface TaskCreateInput {
   projectId: string;
   habitId: string;
   date?: string;
+  time?: string;
 }
 
 export type ProjectsResponse = Project[];

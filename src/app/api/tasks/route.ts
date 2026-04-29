@@ -34,15 +34,22 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const { title, projectId, habitId, date } = await req.json();
+    const { title, projectId, habitId, date, time } = await req.json();
     const parsedDate =
       typeof date === "string" && date
         ? new Date(date.includes("T") ? date : `${date}T00:00:00.000Z`)
         : new Date();
+    const parsedTime = typeof time === "string" && time ? time : null;
 
-    if (!title || !projectId || !habitId || Number.isNaN(parsedDate.getTime())) {
+    if (
+      !title ||
+      !projectId ||
+      !habitId ||
+      Number.isNaN(parsedDate.getTime()) ||
+      (parsedTime && !/^([01]\d|2[0-3]):[0-5]\d$/.test(parsedTime))
+    ) {
       return NextResponse.json(
-        { error: "Valid title, project, habit, and date are required." },
+        { error: "Valid title, project, habit, date, and time are required." },
         { status: 400 }
       );
     }
@@ -64,7 +71,14 @@ export async function POST(req: NextRequest) {
     }
 
     const task = await prisma.task.create({
-      data: { title, projectId, habitId, date: parsedDate, completed: false },
+      data: {
+        title,
+        projectId,
+        habitId,
+        date: parsedDate,
+        time: parsedTime,
+        completed: false,
+      },
     });
     return NextResponse.json(task, { status: 201 });
   } catch (error) {

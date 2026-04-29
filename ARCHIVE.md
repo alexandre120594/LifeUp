@@ -6,7 +6,7 @@ If a new agent needs to know where work stopped, start here.
 ## Current Snapshot
 
 Date of latest update:
-- 2026-04-27
+- 2026-04-29
 
 Current app position:
 - dashboard exists and is actively used as the main overview
@@ -27,6 +27,8 @@ Current app position:
 - local seed data exists for visual/testing flows
 - Prisma relations were hardened with cascade behavior
 - chart colors now follow the active app theme
+- task creation supports optional scheduled hours, and the calendar displays tasks by time inside each day
+- dashboard now shows a daily/weekly tracker snapshot instead of the project throughput graph
 
 ## Completed Recently
 
@@ -37,6 +39,7 @@ Implemented:
 - main dashboard metrics
 - current finance income, expenses, and total cash in the dashboard top line
 - calendar page with a large month view, task names on each day, selected-day popup with edit/delete actions, and button-triggered future-date task creation
+- scheduled task hours on task creation/editing, with calendar day cells and day detail popups sorted by task time
 - habit tracker page with habit creation, a 21-day completion grid, daily/weekly cadence, reminder time, current streaks, calendar progress, and basic statistics
 - radial completion chart
 - 7-day activity trend chart
@@ -59,10 +62,10 @@ Main files:
 - `src/app/habit-tracker/page.tsx`
 - `src/app/tasks/page.tsx`
 - `src/app/calendar/page.tsx`
+- `src/components/task-calendar.tsx`
 - `src/components/entity-create-dialog.tsx`
 - `src/components/menu-page-header.tsx`
 - `src/components/overview-panel.tsx`
-- `src/components/task-calendar.tsx`
 - `src/components/habit-tracker.tsx`
 - `src/components/ChartsComponent/InsightsCharts.tsx`
 - `src/components/ChartsComponent/RadialChart.tsx`
@@ -298,6 +301,8 @@ Not claimed:
 
 Development currently stops at:
 - dashboard, section pages, and detail analytics working
+- dashboard daily/weekly tracker snapshot replacing the project throughput graph
+- scheduled task hours shown in the calendar daily view
 - streak persistence logic corrected for new and updated records
 - seeded local data available
 - docs updated to reflect current structure
