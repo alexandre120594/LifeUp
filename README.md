@@ -8,6 +8,7 @@ The app currently supports:
 - project creation and listing
 - habit creation and editing inside projects
 - task creation, completion, and listing
+- pagination for project lists, task queues, and the habit tracker grid
 - popup creation for projects, habits, and tasks across the main menu pages
 - section navigation for dashboard, projects, habits, tasks, and finance
 - simple email login with per-user project, habit, task, and finance data isolation
@@ -266,6 +267,8 @@ What is stable enough to continue from:
 - calendar tasks can carry scheduled hours and are shown in time order inside day cells and day detail popups
 - habit tracker page creates habits, marks daily progress, stores daily/weekly frequency and reminder time, and shows streak/calendar/statistics progress
 - chart colors now follow the active app theme
+- project and habit charts use combined bars and lines for workload, completion rate, check-ins, and streak context
+- project and habit chart axes use compact initials/starting letters with horizontal overflow for crowded datasets
 - dashboard layout is more structured than before
 - app shell, overview panels, charts, lists, dialogs, and detail pages are responsive across smaller and larger screens
 - theme colors now use richer primary, secondary, and accent tokens so the sidebar, buttons, cards, and charts read more clearly
@@ -281,6 +284,7 @@ What is stable enough to continue from:
 - habit and task detail pages are present and usable
 - project and habit streak persistence now derives from stored completed task dates
 - seed data is available for testing visual states
+- project lists and the habit tracker grid paginate so larger local datasets remain usable
 
 What is still incomplete or older:
 - login is intentionally simple and email-only; there is no password, OAuth, or production-grade session hardening yet

@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import {
   CheckCircle2,
   Clock3,
@@ -11,6 +12,14 @@ import { EntityCreateDialog } from "@/components/entity-create-dialog";
 import { ListSection } from "@/components/list-section";
 import { MenuPageHeader } from "@/components/menu-page-header";
 import { OverviewPanel } from "@/components/overview-panel";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
 import ProjectItem from "./components/ProjectItem";
 import {
   ActivityTrendChart,
@@ -26,6 +35,7 @@ import {
 } from "@/lib/analytics";
 
 export default function ProjectsPage() {
+  const [currentPage, setCurrentPage] = useState(1);
   const { data: projects, isLoading } = useProjects();
   const { data: habits } = useHabit();
   const { data: tasks } = useTask();
@@ -33,6 +43,19 @@ export default function ProjectsPage() {
   const taskSummary = getTaskSummary(tasks ?? []);
   const projectPerformance = buildProjectPerformance(projects ?? []);
   const activityTrend = buildActivityTrend(tasks ?? [], habits ?? []);
+  const projectsPerPage = 4;
+  const totalPages = Math.ceil((projects?.length ?? 0) / projectsPerPage);
+  const currentProjectPage = Math.min(currentPage, totalPages || 1);
+  const visibleProjects = (projects ?? []).slice(
+    (currentProjectPage - 1) * projectsPerPage,
+    currentProjectPage * projectsPerPage
+  );
+
+  const handlePageChange = (page: number) => {
+    if (page >= 1 && page <= totalPages) {
+      setCurrentPage(page);
+    }
+  };
 
   return (
     <div className="space-y-6 p-4 md:p-8">
@@ -87,7 +110,7 @@ export default function ProjectsPage() {
       <section className="grid gap-4 xl:grid-cols-2">
         <ProjectPerformanceChart
           title="Project Throughput"
-          description="Done vs pending tasks by project"
+          description="Task workload with completion rate by project"
           data={projectPerformance}
         />
         <ActivityTrendChart
@@ -104,9 +127,59 @@ export default function ProjectsPage() {
         loadingLabel="Loading projects..."
         emptyLabel="No projects found. Create your first project above."
       >
-        {projects?.map((project) => (
+        {visibleProjects.map((project) => (
           <ProjectItem key={project.id} project={project} />
         ))}
+        {totalPages > 1 ? (
+          <Pagination>
+            <PaginationContent className="flex-wrap">
+              <PaginationItem>
+                <PaginationPrevious
+                  className={
+                    currentProjectPage === 1
+                      ? "pointer-events-none opacity-50"
+                      : "cursor-pointer"
+                  }
+                  href="#"
+                  onClick={(event) => {
+                    event.preventDefault();
+                    handlePageChange(currentProjectPage - 1);
+                  }}
+                />
+              </PaginationItem>
+              {Array.from({ length: totalPages }, (_, index) => index + 1).map(
+                (page) => (
+                  <PaginationItem key={page}>
+                    <PaginationLink
+                      href="#"
+                      isActive={page === currentProjectPage}
+                      onClick={(event) => {
+                        event.preventDefault();
+                        handlePageChange(page);
+                      }}
+                    >
+                      {page}
+                    </PaginationLink>
+                  </PaginationItem>
+                )
+              )}
+              <PaginationItem>
+                <PaginationNext
+                  className={
+                    currentProjectPage === totalPages
+                      ? "pointer-events-none opacity-50"
+                      : "cursor-pointer"
+                  }
+                  href="#"
+                  onClick={(event) => {
+                    event.preventDefault();
+                    handlePageChange(currentProjectPage + 1);
+                  }}
+                />
+              </PaginationItem>
+            </PaginationContent>
+          </Pagination>
+        ) : null}
       </ListSection>
     </div>
   );

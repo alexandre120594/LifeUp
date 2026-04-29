@@ -29,6 +29,9 @@ Current app position:
 - chart colors now follow the active app theme
 - task creation supports optional scheduled hours, and the calendar displays tasks by time inside each day
 - dashboard now shows a daily/weekly tracker snapshot instead of the project throughput graph
+- project lists and the habit tracker grid now paginate
+- project and habit charts now use combined bars and lines for workload, completion rate, check-ins, and streak context
+- project and habit chart axes now use compact labels and horizontal overflow for crowded datasets
 
 ## Completed Recently
 
@@ -40,6 +43,8 @@ Implemented:
 - current finance income, expenses, and total cash in the dashboard top line
 - calendar page with a large month view, task names on each day, selected-day popup with edit/delete actions, and button-triggered future-date task creation
 - scheduled task hours on task creation/editing, with calendar day cells and day detail popups sorted by task time
+- pagination on the project list and habit tracker grid
+- richer combined charts for project throughput, habit performance, task-by-project, and activity trend sections
 - habit tracker page with habit creation, a 21-day completion grid, daily/weekly cadence, reminder time, current streaks, calendar progress, and basic statistics
 - radial completion chart
 - 7-day activity trend chart

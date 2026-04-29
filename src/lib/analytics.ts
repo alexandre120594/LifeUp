@@ -81,6 +81,9 @@ export function buildProjectPerformance(projects: Project[] = []) {
       name: project.title,
       completed,
       pending,
+      total: tasks.length,
+      completionRate:
+        tasks.length > 0 ? Math.round((completed / tasks.length) * 100) : 0,
       habits: project.habits?.length ?? 0,
     };
   });
@@ -106,7 +109,9 @@ export function buildHabitPerformance(habits: Habit[] = [], tasks: Task[] = []) 
 
     return {
       name: habit.title,
+      projectName: habit.project?.title,
       streak: habit.streak ?? 0,
+      totalTasks: relatedTasks.length,
       completedTasks,
       recentCheckIns,
     };
