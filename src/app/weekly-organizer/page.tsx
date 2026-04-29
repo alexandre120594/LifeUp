@@ -53,6 +53,16 @@ import type { Project } from "@/types/BaseInterfaces";
 
 type WeekProjectAssignments = Record<string, string[]>;
 type BoardView = "grid" | "list";
+type HabitDialogDay = {
+  label: string;
+  dateLabel: string;
+  habits: HabitDisplayItem[];
+} | null;
+type HabitDisplayItem = {
+  id: string;
+  title: string;
+  cadence: "Daily" | "Weekly";
+};
 
 function buildDefaultAssignments(projects: Project[], week: ReturnType<typeof getCurrentWeek>) {
   const assignments = Object.fromEntries(
@@ -89,8 +99,9 @@ function ProjectPlannerCard({
     <>
       <button
         type="button"
+        title={project.title}
         onClick={() => setIsDialogOpen(true)}
-        className="flex min-w-0 items-center gap-2 rounded-lg border border-border/60 bg-card px-3 py-2.5 text-left text-sm shadow-sm transition-colors hover:border-primary/30 hover:bg-secondary/45"
+        className="flex w-full min-w-0 max-w-full items-center gap-2 overflow-hidden rounded-lg border border-border/60 bg-card px-3 py-2.5 text-left text-sm shadow-sm transition-colors hover:border-primary/30 hover:bg-secondary/45"
       >
         <span
           className="h-2.5 w-2.5 shrink-0 rounded-full"
@@ -182,6 +193,7 @@ export default function WeeklyOrganizerPage() {
   const [selectedProjectId, setSelectedProjectId] = useState("");
   const [selectedDayKey, setSelectedDayKey] = useState(week[0]?.key ?? "");
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [habitDialogDay, setHabitDialogDay] = useState<HabitDialogDay>(null);
   const [boardView, setBoardView] = useState<BoardView>("grid");
 
   const { data: projects = [] } = useProjects();
@@ -450,114 +462,188 @@ export default function WeeklyOrganizerPage() {
               : "grid-cols-1"
           )}
         >
-          {weekPlans.map((day) => (
-            <div
-              key={day.key}
-              className={cn(
-                "min-w-0 rounded-lg border border-border/70 bg-background/75 p-3",
-                boardView === "grid"
-                  ? "flex min-h-[220px] flex-col"
-                  : "grid gap-3 md:grid-cols-[150px_minmax(0,1fr)] md:items-start",
-                day.isToday && "border-primary/50 bg-primary/5"
-              )}
-            >
-              <div className="flex items-center justify-between gap-2">
-                <div className="min-w-0">
-                  <div className="font-semibold">{day.label}</div>
-                  <div className="text-xs text-muted-foreground">
-                    {day.dateLabel}
-                  </div>
-                </div>
-                {day.isToday ? <Badge>Today</Badge> : null}
-              </div>
+          {weekPlans.map((day) => {
+            const assignedProjects = (effectiveAssignments[day.key] ?? [])
+              .map((projectId) => projectsById.get(projectId))
+              .filter((project): project is Project => Boolean(project));
+            const hasProjectFocus = assignedProjects.length > 0;
+            const dayHabitItems: HabitDisplayItem[] = [
+              ...day.dailyHabits.map((habit) => ({
+                id: habit.id,
+                title: habit.title,
+                cadence: "Daily" as const,
+              })),
+              ...day.weeklyHabits.map((habit) => ({
+                id: habit.id,
+                title: habit.title,
+                cadence: "Weekly" as const,
+              })),
+            ];
+            const visibleHabitItems = dayHabitItems.slice(0, 5);
+            const hiddenHabitCount = dayHabitItems.length - visibleHabitItems.length;
 
+            return (
               <div
+                key={day.key}
                 className={cn(
-                  "space-y-2",
-                  boardView === "grid" ? "mt-3 flex-1" : "min-w-0"
+                  "min-w-0 rounded-lg border border-border/70 bg-background/75 p-3",
+                  boardView === "grid"
+                    ? "flex min-h-[220px] flex-col"
+                    : "grid gap-3 md:grid-cols-[150px_minmax(0,1fr)] md:items-start",
+                  day.isToday && "border-primary/50 bg-primary/5"
                 )}
               >
-                <div
-                  className={cn(
-                    "min-w-0 gap-2",
-                    boardView === "grid"
-                      ? "space-y-2"
-                      : "grid sm:grid-cols-2 xl:grid-cols-3"
-                  )}
-                >
-                  {(effectiveAssignments[day.key] ?? []).length ? (
-                    (effectiveAssignments[day.key] ?? []).map((projectId) => {
-                      const project = projectsById.get(projectId);
-
-                      if (!project) {
-                        return null;
-                      }
-
-                      return (
-                        <ProjectPlannerCard
-                          key={project.id}
-                          project={project}
-                          dayKey={day.key}
-                          week={week}
-                          onMove={(nextDayKey) =>
-                            moveProjectToDay(day.key, project.id, nextDayKey)
-                          }
-                          onRemoveFromWeek={() => removeProjectFromWeek(project.id)}
-                        />
-                      );
-                    })
-                  ) : (
-                    <div className="rounded-lg bg-secondary/35 p-3 text-sm text-muted-foreground">
-                      No project focus.
+                <div className="flex items-center justify-between gap-2">
+                  <div className="min-w-0">
+                    <div className="font-semibold">{day.label}</div>
+                    <div className="text-xs text-muted-foreground">
+                      {day.dateLabel}
                     </div>
-                  )}
+                  </div>
+                  {day.isToday ? <Badge>Today</Badge> : null}
                 </div>
 
                 <div
                   className={cn(
-                    "gap-1.5 pt-1",
-                    boardView === "grid"
-                      ? "space-y-1.5"
-                      : "flex flex-wrap items-center"
+                    "space-y-2",
+                    boardView === "grid" ? "mt-3 flex-1" : "min-w-0"
                   )}
                 >
-                  {day.dailyHabits.slice(0, boardView === "grid" ? 4 : 6).map((habit) => (
-                    <Link
-                      href={`/habits/${habit.id}`}
-                      key={habit.id}
+                  <div
+                    className={cn(
+                      "min-w-0 gap-2",
+                      boardView === "grid"
+                        ? "space-y-2"
+                        : "grid sm:grid-cols-2 xl:grid-cols-3"
+                    )}
+                  >
+                    {hasProjectFocus ? (
+                      assignedProjects.map((project) => {
+                        return (
+                          <ProjectPlannerCard
+                            key={project.id}
+                            project={project}
+                            dayKey={day.key}
+                            week={week}
+                            onMove={(nextDayKey) =>
+                              moveProjectToDay(day.key, project.id, nextDayKey)
+                            }
+                            onRemoveFromWeek={() =>
+                              removeProjectFromWeek(project.id)
+                            }
+                          />
+                        );
+                      })
+                    ) : (
+                      <div className="rounded-lg bg-secondary/35 p-3 text-sm text-muted-foreground">
+                        No project focus.
+                      </div>
+                    )}
+                  </div>
+
+                  {hasProjectFocus ? (
+                    <div
                       className={cn(
-                        "flex min-w-0 items-center justify-between gap-2 rounded-lg bg-secondary/35 px-3 py-2 text-xs transition-colors hover:bg-secondary/55",
-                        boardView === "list" && "w-fit max-w-full"
+                        "gap-1.5 pt-1",
+                        boardView === "grid"
+                          ? "space-y-1.5"
+                          : "flex flex-wrap items-center"
                       )}
                     >
-                      <span className="min-w-0 truncate">{habit.title}</span>
-                      <Badge variant="secondary">Daily</Badge>
-                    </Link>
-                  ))}
-                  {day.weeklyHabits.map((habit) => (
-                    <Link
-                      href={`/habits/${habit.id}`}
-                      key={habit.id}
-                      className={cn(
-                        "flex min-w-0 items-center justify-between gap-2 rounded-lg bg-primary/10 px-3 py-2 text-xs transition-colors hover:bg-primary/15",
-                        boardView === "list" && "w-fit max-w-full"
-                      )}
-                    >
-                      <span className="min-w-0 truncate">{habit.title}</span>
-                      <Badge>Weekly</Badge>
-                    </Link>
-                  ))}
-                  {day.dailyHabits.length > (boardView === "grid" ? 4 : 6) ? (
-                    <div className="rounded-lg bg-secondary/20 px-3 py-2 text-xs text-muted-foreground">
-                      +{day.dailyHabits.length - (boardView === "grid" ? 4 : 6)} daily habits
+                      {visibleHabitItems.map((habit) => (
+                        <Link
+                          href={`/habits/${habit.id}`}
+                          key={habit.id}
+                          className={cn(
+                            "flex min-w-0 items-center justify-between gap-2 rounded-lg px-3 py-2 text-xs transition-colors",
+                            habit.cadence === "Weekly"
+                              ? "bg-primary/10 hover:bg-primary/15"
+                              : "bg-secondary/35 hover:bg-secondary/55",
+                            boardView === "list" && "w-fit max-w-full"
+                          )}
+                        >
+                          <span className="min-w-0 truncate">{habit.title}</span>
+                          <Badge
+                            variant={
+                              habit.cadence === "Daily" ? "secondary" : "default"
+                            }
+                            className="shrink-0"
+                          >
+                            {habit.cadence}
+                          </Badge>
+                        </Link>
+                      ))}
+                      {hiddenHabitCount > 0 ? (
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={() =>
+                            setHabitDialogDay({
+                              label: day.label,
+                              dateLabel: day.dateLabel,
+                              habits: dayHabitItems,
+                            })
+                          }
+                          className={cn(
+                            "h-auto justify-start rounded-lg bg-secondary/20 px-3 py-2 text-xs text-muted-foreground hover:bg-secondary/35",
+                            boardView === "list" && "w-fit max-w-full"
+                          )}
+                        >
+                          +{hiddenHabitCount} more habits
+                        </Button>
+                      ) : null}
                     </div>
                   ) : null}
                 </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </CardContent>
       </Card>
+
+      <Dialog
+        open={Boolean(habitDialogDay)}
+        onOpenChange={(isOpen) => {
+          if (!isOpen) {
+            setHabitDialogDay(null);
+          }
+        }}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>
+              {habitDialogDay?.label} habits
+            </DialogTitle>
+            <DialogDescription>
+              {habitDialogDay?.dateLabel}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid max-h-[60vh] min-w-0 gap-2 overflow-y-auto pr-1">
+            {habitDialogDay?.habits.map((habit) => (
+              <Link
+                href={`/habits/${habit.id}`}
+                key={habit.id}
+                onClick={() => setHabitDialogDay(null)}
+                className={cn(
+                  "flex min-w-0 items-center justify-between gap-3 rounded-lg px-3 py-2 text-sm transition-colors",
+                  habit.cadence === "Weekly"
+                    ? "bg-primary/10 hover:bg-primary/15"
+                    : "bg-secondary/35 hover:bg-secondary/55"
+                )}
+              >
+                <span className="min-w-0 truncate font-medium">{habit.title}</span>
+                <Badge
+                  variant={habit.cadence === "Daily" ? "secondary" : "default"}
+                  className="shrink-0"
+                >
+                  {habit.cadence}
+                </Badge>
+              </Link>
+            ))}
+          </div>
+        </DialogContent>
+      </Dialog>
 
       <Card className="min-w-0 border-border/70 shadow-sm">
         <CardHeader>

@@ -36,7 +36,7 @@ The app currently supports:
   - project throughput
   - top-line finance income, expenses, and total cash
 - calendar page for reviewing tasks by day and scheduling future tasks
-- weekly organizer for planning the current Monday-to-Sunday week from today's date
+- weekly organizer for planning the current Monday-to-Sunday week from today's date, with habits shown only on days that have a project focus and a popup for days with more than 5 habits
 - dashboard includes a daily/weekly tracker snapshot instead of the project throughput graph
 - project detail analytics for:
   - project-level activity trend
@@ -98,7 +98,7 @@ There is also repeatable local seed data for testing charts and flows.
 - `src/app/calendar/page.tsx`
   - task calendar page for day-level planning, scheduled task hours, and future task creation
 - `src/app/weekly-organizer/page.tsx`
-  - current-week organizer for distributing existing projects and habits by day, editing project cards, and keeping task progress visible
+  - current-week organizer for distributing existing projects and habits by day, editing project cards, hiding habits on days without a project focus, opening a habit popup when a day has more than 5 habits, and keeping task progress visible
 - `src/app/finance/page.tsx`
   - Personal Financial Organizer MVP with summary, one-popup creation, visual totals, recent transactions, plans, and insights
 
