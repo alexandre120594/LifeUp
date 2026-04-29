@@ -91,6 +91,14 @@ function shiftMonth(monthKey: string, offset: number) {
   return getMonthKey(new Date(Date.UTC(year, month - 1 + offset, 1)));
 }
 
+function compareTaskTime(a: Task, b: Task) {
+  return (a.time ?? "99:99").localeCompare(b.time ?? "99:99");
+}
+
+function formatTaskTime(time?: string | null) {
+  return time || "Anytime";
+}
+
 export function TaskCalendar({
   projects = [],
   tasks = [],
@@ -109,6 +117,7 @@ export function TaskCalendar({
       date: selectedDay,
       habitId: "",
       projectId: "",
+      time: "",
       title: "",
     },
   });
@@ -161,6 +170,7 @@ export function TaskCalendar({
           date: data.date,
           habitId: data.habitId,
           projectId: data.projectId,
+          time: data.time ?? "",
           title: "",
         });
       },
@@ -222,6 +232,7 @@ export function TaskCalendar({
           <div className="mt-1 grid grid-cols-7 gap-1">
             {calendarDays.map((day) => {
               const dayTasks = tasksByDay[day.dayKey] ?? [];
+              const sortedDayTasks = [...dayTasks].sort(compareTaskTime);
               const isSelected = selectedDay === day.dayKey;
 
               return (
@@ -239,20 +250,21 @@ export function TaskCalendar({
                   <span className="text-xs font-semibold">
                     {day.date.getUTCDate()}
                   </span>
-                  {dayTasks.length ? (
+                  {sortedDayTasks.length ? (
                     <span className="mt-1 grid gap-0.5">
-                      {dayTasks.slice(0, 4).map((task) => (
+                      {sortedDayTasks.slice(0, 4).map((task) => (
                         <span
                           className="truncate rounded-sm bg-secondary px-1 py-0.5 text-[10px] font-medium leading-4 text-muted-foreground"
                           key={task.id}
                           title={task.title}
                         >
+                          {task.time ? `${task.time} ` : ""}
                           {task.title}
                         </span>
                       ))}
-                      {dayTasks.length > 4 ? (
+                      {sortedDayTasks.length > 4 ? (
                         <span className="px-1 text-[10px] font-medium leading-4 text-muted-foreground">
-                          +{dayTasks.length - 4} more
+                          +{sortedDayTasks.length - 4} more
                         </span>
                       ) : null}
                     </span>
@@ -296,7 +308,7 @@ export function TaskCalendar({
               Add task
             </Button>
             {selectedTasks.length ? (
-              selectedTasks.map((task) => (
+              [...selectedTasks].sort(compareTaskTime).map((task) => (
                 <CalendarTaskDialogRow key={task.id} task={task} />
               ))
             ) : (
@@ -327,6 +339,11 @@ export function TaskCalendar({
               {...form.register("date", { required: true })}
               className="h-11"
               type="date"
+            />
+            <Input
+              {...form.register("time")}
+              className="h-11"
+              type="time"
             />
             <Controller
               name="projectId"
@@ -405,6 +422,7 @@ function CalendarTaskDialogRow({ task }: { task: Task }) {
   const form = useForm<Task>({
     defaultValues: {
       date: toDayKey(task.date ?? new Date()),
+      time: task.time ?? "",
       title: task.title,
     },
   });
@@ -418,6 +436,7 @@ function CalendarTaskDialogRow({ task }: { task: Task }) {
         data: {
           id: task.id,
           date: data.date,
+          time: data.time,
           title: data.title,
         },
       },
@@ -429,10 +448,6 @@ function CalendarTaskDialogRow({ task }: { task: Task }) {
 
   const onToggleComplete = (checked: boolean) => {
     const taskFinishedAt = new Date();
-    const formattedTime = new Intl.DateTimeFormat("pt-BR", {
-      hour: "2-digit",
-      minute: "2-digit",
-    }).format(taskFinishedAt);
 
     updateTask({
       id: task.id,
@@ -440,7 +455,6 @@ function CalendarTaskDialogRow({ task }: { task: Task }) {
         id: task.id,
         completed: checked,
         dateFinish: taskFinishedAt,
-        time: formattedTime,
       },
     });
   };
@@ -468,6 +482,11 @@ function CalendarTaskDialogRow({ task }: { task: Task }) {
                 className="h-10"
                 type="date"
               />
+              <Input
+                {...form.register("time")}
+                className="h-10"
+                type="time"
+              />
               <div className="flex flex-wrap gap-2">
                 <Button disabled={isUpdating} size="sm" type="submit">
                   <Check className="h-4 w-4" />
@@ -486,6 +505,9 @@ function CalendarTaskDialogRow({ task }: { task: Task }) {
             </form>
           ) : (
             <div className="min-w-0">
+              <div className="mb-1 inline-flex rounded-md bg-secondary px-2 py-0.5 text-xs font-semibold text-muted-foreground">
+                {formatTaskTime(task.time)}
+              </div>
               <div
                 className={cn(
                   "truncate text-sm font-medium",

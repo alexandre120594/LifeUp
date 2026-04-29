@@ -36,7 +36,7 @@ const activityConfig = {
 
 const projectConfig = {
   completed: {
-    label: "Completed Tasks",
+    label: "Done",
     color: "var(--chart-1)",
   },
   pending: {
@@ -75,6 +75,19 @@ type HabitDatum = {
   recentCheckIns: number;
   streak: number;
 };
+
+function abbreviateAxisLabel(value: string) {
+  const words = value.trim().split(/\s+/).filter(Boolean);
+
+  if (words.length > 1) {
+    return words
+      .slice(0, 3)
+      .map((word) => word[0]?.toUpperCase() ?? "")
+      .join("");
+  }
+
+  return value.length > 10 ? `${value.slice(0, 10)}...` : value;
+}
 
 export function ActivityTrendChart({
   data,
@@ -140,6 +153,7 @@ export function ProjectPerformanceChart({
             <CartesianGrid vertical={false} />
             <XAxis
               dataKey="name"
+              tickFormatter={abbreviateAxisLabel}
               tickLine={false}
               axisLine={false}
               interval={0}

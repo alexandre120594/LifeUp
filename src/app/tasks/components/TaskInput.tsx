@@ -28,6 +28,7 @@ export default function TaskInput({ projectId }: { projectId?: string }) {
       defaultValues: {
         projectId: projectId ?? "",
         habitId: "",
+        time: "",
       },
     });
   const { mutate, isPending } = useCreateTask();
@@ -62,11 +63,13 @@ export default function TaskInput({ projectId }: { projectId?: string }) {
         title: data.title,
         projectId: resolvedProjectId,
         habitId: data.habitId,
+        time: data.time,
       },
       {
         onSuccess: () => {
           setValue("title", "");
           setValue("habitId", "");
+          setValue("time", "");
           if (!projectId) {
             setValue("projectId", "");
           }
@@ -133,6 +136,18 @@ export default function TaskInput({ projectId }: { projectId?: string }) {
 
         <CreationStep
           eyebrow={projectId ? "Step 2" : "Step 3"}
+          label="Set the hour"
+          helper="Use the scheduled hour to make the task appear clearly in the daily calendar."
+        >
+          <Input
+            {...register("time")}
+            className="h-11 rounded-xl"
+            type="time"
+          />
+        </CreationStep>
+
+        <CreationStep
+          eyebrow={projectId ? "Step 3" : "Step 4"}
           label="Link it to a habit"
           helper="Habit options appear after a project is selected."
         >

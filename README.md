@@ -12,6 +12,7 @@ The app currently supports:
 - section navigation for dashboard, projects, habits, tasks, and finance
 - simple email login with per-user project, habit, task, and finance data isolation
 - task calendar menu for day-level planning
+- task creation supports an optional scheduled hour, and the calendar shows tasks by time inside each day
 - habit creation flows include daily/weekly frequency, and the habit tracker adds reminder time, completions, streaks, and statistics progress
 - responsive layouts for mobile, tablet, and desktop screens
 - updated theme palettes with compact swatch switching and stronger contrast
@@ -34,6 +35,7 @@ The app currently supports:
   - project throughput
   - top-line finance income, expenses, and total cash
 - calendar page for reviewing tasks by day and scheduling future tasks
+- dashboard includes a daily/weekly tracker snapshot instead of the project throughput graph
 - project detail analytics for:
   - project-level activity trend
   - habit performance
@@ -92,7 +94,7 @@ There is also repeatable local seed data for testing charts and flows.
 - `src/app/tasks/[id]/page.tsx`
   - task detail page with parent project context
 - `src/app/calendar/page.tsx`
-  - task calendar page for day-level planning and future task creation
+  - task calendar page for day-level planning, scheduled task hours, and future task creation
 - `src/app/finance/page.tsx`
   - Personal Financial Organizer MVP with summary, one-popup creation, visual totals, recent transactions, plans, and insights
 
@@ -177,7 +179,7 @@ There is also repeatable local seed data for testing charts and flows.
 - `Task`
   - belongs to project
   - optionally belongs to habit
-  - stores `completed`, `date`, `dateFinish`, and `time`
+  - stores `completed`, `date`, `dateFinish`, and scheduled `time`
 - `FinancialCategory`
   - belongs to user
   - organizes income and expense records
@@ -261,12 +263,14 @@ What is stable enough to continue from:
 - login stores the current user in an HTTP-only cookie and API routes scope records to that user
 - the dashboard greeting shows the logged-in user name or email prefix instead of a fixed placeholder
 - calendar page shows task names in a large month view, opens selected-day tasks in a popup, supports task edit/delete, and creates multiple future-dated tasks from an Add task button
+- calendar tasks can carry scheduled hours and are shown in time order inside day cells and day detail popups
 - habit tracker page creates habits, marks daily progress, stores daily/weekly frequency and reminder time, and shows streak/calendar/statistics progress
 - chart colors now follow the active app theme
 - dashboard layout is more structured than before
 - app shell, overview panels, charts, lists, dialogs, and detail pages are responsive across smaller and larger screens
 - theme colors now use richer primary, secondary, and accent tokens so the sidebar, buttons, cards, and charts read more clearly
 - dashboard and section-page creation are consolidated into a shared popup so overview pages stay lighter
+- dashboard now uses a daily/weekly tracker snapshot for today's scheduled tasks and habit cadence instead of a project throughput chart
 - finance MVP is available from the sidebar and persists finance records through Prisma
 - finance creation now uses a single Add record popup for transactions, planned expenses, bills, savings goals, budgets, and categories
 - finance displays total tracked money, cash after active bills and unpaid planned expenses, bill charts, and savings progress charts

@@ -28,10 +28,6 @@ export default function TaskItem({ task }: { task: Task }) {
 
   const onToggleComplete = (checked: boolean) => {
     const taskFinishedAt = new Date();
-    const formattedTime = new Intl.DateTimeFormat("pt-BR", {
-      hour: "2-digit",
-      minute: "2-digit",
-    }).format(taskFinishedAt);
 
     updateTask({
       id: task.id,
@@ -39,7 +35,6 @@ export default function TaskItem({ task }: { task: Task }) {
         id: task.id,
         completed: checked,
         dateFinish: taskFinishedAt,
-        time: formattedTime,
       },
     });
   };
@@ -93,6 +88,7 @@ export default function TaskItem({ task }: { task: Task }) {
               {task.title}
             </span>
             <span className="text-xs text-muted-foreground">
+              {task.time ? `${task.time} - ` : ""}
               {task.project?.title ?? "Project task"}
             </span>
           </div>

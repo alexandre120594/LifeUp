@@ -82,6 +82,7 @@ export function EntityCreateDialog({
     defaultValues: {
       habitId: "",
       projectId: "",
+      time: "",
       title: "",
     },
   });
@@ -161,7 +162,7 @@ export function EntityCreateDialog({
 
     createTask(data, {
       onSuccess: () => {
-        taskForm.reset({ habitId: "", projectId: "", title: "" });
+        taskForm.reset({ habitId: "", projectId: "", time: "", title: "" });
         closeAfterCreate();
       },
     });
@@ -381,6 +382,15 @@ export function EntityCreateDialog({
                 })}
                 className="mt-2 h-11 rounded-lg"
                 placeholder="Example: Finish onboarding checklist"
+              />
+            </div>
+
+            <div>
+              <label className="text-sm font-medium">Hour</label>
+              <Input
+                {...taskForm.register("time")}
+                className="mt-2 h-11 rounded-lg"
+                type="time"
               />
             </div>
 

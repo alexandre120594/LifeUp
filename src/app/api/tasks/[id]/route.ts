@@ -156,10 +156,19 @@ export async function PATCH(req: NextRequest, { params }: RouteParams) {
       typeof date === "string" && date
         ? new Date(date.includes("T") ? date : `${date}T00:00:00.000Z`)
         : undefined;
+    const parsedTime =
+      typeof time === "string" ? (time ? time : null) : undefined;
 
     if (parsedDate && Number.isNaN(parsedDate.getTime())) {
       return NextResponse.json(
         { error: "Valid task date is required." },
+        { status: 400 }
+      );
+    }
+
+    if (parsedTime && !/^([01]\d|2[0-3]):[0-5]\d$/.test(parsedTime)) {
+      return NextResponse.json(
+        { error: "Valid task time is required." },
         { status: 400 }
       );
     }
@@ -182,10 +191,10 @@ export async function PATCH(req: NextRequest, { params }: RouteParams) {
             ? {
                 completed,
                 dateFinish: completed ? dateFinish : null,
-                time: completed ? time : null,
               }
             : {}),
           date: parsedDate,
+          time: parsedTime,
         },
       });
 

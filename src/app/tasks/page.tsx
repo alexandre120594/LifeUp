@@ -117,7 +117,7 @@ export default function TasksPage() {
 
       <ProjectPerformanceChart
         title="Tasks By Project"
-        description="Completed vs pending tasks in each project"
+        description="Done vs pending tasks in each project"
         data={projectPerformance}
       />
 
