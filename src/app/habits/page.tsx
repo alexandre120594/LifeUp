@@ -103,7 +103,7 @@ export default function HabitsPage() {
       <section className="grid min-w-0 gap-4 xl:grid-cols-[minmax(0,1.45fr)_minmax(0,1fr)]">
         <HabitPerformanceChart
           title="Habit Performance"
-          description="Completed tasks and recent check-ins per habit"
+          description="Linked tasks, recent check-ins, and current streak per habit"
           data={habitPerformance}
         />
         <ChartRadialText

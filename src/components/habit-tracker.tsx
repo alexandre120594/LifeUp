@@ -20,6 +20,14 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
+import {
   Select,
   SelectContent,
   SelectGroup,
@@ -82,6 +90,7 @@ export function HabitTracker({
   projects?: Project[];
 }) {
   const [isCreateOpen, setIsCreateOpen] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
   const days = getRecentDays(21);
   const { mutate: createHabit, isPending: isCreating } = useCreateHabits();
   const { mutate: updateHabit, isPending: isUpdating } = useUpdateHabits();
@@ -95,6 +104,19 @@ export function HabitTracker({
   });
 
   const visibleDayCount = days.length;
+  const habitsPerPage = 5;
+  const totalPages = Math.ceil(habits.length / habitsPerPage);
+  const currentHabitPage = Math.min(currentPage, totalPages || 1);
+  const visibleHabits = habits.slice(
+    (currentHabitPage - 1) * habitsPerPage,
+    currentHabitPage * habitsPerPage
+  );
+
+  const handlePageChange = (page: number) => {
+    if (page >= 1 && page <= totalPages) {
+      setCurrentPage(page);
+    }
+  };
 
   const toggleDay = (habit: Habit, dayKey: string) => {
     const history = new Set(habit.history ?? []);
@@ -158,105 +180,157 @@ export function HabitTracker({
       </CardHeader>
       <CardContent>
         {habits.length ? (
-          <div className="overflow-x-auto">
-            <div className="min-w-[1120px]">
-              <div className="grid grid-cols-[minmax(220px,1.2fr)_120px_110px_120px_repeat(21,minmax(30px,1fr))] gap-1 border-b border-border/70 pb-2">
-                <div className="text-xs font-medium uppercase text-muted-foreground">
-                  Habit
-                </div>
-                <div className="text-xs font-medium uppercase text-muted-foreground">
-                  Frequency
-                </div>
-                <div className="text-xs font-medium uppercase text-muted-foreground">
-                  Reminder
-                </div>
-                <div className="text-xs font-medium uppercase text-muted-foreground">
-                  Stats
-                </div>
-                {days.map((day) => (
-                  <div
-                    className="text-center text-[10px] font-medium text-muted-foreground"
-                    key={day.key}
-                    title={day.shortLabel}
-                  >
-                    <div>{day.dayLabel.slice(0, 1)}</div>
-                    <div>{day.shortLabel.split(" ")[1]}</div>
+          <div className="space-y-4">
+            <div className="overflow-x-auto">
+              <div className="min-w-[1120px]">
+                <div className="grid grid-cols-[minmax(220px,1.2fr)_120px_110px_120px_repeat(21,minmax(30px,1fr))] gap-1 border-b border-border/70 pb-2">
+                  <div className="text-xs font-medium uppercase text-muted-foreground">
+                    Habit
                   </div>
-                ))}
-              </div>
-
-              <div className="grid gap-2 pt-2">
-                {habits.map((habit) => {
-                  const visibleCompleted = days.filter((day) =>
-                    habit.history?.includes(day.key)
-                  ).length;
-                  const progressPercent = Math.round(
-                    (visibleCompleted / visibleDayCount) * 100
-                  );
-
-                  return (
+                  <div className="text-xs font-medium uppercase text-muted-foreground">
+                    Frequency
+                  </div>
+                  <div className="text-xs font-medium uppercase text-muted-foreground">
+                    Reminder
+                  </div>
+                  <div className="text-xs font-medium uppercase text-muted-foreground">
+                    Stats
+                  </div>
+                  {days.map((day) => (
                     <div
-                      className="grid grid-cols-[minmax(220px,1.2fr)_120px_110px_120px_repeat(21,minmax(30px,1fr))] items-center gap-1 rounded-lg border border-border/60 p-2"
-                      key={habit.id}
+                      className="text-center text-[10px] font-medium text-muted-foreground"
+                      key={day.key}
+                      title={day.shortLabel}
                     >
-                      <div className="min-w-0">
-                        <div className="truncate text-sm font-semibold">
-                          {habit.title}
-                        </div>
-                        <div className="mt-1 truncate text-xs text-muted-foreground">
-                          {habit.project?.title ?? "No project"}
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-1 text-xs font-medium">
-                        <Repeat className="h-3.5 w-3.5 text-primary" />
-                        {formatFrequency(habit.frequency)}
-                      </div>
-                      <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                        <Bell className="h-3.5 w-3.5" />
-                        {habit.reminderTime || "None"}
-                      </div>
-                      <div className="min-w-0">
-                        <div className="flex items-center gap-1 text-xs font-medium text-orange-600">
-                          <Flame className="h-3.5 w-3.5" />
-                          {habit.streak ?? 0}
-                        </div>
-                        <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-secondary">
-                          <div
-                            className="h-full rounded-full bg-emerald-600"
-                            style={{ width: `${progressPercent}%` }}
-                          />
-                        </div>
-                        <div className="mt-1 text-[10px] text-muted-foreground">
-                          {visibleCompleted}/{visibleDayCount}
-                        </div>
-                      </div>
-                      {days.map((day) => {
-                        const isCompleted = habit.history?.includes(day.key);
-
-                        return (
-                          <Button
-                            className={cn(
-                              "h-8 w-full rounded-sm p-0",
-                              isCompleted
-                                ? "border-emerald-600 bg-emerald-600 text-white hover:bg-emerald-700"
-                                : "bg-background hover:bg-secondary"
-                            )}
-                            disabled={isUpdating}
-                            key={`${habit.id}-${day.key}`}
-                            onClick={() => toggleDay(habit, day.key)}
-                            title={`${habit.title} - ${day.shortLabel}`}
-                            type="button"
-                            variant={isCompleted ? "default" : "outline"}
-                          >
-                            {isCompleted ? <Check className="h-3.5 w-3.5" /> : null}
-                          </Button>
-                        );
-                      })}
+                      <div>{day.dayLabel.slice(0, 1)}</div>
+                      <div>{day.shortLabel.split(" ")[1]}</div>
                     </div>
-                  );
-                })}
+                  ))}
+                </div>
+
+                <div className="grid gap-2 pt-2">
+                  {visibleHabits.map((habit) => {
+                    const visibleCompleted = days.filter((day) =>
+                      habit.history?.includes(day.key)
+                    ).length;
+                    const progressPercent = Math.round(
+                      (visibleCompleted / visibleDayCount) * 100
+                    );
+
+                    return (
+                      <div
+                        className="grid grid-cols-[minmax(220px,1.2fr)_120px_110px_120px_repeat(21,minmax(30px,1fr))] items-center gap-1 rounded-lg border border-border/60 p-2"
+                        key={habit.id}
+                      >
+                        <div className="min-w-0">
+                          <div className="truncate text-sm font-semibold">
+                            {habit.title}
+                          </div>
+                          <div className="mt-1 truncate text-xs text-muted-foreground">
+                            {habit.project?.title ?? "No project"}
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-1 text-xs font-medium">
+                          <Repeat className="h-3.5 w-3.5 text-primary" />
+                          {formatFrequency(habit.frequency)}
+                        </div>
+                        <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                          <Bell className="h-3.5 w-3.5" />
+                          {habit.reminderTime || "None"}
+                        </div>
+                        <div className="min-w-0">
+                          <div className="flex items-center gap-1 text-xs font-medium text-orange-600">
+                            <Flame className="h-3.5 w-3.5" />
+                            {habit.streak ?? 0}
+                          </div>
+                          <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-secondary">
+                            <div
+                              className="h-full rounded-full bg-emerald-600"
+                              style={{ width: `${progressPercent}%` }}
+                            />
+                          </div>
+                          <div className="mt-1 text-[10px] text-muted-foreground">
+                            {visibleCompleted}/{visibleDayCount}
+                          </div>
+                        </div>
+                        {days.map((day) => {
+                          const isCompleted = habit.history?.includes(day.key);
+
+                          return (
+                            <Button
+                              className={cn(
+                                "h-8 w-full rounded-sm p-0",
+                                isCompleted
+                                  ? "border-emerald-600 bg-emerald-600 text-white hover:bg-emerald-700"
+                                  : "bg-background hover:bg-secondary"
+                              )}
+                              disabled={isUpdating}
+                              key={`${habit.id}-${day.key}`}
+                              onClick={() => toggleDay(habit, day.key)}
+                              title={`${habit.title} - ${day.shortLabel}`}
+                              type="button"
+                              variant={isCompleted ? "default" : "outline"}
+                            >
+                              {isCompleted ? <Check className="h-3.5 w-3.5" /> : null}
+                            </Button>
+                          );
+                        })}
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
             </div>
+            {totalPages > 1 ? (
+              <Pagination>
+                <PaginationContent className="flex-wrap">
+                  <PaginationItem>
+                    <PaginationPrevious
+                      className={
+                        currentHabitPage === 1
+                          ? "pointer-events-none opacity-50"
+                          : "cursor-pointer"
+                      }
+                      href="#"
+                      onClick={(event) => {
+                        event.preventDefault();
+                        handlePageChange(currentHabitPage - 1);
+                      }}
+                    />
+                  </PaginationItem>
+                  {Array.from({ length: totalPages }, (_, index) => index + 1).map(
+                    (page) => (
+                      <PaginationItem key={page}>
+                        <PaginationLink
+                          href="#"
+                          isActive={page === currentHabitPage}
+                          onClick={(event) => {
+                            event.preventDefault();
+                            handlePageChange(page);
+                          }}
+                        >
+                          {page}
+                        </PaginationLink>
+                      </PaginationItem>
+                    )
+                  )}
+                  <PaginationItem>
+                    <PaginationNext
+                      className={
+                        currentHabitPage === totalPages
+                          ? "pointer-events-none opacity-50"
+                          : "cursor-pointer"
+                      }
+                      href="#"
+                      onClick={(event) => {
+                        event.preventDefault();
+                        handlePageChange(currentHabitPage + 1);
+                      }}
+                    />
+                  </PaginationItem>
+                </PaginationContent>
+              </Pagination>
+            ) : null}
           </div>
         ) : (
           <p className="rounded-lg bg-secondary/35 p-4 text-sm text-muted-foreground">

@@ -90,7 +90,7 @@ export default function TaskDetailPage({
               </span>
               <span className="rounded-full bg-secondary px-3 py-1">
                 <CalendarClock className="mr-2 inline h-4 w-4" />
-                {task.time ?? "No finish time"}
+                {task.time ?? "No scheduled hour"}
               </span>
             </div>
           </div>

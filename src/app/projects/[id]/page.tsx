@@ -79,7 +79,7 @@ export default function ProjectPage({
         />
         <HabitPerformanceChart
           title="Habit Performance"
-          description="Completed tasks and recent check-ins per habit"
+          description="Linked tasks, recent check-ins, and current streak per habit"
           data={habitPerformance}
         />
       </section>
