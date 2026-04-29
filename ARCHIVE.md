@@ -29,7 +29,7 @@ Current app position:
 - chart colors now follow the active app theme
 - task creation supports optional scheduled hours, and the calendar displays tasks by time inside each day
 - dashboard now shows a daily/weekly tracker snapshot instead of the project throughput graph
-- weekly organizer page derives the current Monday-to-Sunday week from today's date, distributes existing projects and habits across it, supports adding/editing/deleting project cards, and keeps task progress visible as a tracker
+- weekly organizer page derives the current Monday-to-Sunday week from today's date, distributes existing projects and habits across it, supports adding/editing/deleting project cards, hides habits on days without a project focus, opens a habit popup when a day has more than 5 habits, and keeps task progress visible as a tracker
 - project lists and the habit tracker grid now paginate
 - project and habit charts now use combined bars and lines for workload, completion rate, check-ins, and streak context
 - project and habit chart axes now use compact labels and horizontal overflow for crowded datasets
