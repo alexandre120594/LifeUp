@@ -29,6 +29,7 @@ Current app position:
 - chart colors now follow the active app theme
 - task creation supports optional scheduled hours, and the calendar displays tasks by time inside each day
 - dashboard now shows a daily/weekly tracker snapshot instead of the project throughput graph
+- weekly organizer page derives the current Monday-to-Sunday week from today's date, distributes existing projects and habits across it, supports adding/editing/deleting project cards, and keeps task progress visible as a tracker
 - project lists and the habit tracker grid now paginate
 - project and habit charts now use combined bars and lines for workload, completion rate, check-ins, and streak context
 - project and habit chart axes now use compact labels and horizontal overflow for crowded datasets
@@ -42,6 +43,7 @@ Implemented:
 - main dashboard metrics
 - current finance income, expenses, and total cash in the dashboard top line
 - calendar page with a large month view, task names on each day, selected-day popup with edit/delete actions, and button-triggered future-date task creation
+- weekly organizer page for current-week project, habit, and task planning
 - scheduled task hours on task creation/editing, with calendar day cells and day detail popups sorted by task time
 - pagination on the project list and habit tracker grid
 - richer combined charts for project throughput, habit performance, task-by-project, and activity trend sections
@@ -67,6 +69,7 @@ Main files:
 - `src/app/habit-tracker/page.tsx`
 - `src/app/tasks/page.tsx`
 - `src/app/calendar/page.tsx`
+- `src/app/weekly-organizer/page.tsx`
 - `src/components/task-calendar.tsx`
 - `src/components/entity-create-dialog.tsx`
 - `src/components/menu-page-header.tsx`
@@ -308,6 +311,7 @@ Development currently stops at:
 - dashboard, section pages, and detail analytics working
 - dashboard daily/weekly tracker snapshot replacing the project throughput graph
 - scheduled task hours shown in the calendar daily view
+- weekly organizer available for planning the current week from today's date
 - streak persistence logic corrected for new and updated records
 - seeded local data available
 - docs updated to reflect current structure

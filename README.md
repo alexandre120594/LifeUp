@@ -36,6 +36,7 @@ The app currently supports:
   - project throughput
   - top-line finance income, expenses, and total cash
 - calendar page for reviewing tasks by day and scheduling future tasks
+- weekly organizer for planning the current Monday-to-Sunday week from today's date
 - dashboard includes a daily/weekly tracker snapshot instead of the project throughput graph
 - project detail analytics for:
   - project-level activity trend
@@ -96,6 +97,8 @@ There is also repeatable local seed data for testing charts and flows.
   - task detail page with parent project context
 - `src/app/calendar/page.tsx`
   - task calendar page for day-level planning, scheduled task hours, and future task creation
+- `src/app/weekly-organizer/page.tsx`
+  - current-week organizer for distributing existing projects and habits by day, editing project cards, and keeping task progress visible
 - `src/app/finance/page.tsx`
   - Personal Financial Organizer MVP with summary, one-popup creation, visual totals, recent transactions, plans, and insights
 
@@ -115,6 +118,8 @@ There is also repeatable local seed data for testing charts and flows.
   - recent-day habit completion grid with check-in toggles
 - `src/lib/analytics.ts`
   - shared metric builders for charts
+- `src/lib/weekly-organizer.ts`
+  - current-week date helpers and weekly project/day planning derivations
 - `src/lib/finance.ts`
   - shared finance calculations for cash flow, budgets, savings progress, and insights
 
@@ -264,6 +269,7 @@ What is stable enough to continue from:
 - login stores the current user in an HTTP-only cookie and API routes scope records to that user
 - the dashboard greeting shows the logged-in user name or email prefix instead of a fixed placeholder
 - calendar page shows task names in a large month view, opens selected-day tasks in a popup, supports task edit/delete, and creates multiple future-dated tasks from an Add task button
+- weekly organizer builds the current week from today's date, distributes existing projects and habits by day, supports adding existing projects to weekdays, and keeps task progress visible as a tracker
 - calendar tasks can carry scheduled hours and are shown in time order inside day cells and day detail popups
 - habit tracker page creates habits, marks daily progress, stores daily/weekly frequency and reminder time, and shows streak/calendar/statistics progress
 - chart colors now follow the active app theme
