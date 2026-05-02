@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Controller, useForm, useWatch } from "react-hook-form";
-import { CheckCircle2, Pencil, Trash2 } from "lucide-react";
+import { Banknote, CheckCircle2, Pencil, Trash2 } from "lucide-react";
 import { MoneyInput } from "@/components/money-input";
 import { Button } from "@/components/ui/button";
 import {
@@ -553,29 +553,29 @@ export function PlannedExpenseActions({
 
 export function SavingsGoalActions({ goal }: { goal: SavingsGoal }) {
   const [open, setOpen] = useState(false);
-  const form = useForm<SavingsGoalCreateInput & { contributionAmount: number }>({
+  const [contributionOpen, setContributionOpen] = useState(false);
+  const form = useForm<SavingsGoalCreateInput>({
     defaultValues: {
-      contributionAmount: 0,
       currentAmount: moneyToNumber(goal.currentAmount),
       targetAmount: moneyToNumber(goal.targetAmount),
       targetDate: toDateInputValue(goal.targetDate),
       title: goal.title,
     },
   });
+  const contributionForm = useForm<{ amount: number }>({
+    defaultValues: {
+      amount: 0,
+    },
+  });
   const { error: deleteError, mutate: deleteGoal, isPending: isDeleting } =
     useDeleteSavingsGoal();
   const { mutate: updateGoal, isPending: isUpdating } = useUpdateSavingsGoal();
 
-  const onSubmit = (
-    data: SavingsGoalCreateInput & { contributionAmount: number }
-  ) => {
-    const contributionAmount = moneyToNumber(data.contributionAmount);
-    const currentAmount = moneyToNumber(data.currentAmount) + contributionAmount;
-
+  const onSubmit = (data: SavingsGoalCreateInput) => {
     updateGoal(
       {
         data: {
-          currentAmount,
+          currentAmount: data.currentAmount,
           targetAmount: data.targetAmount,
           targetDate: data.targetDate,
           title: data.title,
@@ -588,16 +588,77 @@ export function SavingsGoalActions({ goal }: { goal: SavingsGoal }) {
     );
   };
 
+  const onAddCash = (data: { amount: number }) => {
+    const currentAmount =
+      moneyToNumber(goal.currentAmount) + moneyToNumber(data.amount);
+
+    updateGoal(
+      {
+        data: {
+          currentAmount,
+          targetAmount: moneyToNumber(goal.targetAmount),
+          targetDate: toDateInputValue(goal.targetDate),
+          title: goal.title,
+        },
+        id: goal.id,
+      },
+      {
+        onSuccess: () => {
+          form.setValue("currentAmount", currentAmount);
+          contributionForm.reset({ amount: 0 });
+          setContributionOpen(false);
+        },
+      }
+    );
+  };
+
   return (
-    <ActionShell
-      error={deleteError}
-      isDeleting={isDeleting}
-      onDelete={() => deleteGoal(goal.id)}
-      onOpenChange={setOpen}
-      open={open}
-      title="Edit savings goal"
-    >
-      <form onSubmit={form.handleSubmit(onSubmit)} className="grid gap-3">
+    <div className="flex flex-wrap items-center justify-end gap-2">
+      <Dialog open={contributionOpen} onOpenChange={setContributionOpen}>
+        <DialogTrigger asChild>
+          <Button size="sm" variant="outline">
+            <Banknote className="h-3.5 w-3.5" />
+            Add cash
+          </Button>
+        </DialogTrigger>
+        <DialogContent className="max-h-[90vh] overflow-y-auto rounded-lg sm:max-w-xl">
+          <DialogHeader>
+            <DialogTitle>Add cash</DialogTitle>
+            <DialogDescription>
+              Add money to this savings goal without changing its target details.
+            </DialogDescription>
+          </DialogHeader>
+          <form
+            onSubmit={contributionForm.handleSubmit(onAddCash)}
+            className="grid gap-3"
+          >
+            <Controller
+              name="amount"
+              control={contributionForm.control}
+              rules={{ min: 0.01, required: true }}
+              render={({ field }) => (
+                <MoneyInput
+                  placeholder="Amount to add"
+                  value={field.value}
+                  onValueChange={field.onChange}
+                />
+              )}
+            />
+            <Button disabled={isUpdating} type="submit">
+              {isUpdating ? "Adding..." : "Add cash"}
+            </Button>
+          </form>
+        </DialogContent>
+      </Dialog>
+      <ActionShell
+        error={deleteError}
+        isDeleting={isDeleting}
+        onDelete={() => deleteGoal(goal.id)}
+        onOpenChange={setOpen}
+        open={open}
+        title="Edit savings goal"
+      >
+        <form onSubmit={form.handleSubmit(onSubmit)} className="grid gap-3">
           <Input {...form.register("title", { required: true })} />
           <Controller
             name="targetAmount"
@@ -619,23 +680,12 @@ export function SavingsGoalActions({ goal }: { goal: SavingsGoal }) {
               />
             )}
           />
-          <Controller
-            name="contributionAmount"
-            control={form.control}
-            rules={{ min: 0 }}
-            render={({ field }) => (
-              <MoneyInput
-                placeholder="Add cash"
-                value={field.value}
-                onValueChange={field.onChange}
-              />
-            )}
-          />
           <Input {...form.register("targetDate")} type="date" />
           <Button disabled={isUpdating} type="submit">
             {isUpdating ? "Saving..." : "Save changes"}
           </Button>
-      </form>
-    </ActionShell>
+        </form>
+      </ActionShell>
+    </div>
   );
 }
