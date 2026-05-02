@@ -12,6 +12,8 @@ import type {
   PlannedExpenseCreateInput,
   RecurringBill,
   RecurringBillCreateInput,
+  SavingsContribution,
+  SavingsContributionCreateInput,
   SavingsGoal,
   SavingsGoalCreateInput,
 } from "@/types/BaseInterfaces";
@@ -143,4 +145,47 @@ export const FinanceServices = {
     apiClient<{ ok: boolean }>(`/api/finance/savings-goals/${id}`, {
       method: "DELETE",
     }),
+  createSavingsContribution: ({
+    data,
+    goalId,
+  }: {
+    data: SavingsContributionCreateInput;
+    goalId: string;
+  }) =>
+    apiClient<SavingsContribution>(
+      `/api/finance/savings-goals/${goalId}/contributions`,
+      {
+        method: "POST",
+        body: JSON.stringify(data),
+      }
+    ),
+  updateSavingsContribution: ({
+    contributionId,
+    data,
+    goalId,
+  }: {
+    contributionId: string;
+    data: SavingsContributionCreateInput;
+    goalId: string;
+  }) =>
+    apiClient<SavingsContribution>(
+      `/api/finance/savings-goals/${goalId}/contributions/${contributionId}`,
+      {
+        method: "PATCH",
+        body: JSON.stringify(data),
+      }
+    ),
+  deleteSavingsContribution: ({
+    contributionId,
+    goalId,
+  }: {
+    contributionId: string;
+    goalId: string;
+  }) =>
+    apiClient<{ ok: boolean }>(
+      `/api/finance/savings-goals/${goalId}/contributions/${contributionId}`,
+      {
+        method: "DELETE",
+      }
+    ),
 };

@@ -14,7 +14,8 @@ const cachedPrisma = globalForPrisma.prisma;
 const hasCurrentFinanceDelegates =
   cachedPrisma &&
   "financialCategory" in cachedPrisma &&
-  "plannedExpense" in cachedPrisma;
+  "plannedExpense" in cachedPrisma &&
+  "savingsContribution" in cachedPrisma;
 
 const prisma: PrismaClient = hasCurrentFinanceDelegates ? cachedPrisma : new PrismaClient({
   adapter,

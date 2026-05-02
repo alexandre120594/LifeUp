@@ -135,6 +135,15 @@ export interface SavingsGoal {
   currentAmount: number | string;
   targetDate?: Date | string | null;
   isCompleted: boolean;
+  contributions?: SavingsContribution[];
+}
+
+export interface SavingsContribution {
+  id: string;
+  amount: number | string;
+  date: Date | string;
+  notes?: string | null;
+  goalId: string;
 }
 
 export interface FinanceInsight {
@@ -207,4 +216,10 @@ export interface SavingsGoalCreateInput {
   targetAmount: number;
   currentAmount?: number;
   targetDate?: string;
+}
+
+export interface SavingsContributionCreateInput {
+  amount: number;
+  date?: string;
+  notes?: string;
 }

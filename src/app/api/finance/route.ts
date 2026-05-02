@@ -86,6 +86,11 @@ export async function GET() {
       }),
       prisma.savingsGoal.findMany({
         where: { userId },
+        include: {
+          contributions: {
+            orderBy: { date: "desc" },
+          },
+        },
         orderBy: { createdAt: "desc" },
       }),
     ]);
@@ -121,6 +126,13 @@ export async function GET() {
   }));
   const normalizedGoals = savingsGoals.map((goal) => ({
     ...goal,
+    contributions: goal.contributions.map((contribution) => ({
+      amount: Number(contribution.amount),
+      date: contribution.date,
+      goalId: contribution.goalId,
+      id: contribution.id,
+      notes: contribution.notes,
+    })),
     currentAmount: Number(goal.currentAmount),
     targetAmount: Number(goal.targetAmount),
   }));

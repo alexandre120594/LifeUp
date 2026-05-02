@@ -27,13 +27,16 @@ import {
   useDeleteFinancialTransaction,
   useDeletePlannedExpense,
   useDeleteRecurringBill,
+  useDeleteSavingsContribution,
   useDeleteSavingsGoal,
   useMarkPlannedExpenseDone,
+  useCreateSavingsContribution,
   useUpdateBudget,
   useUpdateFinancialCategory,
   useUpdateFinancialTransaction,
   useUpdatePlannedExpense,
   useUpdateRecurringBill,
+  useUpdateSavingsContribution,
   useUpdateSavingsGoal,
 } from "@/hooks/useFinanceMutations";
 import { moneyToNumber } from "@/lib/finance";
@@ -49,6 +52,8 @@ import type {
   PlannedExpenseCreateInput,
   RecurringBill,
   RecurringBillCreateInput,
+  SavingsContribution,
+  SavingsContributionCreateInput,
   SavingsGoal,
   SavingsGoalCreateInput,
 } from "@/types/BaseInterfaces";
@@ -562,14 +567,18 @@ export function SavingsGoalActions({ goal }: { goal: SavingsGoal }) {
       title: goal.title,
     },
   });
-  const contributionForm = useForm<{ amount: number }>({
+  const contributionForm = useForm<SavingsContributionCreateInput>({
     defaultValues: {
       amount: 0,
+      date: toDateInputValue(new Date()),
+      notes: "",
     },
   });
   const { error: deleteError, mutate: deleteGoal, isPending: isDeleting } =
     useDeleteSavingsGoal();
   const { mutate: updateGoal, isPending: isUpdating } = useUpdateSavingsGoal();
+  const { mutate: createContribution, isPending: isAddingContribution } =
+    useCreateSavingsContribution();
 
   const onSubmit = (data: SavingsGoalCreateInput) => {
     updateGoal(
@@ -588,24 +597,26 @@ export function SavingsGoalActions({ goal }: { goal: SavingsGoal }) {
     );
   };
 
-  const onAddCash = (data: { amount: number }) => {
-    const currentAmount =
-      moneyToNumber(goal.currentAmount) + moneyToNumber(data.amount);
-
-    updateGoal(
+  const onAddCash = (data: SavingsContributionCreateInput) => {
+    createContribution(
       {
         data: {
-          currentAmount,
-          targetAmount: moneyToNumber(goal.targetAmount),
-          targetDate: toDateInputValue(goal.targetDate),
-          title: goal.title,
+          amount: moneyToNumber(data.amount),
+          date: data.date,
+          notes: data.notes,
         },
-        id: goal.id,
+        goalId: goal.id,
       },
       {
         onSuccess: () => {
+          const currentAmount =
+            moneyToNumber(goal.currentAmount) + moneyToNumber(data.amount);
           form.setValue("currentAmount", currentAmount);
-          contributionForm.reset({ amount: 0 });
+          contributionForm.reset({
+            amount: 0,
+            date: toDateInputValue(new Date()),
+            notes: "",
+          });
           setContributionOpen(false);
         },
       }
@@ -644,8 +655,13 @@ export function SavingsGoalActions({ goal }: { goal: SavingsGoal }) {
                 />
               )}
             />
-            <Button disabled={isUpdating} type="submit">
-              {isUpdating ? "Adding..." : "Add cash"}
+            <Input {...contributionForm.register("date")} type="date" />
+            <Input
+              {...contributionForm.register("notes")}
+              placeholder="Optional note"
+            />
+            <Button disabled={isAddingContribution} type="submit">
+              {isAddingContribution ? "Adding..." : "Add cash"}
             </Button>
           </form>
         </DialogContent>
@@ -687,5 +703,76 @@ export function SavingsGoalActions({ goal }: { goal: SavingsGoal }) {
         </form>
       </ActionShell>
     </div>
+  );
+}
+
+export function SavingsContributionActions({
+  contribution,
+}: {
+  contribution: SavingsContribution;
+}) {
+  const [open, setOpen] = useState(false);
+  const form = useForm<SavingsContributionCreateInput>({
+    defaultValues: {
+      amount: moneyToNumber(contribution.amount),
+      date: toDateInputValue(contribution.date),
+      notes: contribution.notes ?? "",
+    },
+  });
+  const {
+    error: deleteError,
+    mutate: deleteContribution,
+    isPending: isDeleting,
+  } = useDeleteSavingsContribution();
+  const { mutate: updateContribution, isPending: isUpdating } =
+    useUpdateSavingsContribution();
+
+  const onSubmit = (data: SavingsContributionCreateInput) => {
+    updateContribution(
+      {
+        contributionId: contribution.id,
+        data: {
+          amount: moneyToNumber(data.amount),
+          date: data.date,
+          notes: data.notes,
+        },
+        goalId: contribution.goalId,
+      },
+      {
+        onSuccess: () => setOpen(false),
+      }
+    );
+  };
+
+  return (
+    <ActionShell
+      error={deleteError}
+      isDeleting={isDeleting}
+      onDelete={() =>
+        deleteContribution({
+          contributionId: contribution.id,
+          goalId: contribution.goalId,
+        })
+      }
+      onOpenChange={setOpen}
+      open={open}
+      title="Edit added cash"
+    >
+      <form onSubmit={form.handleSubmit(onSubmit)} className="grid gap-3">
+        <Controller
+          name="amount"
+          control={form.control}
+          rules={{ min: 0.01, required: true }}
+          render={({ field }) => (
+            <MoneyInput value={field.value} onValueChange={field.onChange} />
+          )}
+        />
+        <Input {...form.register("date", { required: true })} type="date" />
+        <Input {...form.register("notes")} placeholder="Optional note" />
+        <Button disabled={isUpdating} type="submit">
+          {isUpdating ? "Saving..." : "Save changes"}
+        </Button>
+      </form>
+    </ActionShell>
   );
 }
