@@ -203,6 +203,9 @@ There is also repeatable local seed data for testing charts and flows.
 - `SavingsGoal`
   - belongs to user
   - tracks current amount against a target
+- `SavingsContribution`
+  - belongs to user and savings goal
+  - tracks each added cash entry so it can be edited or removed
 
 Current Prisma relations use explicit cascade behavior for cleanup.
 
@@ -283,6 +286,7 @@ What is stable enough to continue from:
 - finance creation now uses a single Add record popup for transactions, planned expenses, savings goals, budgets, and categories
 - finance displays total tracked money from real transactions plus savings, planned expenses, savings totals, and progress charts
 - marking a planned expense done creates one expense transaction and removes that plan from the active list
+- savings goals keep a recent added-cash history with edit/delete controls for each contribution
 - finance totals, insights, and recent transactions can switch between monthly and yearly tracking
 - finance records can be edited or deleted from the Finance management section; default categories are protected from deletion
 - section pages for projects, habits, and tasks now follow the newer dashboard structure

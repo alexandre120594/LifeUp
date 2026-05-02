@@ -59,6 +59,7 @@ import {
   BudgetActions,
   CategoryActions,
   PlannedExpenseActions,
+  SavingsContributionActions,
   SavingsGoalActions,
   TransactionActions,
 } from "./components/FinanceRecordActions";
@@ -98,6 +99,7 @@ type AddRecordKind =
 const today = new Date().toISOString().slice(0, 10);
 const currentMonth = getCurrentMonthKey();
 const currentYear = getCurrentYearKey();
+const savingsContributionPageSize = 3;
 
 const moneyConfig = {
   amount: {
@@ -127,6 +129,9 @@ export default function FinancePage() {
   const [selectedMonth, setSelectedMonth] = useState(currentMonth);
   const [selectedYear, setSelectedYear] = useState(currentYear);
   const [recordKind, setRecordKind] = useState<AddRecordKind>("transaction");
+  const [savingsContributionPages, setSavingsContributionPages] = useState<
+    Record<string, number>
+  >({});
   const { data: finance, isLoading } = useFinanceDashboard();
   const categories = finance?.categories ?? [];
   const expenseCategories = categories.filter(
@@ -749,21 +754,114 @@ export default function FinancePage() {
             emptyLabel="No savings goals yet."
             title="Savings"
           >
-            {finance?.savingsGoals.map((goal) => (
-              <FinanceRecordRow
-                action={<SavingsGoalActions goal={goal} />}
-                key={goal.id}
-                meta={`${formatCurrency(
-                  moneyToNumber(goal.currentAmount)
-                )} saved of ${formatCurrency(moneyToNumber(goal.targetAmount))}`}
-                title={goal.title}
-                value={`${Math.round(
-                    (moneyToNumber(goal.currentAmount) /
-                      Math.max(moneyToNumber(goal.targetAmount), 1)) *
-                      100
-                  )}%`}
-              />
-            ))}
+            {finance?.savingsGoals.map((goal) => {
+              const contributions = goal.contributions ?? [];
+              const currentContributionPage =
+                savingsContributionPages[goal.id] ?? 1;
+              const totalContributionPages = Math.max(
+                Math.ceil(contributions.length / savingsContributionPageSize),
+                1
+              );
+              const normalizedContributionPage = Math.min(
+                currentContributionPage,
+                totalContributionPages
+              );
+              const visibleContributions = contributions.slice(
+                (normalizedContributionPage - 1) * savingsContributionPageSize,
+                normalizedContributionPage * savingsContributionPageSize
+              );
+              const setContributionPage = (page: number) => {
+                setSavingsContributionPages((pages) => ({
+                  ...pages,
+                  [goal.id]: Math.min(
+                    Math.max(page, 1),
+                    totalContributionPages
+                  ),
+                }));
+              };
+
+              return (
+                <div className="grid gap-2" key={goal.id}>
+                  <FinanceRecordRow
+                    action={<SavingsGoalActions goal={goal} />}
+                    meta={`${formatCurrency(
+                      moneyToNumber(goal.currentAmount)
+                    )} saved of ${formatCurrency(
+                      moneyToNumber(goal.targetAmount)
+                    )}`}
+                    title={goal.title}
+                    value={`${Math.round(
+                        (moneyToNumber(goal.currentAmount) /
+                          Math.max(moneyToNumber(goal.targetAmount), 1)) *
+                          100
+                      )}%`}
+                  />
+                  {contributions.length ? (
+                    <div className="ml-3 grid gap-2 border-l border-border/70 pl-3">
+                      <div className="text-xs font-medium text-muted-foreground">
+                        Recent added
+                      </div>
+                      {visibleContributions.map((contribution) => (
+                        <FinanceRecordRow
+                          action={
+                            <SavingsContributionActions
+                              contribution={contribution}
+                            />
+                          }
+                          key={contribution.id}
+                          meta={`${new Date(
+                            contribution.date
+                          ).toLocaleDateString()}${
+                            contribution.notes ? ` - ${contribution.notes}` : ""
+                          }`}
+                          title="Added cash"
+                          value={formatCurrency(
+                            moneyToNumber(contribution.amount)
+                          )}
+                        />
+                      ))}
+                      {totalContributionPages > 1 ? (
+                        <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg bg-secondary/20 px-3 py-2 text-xs text-muted-foreground">
+                          <span>
+                            Page {normalizedContributionPage} of{" "}
+                            {totalContributionPages}
+                          </span>
+                          <div className="flex items-center gap-2">
+                            <Button
+                              disabled={normalizedContributionPage === 1}
+                              onClick={() =>
+                                setContributionPage(
+                                  normalizedContributionPage - 1
+                                )
+                              }
+                              size="sm"
+                              variant="outline"
+                            >
+                              Previous
+                            </Button>
+                            <Button
+                              disabled={
+                                normalizedContributionPage ===
+                                totalContributionPages
+                              }
+                              onClick={() =>
+                                setContributionPage(
+                                  normalizedContributionPage + 1
+                                )
+                              }
+                              size="sm"
+                              variant="outline"
+                            >
+                              Next
+                            </Button>
+                          </div>
+                        </div>
+                      ) : null}
+                    </div>
+                  ) : null}
+                </div>
+              );
+            })}
           </FinanceManageBlock>
         </CardContent>
       </Card>

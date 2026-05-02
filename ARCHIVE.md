@@ -24,6 +24,7 @@ Current app position:
 - finance now surfaces a total tracked money view from real transactions plus savings, monthly/yearly tracking, planned expense visualization, savings visualization, and single-popup creation flow
 - planned expenses can be marked done from finance management, which creates one matching expense transaction and removes the plan
 - savings goals now include an add-cash field, and savings are shown outside the transaction-tracked total
+- savings added cash is now persisted as contribution history, with recent entries editable and removable from the savings section
 - project detail page exists and includes analytics
 - habit and task detail pages now exist and include contextual analytics
 - local seed data exists for visual/testing flows
@@ -170,7 +171,8 @@ Implemented:
 - single Add record popup that switches between transaction, planned expense, savings, budget, and category creation
 - visual planned expense, savings, and total money sections on the finance page
 - planned expense completion creates a real expense transaction, then removes that plan so it cannot be paid twice
-- savings contributions can be added directly to a goal and stay separate from transaction totals
+- savings contributions persist each added cash entry and update the parent goal total transactionally on create, edit, and delete
+- savings contributions can be added directly to a goal and are included in total tracked money
 - monthly/yearly period selector for finance totals, insights, and recent transaction history
 - edit and delete flows for finance transactions, categories, budgets, planned expenses, and savings goals
 - default finance categories are protected from deletion

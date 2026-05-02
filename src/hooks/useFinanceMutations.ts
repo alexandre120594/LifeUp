@@ -216,3 +216,36 @@ export function useDeleteSavingsGoal() {
     },
   });
 }
+
+export function useCreateSavingsContribution() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: FinanceServices.createSavingsContribution,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["finance"] });
+    },
+  });
+}
+
+export function useUpdateSavingsContribution() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: FinanceServices.updateSavingsContribution,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["finance"] });
+    },
+  });
+}
+
+export function useDeleteSavingsContribution() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: FinanceServices.deleteSavingsContribution,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["finance"] });
+    },
+  });
+}
