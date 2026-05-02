@@ -142,6 +142,7 @@ export interface SavingsContribution {
   id: string;
   amount: number | string;
   date: Date | string;
+  isLegacyBalance?: boolean;
   notes?: string | null;
   goalId: string;
 }

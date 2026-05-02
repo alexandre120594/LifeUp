@@ -89,7 +89,19 @@ async function getSavingsGoals(userId: number): Promise<SavingsGoal[]> {
 
     return savingsGoals.map((goal) => ({
       ...goal,
-      contributions: [],
+      contributions:
+        Number(goal.currentAmount) > 0
+          ? [
+              {
+                amount: Number(goal.currentAmount),
+                date: goal.updatedAt,
+                goalId: goal.id,
+                id: `legacy-balance-${goal.id}`,
+                isLegacyBalance: true,
+                notes: "Current saved balance",
+              },
+            ]
+          : [],
       currentAmount: Number(goal.currentAmount),
       targetAmount: Number(goal.targetAmount),
     }));

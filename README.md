@@ -211,8 +211,9 @@ Current Prisma relations use explicit cascade behavior for cleanup.
 The finance dashboard read path tolerates databases that have not yet been
 updated with the `SavingsContribution` table by returning existing savings
 goals with an empty contribution history. Adding cash also falls back to
-updating the savings goal total when that table is missing, but editable
-contribution history still requires applying the current Prisma schema.
+updating the savings goal total when that table is missing; in that older
+database mode, the UI shows the saved balance as a non-editable recent row.
+Editable contribution history still requires applying the current Prisma schema.
 
 ## Local Development
 
