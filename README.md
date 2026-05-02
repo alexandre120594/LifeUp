@@ -21,10 +21,10 @@ The app currently supports:
   - income and expense tracking
   - spending categories
   - monthly budgets
-  - planned expenses
+  - planned monthly income and expenses
   - savings goals
   - simple cash-flow insights
-  - total tracked money, planned expense, and savings visualizations
+  - total tracked money, planned cash-flow, and savings visualizations
   - monthly and yearly finance period tracking
   - editing and deleting finance records
 - dedicated detail pages for habits and tasks
@@ -199,7 +199,7 @@ There is also repeatable local seed data for testing charts and flows.
   - legacy recurring bill model retained for existing data compatibility
 - `PlannedExpense`
   - belongs to user and category
-  - tracks expected one-time spending until it is marked done
+  - tracks expected one-time income or spending until it is marked done
 - `SavingsGoal`
   - belongs to user
   - tracks current amount against a target
@@ -214,6 +214,8 @@ goals with an empty contribution history. Adding cash also falls back to
 updating the savings goal total when that table is missing; in that older
 database mode, the UI shows the saved balance as a non-editable recent row.
 Editable contribution history still requires applying the current Prisma schema.
+Planned income also requires the current schema because planned records now
+store whether they are income or expense.
 
 ## Local Development
 
@@ -295,9 +297,9 @@ What is stable enough to continue from:
 - dashboard and section-page creation are consolidated into a shared popup so overview pages stay lighter
 - dashboard now uses a daily/weekly tracker snapshot for today's scheduled tasks and habit cadence instead of a project throughput chart
 - finance MVP is available from the sidebar and persists finance records through Prisma
-- finance creation now uses a single Add record popup for transactions, planned expenses, savings goals, budgets, and categories
-- finance displays total tracked money from real transactions plus savings, planned expenses, savings totals, and progress charts
-- marking a planned expense done creates one expense transaction and removes that plan from the active list
+- finance creation now uses a single Add record popup for transactions, planned income and expenses, savings goals, budgets, and categories
+- finance displays total tracked money from real transactions plus savings, planned cash flow, savings totals, and progress charts
+- marking a planned income or expense done creates one matching transaction and removes that plan from the active list
 - savings goals keep a recent added-cash history with edit/delete controls for each contribution
 - finance totals, insights, and recent transactions can switch between monthly and yearly tracking
 - finance records can be edited or deleted from the Finance management section; default categories are protected from deletion

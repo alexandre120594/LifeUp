@@ -39,10 +39,10 @@ export async function POST(
           categoryId: plannedExpense.categoryId,
           date: paidDate,
           notes: plannedExpense.notes
-            ? `${plannedExpense.notes} Created from planned expense.`
-            : `Created from planned expense ${plannedExpense.title}.`,
+            ? `${plannedExpense.notes} Created from planned ${plannedExpense.type}.`
+            : `Created from planned ${plannedExpense.type} ${plannedExpense.title}.`,
           title: plannedExpense.title,
-          type: "expense",
+          type: plannedExpense.type,
           userId,
         },
         include: { category: true },

@@ -129,6 +129,7 @@ model PlannedExpense {
   id          String   @id @default(cuid())
   title       String
   amount      Decimal  @db.Decimal(12, 2)
+  type        String   @default("expense") // income or expense
   plannedDate DateTime
   isPaid      Boolean  @default(false)
   notes       String?

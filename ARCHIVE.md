@@ -21,9 +21,9 @@ Current app position:
 - theme system now has cleaner Grove, Harbor, Ember, Berry, and Graphite palettes with improved contrast
 - section pages exist for projects, habits, and tasks
 - finance section exists as a Phase 1 Personal Financial Organizer MVP
-- finance now surfaces a total tracked money view from real transactions plus savings, monthly/yearly tracking, planned expense visualization, savings visualization, and single-popup creation flow
+- finance now surfaces a total tracked money view from real transactions plus savings, monthly/yearly tracking, planned cash-flow visualization, savings visualization, and single-popup creation flow
 - finance dashboard reads now fall back to a non-editable saved-balance contribution row if an older database has not yet received the `SavingsContribution` table, and add-cash falls back to updating the savings total
-- planned expenses can be marked done from finance management, which creates one matching expense transaction and removes the plan
+- planned income and expenses can be marked done from finance management, which creates one matching transaction and removes the plan
 - savings goals now include an add-cash field, and savings are shown outside the transaction-tracked total
 - savings added cash is now persisted as contribution history, with recent entries editable and removable from the savings section
 - project detail page exists and includes analytics
@@ -164,19 +164,19 @@ Main file:
 
 Implemented:
 - finance menu entry and `/finance` page
-- persisted finance categories, transactions, budgets, recurring bills, savings goals, summaries, and notifications schema
+- persisted finance categories, transactions, budgets, recurring bills, planned income/expense records, savings goals, summaries, and notifications schema
 - default finance categories generated on first finance dashboard load
-- finance summary calculations for income, expenses, net cash flow, budgets, planned expenses, savings progress, and basic insights
+- finance summary calculations for income, expenses, net cash flow, budgets, planned income and expenses, savings progress, and basic insights
 - legacy recurring bill persistence remains for compatibility, but bills are no longer part of the visible finance workflow
-- create flows for transactions, custom categories, monthly budgets, planned expenses, and savings goals
-- single Add record popup that switches between transaction, planned expense, savings, budget, and category creation
-- visual planned expense, savings, and total money sections on the finance page
-- planned expense completion creates a real expense transaction, then removes that plan so it cannot be paid twice
+- create flows for transactions, custom categories, monthly budgets, planned income and expenses, and savings goals
+- single Add record popup that switches between transaction, planned income/expense, savings, budget, and category creation
+- visual planned cash-flow, savings, and total money sections on the finance page
+- planned income/expense completion creates a matching transaction, then removes that plan so it cannot be applied twice
 - savings contributions persist each added cash entry and update the parent goal total transactionally on create, edit, and delete
 - savings contributions can be added directly to a goal and are included in total tracked money
 - finance dashboard loading and add-cash remain compatible with existing databases that still need `npx prisma db push` for the savings contribution table, with saved balances shown as non-editable legacy rows
 - monthly/yearly period selector for finance totals, insights, and recent transaction history
-- edit and delete flows for finance transactions, categories, budgets, planned expenses, and savings goals
+- edit and delete flows for finance transactions, categories, budgets, planned income/expense records, and savings goals
 - default finance categories are protected from deletion
 
 Main files:
@@ -264,7 +264,7 @@ These are known unfinished areas:
 - analytics are currently derived from task timestamps and habit history arrays
 - there is no dedicated historical events model yet
 - existing environments still need `npm run db:backfill-streaks` once if they were populated before the streak fix
-- existing environments should run `npx prisma db push` after schema changes such as `SavingsContribution`; finance reads and add-cash stay usable before that migration, but true contribution edit/delete history requires the table
+- existing environments should run `npx prisma db push` after schema changes such as `SavingsContribution` and planned income/expense type tracking; finance reads and add-cash stay usable before the savings migration, but true contribution edit/delete history requires the table
 - repo-wide lint baseline is still noisy outside recently touched files
 
 ## Recommended Next Steps
