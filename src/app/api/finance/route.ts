@@ -2,7 +2,11 @@ import prisma from "@/lib/prisma";
 import { DEFAULT_FINANCE_CATEGORIES } from "@/lib/finance-defaults";
 import { buildFinanceSummary } from "@/lib/finance";
 import { requireCurrentUserId } from "@/lib/auth";
-import type { FinanceRecordType, FinancialCategory } from "@/types/BaseInterfaces";
+import type {
+  FinanceRecordType,
+  FinancialCategory,
+  SavingsGoal,
+} from "@/types/BaseInterfaces";
 import { NextResponse } from "next/server";
 
 async function ensureDefaultCategories(userId: number) {
@@ -48,6 +52,67 @@ function normalizeCategory(category: {
   };
 }
 
+function isMissingSavingsContributionsTableError(error: unknown) {
+  if (typeof error !== "object" || error === null) {
+    return false;
+  }
+
+  const candidate = error as { code?: unknown; message?: unknown };
+  const code = typeof candidate.code === "string" ? candidate.code : "";
+  const message =
+    typeof candidate.message === "string" ? candidate.message : "";
+
+  return (
+    code === "P2021" ||
+    code === "P2022" ||
+    (message.includes("SavingsContribution") &&
+      (message.includes("does not exist") || message.includes("not exist")))
+  );
+}
+
+async function getSavingsGoals(userId: number): Promise<SavingsGoal[]> {
+  try {
+    const savingsGoals = await prisma.savingsGoal.findMany({
+      where: { userId },
+      include: {
+        contributions: {
+          orderBy: { date: "desc" },
+        },
+      },
+      orderBy: { createdAt: "desc" },
+    });
+
+    return savingsGoals.map((goal) => ({
+      ...goal,
+      contributions: goal.contributions.map((contribution) => ({
+        amount: Number(contribution.amount),
+        date: contribution.date,
+        goalId: contribution.goalId,
+        id: contribution.id,
+        notes: contribution.notes,
+      })),
+      currentAmount: Number(goal.currentAmount),
+      targetAmount: Number(goal.targetAmount),
+    }));
+  } catch (error) {
+    if (!isMissingSavingsContributionsTableError(error)) {
+      throw error;
+    }
+
+    const savingsGoals = await prisma.savingsGoal.findMany({
+      where: { userId },
+      orderBy: { createdAt: "desc" },
+    });
+
+    return savingsGoals.map((goal) => ({
+      ...goal,
+      contributions: [],
+      currentAmount: Number(goal.currentAmount),
+      targetAmount: Number(goal.targetAmount),
+    }));
+  }
+}
+
 export async function GET() {
   const { response, userId } = await requireCurrentUserId();
 
@@ -62,7 +127,7 @@ export async function GET() {
     transactions,
     budgets,
     plannedExpenses,
-    savingsGoals,
+    normalizedGoals,
   ] =
     await Promise.all([
       prisma.financialCategory.findMany({
@@ -84,15 +149,7 @@ export async function GET() {
         include: { category: true },
         orderBy: { plannedDate: "asc" },
       }),
-      prisma.savingsGoal.findMany({
-        where: { userId },
-        include: {
-          contributions: {
-            orderBy: { date: "desc" },
-          },
-        },
-        orderBy: { createdAt: "desc" },
-      }),
+      getSavingsGoals(userId),
     ]);
 
   const normalizedCategories = categories.map(normalizeCategory);
@@ -124,19 +181,6 @@ export async function GET() {
     plannedDate: expense.plannedDate,
     title: expense.title,
   }));
-  const normalizedGoals = savingsGoals.map((goal) => ({
-    ...goal,
-    contributions: goal.contributions.map((contribution) => ({
-      amount: Number(contribution.amount),
-      date: contribution.date,
-      goalId: contribution.goalId,
-      id: contribution.id,
-      notes: contribution.notes,
-    })),
-    currentAmount: Number(goal.currentAmount),
-    targetAmount: Number(goal.targetAmount),
-  }));
-
   return NextResponse.json({
     categories: normalizedCategories,
     transactions: normalizedTransactions,
