@@ -11,7 +11,6 @@ import {
 } from "recharts";
 import {
   Banknote,
-  CalendarClock,
   ChartNoAxesCombined,
   CircleDollarSign,
   ClipboardList,
@@ -25,7 +24,6 @@ import { MenuPageHeader } from "@/components/menu-page-header";
 import { MoneyInput } from "@/components/money-input";
 import { OverviewPanel } from "@/components/overview-panel";
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
 import {
   Card,
   CardContent,
@@ -58,7 +56,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import {
-  BillActions,
   BudgetActions,
   CategoryActions,
   PlannedExpenseActions,
@@ -70,7 +67,6 @@ import {
   useCreateFinancialCategory,
   useCreateFinancialTransaction,
   useCreatePlannedExpense,
-  useCreateRecurringBill,
   useCreateSavingsGoal,
   useFinanceDashboard,
 } from "@/hooks/useFinanceMutations";
@@ -89,14 +85,12 @@ import type {
   FinancialCategoryCreateInput,
   FinancialTransactionCreateInput,
   PlannedExpenseCreateInput,
-  RecurringBillCreateInput,
   SavingsGoalCreateInput,
 } from "@/types/BaseInterfaces";
 
 type AddRecordKind =
   | "transaction"
   | "planned-expense"
-  | "bill"
   | "saving"
   | "budget"
   | "category";
@@ -164,14 +158,6 @@ export default function FinancePage() {
       title: "",
     },
   });
-  const billForm = useForm<RecurringBillCreateInput>({
-    defaultValues: {
-      amount: 0,
-      categoryId: "",
-      dueDay: 1,
-      title: "",
-    },
-  });
   const plannedExpenseForm = useForm<PlannedExpenseCreateInput>({
     defaultValues: {
       amount: 0,
@@ -208,8 +194,6 @@ export default function FinancePage() {
   } = useCreateFinancialCategory();
   const { mutate: createBudget, isPending: isCreatingBudget } =
     useCreateBudget();
-  const { mutate: createBill, isPending: isCreatingBill } =
-    useCreateRecurringBill();
   const { mutate: createPlannedExpense, isPending: isCreatingPlannedExpense } =
     useCreatePlannedExpense();
   const { mutate: createSavingsGoal, isPending: isCreatingSavingsGoal } =
@@ -223,8 +207,6 @@ export default function FinancePage() {
           year: "numeric",
         })
       : selectedYear;
-  const periodDescriptor =
-    periodMode === "month" ? "selected month" : "selected year";
   const periodTransactions =
     finance?.transactions.filter((transaction) =>
       isTransactionInFinancePeriod(transaction, periodMode, periodKey)
@@ -234,7 +216,7 @@ export default function FinancePage() {
         budgets: finance.budgets,
         periodKey,
         periodMode,
-        recurringBills: finance.recurringBills,
+        recurringBills: [],
         savingsGoals: finance.savingsGoals,
         transactions: finance.transactions,
       })
@@ -242,7 +224,6 @@ export default function FinancePage() {
   const totalIncome = summary?.totalIncome ?? 0;
   const totalExpenses = summary?.totalExpenses ?? 0;
   const netCashFlow = summary?.netCashFlow ?? 0;
-  const activeBillsTotal = summary?.upcomingBillsTotal ?? 0;
   const periodPlannedExpenses =
     finance?.plannedExpenses.filter((expense) => {
       const plannedDate = new Date(expense.plannedDate).toISOString();
@@ -251,10 +232,7 @@ export default function FinancePage() {
         ? plannedDate.slice(0, 7) === periodKey
         : plannedDate.slice(0, 4) === periodKey;
     }) ?? [];
-  const unpaidPlannedExpenses = periodPlannedExpenses.filter(
-    (expense) => !expense.isPaid
-  );
-  const plannedExpensesTotal = unpaidPlannedExpenses.reduce(
+  const plannedExpensesTotal = periodPlannedExpenses.reduce(
     (total, expense) => total + moneyToNumber(expense.amount),
     0
   );
@@ -269,19 +247,15 @@ export default function FinancePage() {
       0
     ) ?? 0;
   const remainingSavings = Math.max(totalSavingsTarget - totalSavingsCurrent, 0);
-  const cashAfterBills = netCashFlow - activeBillsTotal - plannedExpensesTotal;
-  const totalMoneyTracked = cashAfterBills + totalSavingsCurrent;
-  const activeBillsCount =
-    finance?.recurringBills.filter((bill) => bill.isActive).length ?? 0;
+  const totalMoneyTracked = netCashFlow + totalSavingsCurrent;
 
-  const billsChartData =
-    finance?.recurringBills
-      .filter((bill) => bill.isActive)
+  const plannedExpensesChartData =
+    periodPlannedExpenses
       .slice(0, 6)
-      .map((bill) => ({
-        name: bill.title,
-        amount: moneyToNumber(bill.amount),
-      })) ?? [];
+      .map((expense) => ({
+        name: expense.title,
+        amount: moneyToNumber(expense.amount),
+      }));
   const savingsChartData =
     finance?.savingsGoals.slice(0, 6).map((goal) => {
       const current = moneyToNumber(goal.currentAmount);
@@ -296,10 +270,9 @@ export default function FinancePage() {
   const totalChartData = [
     { name: "Income", value: totalIncome },
     { name: "Expenses", value: totalExpenses },
-    { name: "Bills", value: activeBillsTotal },
     { name: "Planned", value: plannedExpensesTotal },
     { name: "Saved", value: totalSavingsCurrent },
-    { name: "Total", value: totalMoneyTracked },
+    { name: "Tracked", value: totalMoneyTracked },
   ];
 
   const closeCreateDialog = () => setIsCreateOpen(false);
@@ -340,20 +313,6 @@ export default function FinancePage() {
           amount: 0,
           categoryId: "",
           month: data.month,
-          title: "",
-        });
-        closeCreateDialog();
-      },
-    });
-  };
-
-  const onCreateBill = (data: RecurringBillCreateInput) => {
-    createBill(data, {
-      onSuccess: () => {
-        billForm.reset({
-          amount: 0,
-          categoryId: "",
-          dueDay: 1,
           title: "",
         });
         closeCreateDialog();
@@ -457,7 +416,6 @@ export default function FinancePage() {
                     <SelectItem value="planned-expense">
                       Planned expense
                     </SelectItem>
-                    <SelectItem value="bill">Recurring bill</SelectItem>
                     <SelectItem value="saving">Savings goal</SelectItem>
                     <SelectItem value="budget">Monthly budget</SelectItem>
                     <SelectItem value="category">Category</SelectItem>
@@ -471,15 +429,6 @@ export default function FinancePage() {
                     form={transactionForm}
                     isPending={isCreatingTransaction}
                     onSubmit={transactionForm.handleSubmit(onCreateTransaction)}
-                  />
-                ) : null}
-                {recordKind === "bill" ? (
-                  <BillCreateForm
-                    control={billForm.control}
-                    expenseCategories={expenseCategories}
-                    form={billForm}
-                    isPending={isCreatingBill}
-                    onSubmit={billForm.handleSubmit(onCreateBill)}
                   />
                 ) : null}
                 {recordKind === "planned-expense" ? (
@@ -527,43 +476,38 @@ export default function FinancePage() {
 
       <OverviewPanel
         title={`Money tracked for ${periodLabel}`}
-        description={`The first number is your tracked total for the ${periodDescriptor}: cash after expenses, active bills, and unpaid planned expenses, plus money already placed in savings goals.`}
+        description={`Tracked money includes real income and expense transactions plus saved cash. Planned expenses affect it after you mark them done, which creates the expense transaction and removes the plan.`}
         stats={[
           {
-            label: "Total tracked",
-            value: formatCurrency(totalMoneyTracked),
-            icon: CircleDollarSign,
+            label: `Incoming this ${periodMode}`,
+            value: formatCurrency(totalIncome),
+            icon: Banknote,
           },
           {
-            label: "Cash after plans",
-            value: formatCurrency(cashAfterBills),
-            icon: WalletCards,
+            label: `Expenses this ${periodMode}`,
+            value: formatCurrency(totalExpenses),
+            icon: ReceiptText,
           },
           {
-            label: "Saved",
-            value: formatCurrency(totalSavingsCurrent),
-            icon: PiggyBank,
+            label: `Planned this ${periodMode}`,
+            value: formatCurrency(plannedExpensesTotal),
+            icon: ClipboardList,
           },
         ]}
         progress={{
           label: `${summary?.budgetUsedPercent ?? 0}% budget used`,
           value: summary?.budgetUsedPercent ?? 0,
           detail: `${formatCurrency(
-            activeBillsTotal + plannedExpensesTotal
-          )} in active bills and unpaid planned expenses for this ${periodMode}`,
+            plannedExpensesTotal
+          )} planned for this ${periodMode}`,
           icon: ReceiptText,
         }}
         focusTitle="What needs attention"
-        focusDescription={`Use bills and savings together with ${periodLabel}'s cash flow before making spending decisions.`}
+        focusDescription={`Use planned expenses as reminders, then mark them done when the payment actually happens.`}
         focusItems={[
           {
-            label: "Active bills",
-            value: `${activeBillsCount} - ${formatCurrency(activeBillsTotal)}`,
-            icon: CalendarClock,
-          },
-          {
             label: "Planned expenses",
-            value: `${unpaidPlannedExpenses.length} - ${formatCurrency(
+            value: `${periodPlannedExpenses.length} - ${formatCurrency(
               plannedExpensesTotal
             )}`,
             icon: ClipboardList,
@@ -576,34 +520,29 @@ export default function FinancePage() {
         ]}
       />
 
-      <section className="grid min-w-0 gap-4 xl:grid-cols-4">
+      <section className="grid min-w-0 gap-4 md:grid-cols-3">
         <FinanceMetricCard
-          icon={Banknote}
-          label={`Income this ${periodMode}`}
-          value={formatCurrency(totalIncome)}
+          icon={CircleDollarSign}
+          label="Total tracked"
+          value={formatCurrency(totalMoneyTracked)}
         />
         <FinanceMetricCard
-          icon={ReceiptText}
-          label={`Expenses this ${periodMode}`}
-          value={formatCurrency(totalExpenses)}
-        />
-        <FinanceMetricCard
-          icon={ClipboardList}
-          label={`Planned this ${periodMode}`}
-          value={formatCurrency(plannedExpensesTotal)}
-        />
-        <FinanceMetricCard
-          icon={ChartNoAxesCombined}
-          label="Net flow"
+          icon={WalletCards}
+          label="Net cash"
           value={formatCurrency(netCashFlow)}
+        />
+        <FinanceMetricCard
+          icon={PiggyBank}
+          label="Saved"
+          value={formatCurrency(totalSavingsCurrent)}
         />
       </section>
 
       <section className="grid min-w-0 gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
         <FinanceBarChart
-          data={billsChartData}
-          emptyLabel="No active recurring bills yet."
-          title="Bills visualization"
+          data={plannedExpensesChartData}
+          emptyLabel={`No planned expenses for ${periodLabel}.`}
+          title="Planned expenses visualization"
           valueKey="amount"
         />
         <FinanceSavingsChart
@@ -642,7 +581,7 @@ export default function FinancePage() {
               ))
             ) : (
               <p className="rounded-lg bg-secondary/35 p-4 text-sm text-muted-foreground">
-                Add budgets, bills, and transactions to unlock useful alerts.
+                Add budgets, planned expenses, and transactions to unlock useful alerts.
               </p>
             )}
           </CardContent>
@@ -706,22 +645,12 @@ export default function FinancePage() {
           </CardHeader>
           <CardContent className="space-y-4">
             <FinanceListBlock
-              emptyLabel="No recurring bills yet."
-              items={finance?.recurringBills.map((bill) => ({
-                label: `${bill.title} - day ${bill.dueDay}`,
-                value: formatCurrency(moneyToNumber(bill.amount)),
-              }))}
-              title="Bills"
-            />
-            <FinanceListBlock
               emptyLabel={`No planned expenses for ${periodLabel}.`}
               items={periodPlannedExpenses.map((expense) => ({
                 label: `${expense.title} - ${new Date(
                   expense.plannedDate
                 ).toLocaleDateString()}`,
-                value: `${expense.isPaid ? "Paid" : "Planned"} ${formatCurrency(
-                  moneyToNumber(expense.amount)
-                )}`,
+                value: formatCurrency(moneyToNumber(expense.amount)),
               }))}
               title="Planned expenses"
             />
@@ -752,7 +681,7 @@ export default function FinancePage() {
         <CardContent className="grid gap-5 xl:grid-cols-2">
           <FinanceManageBlock
             count={finance?.categories.length ?? 0}
-            description="Labels used by income, expenses, budgets, and bills."
+            description="Labels used by income, expenses, budgets, and plans."
             emptyLabel="No categories found."
             title="Categories"
           >
@@ -791,29 +720,8 @@ export default function FinancePage() {
           </FinanceManageBlock>
 
           <FinanceManageBlock
-            count={finance?.recurringBills.length ?? 0}
-            description="Expected recurring expenses included in cash after bills."
-            emptyLabel="No recurring bills yet."
-            title="Bills"
-          >
-            {finance?.recurringBills.map((bill) => (
-              <FinanceRecordRow
-                action={
-                  <BillActions bill={bill} expenseCategories={expenseCategories} />
-                }
-                key={bill.id}
-                meta={`${bill.category?.name ?? "Uncategorized"} - due day ${
-                  bill.dueDay
-                }${bill.isActive ? "" : " - inactive"}`}
-                title={bill.title}
-                value={formatCurrency(moneyToNumber(bill.amount))}
-              />
-            ))}
-          </FinanceManageBlock>
-
-          <FinanceManageBlock
             count={finance?.plannedExpenses.length ?? 0}
-            description="One-time future expenses included while they remain unpaid."
+            description="Expected expenses. Mark done to add the transaction and remove the plan."
             emptyLabel="No planned expenses yet."
             title="Planned expenses"
           >
@@ -828,7 +736,7 @@ export default function FinancePage() {
                 key={expense.id}
                 meta={`${expense.category?.name ?? "Uncategorized"} - ${new Date(
                   expense.plannedDate
-                ).toLocaleDateString()}${expense.isPaid ? " - paid" : ""}`}
+                ).toLocaleDateString()}`}
                 title={expense.title}
                 value={formatCurrency(moneyToNumber(expense.amount))}
               />
@@ -837,7 +745,7 @@ export default function FinancePage() {
 
           <FinanceManageBlock
             count={finance?.savingsGoals.length ?? 0}
-            description="Targets and current balances included in saved money."
+            description="Targets and current balances kept separate from tracked cash."
             emptyLabel="No savings goals yet."
             title="Savings"
           >
@@ -1044,66 +952,6 @@ function BudgetCreateForm({
   );
 }
 
-function BillCreateForm({
-  control,
-  expenseCategories,
-  form,
-  isPending,
-  onSubmit,
-}: {
-  control: ReturnType<typeof useForm<RecurringBillCreateInput>>["control"];
-  expenseCategories: Array<{ id: string; name: string }>;
-  form: ReturnType<typeof useForm<RecurringBillCreateInput>>;
-  isPending: boolean;
-  onSubmit: () => void;
-}) {
-  return (
-    <form onSubmit={onSubmit} className="grid gap-3">
-      <Input {...form.register("title", { required: true })} placeholder="Bill name" />
-      <Controller
-        name="amount"
-        control={control}
-        rules={{ min: 0.01, required: true }}
-        render={({ field }) => (
-          <MoneyInput value={field.value} onValueChange={field.onChange} />
-        )}
-      />
-      <Input
-        {...form.register("dueDay", {
-          required: true,
-          valueAsNumber: true,
-        })}
-        max="31"
-        min="1"
-        type="number"
-        placeholder="Due day"
-      />
-      <Controller
-        name="categoryId"
-        control={control}
-        rules={{ required: true }}
-        render={({ field }) => (
-          <Select value={field.value} onValueChange={field.onChange}>
-            <SelectTrigger>
-              <SelectValue placeholder="Category" />
-            </SelectTrigger>
-            <SelectContent>
-              {expenseCategories.map((category) => (
-                <SelectItem key={category.id} value={category.id}>
-                  {category.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        )}
-      />
-      <Button disabled={isPending || expenseCategories.length === 0} type="submit">
-        {isPending ? "Saving..." : "Save bill"}
-      </Button>
-    </form>
-  );
-}
-
 function PlannedExpenseCreateForm({
   control,
   expenseCategories,
@@ -1155,19 +1003,6 @@ function PlannedExpenseCreateForm({
         )}
       />
       <Input {...form.register("notes")} placeholder="Optional note" />
-      <Controller
-        name="isPaid"
-        control={control}
-        render={({ field }) => (
-          <label className="flex items-center gap-2 text-sm">
-            <Checkbox
-              checked={field.value}
-              onCheckedChange={(checked) => field.onChange(Boolean(checked))}
-            />
-            Mark as paid
-          </label>
-        )}
-      />
       <Button disabled={isPending || expenseCategories.length === 0} type="submit">
         {isPending ? "Saving..." : "Save planned expense"}
       </Button>

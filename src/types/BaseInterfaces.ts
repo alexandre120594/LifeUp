@@ -93,6 +93,10 @@ export interface FinancialTransaction {
   category?: FinancialCategory;
 }
 
+export interface FinancePaymentInput {
+  date?: string;
+}
+
 export interface Budget {
   id: string;
   title: string;

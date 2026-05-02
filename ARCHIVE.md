@@ -6,7 +6,7 @@ If a new agent needs to know where work stopped, start here.
 ## Current Snapshot
 
 Date of latest update:
-- 2026-04-29
+- 2026-05-02
 
 Current app position:
 - dashboard exists and is actively used as the main overview
@@ -21,7 +21,9 @@ Current app position:
 - theme system now has cleaner Grove, Harbor, Ember, Berry, and Graphite palettes with improved contrast
 - section pages exist for projects, habits, and tasks
 - finance section exists as a Phase 1 Personal Financial Organizer MVP
-- finance now surfaces a total tracked money view, monthly/yearly tracking, bill visualization, savings visualization, planned expenses, and single-popup creation flow
+- finance now surfaces a total tracked money view from real transactions plus savings, monthly/yearly tracking, planned expense visualization, savings visualization, and single-popup creation flow
+- planned expenses can be marked done from finance management, which creates one matching expense transaction and removes the plan
+- savings goals now include an add-cash field, and savings are shown outside the transaction-tracked total
 - project detail page exists and includes analytics
 - habit and task detail pages now exist and include contextual analytics
 - local seed data exists for visual/testing flows
@@ -162,13 +164,15 @@ Implemented:
 - finance menu entry and `/finance` page
 - persisted finance categories, transactions, budgets, recurring bills, savings goals, summaries, and notifications schema
 - default finance categories generated on first finance dashboard load
-- finance summary calculations for income, expenses, net cash flow, budgets, bills, savings progress, and basic insights
-- persisted planned expenses for one-time future spending with paid/pending state
-- create flows for transactions, custom categories, monthly budgets, recurring bills, planned expenses, and savings goals
-- single Add record popup that switches between transaction, planned expense, bill, savings, budget, and category creation
-- visual bill, savings, and total money sections on the finance page
+- finance summary calculations for income, expenses, net cash flow, budgets, planned expenses, savings progress, and basic insights
+- legacy recurring bill persistence remains for compatibility, but bills are no longer part of the visible finance workflow
+- create flows for transactions, custom categories, monthly budgets, planned expenses, and savings goals
+- single Add record popup that switches between transaction, planned expense, savings, budget, and category creation
+- visual planned expense, savings, and total money sections on the finance page
+- planned expense completion creates a real expense transaction, then removes that plan so it cannot be paid twice
+- savings contributions can be added directly to a goal and stay separate from transaction totals
 - monthly/yearly period selector for finance totals, insights, and recent transaction history
-- edit and delete flows for finance transactions, categories, budgets, recurring bills, planned expenses, and savings goals
+- edit and delete flows for finance transactions, categories, budgets, planned expenses, and savings goals
 - default finance categories are protected from deletion
 
 Main files:
