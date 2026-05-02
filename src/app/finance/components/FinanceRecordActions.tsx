@@ -2,10 +2,9 @@
 
 import { useState } from "react";
 import { Controller, useForm, useWatch } from "react-hook-form";
-import { Pencil, Trash2 } from "lucide-react";
+import { CheckCircle2, Pencil, Trash2 } from "lucide-react";
 import { MoneyInput } from "@/components/money-input";
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
 import {
   Dialog,
   DialogContent,
@@ -29,6 +28,7 @@ import {
   useDeletePlannedExpense,
   useDeleteRecurringBill,
   useDeleteSavingsGoal,
+  useMarkPlannedExpenseDone,
   useUpdateBudget,
   useUpdateFinancialCategory,
   useUpdateFinancialTransaction,
@@ -381,7 +381,6 @@ export function BillActions({
     useDeleteRecurringBill();
   const { mutate: updateBill, isPending: isUpdating } =
     useUpdateRecurringBill();
-
   const onSubmit = (data: RecurringBillCreateInput) => {
     updateBill(
       { data, id: bill.id },
@@ -392,15 +391,16 @@ export function BillActions({
   };
 
   return (
-    <ActionShell
-      error={deleteError}
-      isDeleting={isDeleting}
-      onDelete={() => deleteBill(bill.id)}
-      onOpenChange={setOpen}
-      open={open}
-      title="Edit recurring bill"
-    >
-      <form onSubmit={form.handleSubmit(onSubmit)} className="grid gap-3">
+    <div className="flex flex-wrap items-center justify-end gap-2">
+      <ActionShell
+        error={deleteError}
+        isDeleting={isDeleting}
+        onDelete={() => deleteBill(bill.id)}
+        onOpenChange={setOpen}
+        open={open}
+        title="Edit recurring bill"
+      >
+        <form onSubmit={form.handleSubmit(onSubmit)} className="grid gap-3">
           <Input {...form.register("title", { required: true })} />
           <Controller
             name="amount"
@@ -441,8 +441,9 @@ export function BillActions({
           <Button disabled={isUpdating} type="submit">
             {isUpdating ? "Saving..." : "Save changes"}
           </Button>
-      </form>
-    </ActionShell>
+        </form>
+      </ActionShell>
+    </div>
   );
 }
 
@@ -468,6 +469,11 @@ export function PlannedExpenseActions({
     useDeletePlannedExpense();
   const { mutate: updateExpense, isPending: isUpdating } =
     useUpdatePlannedExpense();
+  const {
+    error: markDoneError,
+    mutate: markDone,
+    isPending: isMarkingDone,
+  } = useMarkPlannedExpenseDone();
 
   const onSubmit = (data: PlannedExpenseCreateInput) => {
     updateExpense(
@@ -479,15 +485,25 @@ export function PlannedExpenseActions({
   };
 
   return (
-    <ActionShell
-      error={deleteError}
-      isDeleting={isDeleting}
-      onDelete={() => deleteExpense(expense.id)}
-      onOpenChange={setOpen}
-      open={open}
-      title="Edit planned expense"
-    >
-      <form onSubmit={form.handleSubmit(onSubmit)} className="grid gap-3">
+    <div className="flex flex-wrap items-center justify-end gap-2">
+      <Button
+        disabled={isMarkingDone}
+        onClick={() => markDone({ id: expense.id })}
+        size="sm"
+        variant="outline"
+      >
+        <CheckCircle2 className="h-3.5 w-3.5" />
+        {isMarkingDone ? "Adding..." : "Mark done"}
+      </Button>
+      <ActionShell
+        error={deleteError}
+        isDeleting={isDeleting}
+        onDelete={() => deleteExpense(expense.id)}
+        onOpenChange={setOpen}
+        open={open}
+        title="Edit planned expense"
+      >
+        <form onSubmit={form.handleSubmit(onSubmit)} className="grid gap-3">
           <Input {...form.register("title", { required: true })} />
           <Controller
             name="amount"
@@ -521,31 +537,25 @@ export function PlannedExpenseActions({
             )}
           />
           <Input {...form.register("notes")} placeholder="Optional note" />
-          <Controller
-            name="isPaid"
-            control={form.control}
-            render={({ field }) => (
-              <label className="flex items-center gap-2 text-sm">
-                <Checkbox
-                  checked={field.value}
-                  onCheckedChange={(checked) => field.onChange(Boolean(checked))}
-                />
-                Mark as paid
-              </label>
-            )}
-          />
           <Button disabled={isUpdating} type="submit">
             {isUpdating ? "Saving..." : "Save changes"}
           </Button>
-      </form>
-    </ActionShell>
+        </form>
+      </ActionShell>
+      {markDoneError ? (
+        <span className="text-xs text-destructive">
+          {markDoneError.message}
+        </span>
+      ) : null}
+    </div>
   );
 }
 
 export function SavingsGoalActions({ goal }: { goal: SavingsGoal }) {
   const [open, setOpen] = useState(false);
-  const form = useForm<SavingsGoalCreateInput>({
+  const form = useForm<SavingsGoalCreateInput & { contributionAmount: number }>({
     defaultValues: {
+      contributionAmount: 0,
       currentAmount: moneyToNumber(goal.currentAmount),
       targetAmount: moneyToNumber(goal.targetAmount),
       targetDate: toDateInputValue(goal.targetDate),
@@ -556,9 +566,22 @@ export function SavingsGoalActions({ goal }: { goal: SavingsGoal }) {
     useDeleteSavingsGoal();
   const { mutate: updateGoal, isPending: isUpdating } = useUpdateSavingsGoal();
 
-  const onSubmit = (data: SavingsGoalCreateInput) => {
+  const onSubmit = (
+    data: SavingsGoalCreateInput & { contributionAmount: number }
+  ) => {
+    const contributionAmount = moneyToNumber(data.contributionAmount);
+    const currentAmount = moneyToNumber(data.currentAmount) + contributionAmount;
+
     updateGoal(
-      { data, id: goal.id },
+      {
+        data: {
+          currentAmount,
+          targetAmount: data.targetAmount,
+          targetDate: data.targetDate,
+          title: data.title,
+        },
+        id: goal.id,
+      },
       {
         onSuccess: () => setOpen(false),
       }
@@ -589,7 +612,23 @@ export function SavingsGoalActions({ goal }: { goal: SavingsGoal }) {
             control={form.control}
             rules={{ min: 0 }}
             render={({ field }) => (
-              <MoneyInput value={field.value} onValueChange={field.onChange} />
+              <MoneyInput
+                placeholder="Current saved"
+                value={field.value}
+                onValueChange={field.onChange}
+              />
+            )}
+          />
+          <Controller
+            name="contributionAmount"
+            control={form.control}
+            rules={{ min: 0 }}
+            render={({ field }) => (
+              <MoneyInput
+                placeholder="Add cash"
+                value={field.value}
+                onValueChange={field.onChange}
+              />
             )}
           />
           <Input {...form.register("targetDate")} type="date" />

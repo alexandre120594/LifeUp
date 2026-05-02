@@ -61,7 +61,6 @@ export async function GET() {
     categories,
     transactions,
     budgets,
-    recurringBills,
     plannedExpenses,
     savingsGoals,
   ] =
@@ -79,11 +78,6 @@ export async function GET() {
         where: { userId },
         include: { category: true },
         orderBy: { month: "desc" },
-      }),
-      prisma.recurringBill.findMany({
-        where: { userId },
-        include: { category: true },
-        orderBy: { dueDay: "asc" },
       }),
       prisma.plannedExpense.findMany({
         where: { userId },
@@ -115,16 +109,6 @@ export async function GET() {
     month: budget.month,
     title: budget.title,
   }));
-  const normalizedBills = recurringBills.map((bill) => ({
-    amount: Number(bill.amount),
-    category: normalizeCategory(bill.category),
-    categoryId: bill.categoryId,
-    dueDay: bill.dueDay,
-    frequency: bill.frequency,
-    id: bill.id,
-    isActive: bill.isActive,
-    title: bill.title,
-  }));
   const normalizedPlannedExpenses = plannedExpenses.map((expense) => ({
     amount: Number(expense.amount),
     category: normalizeCategory(expense.category),
@@ -145,13 +129,13 @@ export async function GET() {
     categories: normalizedCategories,
     transactions: normalizedTransactions,
     budgets: normalizedBudgets,
-    recurringBills: normalizedBills,
+    recurringBills: [],
     plannedExpenses: normalizedPlannedExpenses,
     savingsGoals: normalizedGoals,
     summary: buildFinanceSummary({
       transactions: normalizedTransactions,
       budgets: normalizedBudgets,
-      recurringBills: normalizedBills,
+      recurringBills: [],
       savingsGoals: normalizedGoals,
     }),
   });

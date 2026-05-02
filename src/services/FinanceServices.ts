@@ -2,6 +2,7 @@ import { apiClient } from "./api-client";
 import type {
   Budget,
   BudgetCreateInput,
+  FinancePaymentInput,
   FinanceDashboardResponse,
   FinancialCategory,
   FinancialCategoryCreateInput,
@@ -110,6 +111,17 @@ export const FinanceServices = {
   deletePlannedExpense: (id: string) =>
     apiClient<{ ok: boolean }>(`/api/finance/planned-expenses/${id}`, {
       method: "DELETE",
+    }),
+  markPlannedExpenseDone: ({
+    data,
+    id,
+  }: {
+    data?: FinancePaymentInput;
+    id: string;
+  }) =>
+    apiClient<FinancialTransaction>(`/api/finance/planned-expenses/${id}/pay`, {
+      method: "POST",
+      body: JSON.stringify(data ?? {}),
     }),
   createSavingsGoal: (data: SavingsGoalCreateInput) =>
     apiClient<SavingsGoal>("/api/finance/savings-goals", {

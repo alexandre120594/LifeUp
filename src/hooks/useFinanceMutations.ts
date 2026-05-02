@@ -173,6 +173,17 @@ export function useDeletePlannedExpense() {
   });
 }
 
+export function useMarkPlannedExpenseDone() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: FinanceServices.markPlannedExpenseDone,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["finance"] });
+    },
+  });
+}
+
 export function useCreateSavingsGoal() {
   const queryClient = useQueryClient();
 
