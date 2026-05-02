@@ -208,6 +208,9 @@ There is also repeatable local seed data for testing charts and flows.
   - tracks each added cash entry so it can be edited or removed
 
 Current Prisma relations use explicit cascade behavior for cleanup.
+The finance dashboard read path tolerates databases that have not yet been
+updated with the `SavingsContribution` table by returning existing savings
+goals with an empty contribution history.
 
 ## Local Development
 
@@ -239,6 +242,12 @@ Validate Prisma:
 
 ```bash
 npx prisma validate
+```
+
+Apply the current Prisma schema to a local database after schema changes:
+
+```bash
+npx prisma db push
 ```
 
 Targeted lint example:

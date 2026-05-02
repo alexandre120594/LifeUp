@@ -22,6 +22,7 @@ Current app position:
 - section pages exist for projects, habits, and tasks
 - finance section exists as a Phase 1 Personal Financial Organizer MVP
 - finance now surfaces a total tracked money view from real transactions plus savings, monthly/yearly tracking, planned expense visualization, savings visualization, and single-popup creation flow
+- finance dashboard reads now fall back to empty savings contribution history if an older database has not yet received the `SavingsContribution` table
 - planned expenses can be marked done from finance management, which creates one matching expense transaction and removes the plan
 - savings goals now include an add-cash field, and savings are shown outside the transaction-tracked total
 - savings added cash is now persisted as contribution history, with recent entries editable and removable from the savings section
@@ -173,6 +174,7 @@ Implemented:
 - planned expense completion creates a real expense transaction, then removes that plan so it cannot be paid twice
 - savings contributions persist each added cash entry and update the parent goal total transactionally on create, edit, and delete
 - savings contributions can be added directly to a goal and are included in total tracked money
+- finance dashboard loading remains compatible with existing databases that still need `npx prisma db push` for the savings contribution table
 - monthly/yearly period selector for finance totals, insights, and recent transaction history
 - edit and delete flows for finance transactions, categories, budgets, planned expenses, and savings goals
 - default finance categories are protected from deletion
@@ -262,6 +264,7 @@ These are known unfinished areas:
 - analytics are currently derived from task timestamps and habit history arrays
 - there is no dedicated historical events model yet
 - existing environments still need `npm run db:backfill-streaks` once if they were populated before the streak fix
+- existing environments should run `npx prisma db push` after schema changes such as `SavingsContribution`; finance reads stay visible before that migration, but contribution create/edit/delete requires the table
 - repo-wide lint baseline is still noisy outside recently touched files
 
 ## Recommended Next Steps
@@ -305,11 +308,11 @@ Priority UI debt:
 Validated recently:
 - targeted ESLint on touched TypeScript files
 - `npx prisma validate`
+- `npm run build`
 - local seed execution through `npm run db:seed`
 
 Not claimed:
 - full repo lint clean
-- full production build verification after every recent change
 
 ## Stop Point
 
