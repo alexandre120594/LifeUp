@@ -804,9 +804,11 @@ export default function FinancePage() {
                       {visibleContributions.map((contribution) => (
                         <FinanceRecordRow
                           action={
-                            <SavingsContributionActions
-                              contribution={contribution}
-                            />
+                            contribution.isLegacyBalance ? null : (
+                              <SavingsContributionActions
+                                contribution={contribution}
+                              />
+                            )
                           }
                           key={contribution.id}
                           meta={`${new Date(
@@ -814,7 +816,11 @@ export default function FinancePage() {
                           ).toLocaleDateString()}${
                             contribution.notes ? ` - ${contribution.notes}` : ""
                           }`}
-                          title="Added cash"
+                          title={
+                            contribution.isLegacyBalance
+                              ? "Saved balance"
+                              : "Added cash"
+                          }
                           value={formatCurrency(
                             moneyToNumber(contribution.amount)
                           )}
