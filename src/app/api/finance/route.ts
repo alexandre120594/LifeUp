@@ -2,6 +2,7 @@ import prisma from "@/lib/prisma";
 import { DEFAULT_FINANCE_CATEGORIES } from "@/lib/finance-defaults";
 import { buildFinanceSummary } from "@/lib/finance";
 import { requireCurrentUserId } from "@/lib/auth";
+import { isMissingSavingsContributionsTableError } from "@/lib/prisma-errors";
 import type {
   FinanceRecordType,
   FinancialCategory,
@@ -50,24 +51,6 @@ function normalizeCategory(category: {
     name: category.name,
     type: category.type as FinanceRecordType,
   };
-}
-
-function isMissingSavingsContributionsTableError(error: unknown) {
-  if (typeof error !== "object" || error === null) {
-    return false;
-  }
-
-  const candidate = error as { code?: unknown; message?: unknown };
-  const code = typeof candidate.code === "string" ? candidate.code : "";
-  const message =
-    typeof candidate.message === "string" ? candidate.message : "";
-
-  return (
-    code === "P2021" ||
-    code === "P2022" ||
-    (message.includes("SavingsContribution") &&
-      (message.includes("does not exist") || message.includes("not exist")))
-  );
 }
 
 async function getSavingsGoals(userId: number): Promise<SavingsGoal[]> {

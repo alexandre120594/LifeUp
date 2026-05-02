@@ -210,7 +210,9 @@ There is also repeatable local seed data for testing charts and flows.
 Current Prisma relations use explicit cascade behavior for cleanup.
 The finance dashboard read path tolerates databases that have not yet been
 updated with the `SavingsContribution` table by returning existing savings
-goals with an empty contribution history.
+goals with an empty contribution history. Adding cash also falls back to
+updating the savings goal total when that table is missing, but editable
+contribution history still requires applying the current Prisma schema.
 
 ## Local Development
 
