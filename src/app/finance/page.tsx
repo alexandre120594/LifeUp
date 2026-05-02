@@ -171,6 +171,7 @@ export default function FinancePage() {
       notes: "",
       plannedDate: today,
       title: "",
+      type: "expense",
     },
   });
   const savingsForm = useForm<SavingsGoalCreateInput>({
@@ -238,9 +239,17 @@ export default function FinancePage() {
         : plannedDate.slice(0, 4) === periodKey;
     }) ?? [];
   const plannedExpensesTotal = periodPlannedExpenses.reduce(
-    (total, expense) => total + moneyToNumber(expense.amount),
+    (total, expense) =>
+      total +
+      (expense.type === "expense" ? moneyToNumber(expense.amount) : 0),
     0
   );
+  const plannedIncomeTotal = periodPlannedExpenses.reduce(
+    (total, expense) =>
+      total + (expense.type === "income" ? moneyToNumber(expense.amount) : 0),
+    0
+  );
+  const plannedNetCashFlow = plannedIncomeTotal - plannedExpensesTotal;
   const totalSavingsCurrent =
     finance?.savingsGoals.reduce(
       (total, goal) => total + moneyToNumber(goal.currentAmount),
@@ -259,7 +268,10 @@ export default function FinancePage() {
       .slice(0, 6)
       .map((expense) => ({
         name: expense.title,
-        amount: moneyToNumber(expense.amount),
+        amount:
+          expense.type === "income"
+            ? moneyToNumber(expense.amount)
+            : -moneyToNumber(expense.amount),
       }));
   const savingsChartData =
     finance?.savingsGoals.slice(0, 6).map((goal) => {
@@ -275,7 +287,8 @@ export default function FinancePage() {
   const totalChartData = [
     { name: "Income", value: totalIncome },
     { name: "Expenses", value: totalExpenses },
-    { name: "Planned", value: plannedExpensesTotal },
+    { name: "Planned in", value: plannedIncomeTotal },
+    { name: "Planned out", value: plannedExpensesTotal },
     { name: "Saved", value: totalSavingsCurrent },
     { name: "Tracked", value: totalMoneyTracked },
   ];
@@ -335,6 +348,7 @@ export default function FinancePage() {
           notes: "",
           plannedDate: data.plannedDate,
           title: "",
+          type: data.type,
         });
         closeCreateDialog();
       },
@@ -439,7 +453,7 @@ export default function FinancePage() {
                 {recordKind === "planned-expense" ? (
                   <PlannedExpenseCreateForm
                     control={plannedExpenseForm.control}
-                    expenseCategories={expenseCategories}
+                    categories={categories}
                     form={plannedExpenseForm}
                     isPending={isCreatingPlannedExpense}
                     onSubmit={plannedExpenseForm.handleSubmit(
@@ -481,7 +495,7 @@ export default function FinancePage() {
 
       <OverviewPanel
         title={`Money tracked for ${periodLabel}`}
-        description={`Tracked money includes real income and expense transactions plus saved cash. Planned expenses affect it after you mark them done, which creates the expense transaction and removes the plan.`}
+        description={`Tracked money includes real income and expense transactions plus saved cash. Planned income and expenses affect it after you mark them done, which creates the transaction and removes the plan.`}
         stats={[
           {
             label: `Incoming this ${periodMode}`,
@@ -494,27 +508,44 @@ export default function FinancePage() {
             icon: ReceiptText,
           },
           {
-            label: `Planned this ${periodMode}`,
+            label: `Planned income this ${periodMode}`,
+            value: formatCurrency(plannedIncomeTotal),
+            icon: ClipboardList,
+          },
+          {
+            label: `Planned expenses this ${periodMode}`,
             value: formatCurrency(plannedExpensesTotal),
             icon: ClipboardList,
           },
         ]}
         progress={{
-          label: `${summary?.budgetUsedPercent ?? 0}% budget used`,
-          value: summary?.budgetUsedPercent ?? 0,
-          detail: `${formatCurrency(
-            plannedExpensesTotal
-          )} planned for this ${periodMode}`,
+          label: `${formatCurrency(plannedNetCashFlow)} planned net`,
+          value:
+            plannedIncomeTotal > 0
+              ? Math.max(
+                  Math.min(
+                    Math.round(
+                      (plannedNetCashFlow / plannedIncomeTotal) * 100
+                    ),
+                    100
+                  ),
+                  0
+                )
+              : 0,
+          detail: `${formatCurrency(plannedExpensesTotal)} planned expenses`,
           icon: ReceiptText,
         }}
         focusTitle="What needs attention"
-        focusDescription={`Use planned expenses as reminders, then mark them done when the payment actually happens.`}
+        focusDescription={`Use planned income and expenses as reminders, then mark them done when the money actually moves.`}
         focusItems={[
           {
+            label: "Planned income",
+            value: formatCurrency(plannedIncomeTotal),
+            icon: Banknote,
+          },
+          {
             label: "Planned expenses",
-            value: `${periodPlannedExpenses.length} - ${formatCurrency(
-              plannedExpensesTotal
-            )}`,
+            value: formatCurrency(plannedExpensesTotal),
             icon: ClipboardList,
           },
           {
@@ -546,8 +577,8 @@ export default function FinancePage() {
       <section className="grid min-w-0 gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
         <FinanceBarChart
           data={plannedExpensesChartData}
-          emptyLabel={`No planned expenses for ${periodLabel}.`}
-          title="Planned expenses visualization"
+          emptyLabel={`No planned income or expenses for ${periodLabel}.`}
+          title="Planned cash flow visualization"
           valueKey="amount"
         />
         <FinanceSavingsChart
@@ -586,7 +617,7 @@ export default function FinancePage() {
               ))
             ) : (
               <p className="rounded-lg bg-secondary/35 p-4 text-sm text-muted-foreground">
-                Add budgets, planned expenses, and transactions to unlock useful alerts.
+                Add budgets, planned income, planned expenses, and transactions to unlock useful alerts.
               </p>
             )}
           </CardContent>
@@ -650,13 +681,27 @@ export default function FinancePage() {
           </CardHeader>
           <CardContent className="space-y-4">
             <FinanceListBlock
+              emptyLabel={`No planned income for ${periodLabel}.`}
+              items={periodPlannedExpenses
+                .filter((expense) => expense.type === "income")
+                .map((expense) => ({
+                  label: `${expense.title} - ${new Date(
+                    expense.plannedDate
+                  ).toLocaleDateString()}`,
+                  value: formatCurrency(moneyToNumber(expense.amount)),
+                }))}
+              title="Planned income"
+            />
+            <FinanceListBlock
               emptyLabel={`No planned expenses for ${periodLabel}.`}
-              items={periodPlannedExpenses.map((expense) => ({
+              items={periodPlannedExpenses
+                .filter((expense) => expense.type === "expense")
+                .map((expense) => ({
                 label: `${expense.title} - ${new Date(
                   expense.plannedDate
                 ).toLocaleDateString()}`,
                 value: formatCurrency(moneyToNumber(expense.amount)),
-              }))}
+                }))}
               title="Planned expenses"
             />
             <FinanceListBlock
@@ -726,16 +771,16 @@ export default function FinancePage() {
 
           <FinanceManageBlock
             count={finance?.plannedExpenses.length ?? 0}
-            description="Expected expenses. Mark done to add the transaction and remove the plan."
-            emptyLabel="No planned expenses yet."
-            title="Planned expenses"
+            description="Expected income and expenses. Mark done to add the transaction and remove the plan."
+            emptyLabel="No planned income or expenses yet."
+            title="Planned cash flow"
           >
             {finance?.plannedExpenses.map((expense) => (
               <FinanceRecordRow
                 action={
                   <PlannedExpenseActions
+                    categories={categories}
                     expense={expense}
-                    expenseCategories={expenseCategories}
                   />
                 }
                 key={expense.id}
@@ -743,7 +788,9 @@ export default function FinancePage() {
                   expense.plannedDate
                 ).toLocaleDateString()}`}
                 title={expense.title}
-                value={formatCurrency(moneyToNumber(expense.amount))}
+                value={`${expense.type === "income" ? "+" : "-"}${formatCurrency(
+                  moneyToNumber(expense.amount)
+                )}`}
               />
             ))}
           </FinanceManageBlock>
@@ -1057,23 +1104,52 @@ function BudgetCreateForm({
 }
 
 function PlannedExpenseCreateForm({
+  categories,
   control,
-  expenseCategories,
   form,
   isPending,
   onSubmit,
 }: {
+  categories: Array<{ id: string; name: string; type: FinanceRecordType }>;
   control: ReturnType<typeof useForm<PlannedExpenseCreateInput>>["control"];
-  expenseCategories: Array<{ id: string; name: string }>;
   form: ReturnType<typeof useForm<PlannedExpenseCreateInput>>;
   isPending: boolean;
   onSubmit: () => void;
 }) {
+  const selectedType = useWatch({
+    control,
+    name: "type",
+  });
+  const plannedCategories = categories.filter(
+    (category) => category.type === selectedType
+  );
+
   return (
     <form onSubmit={onSubmit} className="grid gap-3">
       <Input
         {...form.register("title", { required: true })}
-        placeholder="Expense title"
+        placeholder="Plan title"
+      />
+      <Controller
+        name="type"
+        control={control}
+        render={({ field }) => (
+          <Select
+            value={field.value}
+            onValueChange={(value) => {
+              field.onChange(value as FinanceRecordType);
+              form.setValue("categoryId", "");
+            }}
+          >
+            <SelectTrigger>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="expense">Expense</SelectItem>
+              <SelectItem value="income">Income</SelectItem>
+            </SelectContent>
+          </Select>
+        )}
       />
       <Controller
         name="amount"
@@ -1094,10 +1170,10 @@ function PlannedExpenseCreateForm({
         render={({ field }) => (
           <Select value={field.value} onValueChange={field.onChange}>
             <SelectTrigger>
-              <SelectValue placeholder="Expense category" />
+              <SelectValue placeholder="Category" />
             </SelectTrigger>
             <SelectContent>
-              {expenseCategories.map((category) => (
+              {plannedCategories.map((category) => (
                 <SelectItem key={category.id} value={category.id}>
                   {category.name}
                 </SelectItem>
@@ -1107,8 +1183,8 @@ function PlannedExpenseCreateForm({
         )}
       />
       <Input {...form.register("notes")} placeholder="Optional note" />
-      <Button disabled={isPending || expenseCategories.length === 0} type="submit">
-        {isPending ? "Saving..." : "Save planned expense"}
+      <Button disabled={isPending || plannedCategories.length === 0} type="submit">
+        {isPending ? "Saving..." : "Save planned record"}
       </Button>
     </form>
   );

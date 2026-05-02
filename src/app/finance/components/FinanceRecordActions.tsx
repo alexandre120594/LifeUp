@@ -453,11 +453,11 @@ export function BillActions({
 }
 
 export function PlannedExpenseActions({
+  categories,
   expense,
-  expenseCategories,
 }: {
+  categories: FinancialCategory[];
   expense: PlannedExpense;
-  expenseCategories: FinancialCategory[];
 }) {
   const [open, setOpen] = useState(false);
   const form = useForm<PlannedExpenseCreateInput>({
@@ -468,6 +468,7 @@ export function PlannedExpenseActions({
       notes: expense.notes ?? "",
       plannedDate: toDateInputValue(expense.plannedDate),
       title: expense.title,
+      type: expense.type,
     },
   });
   const { error: deleteError, mutate: deleteExpense, isPending: isDeleting } =
@@ -479,6 +480,13 @@ export function PlannedExpenseActions({
     mutate: markDone,
     isPending: isMarkingDone,
   } = useMarkPlannedExpenseDone();
+  const selectedType = useWatch({
+    control: form.control,
+    name: "type",
+  });
+  const plannedCategories = categories.filter(
+    (category) => category.type === selectedType
+  );
 
   const onSubmit = (data: PlannedExpenseCreateInput) => {
     updateExpense(
@@ -498,7 +506,11 @@ export function PlannedExpenseActions({
         variant="outline"
       >
         <CheckCircle2 className="h-3.5 w-3.5" />
-        {isMarkingDone ? "Adding..." : "Mark done"}
+        {isMarkingDone
+          ? "Adding..."
+          : expense.type === "income"
+            ? "Add income"
+            : "Mark done"}
       </Button>
       <ActionShell
         error={deleteError}
@@ -506,10 +518,31 @@ export function PlannedExpenseActions({
         onDelete={() => deleteExpense(expense.id)}
         onOpenChange={setOpen}
         open={open}
-        title="Edit planned expense"
+        title="Edit planned record"
       >
         <form onSubmit={form.handleSubmit(onSubmit)} className="grid gap-3">
           <Input {...form.register("title", { required: true })} />
+          <Controller
+            name="type"
+            control={form.control}
+            render={({ field }) => (
+              <Select
+                value={field.value}
+                onValueChange={(value) => {
+                  field.onChange(value as FinanceRecordType);
+                  form.setValue("categoryId", "");
+                }}
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="expense">Expense</SelectItem>
+                  <SelectItem value="income">Income</SelectItem>
+                </SelectContent>
+              </Select>
+            )}
+          />
           <Controller
             name="amount"
             control={form.control}
@@ -532,7 +565,7 @@ export function PlannedExpenseActions({
                   <SelectValue placeholder="Category" />
                 </SelectTrigger>
                 <SelectContent>
-                  {expenseCategories.map((category) => (
+                  {plannedCategories.map((category) => (
                     <SelectItem key={category.id} value={category.id}>
                       {category.name}
                     </SelectItem>

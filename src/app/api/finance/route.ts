@@ -175,6 +175,7 @@ export async function GET() {
     notes: expense.notes,
     plannedDate: expense.plannedDate,
     title: expense.title,
+    type: expense.type as FinanceRecordType,
   }));
   return NextResponse.json({
     categories: normalizedCategories,

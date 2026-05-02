@@ -121,6 +121,7 @@ export interface PlannedExpense {
   id: string;
   title: string;
   amount: number | string;
+  type: FinanceRecordType;
   plannedDate: Date | string;
   isPaid: boolean;
   notes?: string | null;
@@ -206,6 +207,7 @@ export interface RecurringBillCreateInput {
 export interface PlannedExpenseCreateInput {
   title: string;
   amount: number;
+  type: FinanceRecordType;
   plannedDate: string;
   categoryId: string;
   isPaid?: boolean;

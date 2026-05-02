@@ -19,7 +19,15 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const { amount, categoryId, isPaid = false, notes, plannedDate, title } =
+    const {
+      amount,
+      categoryId,
+      isPaid = false,
+      notes,
+      plannedDate,
+      title,
+      type = "expense",
+    } =
       await req.json();
     const parsedAmount = Number(amount);
     const parsedDate = parseDate(plannedDate);
@@ -27,12 +35,24 @@ export async function POST(req: NextRequest) {
     if (
       !title ||
       !categoryId ||
+      !["income", "expense"].includes(type) ||
       !parsedDate ||
       !Number.isFinite(parsedAmount) ||
       parsedAmount <= 0
     ) {
       return NextResponse.json(
         { message: "Valid title, amount, planned date, and category are required." },
+        { status: 400 }
+      );
+    }
+
+    const category = await prisma.financialCategory.findFirst({
+      where: { id: categoryId, type, userId },
+    });
+
+    if (!category) {
+      return NextResponse.json(
+        { message: "Category must match the planned record type." },
         { status: 400 }
       );
     }
@@ -45,6 +65,7 @@ export async function POST(req: NextRequest) {
         notes: notes || null,
         plannedDate: parsedDate,
         title,
+        type,
         userId,
       },
       include: {
