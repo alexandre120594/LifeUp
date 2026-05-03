@@ -11,6 +11,42 @@ export interface Task {
   time?: string | null;
   project?: Project;
   habit?: Habit | null;
+  pomodoroSessions?: PomodoroSession[];
+}
+
+export interface PomodoroSession {
+  id: string;
+  durationMinutes: number;
+  focusType: "work" | "study";
+  startedAt: Date | string;
+  endedAt: Date | string;
+  notes?: string | null;
+  taskId: string;
+  task?: Task;
+}
+
+export interface PomodoroSessionCreateInput {
+  durationMinutes: number;
+  focusType: "work" | "study";
+  startedAt: string;
+  endedAt: string;
+  taskId: string;
+  notes?: string;
+}
+
+export interface PomodoroSummaryItem {
+  id: string;
+  title: string;
+  minutes: number;
+}
+
+export interface PomodoroDashboardResponse {
+  sessions: PomodoroSession[];
+  totalMinutes: number;
+  workMinutes: number;
+  studyMinutes: number;
+  byProject: PomodoroSummaryItem[];
+  byHabit: PomodoroSummaryItem[];
 }
 
 export interface Habit {
@@ -28,7 +64,7 @@ export interface Habit {
 export interface Project {
   id: string;
   title: string;  
-  color: string;
+  color: string | null;
   userId: number;
   lastActivityDate?: Date | string;
   streakGlobal?:number
@@ -49,7 +85,7 @@ export interface ProjectRequest {
 
 export interface ProjectCreateInput {
   title?: string;
-  color?: string;
+  color?: string | null;
 }
 
 export interface HabitCreateInput {

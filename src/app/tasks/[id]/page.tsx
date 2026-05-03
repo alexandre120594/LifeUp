@@ -7,6 +7,7 @@ import {
   CalendarClock,
   CheckCircle2,
   FolderKanban,
+  TimerReset,
   Repeat,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -17,6 +18,7 @@ import type { ChartConfig } from "@/components/ui/chart";
 import { useTaskById } from "@/hooks/useTaskMutation";
 import { useProjectsById } from "@/hooks/useProjectMutations";
 import { buildActivityTrend, getTaskSummary } from "@/lib/analytics";
+import { formatFocusDuration } from "@/lib/pomodoro";
 
 const radialChartConfig = {
   data: {
@@ -47,6 +49,11 @@ export default function TaskDetailPage({
 
   const relatedTaskSummary = getTaskSummary(project?.tasks ?? []);
   const projectTrend = buildActivityTrend(project?.tasks ?? [], project?.habits ?? []);
+  const focusMinutes =
+    task.pomodoroSessions?.reduce(
+      (total, session) => total + session.durationMinutes,
+      0
+    ) ?? 0;
 
   return (
     <div className="space-y-8 p-4 md:p-8">
@@ -92,6 +99,10 @@ export default function TaskDetailPage({
                 <CalendarClock className="mr-2 inline h-4 w-4" />
                 {task.time ?? "No scheduled hour"}
               </span>
+              <span className="rounded-full bg-secondary px-3 py-1">
+                <TimerReset className="mr-2 inline h-4 w-4" />
+                {formatFocusDuration(focusMinutes)} focused
+              </span>
             </div>
           </div>
         </CardHeader>
@@ -104,6 +115,44 @@ export default function TaskDetailPage({
             <span className="font-medium text-foreground">Habit:</span>{" "}
             {task.habit?.title ?? "Not linked"}
           </div>
+        </CardContent>
+      </Card>
+
+      <Card className="min-w-0 overflow-hidden border shadow-sm">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <TimerReset className="h-5 w-5 text-primary" />
+            Focus history
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="grid gap-2">
+          {task.pomodoroSessions?.length ? (
+            task.pomodoroSessions.slice(0, 8).map((session) => (
+              <div
+                className="flex min-w-0 flex-col justify-between gap-2 rounded-lg bg-secondary/35 p-3 text-sm sm:flex-row sm:items-center"
+                key={session.id}
+              >
+                <div className="min-w-0">
+                  <div className="font-medium">
+                    {formatFocusDuration(session.durationMinutes)}
+                  </div>
+                  <div className="truncate text-xs text-muted-foreground">
+                    {new Date(session.startedAt).toLocaleString()} -{" "}
+                    {new Date(session.endedAt).toLocaleTimeString()}
+                  </div>
+                </div>
+                {session.notes ? (
+                  <div className="text-sm text-muted-foreground">
+                    {session.notes}
+                  </div>
+                ) : null}
+              </div>
+            ))
+          ) : (
+            <p className="rounded-lg bg-secondary/35 p-4 text-sm text-muted-foreground">
+              No Pomodoro sessions saved for this task yet.
+            </p>
+          )}
         </CardContent>
       </Card>
 

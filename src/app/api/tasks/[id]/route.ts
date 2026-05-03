@@ -96,6 +96,9 @@ export async function GET(req: NextRequest, { params }: RouteParams) {
       include: {
         habit: true,
         project: true,
+        pomodoroSessions: {
+          orderBy: { endedAt: "desc" },
+        },
       },
     });
 

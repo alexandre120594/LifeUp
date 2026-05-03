@@ -18,7 +18,13 @@ export async function GET(req: NextRequest) {
         project: { userId },
       },
     include: {
-      tasks: true,
+      tasks: {
+        include: {
+          pomodoroSessions: {
+            orderBy: { endedAt: "desc" },
+          },
+        },
+      },
       project: true,
     }
   });

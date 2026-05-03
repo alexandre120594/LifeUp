@@ -21,7 +21,11 @@ export async function GET(req: NextRequest) {
     include: {
       project: true,
       habit: true,
+      pomodoroSessions: {
+        orderBy: { endedAt: "desc" },
+      },
     },
+    orderBy: { date: "desc" },
   });
   return NextResponse.json(tasks);
 }

@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Task } from "@/types/BaseInterfaces";
 import { useDeleteTask, useUpdateTask } from "@/hooks/useTaskMutation";
+import { formatFocusDuration } from "@/lib/pomodoro";
 
 export default function TaskItem({ task }: { task: Task }) {
   const [isEditing, setIsEditing] = useState(false);
@@ -18,6 +19,11 @@ export default function TaskItem({ task }: { task: Task }) {
 
   const { mutate: updateTask } = useUpdateTask();
   const { mutate: deleteTask } = useDeleteTask();
+  const focusMinutes =
+    task.pomodoroSessions?.reduce(
+      (total, session) => total + session.durationMinutes,
+      0
+    ) ?? 0;
 
   const onSaveTitle = (data: Task) => {
     updateTask(
@@ -90,6 +96,9 @@ export default function TaskItem({ task }: { task: Task }) {
             <span className="text-xs text-muted-foreground">
               {task.time ? `${task.time} - ` : ""}
               {task.project?.title ?? "Project task"}
+              {focusMinutes > 0
+                ? ` - ${formatFocusDuration(focusMinutes)} focused`
+                : ""}
             </span>
           </div>
         )}

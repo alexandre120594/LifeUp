@@ -11,6 +11,7 @@ import {
   ListChecks,
   ListTodo,
   Repeat,
+  TimerReset,
   WalletCards,
 } from "lucide-react";
 import { useHabit } from "@/hooks/useHabitMutations";
@@ -63,6 +64,12 @@ const essentialItems = [
 ];
 
 const planningItems = [
+  {
+    title: "Pomodoro",
+    url: "/pomodoro",
+    icon: TimerReset,
+    description: "Focus cycles and history",
+  },
   {
     title: "Habit Tracker",
     url: "/habit-tracker",
@@ -145,6 +152,7 @@ export function AppSidebar() {
     "/tasks": tasks?.length ?? 0,
     "/calendar": tasks?.length ?? 0,
     "/weekly-organizer": tasks?.length ?? 0,
+    "/pomodoro": 0,
     "/finance": 0,
   };
 

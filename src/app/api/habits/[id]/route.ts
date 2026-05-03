@@ -19,7 +19,13 @@ export async function GET(req: NextRequest, { params }: RouteParams) {
     const habit = await prisma.habit.findFirst({
       where: { id, project: { userId } },
       include: {
-        tasks: true,
+        tasks: {
+          include: {
+            pomodoroSessions: {
+              orderBy: { endedAt: "desc" },
+            },
+          },
+        },
         project: true,
       },
     });

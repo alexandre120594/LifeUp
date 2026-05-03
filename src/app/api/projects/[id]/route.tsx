@@ -20,7 +20,13 @@ export async function GET(req: NextRequest, { params }: RouteParams) {
       where: { id, userId },
       include: {
         habits: true,
-        tasks: true,
+        tasks: {
+          include: {
+            pomodoroSessions: {
+              orderBy: { endedAt: "desc" },
+            },
+          },
+        },
       },
     });
 

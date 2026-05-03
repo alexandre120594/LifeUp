@@ -1,7 +1,7 @@
 "use client";
 
 import { use } from "react";
-import { Goal, ListChecks, Repeat, Sparkles } from "lucide-react";
+import { Goal, ListChecks, Repeat, Sparkles, TimerReset } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import InputHabit from "@/app/habits/components/InputHabit";
 import TaskInput from "@/app/tasks/components/TaskInput";
@@ -16,6 +16,7 @@ import {
   buildHabitPerformance,
   getTaskSummary,
 } from "@/lib/analytics";
+import { formatFocusDuration, sumTaskFocusMinutes } from "@/lib/pomodoro";
 
 export default function ProjectPage({
   params,
@@ -39,6 +40,7 @@ export default function ProjectPage({
     project.habits ?? [],
     project.tasks ?? []
   );
+  const focusMinutes = sumTaskFocusMinutes(project.tasks ?? []);
 
   return (
     <div className="space-y-6 p-4 md:p-8">
@@ -65,6 +67,10 @@ export default function ProjectPage({
               <span className="rounded-full bg-secondary px-3 py-1">
                 <ListChecks className="mr-2 inline h-4 w-4" />
                 {taskSummary.completed}/{taskSummary.total} tasks complete
+              </span>
+              <span className="rounded-full bg-secondary px-3 py-1">
+                <TimerReset className="mr-2 inline h-4 w-4" />
+                {formatFocusDuration(focusMinutes)} focused
               </span>
             </div>
           </div>

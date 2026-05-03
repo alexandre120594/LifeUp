@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { use } from "react";
-import { ArrowLeft, Flame, FolderKanban, ListChecks } from "lucide-react";
+import { ArrowLeft, Flame, FolderKanban, ListChecks, TimerReset } from "lucide-react";
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import TaskList from "@/app/tasks/components/TaskListWithPagination";
@@ -14,6 +14,7 @@ import { ChartRadialText } from "@/components/ChartsComponent/RadialChart";
 import type { ChartConfig } from "@/components/ui/chart";
 import { useHabitDetail } from "@/hooks/useHabitMutations";
 import { buildActivityTrend, buildHabitPerformance, getTaskSummary } from "@/lib/analytics";
+import { formatFocusDuration, sumTaskFocusMinutes } from "@/lib/pomodoro";
 
 const radialChartConfig = {
   data: {
@@ -44,6 +45,7 @@ export default function HabitDetailPage({
   const taskSummary = getTaskSummary(habit.tasks ?? []);
   const activityTrend = buildActivityTrend(habit.tasks ?? [], [habit]);
   const habitPerformance = buildHabitPerformance([habit], habit.tasks ?? []);
+  const focusMinutes = sumTaskFocusMinutes(habit.tasks ?? []);
 
   return (
     <div className="space-y-8 p-4 md:p-8">
@@ -88,6 +90,10 @@ export default function HabitDetailPage({
               <span className="max-w-full truncate rounded-full bg-secondary px-3 py-1">
                 <FolderKanban className="mr-2 inline h-4 w-4" />
                 {habit.project?.title ?? "Project"}
+              </span>
+              <span className="rounded-full bg-secondary px-3 py-1">
+                <TimerReset className="mr-2 inline h-4 w-4" />
+                {formatFocusDuration(focusMinutes)} focused
               </span>
             </div>
           </div>

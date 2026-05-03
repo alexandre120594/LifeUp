@@ -15,7 +15,13 @@ export async function GET() {
     },
     include: {
       habits: true,
-      tasks: true,
+      tasks: {
+        include: {
+          pomodoroSessions: {
+            orderBy: { endedAt: "desc" },
+          },
+        },
+      },
     },
   });
   return NextResponse.json(projects);

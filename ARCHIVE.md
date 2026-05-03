@@ -32,6 +32,7 @@ Current app position:
 - Prisma relations were hardened with cascade behavior
 - chart colors now follow the active app theme
 - task creation supports optional scheduled hours, and the calendar displays tasks by time inside each day
+- Pomodoro page now saves work/study focus sessions against tasks, supports work/break cycles, and rolls time through projects and habits
 - dashboard now shows a daily/weekly tracker snapshot instead of the project throughput graph
 - weekly organizer page derives the current Monday-to-Sunday week from today's date, distributes existing projects and habits across it, supports adding/editing/deleting project cards, hides habits on days without a project focus, opens a habit popup when a day has more than 5 habits, and keeps task progress visible as a tracker
 - project lists and the habit tracker grid now paginate
@@ -103,6 +104,7 @@ Implemented:
 - tasks index page with queue analytics and improved creation flow
 - habit detail page with linked task completion and habit activity charts
 - task detail page with parent-project activity context
+- Pomodoro page with persisted task-linked sessions, configurable work/break cycles, work/study totals, project/habit time summaries, productivity history, and task/project/habit detail focus totals
 
 Main files:
 - `src/components/app-sidebar.tsx`
@@ -111,6 +113,12 @@ Main files:
 - `src/app/tasks/page.tsx`
 - `src/app/habits/[id]/page.tsx`
 - `src/app/tasks/[id]/page.tsx`
+- `src/app/pomodoro/page.tsx`
+- `src/components/pomodoro-panel.tsx`
+- `src/app/api/pomodoro/route.ts`
+- `src/hooks/usePomodoroMutations.ts`
+- `src/services/PomodoroServices.ts`
+- `src/lib/pomodoro.ts`
 - `src/app/finance/page.tsx`
 - `src/app/habits/components/InputHabit.tsx`
 - `src/app/tasks/components/TaskInput.tsx`
@@ -264,7 +272,7 @@ These are known unfinished areas:
 - analytics are currently derived from task timestamps and habit history arrays
 - there is no dedicated historical events model yet
 - existing environments still need `npm run db:backfill-streaks` once if they were populated before the streak fix
-- existing environments should run `npx prisma db push` after schema changes such as `SavingsContribution` and planned income/expense type tracking; finance reads and add-cash stay usable before the savings migration, but true contribution edit/delete history requires the table
+- existing environments should run `npx prisma db push` after schema changes such as `SavingsContribution`, planned income/expense type tracking, and `PomodoroSession`; finance reads and add-cash stay usable before the savings migration, but true contribution edit/delete history and Pomodoro persistence require the current schema
 - repo-wide lint baseline is still noisy outside recently touched files
 
 ## Recommended Next Steps

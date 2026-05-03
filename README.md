@@ -14,6 +14,7 @@ The app currently supports:
 - simple email login with per-user project, habit, task, and finance data isolation
 - secondary planning tools for habit tracking, task calendar, and weekly planning
 - task creation supports an optional scheduled hour, and the calendar shows tasks by time inside each day
+- Pomodoro page organizes work/study focus cycles with breaks, task association, progress, and productivity history by project and habit
 - habit creation flows include daily/weekly frequency, and the habit tracker adds reminder time, completions, streaks, and statistics progress
 - responsive layouts for mobile, tablet, and desktop screens
 - updated theme palettes with compact swatch switching, light/night mode, and stronger contrast
@@ -92,6 +93,8 @@ There is also repeatable local seed data for testing charts and flows.
   - habit tracker page with a recent-day completion grid
 - `src/app/tasks/page.tsx`
   - task index page with queue overview, creation form, and task list
+- `src/app/pomodoro/page.tsx`
+  - Pomodoro focus page with work/study cycles, break planning, task association, progress, and productivity history
 - `src/app/tasks/[id]/page.tsx`
   - task detail page with parent project context
 - `src/app/calendar/page.tsx`
@@ -144,6 +147,7 @@ There is also repeatable local seed data for testing charts and flows.
 - `src/app/api/habits/[id]/route.ts`
 - `src/app/api/tasks/route.ts`
 - `src/app/api/tasks/[id]/route.ts`
+- `src/app/api/pomodoro/route.ts`
 - `src/app/api/auth/login/route.ts`
 - `src/app/api/auth/logout/route.ts`
 - `src/app/api/auth/me/route.ts`
@@ -185,6 +189,9 @@ There is also repeatable local seed data for testing charts and flows.
   - belongs to project
   - optionally belongs to habit
   - stores `completed`, `date`, `dateFinish`, and scheduled `time`
+- `PomodoroSession`
+  - belongs to user and task
+  - stores completed work or study focus blocks so task time rolls up through project and habit context
 - `FinancialCategory`
   - belongs to user
   - organizes income and expense records
@@ -304,6 +311,7 @@ What is stable enough to continue from:
 - finance totals, insights, and recent transactions can switch between monthly and yearly tracking
 - finance records can be edited or deleted from the Finance management section; default categories are protected from deletion
 - section pages for projects, habits, and tasks now follow the newer dashboard structure
+- Pomodoro page includes task association, work/break cycles, study/work tracking, and productivity history by project and habit
 - project detail analytics are present and usable
 - habit and task detail pages are present and usable
 - project and habit streak persistence now derives from stored completed task dates

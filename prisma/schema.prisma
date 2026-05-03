@@ -20,6 +20,7 @@ model User {
   savingsGoals SavingsGoal[]
   savingsContributions SavingsContribution[]
   financialSummaries FinancialSummary[]
+  pomodoroSessions PomodoroSession[]
   notifications Notification[]
   createdAt DateTime @default(now())
 }
@@ -59,6 +60,22 @@ model Task {
   habit       Habit?   @relation(fields: [habitId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   dateFinish DateTime? 
   time        String?
+  pomodoroSessions PomodoroSession[]
+}
+
+model PomodoroSession {
+  id              String   @id @default(cuid())
+  durationMinutes Int
+  focusType       String   @default("work") // work or study
+  startedAt       DateTime
+  endedAt         DateTime
+  notes           String?
+  taskId          String
+  task            Task     @relation(fields: [taskId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  userId          Int
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 }
 
 model FinancialCategory {
