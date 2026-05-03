@@ -11,14 +11,14 @@ Date of latest update:
 Current app position:
 - dashboard exists and is actively used as the main overview
 - dashboard top line now includes current finance income, expenses, and total cash
-- calendar menu now includes a task calendar for day-level task review and future task scheduling
-- habit tracker menu now includes habit creation, daily/weekly frequency, reminder time, completion tracking, streaks, calendar progress, and basic statistics
+- essential sidebar menu now focuses on dashboard, projects, tasks, habits, and finance
+- secondary planning tools now contain the task calendar, weekly plan, and habit tracker
 - all habit creation flows now ask for daily or weekly frequency
 - simple email login now gates the app and scopes projects, habits, tasks, and finance records to the logged-in user
 - dashboard greeting now resolves the current logged-in user's name from the session instead of a fixed placeholder
 - dashboard and main section pages now use a lighter reusable overview layout with popup creation
 - shared app shell, charts, lists, cards, and main page layouts now respond better across phone, tablet, and desktop widths
-- theme system now has cleaner Grove, Harbor, Ember, Berry, and Graphite palettes with improved contrast
+- theme system now has cleaner Grove, Harbor, Ember, Berry, and Graphite palettes plus light/night mode with improved contrast
 - section pages exist for projects, habits, and tasks
 - finance section exists as a Phase 1 Personal Financial Organizer MVP
 - finance now surfaces a total tracked money view from real transactions plus savings, monthly/yearly tracking, planned cash-flow visualization, savings visualization, and single-popup creation flow
@@ -97,7 +97,7 @@ Main file:
 ### Section navigation and detail routes
 
 Implemented:
-- sidebar navigation now points to real routes for dashboard, projects, habits, tasks, and finance
+- sidebar navigation now groups essential routes above secondary planning tools
 - new projects index page with project throughput overview
 - habits index page with streak/check-in analytics and drill-down links
 - tasks index page with queue analytics and improved creation flow

@@ -10,13 +10,13 @@ The app currently supports:
 - task creation, completion, and listing
 - pagination for project lists, task queues, and the habit tracker grid
 - popup creation for projects, habits, and tasks across the main menu pages
-- section navigation for dashboard, projects, habits, tasks, and finance
+- essential sidebar navigation for dashboard, projects, tasks, habits, and finance
 - simple email login with per-user project, habit, task, and finance data isolation
-- task calendar menu for day-level planning
+- secondary planning tools for habit tracking, task calendar, and weekly planning
 - task creation supports an optional scheduled hour, and the calendar shows tasks by time inside each day
 - habit creation flows include daily/weekly frequency, and the habit tracker adds reminder time, completions, streaks, and statistics progress
 - responsive layouts for mobile, tablet, and desktop screens
-- updated theme palettes with compact swatch switching and stronger contrast
+- updated theme palettes with compact swatch switching, light/night mode, and stronger contrast
 - Personal Financial Organizer MVP for:
   - income and expense tracking
   - spending categories

@@ -31,8 +31,11 @@ export default function RootLayout({
 
     const saved = localStorage.getItem('app-theme-choice') || 'grove';
     const theme = themes[saved] || themes.grove;
+    const displayMode = localStorage.getItem('app-display-mode') === 'night' ? 'night' : 'light';
     
     const root = document.documentElement;
+    root.classList.toggle('dark', displayMode === 'night');
+    root.style.colorScheme = displayMode === 'night' ? 'dark' : 'light';
     root.style.setProperty('--p-hue', theme.p.h);
     root.style.setProperty('--p-chroma', theme.p.c);
     root.style.setProperty('--s-hue', theme.s.h);

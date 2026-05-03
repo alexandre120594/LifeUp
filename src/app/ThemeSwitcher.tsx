@@ -1,5 +1,6 @@
 "use client";
 
+import { Moon, Sun } from "lucide-react";
 import { useEffect, useSyncExternalStore } from "react";
 
 const themes = {
@@ -36,8 +37,10 @@ const themes = {
 };
 
 type ThemeName = keyof typeof themes;
+type DisplayMode = "light" | "night";
 
 const themeChangeEvent = "app-theme-choice-change";
+const displayModeChangeEvent = "app-display-mode-change";
 
 function getThemeSnapshot(): ThemeName {
   if (typeof window === "undefined") {
@@ -52,6 +55,20 @@ function getServerThemeSnapshot(): ThemeName {
   return "grove";
 }
 
+function getDisplayModeSnapshot(): DisplayMode {
+  if (typeof window === "undefined") {
+    return getServerDisplayModeSnapshot();
+  }
+
+  return localStorage.getItem("app-display-mode") === "night"
+    ? "night"
+    : "light";
+}
+
+function getServerDisplayModeSnapshot(): DisplayMode {
+  return "light";
+}
+
 function subscribeToThemeChanges(callback: () => void) {
   window.addEventListener("storage", callback);
   window.addEventListener(themeChangeEvent, callback);
@@ -59,6 +76,16 @@ function subscribeToThemeChanges(callback: () => void) {
   return () => {
     window.removeEventListener("storage", callback);
     window.removeEventListener(themeChangeEvent, callback);
+  };
+}
+
+function subscribeToDisplayModeChanges(callback: () => void) {
+  window.addEventListener("storage", callback);
+  window.addEventListener(displayModeChangeEvent, callback);
+
+  return () => {
+    window.removeEventListener("storage", callback);
+    window.removeEventListener(displayModeChangeEvent, callback);
   };
 }
 
@@ -74,16 +101,32 @@ function applyTheme(name: ThemeName) {
   root.style.setProperty("--a-chroma", theme.a.c);
 }
 
+function applyDisplayMode(mode: DisplayMode) {
+  const root = document.documentElement;
+
+  root.classList.toggle("dark", mode === "night");
+  root.style.colorScheme = mode === "night" ? "dark" : "light";
+}
+
 export function ThemeSwitcher() {
   const activeTheme = useSyncExternalStore(
     subscribeToThemeChanges,
     getThemeSnapshot,
     getServerThemeSnapshot,
   );
+  const displayMode = useSyncExternalStore(
+    subscribeToDisplayModeChanges,
+    getDisplayModeSnapshot,
+    getServerDisplayModeSnapshot,
+  );
 
   useEffect(() => {
     applyTheme(activeTheme);
   }, [activeTheme]);
+
+  useEffect(() => {
+    applyDisplayMode(displayMode);
+  }, [displayMode]);
 
   const changeTheme = (name: ThemeName) => {
     applyTheme(name);
@@ -91,8 +134,40 @@ export function ThemeSwitcher() {
     window.dispatchEvent(new Event(themeChangeEvent));
   };
 
+  const changeDisplayMode = (mode: DisplayMode) => {
+    applyDisplayMode(mode);
+    localStorage.setItem("app-display-mode", mode);
+    window.dispatchEvent(new Event(displayModeChangeEvent));
+  };
+
   return (
-    <div className="flex w-fit gap-1 rounded-lg border bg-card/90 p-1 shadow-sm backdrop-blur">
+    <div className="flex w-fit max-w-full flex-wrap gap-1 rounded-lg border bg-card/90 p-1 shadow-sm backdrop-blur">
+      <div className="flex gap-1 border-r pr-1">
+        {[
+          { icon: Sun, label: "Light", value: "light" as const },
+          { icon: Moon, label: "Night", value: "night" as const },
+        ].map((mode) => {
+          const Icon = mode.icon;
+
+          return (
+            <button
+              key={mode.value}
+              onClick={() => changeDisplayMode(mode.value)}
+              className={`flex h-9 items-center gap-1.5 rounded-md border px-2 text-xs font-medium transition-colors hover:border-border hover:bg-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
+                displayMode === mode.value
+                  ? "border-primary bg-secondary text-foreground"
+                  : "border-transparent text-muted-foreground"
+              }`}
+              type="button"
+              aria-label={`Use ${mode.label} mode`}
+            >
+              <Icon className="h-4 w-4" />
+              <span className="hidden sm:inline">{mode.label}</span>
+            </button>
+          );
+        })}
+      </div>
+
       {Object.entries(themes).map(([key, value]) => (
         <button
           key={key}
@@ -102,6 +177,7 @@ export function ThemeSwitcher() {
               ? "border-primary bg-secondary text-foreground"
               : "border-transparent"
           }`}
+          type="button"
           title={value.label}
           aria-label={`Use ${value.label} theme`}
         >
