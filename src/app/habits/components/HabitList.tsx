@@ -11,9 +11,17 @@ import {
 } from "@/components/ui/pagination";
 import { Habit } from "@/types/BaseInterfaces";
 
-export function HabitList({ habits, colorHabit, onHabitClick }: { habits?: Habit[], colorHabit?: string, onHabitClick: (id: string) => void }) {
+export function HabitList({
+  habits,
+  colorHabit,
+  onHabitClick,
+}: {
+  habits?: Habit[];
+  colorHabit?: string;
+  onHabitClick: (id: string) => void;
+}) {
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 5;
+  const itemsPerPage = 6;
   const safeHabits = habits ?? [];
 
   const totalPages = Math.ceil(safeHabits.length / itemsPerPage);
@@ -28,8 +36,7 @@ export function HabitList({ habits, colorHabit, onHabitClick }: { habits?: Habit
 
   return (
     <div className="min-w-0 space-y-4">
-      {/* The List */}
-      <div className="grid min-w-0 gap-3 sm:grid-cols-2 xl:grid-cols-3">
+      <div className="grid min-w-0 gap-3 lg:grid-cols-2">
         {currentHabits.map((habit) => (
           <HabitItem
             key={habit.id}
@@ -41,9 +48,12 @@ export function HabitList({ habits, colorHabit, onHabitClick }: { habits?: Habit
         ))}
       </div>
 
-      {/* Shadcn Pagination Controls */}
       {totalPages > 1 && (
-        <Pagination className="mt-8">
+        <div className="flex flex-col gap-3 pt-2 sm:flex-row sm:items-center sm:justify-between">
+          <p className="text-sm text-muted-foreground">
+            Page {currentPage} of {totalPages} / {safeHabits.length} habits
+          </p>
+          <Pagination className="mx-0 w-auto">
           <PaginationContent className="flex-wrap">
             <PaginationItem>
               <PaginationPrevious
@@ -91,7 +101,8 @@ export function HabitList({ habits, colorHabit, onHabitClick }: { habits?: Habit
               />
             </PaginationItem>
           </PaginationContent>
-        </Pagination>
+          </Pagination>
+        </div>
       )}
     </div>
   );

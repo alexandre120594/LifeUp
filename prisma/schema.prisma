@@ -21,6 +21,8 @@ model User {
   savingsContributions SavingsContribution[]
   financialSummaries FinancialSummary[]
   pomodoroSessions PomodoroSession[]
+  inboxItems InboxItem[]
+  notes Note[]
   notifications Notification[]
   createdAt DateTime @default(now())
 }
@@ -34,6 +36,8 @@ model Project {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   habits    Habit[]
   tasks     Task[]
+  inboxItems InboxItem[]
+  notes Note[]
   createdAt DateTime @default(now())
 }
 
@@ -47,6 +51,8 @@ model Habit {
   frequency   String   // e.g., "daily"
   reminderTime String?
   tasks       Task[]   
+  inboxItems InboxItem[]
+  notes Note[]
 }
 
 model Task {
@@ -61,6 +67,46 @@ model Task {
   dateFinish DateTime? 
   time        String?
   pomodoroSessions PomodoroSession[]
+  inboxItems InboxItem[]
+  notes Note[]
+}
+
+model InboxItem {
+  id          String   @id @default(cuid())
+  title       String
+  content     String?
+  type        String   @default("idea")
+  status      String   @default("unprocessed")
+  projectId   String?
+  project     Project? @relation(fields: [projectId], references: [id], onDelete: SetNull, onUpdate: Cascade)
+  habitId     String?
+  habit       Habit?   @relation(fields: [habitId], references: [id], onDelete: SetNull, onUpdate: Cascade)
+  taskId      String?
+  task        Task?    @relation(fields: [taskId], references: [id], onDelete: SetNull, onUpdate: Cascade)
+  noteId      String?
+  note        Note?    @relation(fields: [noteId], references: [id], onDelete: SetNull, onUpdate: Cascade)
+  userId      Int
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Note {
+  id          String   @id @default(cuid())
+  title       String
+  content     String
+  category    String?
+  projectId   String?
+  project     Project? @relation(fields: [projectId], references: [id], onDelete: SetNull, onUpdate: Cascade)
+  habitId     String?
+  habit       Habit?   @relation(fields: [habitId], references: [id], onDelete: SetNull, onUpdate: Cascade)
+  taskId      String?
+  task        Task?    @relation(fields: [taskId], references: [id], onDelete: SetNull, onUpdate: Cascade)
+  inboxItems  InboxItem[]
+  userId      Int
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }
 
 model PomodoroSession {

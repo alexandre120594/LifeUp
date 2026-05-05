@@ -12,6 +12,90 @@ export interface Task {
   project?: Project;
   habit?: Habit | null;
   pomodoroSessions?: PomodoroSession[];
+  inboxItems?: InboxItem[];
+  notes?: Note[];
+}
+
+export type InboxItemType =
+  | "idea"
+  | "task"
+  | "note"
+  | "study"
+  | "finance"
+  | "habit"
+  | "project"
+  | "thought";
+
+export type InboxItemStatus = "unprocessed" | "processed";
+
+export interface InboxItem {
+  id: string;
+  title: string;
+  content?: string | null;
+  type: InboxItemType;
+  status: InboxItemStatus;
+  projectId?: string | null;
+  project?: Project | null;
+  habitId?: string | null;
+  habit?: Habit | null;
+  taskId?: string | null;
+  task?: Task | null;
+  noteId?: string | null;
+  note?: Note | null;
+  createdAt: Date | string;
+  updatedAt: Date | string;
+}
+
+export interface InboxItemCreateInput {
+  title: string;
+  content?: string;
+  type?: InboxItemType;
+}
+
+export interface InboxItemUpdateInput {
+  title?: string;
+  content?: string | null;
+  type?: InboxItemType;
+  status?: InboxItemStatus;
+  projectId?: string | null;
+  habitId?: string | null;
+  taskId?: string | null;
+  noteId?: string | null;
+  convertToNote?: boolean;
+}
+
+export interface Note {
+  id: string;
+  title: string;
+  content: string;
+  category?: string | null;
+  projectId?: string | null;
+  project?: Project | null;
+  habitId?: string | null;
+  habit?: Habit | null;
+  taskId?: string | null;
+  task?: Task | null;
+  inboxItems?: InboxItem[];
+  createdAt: Date | string;
+  updatedAt: Date | string;
+}
+
+export interface NoteCreateInput {
+  title: string;
+  content: string;
+  category?: string;
+  projectId?: string | null;
+  habitId?: string | null;
+  taskId?: string | null;
+}
+
+export interface NoteUpdateInput {
+  title?: string;
+  content?: string;
+  category?: string | null;
+  projectId?: string | null;
+  habitId?: string | null;
+  taskId?: string | null;
 }
 
 export interface PomodoroSession {
@@ -59,6 +143,8 @@ export interface Habit {
   reminderTime?: string | null;
   tasks?: Task[];
   project?: Project; 
+  inboxItems?: InboxItem[];
+  notes?: Note[];
 }
 
 export interface Project {
@@ -71,6 +157,8 @@ export interface Project {
   createdAt: Date | string;
   habits?: Habit[]; 
   tasks?: Task[]; 
+  inboxItems?: InboxItem[];
+  notes?: Note[];
 }
 export interface ProjectRequest {
   title: string;

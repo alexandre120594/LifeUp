@@ -43,7 +43,7 @@ export default function ProjectsPage() {
   const taskSummary = getTaskSummary(tasks ?? []);
   const projectPerformance = buildProjectPerformance(projects ?? []);
   const activityTrend = buildActivityTrend(tasks ?? [], habits ?? []);
-  const projectsPerPage = 4;
+  const projectsPerPage = 6;
   const totalPages = Math.ceil((projects?.length ?? 0) / projectsPerPage);
   const currentProjectPage = Math.min(currentPage, totalPages || 1);
   const visibleProjects = (projects ?? []).slice(
@@ -127,28 +127,37 @@ export default function ProjectsPage() {
         loadingLabel="Loading projects..."
         emptyLabel="No projects found. Create your first project above."
       >
-        {visibleProjects.map((project) => (
-          <ProjectItem key={project.id} project={project} />
-        ))}
+        <div className="grid min-w-0 gap-3">
+          {visibleProjects.map((project) => (
+            <ProjectItem key={project.id} project={project} />
+          ))}
+        </div>
         {totalPages > 1 ? (
-          <Pagination>
-            <PaginationContent className="flex-wrap">
-              <PaginationItem>
-                <PaginationPrevious
-                  className={
-                    currentProjectPage === 1
-                      ? "pointer-events-none opacity-50"
-                      : "cursor-pointer"
-                  }
-                  href="#"
-                  onClick={(event) => {
-                    event.preventDefault();
-                    handlePageChange(currentProjectPage - 1);
-                  }}
-                />
-              </PaginationItem>
-              {Array.from({ length: totalPages }, (_, index) => index + 1).map(
-                (page) => (
+          <div className="flex flex-col gap-3 pt-2 sm:flex-row sm:items-center sm:justify-between">
+            <p className="text-sm text-muted-foreground">
+              Page {currentProjectPage} of {totalPages} /{" "}
+              {projects?.length ?? 0} projects
+            </p>
+            <Pagination className="mx-0 w-auto">
+              <PaginationContent className="flex-wrap">
+                <PaginationItem>
+                  <PaginationPrevious
+                    className={
+                      currentProjectPage === 1
+                        ? "pointer-events-none opacity-50"
+                        : "cursor-pointer"
+                    }
+                    href="#"
+                    onClick={(event) => {
+                      event.preventDefault();
+                      handlePageChange(currentProjectPage - 1);
+                    }}
+                  />
+                </PaginationItem>
+                {Array.from(
+                  { length: totalPages },
+                  (_, index) => index + 1
+                ).map((page) => (
                   <PaginationItem key={page}>
                     <PaginationLink
                       href="#"
@@ -161,24 +170,24 @@ export default function ProjectsPage() {
                       {page}
                     </PaginationLink>
                   </PaginationItem>
-                )
-              )}
-              <PaginationItem>
-                <PaginationNext
-                  className={
-                    currentProjectPage === totalPages
-                      ? "pointer-events-none opacity-50"
-                      : "cursor-pointer"
-                  }
-                  href="#"
-                  onClick={(event) => {
-                    event.preventDefault();
-                    handlePageChange(currentProjectPage + 1);
-                  }}
-                />
-              </PaginationItem>
-            </PaginationContent>
-          </Pagination>
+                ))}
+                <PaginationItem>
+                  <PaginationNext
+                    className={
+                      currentProjectPage === totalPages
+                        ? "pointer-events-none opacity-50"
+                        : "cursor-pointer"
+                    }
+                    href="#"
+                    onClick={(event) => {
+                      event.preventDefault();
+                      handlePageChange(currentProjectPage + 1);
+                    }}
+                  />
+                </PaginationItem>
+              </PaginationContent>
+            </Pagination>
+          </div>
         ) : null}
       </ListSection>
     </div>

@@ -8,13 +8,17 @@ import {
   CalendarRange,
   FolderKanban,
   Home,
+  Inbox,
   ListChecks,
   ListTodo,
+  NotebookText,
   Repeat,
   TimerReset,
   WalletCards,
 } from "lucide-react";
+import { useInboxItems } from "@/hooks/useInboxMutations";
 import { useHabit } from "@/hooks/useHabitMutations";
+import { useNotes } from "@/hooks/useNoteMutations";
 import { useProjects } from "@/hooks/useProjectMutations";
 import { useTask } from "@/hooks/useTaskMutation";
 import {
@@ -48,6 +52,18 @@ const essentialItems = [
     url: "/tasks",
     icon: ListTodo,
     description: "Execution queue",
+  },
+  {
+    title: "Inbox",
+    url: "/inbox",
+    icon: Inbox,
+    description: "Fast capture",
+  },
+  {
+    title: "Notes",
+    url: "/notes",
+    icon: NotebookText,
+    description: "Connected knowledge",
   },
   {
     title: "Habits",
@@ -144,12 +160,16 @@ export function AppSidebar() {
   const { data: projects } = useProjects();
   const { data: habits } = useHabit();
   const { data: tasks } = useTask();
+  const { data: inboxItems } = useInboxItems({ status: "unprocessed" });
+  const { data: notes } = useNotes();
 
   const badges: Record<string, number> = {
     "/projects": projects?.length ?? 0,
     "/habits": habits?.length ?? 0,
     "/habit-tracker": habits?.length ?? 0,
     "/tasks": tasks?.length ?? 0,
+    "/inbox": inboxItems?.length ?? 0,
+    "/notes": notes?.length ?? 0,
     "/calendar": tasks?.length ?? 0,
     "/weekly-organizer": tasks?.length ?? 0,
     "/pomodoro": 0,

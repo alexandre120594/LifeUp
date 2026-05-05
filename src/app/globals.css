@@ -61,12 +61,12 @@
 
 :root {
 
-  --p-hue: 156;
-  --p-chroma: 0.118;
-  --s-hue: 104;
-  --s-chroma: 0.038;
-  --a-hue: 34;
-  --a-chroma: 0.132;
+  --p-hue: 154;
+  --p-chroma: 0.132;
+  --s-hue: 182;
+  --s-chroma: 0.048;
+  --a-hue: 84;
+  --a-chroma: 0.145;
 
   /* Aplicação nas variáveis Yevox que o @theme consome */
   --background-yevox: oklch(0.976 0.009 var(--s-hue));

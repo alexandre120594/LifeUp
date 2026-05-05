@@ -11,15 +11,16 @@ Date of latest update:
 Current app position:
 - dashboard exists and is actively used as the main overview
 - dashboard top line now includes current finance income, expenses, and total cash
-- essential sidebar menu now focuses on dashboard, projects, tasks, habits, and finance
+- essential sidebar menu now focuses on dashboard, projects, tasks, inbox, notes, habits, and finance
 - secondary planning tools now contain the task calendar, weekly plan, and habit tracker
 - all habit creation flows now ask for daily or weekly frequency
 - simple email login now gates the app and scopes projects, habits, tasks, and finance records to the logged-in user
 - dashboard greeting now resolves the current logged-in user's name from the session instead of a fixed placeholder
 - dashboard and main section pages now use a lighter reusable overview layout with popup creation
 - shared app shell, charts, lists, cards, and main page layouts now respond better across phone, tablet, and desktop widths
-- theme system now has cleaner Grove, Harbor, Ember, Berry, and Graphite palettes plus light/night mode with improved contrast
+- theme system now has modern Grove, Harbor, Vault, Sentinel, and Graphite palettes plus light/night mode with improved contrast
 - section pages exist for projects, habits, and tasks
+- inbox and notes sections now exist and connect capture/knowledge records to projects, habits, and tasks
 - finance section exists as a Phase 1 Personal Financial Organizer MVP
 - finance now surfaces a total tracked money view from real transactions plus savings, monthly/yearly tracking, planned cash-flow visualization, savings visualization, and single-popup creation flow
 - finance dashboard reads now fall back to a non-editable saved-balance contribution row if an older database has not yet received the `SavingsContribution` table, and add-cash falls back to updating the savings total
@@ -32,7 +33,9 @@ Current app position:
 - Prisma relations were hardened with cascade behavior
 - chart colors now follow the active app theme
 - task creation supports optional scheduled hours, and the calendar displays tasks by time inside each day
-- Pomodoro page now saves work/study focus sessions against tasks, supports work/break cycles, and rolls time through projects and habits
+- Pomodoro page now saves work/study focus sessions against tasks, supports work/break cycles, keeps the countdown state while navigating away, and rolls time through projects and habits
+- Inbox page captures unprocessed ideas, reminders, study topics, and loose work, paginates the queue, supports popup editing with project/habit/task linking, and can convert items into notes
+- Notes page stores searchable categorized notes with pagination, popup editing, and optional project, habit, and task links
 - dashboard now shows a daily/weekly tracker snapshot instead of the project throughput graph
 - weekly organizer page derives the current Monday-to-Sunday week from today's date, distributes existing projects and habits across it, supports adding/editing/deleting project cards, hides habits on days without a project focus, opens a habit popup when a day has more than 5 habits, and keeps task progress visible as a tracker
 - project lists and the habit tracker grid now paginate
@@ -100,15 +103,19 @@ Main file:
 Implemented:
 - sidebar navigation now groups essential routes above secondary planning tools
 - new projects index page with project throughput overview
+- inbox page with fast capture, status filtering, pagination, linked entity display, popup view/edit, project/habit/task linking, note conversion, completion, and deletion
+- notes page with search, categories, pagination, creation, popup view/edit, project/habit/task linking, and deletion
 - habits index page with streak/check-in analytics and drill-down links
 - tasks index page with queue analytics and improved creation flow
 - habit detail page with linked task completion and habit activity charts
 - task detail page with parent-project activity context
-- Pomodoro page with persisted task-linked sessions, configurable work/break cycles, work/study totals, project/habit time summaries, productivity history, and task/project/habit detail focus totals
+- Pomodoro page with persisted task-linked sessions, configurable work/break cycles, navigation-persistent countdown state, work/study totals, project/habit time summaries, productivity history, and task/project/habit detail focus totals
 
 Main files:
 - `src/components/app-sidebar.tsx`
 - `src/app/projects/page.tsx`
+- `src/app/inbox/page.tsx`
+- `src/app/notes/page.tsx`
 - `src/app/habits/page.tsx`
 - `src/app/tasks/page.tsx`
 - `src/app/habits/[id]/page.tsx`
@@ -116,6 +123,14 @@ Main files:
 - `src/app/pomodoro/page.tsx`
 - `src/components/pomodoro-panel.tsx`
 - `src/app/api/pomodoro/route.ts`
+- `src/app/api/inbox/route.ts`
+- `src/app/api/inbox/[id]/route.ts`
+- `src/app/api/notes/route.ts`
+- `src/app/api/notes/[id]/route.ts`
+- `src/hooks/useInboxMutations.ts`
+- `src/hooks/useNoteMutations.ts`
+- `src/services/InboxServices.ts`
+- `src/services/NotesServices.ts`
 - `src/hooks/usePomodoroMutations.ts`
 - `src/services/PomodoroServices.ts`
 - `src/lib/pomodoro.ts`
@@ -164,6 +179,7 @@ Main files:
 
 Implemented:
 - explicit cascade behavior on key relations
+- added `InboxItem` and `Note` models with user ownership and optional project, habit, and task links
 
 Main file:
 - `prisma/schema.prisma`
@@ -272,7 +288,7 @@ These are known unfinished areas:
 - analytics are currently derived from task timestamps and habit history arrays
 - there is no dedicated historical events model yet
 - existing environments still need `npm run db:backfill-streaks` once if they were populated before the streak fix
-- existing environments should run `npx prisma db push` after schema changes such as `SavingsContribution`, planned income/expense type tracking, and `PomodoroSession`; finance reads and add-cash stay usable before the savings migration, but true contribution edit/delete history and Pomodoro persistence require the current schema
+- existing environments should run `npx prisma db push` after schema changes such as `SavingsContribution`, planned income/expense type tracking, `PomodoroSession`, `InboxItem`, and `Note`; finance reads and add-cash stay usable before the savings migration, but true contribution edit/delete history, Pomodoro persistence, Inbox, and Notes require the current schema
 - repo-wide lint baseline is still noisy outside recently touched files
 
 ## Recommended Next Steps
