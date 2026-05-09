@@ -37,7 +37,7 @@ Current app position:
 - Inbox page captures unprocessed ideas, reminders, study topics, and loose work, paginates the queue, supports popup editing with project/habit/task linking, and can convert items into notes
 - Notes page stores searchable categorized notes with pagination, popup editing, and optional project, habit, and task links
 - dashboard now shows a daily/weekly tracker snapshot instead of the project throughput graph
-- weekly organizer page derives the current Monday-to-Sunday week from today's date, distributes existing projects and habits across it, supports adding/editing/deleting project cards, hides habits on days without a project focus, opens a habit popup when a day has more than 5 habits, and keeps task progress visible as a tracker
+- weekly organizer page derives Monday-to-Sunday weeks from the selected date, persists one habit board per user/week, supports previous/next week navigation, and schedules multiple habits into hourly cells from 00:00 through 23:00
 - project lists and the habit tracker grid now paginate
 - project and habit charts now use combined bars and lines for workload, completion rate, check-ins, and streak context
 - project and habit chart axes now use compact labels and horizontal overflow for crowded datasets
@@ -51,7 +51,7 @@ Implemented:
 - main dashboard metrics
 - current finance income, expenses, and total cash in the dashboard top line
 - calendar page with a large month view, task names on each day, selected-day popup with edit/delete actions, and button-triggered future-date task creation
-- weekly organizer page for current-week project, habit, and task planning
+- weekly organizer page for database-backed weekly habit time planning
 - scheduled task hours on task creation/editing, with calendar day cells and day detail popups sorted by task time
 - pagination on the project list and habit tracker grid
 - richer combined charts for project throughput, habit performance, task-by-project, and activity trend sections
@@ -78,6 +78,11 @@ Main files:
 - `src/app/tasks/page.tsx`
 - `src/app/calendar/page.tsx`
 - `src/app/weekly-organizer/page.tsx`
+- `src/app/api/weekly-plan/route.ts`
+- `src/app/api/weekly-plan/slots/route.ts`
+- `src/app/api/weekly-plan/slots/[id]/route.ts`
+- `src/hooks/useWeeklyPlanMutations.ts`
+- `src/services/WeeklyPlanServices.ts`
 - `src/components/task-calendar.tsx`
 - `src/components/entity-create-dialog.tsx`
 - `src/components/menu-page-header.tsx`
@@ -288,7 +293,7 @@ These are known unfinished areas:
 - analytics are currently derived from task timestamps and habit history arrays
 - there is no dedicated historical events model yet
 - existing environments still need `npm run db:backfill-streaks` once if they were populated before the streak fix
-- existing environments should run `npx prisma db push` after schema changes such as `SavingsContribution`, planned income/expense type tracking, `PomodoroSession`, `InboxItem`, and `Note`; finance reads and add-cash stay usable before the savings migration, but true contribution edit/delete history, Pomodoro persistence, Inbox, and Notes require the current schema
+- existing environments should run `npx prisma db push` after schema changes such as `SavingsContribution`, planned income/expense type tracking, `PomodoroSession`, `InboxItem`, `Note`, and weekly plan tables; finance reads and add-cash stay usable before the savings migration, but true contribution edit/delete history, Pomodoro persistence, Inbox, Notes, and persisted weekly habit boards require the current schema
 - repo-wide lint baseline is still noisy outside recently touched files
 
 ## Recommended Next Steps
@@ -344,7 +349,7 @@ Development currently stops at:
 - dashboard, section pages, and detail analytics working
 - dashboard daily/weekly tracker snapshot replacing the project throughput graph
 - scheduled task hours shown in the calendar daily view
-- weekly organizer available for planning the current week from today's date
+- weekly organizer available for planning current, previous, and next weeks through persisted hourly habit boards
 - streak persistence logic corrected for new and updated records
 - seeded local data available
 - docs updated to reflect current structure

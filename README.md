@@ -38,7 +38,7 @@ The app currently supports:
   - project throughput
   - top-line finance income, expenses, and total cash
 - calendar page for reviewing tasks by day and scheduling future tasks
-- weekly organizer for planning the current Monday-to-Sunday week from today's date, with habits shown only on days that have a project focus and a popup for days with more than 5 habits
+- weekly organizer for creating database-backed Monday-to-Sunday habit boards with previous/next navigation and hourly scheduling from 00:00 through 23:00
 - dashboard includes a daily/weekly tracker snapshot instead of the project throughput graph
 - project detail analytics for:
   - project-level activity trend
@@ -106,7 +106,7 @@ There is also repeatable local seed data for testing charts and flows.
 - `src/app/calendar/page.tsx`
   - task calendar page for day-level planning, scheduled task hours, and future task creation
 - `src/app/weekly-organizer/page.tsx`
-  - current-week organizer for distributing existing projects and habits by day, editing project cards, hiding habits on days without a project focus, opening a habit popup when a day has more than 5 habits, and keeping task progress visible
+  - weekly habit board for navigating Monday-to-Sunday weeks, scheduling multiple habits into hourly cells, editing or deleting scheduled hours, and keeping task progress visible
 - `src/app/finance/page.tsx`
   - Personal Financial Organizer MVP with summary, one-popup creation, visual totals, recent transactions, plans, and insights
 
@@ -139,6 +139,7 @@ There is also repeatable local seed data for testing charts and flows.
 - `src/hooks/useFinanceMutations.ts`
 - `src/hooks/useInboxMutations.ts`
 - `src/hooks/useNoteMutations.ts`
+- `src/hooks/useWeeklyPlanMutations.ts`
   - React Query hooks for fetching and mutations
 
 - `src/services/ProjectsServices.ts`
@@ -147,6 +148,7 @@ There is also repeatable local seed data for testing charts and flows.
 - `src/services/FinanceServices.ts`
 - `src/services/InboxServices.ts`
 - `src/services/NotesServices.ts`
+- `src/services/WeeklyPlanServices.ts`
   - API client wrappers
 
 ### API
@@ -161,6 +163,9 @@ There is also repeatable local seed data for testing charts and flows.
 - `src/app/api/inbox/[id]/route.ts`
 - `src/app/api/notes/route.ts`
 - `src/app/api/notes/[id]/route.ts`
+- `src/app/api/weekly-plan/route.ts`
+- `src/app/api/weekly-plan/slots/route.ts`
+- `src/app/api/weekly-plan/slots/[id]/route.ts`
 - `src/app/api/pomodoro/route.ts`
 - `src/app/api/auth/login/route.ts`
 - `src/app/api/auth/logout/route.ts`
@@ -203,6 +208,14 @@ There is also repeatable local seed data for testing charts and flows.
   - belongs to project
   - optionally belongs to habit
   - stores `completed`, `date`, `dateFinish`, and scheduled `time`
+- `WeeklyPlanBoard`
+  - belongs to user
+  - stores one habit schedule board per `weekStartKey`
+- `WeeklyPlanSlot`
+  - belongs to a weekly board
+  - stores one `dayIndex` and `hour` cell
+- `WeeklyPlanSlotHabit`
+  - joins scheduled hourly slots to one or more habits
 - `InboxItem`
   - belongs to user
   - stores temporary capture records with type, status, content, and optional project, habit, task, or note links
@@ -243,8 +256,9 @@ database mode, the UI shows the saved balance as a non-editable recent row.
 Editable contribution history still requires applying the current Prisma schema.
 Planned income also requires the current schema because planned records now
 store whether they are income or expense.
-Inbox and Notes require the current Prisma schema because they add `InboxItem`
-and `Note` tables plus optional links back to projects, habits, and tasks.
+Inbox, Notes, and the weekly habit board require the current Prisma schema
+because they add their own persisted tables plus optional links back to
+projects, habits, and tasks.
 
 ## Local Development
 
@@ -314,7 +328,7 @@ What is stable enough to continue from:
 - login stores the current user in an HTTP-only cookie and API routes scope records to that user
 - the dashboard greeting shows the logged-in user name or email prefix instead of a fixed placeholder
 - calendar page shows task names in a large month view, opens selected-day tasks in a popup, supports task edit/delete, and creates multiple future-dated tasks from an Add task button
-- weekly organizer builds the current week from today's date, distributes existing projects and habits by day, supports adding existing projects to weekdays, and keeps task progress visible as a tracker
+- weekly organizer builds Monday-to-Sunday habit boards from the selected week, persists them per user, supports previous/next week navigation, and schedules multiple habits into hourly cells from 00:00 through 23:00
 - calendar tasks can carry scheduled hours and are shown in time order inside day cells and day detail popups
 - habit tracker page creates habits, marks daily progress, stores daily/weekly frequency and reminder time, and shows streak/calendar/statistics progress
 - chart colors now follow the active app theme

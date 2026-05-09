@@ -145,6 +145,38 @@ export interface Habit {
   project?: Project; 
   inboxItems?: InboxItem[];
   notes?: Note[];
+  weeklyPlanSlotHabits?: WeeklyPlanSlotHabit[];
+}
+
+export interface WeeklyPlanSlotHabit {
+  id: string;
+  slotId: string;
+  habitId: string;
+  habit?: Habit;
+  createdAt: Date | string;
+}
+
+export interface WeeklyPlanSlot {
+  id: string;
+  dayIndex: number;
+  hour: number;
+  boardId: string;
+  habits: WeeklyPlanSlotHabit[];
+  createdAt: Date | string;
+  updatedAt: Date | string;
+}
+
+export interface WeeklyPlanBoard {
+  id: string | null;
+  weekStartKey: string;
+  slots: WeeklyPlanSlot[];
+}
+
+export interface WeeklyPlanSlotInput {
+  weekStartKey: string;
+  dayIndex: number;
+  hour: number;
+  habitIds: string[];
 }
 
 export interface Project {

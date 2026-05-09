@@ -1,13 +1,14 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import Link from "next/link";
 import {
   CheckCircle2,
-  FolderKanban,
-  LayoutGrid,
-  List,
+  ChevronLeft,
+  ChevronRight,
+  Clock,
   ListTodo,
+  Pencil,
   Plus,
   Repeat,
   Trash,
@@ -23,6 +24,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Dialog,
   DialogContent,
@@ -44,286 +46,131 @@ import { useHabit } from "@/hooks/useHabitMutations";
 import { useProjects } from "@/hooks/useProjectMutations";
 import { useTask } from "@/hooks/useTaskMutation";
 import {
-  buildWeekDayPlans,
-  buildWeeklyProjectPlans,
-  getCurrentWeek,
-} from "@/lib/weekly-organizer";
+  useCreateWeeklyPlanSlot,
+  useDeleteWeeklyPlanSlot,
+  useUpdateWeeklyPlanSlot,
+  useWeeklyPlan,
+} from "@/hooks/useWeeklyPlanMutations";
+import { buildWeekDayPlans, getCurrentWeek } from "@/lib/weekly-organizer";
 import { cn } from "@/lib/utils";
-import type { Project } from "@/types/BaseInterfaces";
+import type {
+  Habit,
+  WeeklyPlanSlot,
+  WeeklyPlanSlotInput,
+} from "@/types/BaseInterfaces";
 
-type WeekProjectAssignments = Record<string, string[]>;
-type BoardView = "grid" | "list";
-type HabitDialogDay = {
-  label: string;
-  dateLabel: string;
-  habits: HabitDisplayItem[];
+const HOURS = Array.from({ length: 24 }, (_, hour) => hour);
+
+type SlotDialogState = {
+  dayIndex: number;
+  hour: number;
+  slot?: WeeklyPlanSlot;
 } | null;
-type HabitDisplayItem = {
-  id: string;
-  title: string;
-  cadence: "Daily" | "Weekly";
-};
 
-function buildDefaultAssignments(projects: Project[], week: ReturnType<typeof getCurrentWeek>) {
-  const assignments = Object.fromEntries(
-    week.map((day) => [day.key, [] as string[]])
-  ) as WeekProjectAssignments;
+type SlotDetailState = {
+  dayLabel: string;
+  dateLabel: string;
+  slot: WeeklyPlanSlot;
+} | null;
 
-  projects.forEach((project, index) => {
-    const day = week[index % week.length];
-
-    if (day) {
-      assignments[day.key].push(project.id);
-    }
-  });
-
-  return assignments;
+function formatHour(hour: number) {
+  return `${String(hour).padStart(2, "0")}:00`;
 }
 
-function ProjectPlannerCard({
-  project,
-  dayKey,
-  week,
-  onMove,
-  onRemoveFromWeek,
-}: {
-  project: Project;
-  dayKey: string;
-  week: ReturnType<typeof getCurrentWeek>;
-  onMove: (nextDayKey: string) => void;
-  onRemoveFromWeek: () => void;
-}) {
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
+function getHabitProjectLabel(habit?: Habit) {
+  return habit?.project?.title ?? "No project";
+}
 
-  return (
-    <>
-      <button
-        type="button"
-        title={project.title}
-        onClick={() => setIsDialogOpen(true)}
-        className="flex w-full min-w-0 max-w-full items-center gap-2 overflow-hidden rounded-lg border border-border/60 bg-card px-3 py-2.5 text-left text-sm shadow-sm transition-colors hover:border-primary/30 hover:bg-secondary/45"
-      >
-        <span
-          className="h-2.5 w-2.5 shrink-0 rounded-full"
-          style={{ backgroundColor: project.color || "#94a3b8" }}
-        />
-        <span className="min-w-0 truncate font-medium">{project.title}</span>
-      </button>
-
-      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>{project.title}</DialogTitle>
-            <DialogDescription>
-              Change this project&apos;s day or remove it from this week.
-            </DialogDescription>
-          </DialogHeader>
-
-          <div className="grid min-w-0 gap-3">
-            <Select
-              value={dayKey}
-              onValueChange={(nextDayKey) => {
-                onMove(nextDayKey);
-                setIsDialogOpen(false);
-              }}
-            >
-              <SelectTrigger className="h-11 w-full rounded-xl">
-                <SelectValue placeholder="Move to day" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectGroup>
-                  <SelectLabel>Move to</SelectLabel>
-                  {week.map((day) => (
-                    <SelectItem key={day.key} value={day.key}>
-                      {day.label} {day.dateLabel}
-                    </SelectItem>
-                  ))}
-                </SelectGroup>
-              </SelectContent>
-            </Select>
-
-            <Button asChild variant="outline" className="h-11 rounded-xl">
-              <Link href={`/projects/${project.id}`}>Open project</Link>
-            </Button>
-          </div>
-
-          <DialogFooter>
-            <Button
-              type="button"
-              variant="destructive"
-              onClick={() => {
-                onRemoveFromWeek();
-                setIsDialogOpen(false);
-              }}
-              className="h-11 rounded-xl"
-            >
-              <Trash className="h-4 w-4" />
-              Remove from week
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-    </>
-  );
+function getSlotHabitIds(slot?: WeeklyPlanSlot) {
+  return slot?.habits.map((item) => item.habitId) ?? [];
 }
 
 export default function WeeklyOrganizerPage() {
-  const referenceDate = useMemo(() => new Date(), []);
+  const [weekOffset, setWeekOffset] = useState(0);
+  const referenceDate = useMemo(() => {
+    const date = new Date();
+    date.setHours(0, 0, 0, 0);
+    date.setDate(date.getDate() + weekOffset * 7);
+    return date;
+  }, [weekOffset]);
   const week = useMemo(() => getCurrentWeek(referenceDate), [referenceDate]);
-  const weekStorageKey = `lifeup-weekly-organizer:${week[0]?.key ?? "current"}`;
-  const [assignments, setAssignments] = useState<WeekProjectAssignments | null>(
-    () => {
-      if (typeof window === "undefined") {
-        return null;
-      }
-
-      const saved = window.localStorage.getItem(weekStorageKey);
-
-      if (!saved) {
-        return null;
-      }
-
-      try {
-        return JSON.parse(saved) as WeekProjectAssignments;
-      } catch {
-        return null;
-      }
-    }
-  );
-  const [selectedProjectId, setSelectedProjectId] = useState("");
-  const [selectedDayKey, setSelectedDayKey] = useState(week[0]?.key ?? "");
-  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
-  const [habitDialogDay, setHabitDialogDay] = useState<HabitDialogDay>(null);
-  const [boardView, setBoardView] = useState<BoardView>("grid");
+  const weekStartKey = week[0]?.key ?? "";
 
   const { data: projects = [] } = useProjects();
   const { data: tasks = [] } = useTask();
   const { data: habits = [] } = useHabit();
-  const effectiveAssignments = useMemo(
-    () => assignments ?? buildDefaultAssignments(projects, week),
-    [assignments, projects, week]
-  );
-
-  useEffect(() => {
-    if (assignments && Object.keys(assignments).length > 0) {
-      window.localStorage.setItem(weekStorageKey, JSON.stringify(assignments));
-    }
-  }, [assignments, weekStorageKey]);
-
+  const { data: board, isLoading: isBoardLoading } = useWeeklyPlan(weekStartKey);
   const weekPlans = useMemo(
     () => buildWeekDayPlans(tasks, habits, projects, referenceDate),
     [tasks, habits, projects, referenceDate]
   );
-  const projectPlans = useMemo(
-    () => buildWeeklyProjectPlans(projects, tasks, habits, referenceDate),
-    [projects, tasks, habits, referenceDate]
-  );
-  const projectsById = useMemo(
-    () => new Map(projects.map((project) => [project.id, project])),
-    [projects]
-  );
-  const selectedDayProjectIds = useMemo(
-    () => new Set(effectiveAssignments[selectedDayKey] ?? []),
-    [effectiveAssignments, selectedDayKey]
-  );
-  const availableProjects = projects.filter(
-    (project) => !selectedDayProjectIds.has(project.id)
-  );
   const weekTasks = weekPlans.flatMap((day) => day.tasks);
   const pendingWeekTasks = weekTasks.filter((task) => !task.completed);
   const completedWeekTasks = weekTasks.length - pendingWeekTasks.length;
+  const scheduledHabitIds = new Set(
+    board?.slots.flatMap((slot) => slot.habits.map((item) => item.habitId)) ?? []
+  );
   const weekRange =
     week.length > 0
       ? `${week[0].dateLabel} - ${week[week.length - 1].dateLabel}`
       : "Current week";
 
-  const addProjectToDay = () => {
-    if (!selectedProjectId || !selectedDayKey) {
-      return;
-    }
-
-    setAssignments((current) => {
-      const source = current ?? effectiveAssignments;
-      const currentDayProjects = source[selectedDayKey] ?? [];
-
-      if (currentDayProjects.includes(selectedProjectId)) {
-        return source;
-      }
-
-      return {
-        ...source,
-        [selectedDayKey]: [...currentDayProjects, selectedProjectId],
-      };
-    });
-    setSelectedProjectId("");
-    setIsAddDialogOpen(false);
-  };
-
-  const removeProjectFromWeek = (projectId: string) => {
-    setAssignments((current) => ({
-      ...(current ?? effectiveAssignments),
-      ...Object.fromEntries(
-        Object.entries(current ?? effectiveAssignments).map(([key, ids]) => [
-          key,
-          ids.filter((id) => id !== projectId),
-        ])
-      ),
-    }));
-  };
-
-  const moveProjectToDay = (
-    currentDayKey: string,
-    projectId: string,
-    nextDayKey: string
-  ) => {
-    if (currentDayKey === nextDayKey) {
-      return;
-    }
-
-    setAssignments((current) => {
-      const source = current ?? effectiveAssignments;
-      const nextDayProjects = source[nextDayKey] ?? [];
-
-      if (nextDayProjects.includes(projectId)) {
-        return {
-          ...source,
-          [currentDayKey]: (source[currentDayKey] ?? []).filter(
-            (id) => id !== projectId
-          ),
-        };
-      }
-
-      return {
-        ...source,
-        [currentDayKey]: (source[currentDayKey] ?? []).filter(
-          (id) => id !== projectId
-        ),
-        [nextDayKey]: [...nextDayProjects, projectId],
-      };
-    });
-  };
-
   return (
     <div className="space-y-6 p-4 md:p-8">
-      <MenuPageHeader
-        eyebrow="Weekly organizer"
-        title={`Plan ${weekRange}`}
-      />
+      <MenuPageHeader eyebrow="Weekly organizer" title={`Plan ${weekRange}`} />
+
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="text-sm text-muted-foreground">
+          One habit board per week, Monday through Sunday.
+        </div>
+        <div className="flex flex-wrap items-center gap-2">
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={() => setWeekOffset((current) => current - 1)}
+            className="rounded-lg"
+          >
+            <ChevronLeft className="h-4 w-4" />
+            Previous week
+          </Button>
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            onClick={() => setWeekOffset(0)}
+            disabled={weekOffset === 0}
+            className="rounded-lg"
+          >
+            Current week
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={() => setWeekOffset((current) => current + 1)}
+            className="rounded-lg"
+          >
+            Next week
+            <ChevronRight className="h-4 w-4" />
+          </Button>
+        </div>
+      </div>
 
       <OverviewPanel
         eyebrow="This week"
-        title="Distribute projects and habits across the current week."
-        description="Current Monday-to-Sunday view based on today's date."
+        title="Schedule habits from 00:00 to 00:00."
+        description="Assign one or more habits to each hour of the selected week."
         stats={[
-          {
-            label: "Projects",
-            value: projects.length,
-            icon: FolderKanban,
-          },
           {
             label: "Habits",
             value: habits.length,
             icon: Repeat,
+          },
+          {
+            label: "Scheduled habits",
+            value: scheduledHabitIds.size,
+            icon: Clock,
           },
           {
             label: "Tracked tasks",
@@ -332,15 +179,19 @@ export default function WeeklyOrganizerPage() {
           },
         ]}
         progress={{
-          label: `${weekTasks.length ? Math.round((completedWeekTasks / weekTasks.length) * 100) : 0}% done this week`,
+          label: `${
+            weekTasks.length
+              ? Math.round((completedWeekTasks / weekTasks.length) * 100)
+              : 0
+          }% done this week`,
           value: weekTasks.length
             ? Math.round((completedWeekTasks / weekTasks.length) * 100)
             : 0,
           detail: `${completedWeekTasks} done, ${pendingWeekTasks.length} still open`,
           icon: CheckCircle2,
-          }}
-        focusTitle="Tracker"
-        focusDescription="Task progress stays visible without filling the week board."
+        }}
+        focusTitle="Board"
+        focusDescription="The schedule stores habits by user, week, day, and hour."
         focusItems={[
           {
             label: "Open tasks",
@@ -348,334 +199,543 @@ export default function WeeklyOrganizerPage() {
             icon: ListTodo,
           },
           {
-            label: "Habits",
-            value: habits.length,
-            icon: Repeat,
+            label: "Time slots",
+            value: board?.slots.length ?? 0,
+            icon: Clock,
           },
         ]}
       />
 
-      <div className="flex justify-end">
-        <Button
-          type="button"
-          onClick={() => setIsAddDialogOpen(true)}
-          className="h-11 rounded-xl"
-        >
-          <Plus className="h-4 w-4" />
-          Add existing project
-        </Button>
-      </div>
+      <WeeklyHabitBoard
+        boardSlots={board?.slots ?? []}
+        habits={habits}
+        isLoading={isBoardLoading}
+        week={week}
+        weekStartKey={weekStartKey}
+      />
+    </div>
+  );
+}
 
-      <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Add existing project</DialogTitle>
-            <DialogDescription>
-              Choose a project and the day it should appear in this week.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="grid min-w-0 gap-3">
-          <Select value={selectedProjectId} onValueChange={setSelectedProjectId}>
-            <SelectTrigger className="h-11 w-full rounded-xl">
-              <SelectValue placeholder="Project" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectGroup>
-                <SelectLabel>Projects</SelectLabel>
-                {availableProjects.map((project) => (
-                  <SelectItem key={project.id} value={project.id}>
-                    {project.title}
-                  </SelectItem>
-                ))}
-              </SelectGroup>
-            </SelectContent>
-          </Select>
+function WeeklyHabitBoard({
+  boardSlots,
+  habits,
+  isLoading,
+  week,
+  weekStartKey,
+}: {
+  boardSlots: WeeklyPlanSlot[];
+  habits: Habit[];
+  isLoading: boolean;
+  week: ReturnType<typeof getCurrentWeek>;
+  weekStartKey: string;
+}) {
+  const [slotDialog, setSlotDialog] = useState<SlotDialogState>(null);
+  const [slotDetail, setSlotDetail] = useState<SlotDetailState>(null);
+  const { mutate: createSlot, isPending: isCreating } = useCreateWeeklyPlanSlot();
+  const { mutate: updateSlot, isPending: isUpdating } = useUpdateWeeklyPlanSlot();
+  const { mutate: deleteSlot, isPending: isDeleting } =
+    useDeleteWeeklyPlanSlot(weekStartKey);
+  const slotsByPosition = useMemo(() => {
+    return new Map(
+      boardSlots.map((slot) => [`${slot.dayIndex}-${slot.hour}`, slot])
+    );
+  }, [boardSlots]);
 
-          <Select value={selectedDayKey} onValueChange={setSelectedDayKey}>
-            <SelectTrigger className="h-11 w-full rounded-xl">
-              <SelectValue placeholder="Choose day" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectGroup>
-                <SelectLabel>This week</SelectLabel>
-                {week.map((day) => (
-                  <SelectItem key={day.key} value={day.key}>
-                    {day.label} {day.dateLabel}
-                  </SelectItem>
-                ))}
-              </SelectGroup>
-            </SelectContent>
-          </Select>
-          </div>
-          <DialogFooter>
-          <Button
-            type="button"
-            onClick={addProjectToDay}
-            disabled={!selectedProjectId || !selectedDayKey}
-            className="h-11 rounded-xl"
-          >
-            <Plus className="h-4 w-4" />
-            Add
-          </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+  const saveSlot = (data: WeeklyPlanSlotInput, slotId?: string) => {
+    if (slotId) {
+      updateSlot({ id: slotId, data }, { onSuccess: () => setSlotDialog(null) });
+      return;
+    }
 
+    createSlot(data, { onSuccess: () => setSlotDialog(null) });
+  };
+
+  return (
+    <>
       <Card className="min-w-0 overflow-hidden border-border/70 shadow-sm">
-        <CardHeader className="gap-4">
+        <CardHeader className="gap-3 px-3 sm:px-4">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
             <div className="min-w-0">
-              <CardTitle>Week board</CardTitle>
+              <CardTitle>Weekly habit board</CardTitle>
               <CardDescription>
-                Projects and habits distributed across the current week.
+                {isLoading
+                  ? "Loading weekly board..."
+                  : `${boardSlots.length} scheduled hours from 00:00 to 00:00.`}
               </CardDescription>
             </div>
-            <div className="grid w-full grid-cols-2 rounded-lg border border-border/70 bg-background p-1 sm:w-auto">
-              <Button
-                type="button"
-                variant={boardView === "grid" ? "secondary" : "ghost"}
-                size="sm"
-                onClick={() => setBoardView("grid")}
-                className="rounded-md"
-              >
-                <LayoutGrid className="h-4 w-4" />
-                Grid
-              </Button>
-              <Button
-                type="button"
-                variant={boardView === "list" ? "secondary" : "ghost"}
-                size="sm"
-                onClick={() => setBoardView("list")}
-                className="rounded-md"
-              >
-                <List className="h-4 w-4" />
-                List
-              </Button>
-            </div>
+            <Badge variant="outline" className="w-fit">
+              Monday - Sunday
+            </Badge>
           </div>
         </CardHeader>
-        <CardContent
-          className={cn(
-            "grid min-w-0 gap-3",
-            boardView === "grid"
-              ? "md:grid-cols-2 xl:grid-cols-4 2xl:grid-cols-7"
-              : "grid-cols-1"
-          )}
-        >
-          {weekPlans.map((day) => {
-            const assignedProjects = (effectiveAssignments[day.key] ?? [])
-              .map((projectId) => projectsById.get(projectId))
-              .filter((project): project is Project => Boolean(project));
-            const hasProjectFocus = assignedProjects.length > 0;
-            const dayHabitItems: HabitDisplayItem[] = [
-              ...day.dailyHabits.map((habit) => ({
-                id: habit.id,
-                title: habit.title,
-                cadence: "Daily" as const,
-              })),
-              ...day.weeklyHabits.map((habit) => ({
-                id: habit.id,
-                title: habit.title,
-                cadence: "Weekly" as const,
-              })),
-            ];
-            const visibleHabitItems = dayHabitItems.slice(0, 5);
-            const hiddenHabitCount = dayHabitItems.length - visibleHabitItems.length;
+        <CardContent className="px-3 sm:px-4">
+          <div className="hidden min-w-0 overflow-hidden rounded-lg border border-border/70 lg:block">
+            <div className="min-w-0">
+              <div className="grid grid-cols-[48px_repeat(7,minmax(0,1fr))] border-b border-border/70">
+                <div className="px-1.5 py-2 text-[11px] font-medium text-muted-foreground">
+                  Hour
+                </div>
+                {week.map((day) => (
+                  <div
+                    key={day.key}
+                    className={cn(
+                      "min-w-0 border-l border-border/70 px-2 py-2",
+                      day.isToday && "bg-primary/5"
+                    )}
+                  >
+                    <div className="truncate text-sm font-semibold">{day.label}</div>
+                    <div className="truncate text-[11px] text-muted-foreground">
+                      {day.dateLabel}
+                    </div>
+                  </div>
+                ))}
+              </div>
 
-            return (
+              <div className="divide-y divide-border/70">
+                {HOURS.map((hour) => (
+                  <div
+                    key={hour}
+                    className="grid min-h-[48px] grid-cols-[48px_repeat(7,minmax(0,1fr))]"
+                  >
+                    <div className="bg-secondary/20 px-1.5 py-2 text-[11px] font-medium text-muted-foreground">
+                      {formatHour(hour)}
+                    </div>
+                    {week.map((day, dayIndex) => {
+                      const slot = slotsByPosition.get(`${dayIndex}-${hour}`);
+
+                      return (
+                        <div
+                          key={`${day.key}-${hour}`}
+                          className={cn(
+                            "min-w-0 border-l border-border/70 p-1",
+                            day.isToday && "bg-primary/5"
+                          )}
+                        >
+                          {slot ? (
+                            <SlotCell
+                              disabled={isDeleting}
+                              onDelete={() => deleteSlot(slot.id)}
+                              onEdit={() =>
+                                setSlotDialog({ dayIndex, hour, slot })
+                              }
+                              onOpenDetails={() =>
+                                setSlotDetail({
+                                  dayLabel: day.label,
+                                  dateLabel: day.dateLabel,
+                                  slot,
+                                })
+                              }
+                              slot={slot}
+                            />
+                          ) : (
+                            <button
+                              type="button"
+                              onClick={() => setSlotDialog({ dayIndex, hour })}
+                              className="flex h-full min-h-[38px] w-full items-center justify-center rounded-md border border-dashed border-border/70 bg-background/60 text-[11px] text-muted-foreground transition-colors hover:border-primary/40 hover:bg-secondary/35"
+                            >
+                              <Plus className="h-3 w-3" />
+                            </button>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          <div className="grid gap-3 lg:hidden">
+            {week.map((day, dayIndex) => (
               <div
                 key={day.key}
                 className={cn(
                   "min-w-0 rounded-lg border border-border/70 bg-background/75 p-3",
-                  boardView === "grid"
-                    ? "flex min-h-[220px] flex-col"
-                    : "grid gap-3 md:grid-cols-[150px_minmax(0,1fr)] md:items-start",
                   day.isToday && "border-primary/50 bg-primary/5"
                 )}
               >
-                <div className="flex items-center justify-between gap-2">
+                <div className="mb-3 flex items-center justify-between gap-2">
                   <div className="min-w-0">
-                    <div className="font-semibold">{day.label}</div>
-                    <div className="text-xs text-muted-foreground">
+                    <div className="truncate font-semibold">{day.label}</div>
+                    <div className="truncate text-xs text-muted-foreground">
                       {day.dateLabel}
                     </div>
                   </div>
                   {day.isToday ? <Badge>Today</Badge> : null}
                 </div>
+                <div className="grid gap-1.5">
+                  {HOURS.map((hour) => {
+                    const slot = slotsByPosition.get(`${dayIndex}-${hour}`);
 
-                <div
-                  className={cn(
-                    "space-y-2",
-                    boardView === "grid" ? "mt-3 flex-1" : "min-w-0"
-                  )}
-                >
-                  <div
-                    className={cn(
-                      "min-w-0 gap-2",
-                      boardView === "grid"
-                        ? "space-y-2"
-                        : "grid sm:grid-cols-2 xl:grid-cols-3"
-                    )}
-                  >
-                    {hasProjectFocus ? (
-                      assignedProjects.map((project) => {
-                        return (
-                          <ProjectPlannerCard
-                            key={project.id}
-                            project={project}
-                            dayKey={day.key}
-                            week={week}
-                            onMove={(nextDayKey) =>
-                              moveProjectToDay(day.key, project.id, nextDayKey)
+                    return (
+                      <div
+                        key={`${day.key}-mobile-${hour}`}
+                        className="grid min-w-0 grid-cols-[54px_minmax(0,1fr)] gap-2"
+                      >
+                        <div className="pt-2 text-[11px] font-medium text-muted-foreground">
+                          {formatHour(hour)}
+                        </div>
+                        {slot ? (
+                          <SlotCell
+                            disabled={isDeleting}
+                            onDelete={() => deleteSlot(slot.id)}
+                            onEdit={() => setSlotDialog({ dayIndex, hour, slot })}
+                            onOpenDetails={() =>
+                              setSlotDetail({
+                                dayLabel: day.label,
+                                dateLabel: day.dateLabel,
+                                slot,
+                              })
                             }
-                            onRemoveFromWeek={() =>
-                              removeProjectFromWeek(project.id)
-                            }
+                            slot={slot}
                           />
-                        );
-                      })
-                    ) : (
-                      <div className="rounded-lg bg-secondary/35 p-3 text-sm text-muted-foreground">
-                        No project focus.
-                      </div>
-                    )}
-                  </div>
-
-                  {hasProjectFocus ? (
-                    <div
-                      className={cn(
-                        "gap-1.5 pt-1",
-                        boardView === "grid"
-                          ? "space-y-1.5"
-                          : "flex flex-wrap items-center"
-                      )}
-                    >
-                      {visibleHabitItems.map((habit) => (
-                        <Link
-                          href={`/habits/${habit.id}`}
-                          key={habit.id}
-                          className={cn(
-                            "flex min-w-0 items-center justify-between gap-2 rounded-lg px-3 py-2 text-xs transition-colors",
-                            habit.cadence === "Weekly"
-                              ? "bg-primary/10 hover:bg-primary/15"
-                              : "bg-secondary/35 hover:bg-secondary/55",
-                            boardView === "list" && "w-fit max-w-full"
-                          )}
-                        >
-                          <span className="min-w-0 truncate">{habit.title}</span>
-                          <Badge
-                            variant={
-                              habit.cadence === "Daily" ? "secondary" : "default"
-                            }
-                            className="shrink-0"
+                        ) : (
+                          <button
+                            type="button"
+                            onClick={() => setSlotDialog({ dayIndex, hour })}
+                            className="flex min-h-9 min-w-0 items-center justify-center rounded-md border border-dashed border-border/70 bg-background/60 text-[11px] text-muted-foreground transition-colors hover:border-primary/40 hover:bg-secondary/35"
                           >
-                            {habit.cadence}
-                          </Badge>
-                        </Link>
-                      ))}
-                      {hiddenHabitCount > 0 ? (
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="sm"
-                          onClick={() =>
-                            setHabitDialogDay({
-                              label: day.label,
-                              dateLabel: day.dateLabel,
-                              habits: dayHabitItems,
-                            })
-                          }
-                          className={cn(
-                            "h-auto justify-start rounded-lg bg-secondary/20 px-3 py-2 text-xs text-muted-foreground hover:bg-secondary/35",
-                            boardView === "list" && "w-fit max-w-full"
-                          )}
-                        >
-                          +{hiddenHabitCount} more habits
-                        </Button>
-                      ) : null}
-                    </div>
-                  ) : null}
+                            <Plus className="h-3 w-3" />
+                            Add
+                          </button>
+                        )}
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
-            );
-          })}
+            ))}
+          </div>
         </CardContent>
       </Card>
 
-      <Dialog
-        open={Boolean(habitDialogDay)}
-        onOpenChange={(isOpen) => {
-          if (!isOpen) {
-            setHabitDialogDay(null);
-          }
+      <SlotDetailsDialog
+        onClose={() => setSlotDetail(null)}
+        onDelete={(slot) => {
+          deleteSlot(slot.id);
+          setSlotDetail(null);
         }}
+        onEdit={(slot) => {
+          setSlotDialog({
+            dayIndex: slot.dayIndex,
+            hour: slot.hour,
+            slot,
+          });
+          setSlotDetail(null);
+        }}
+        slotDetail={slotDetail}
+      />
+
+      {slotDialog ? (
+        <SlotDialog
+          habits={habits}
+          isSaving={isCreating || isUpdating}
+          onClose={() => setSlotDialog(null)}
+          onSave={(data) => saveSlot(data, slotDialog.slot?.id)}
+          slotDialog={slotDialog}
+          week={week}
+          weekStartKey={weekStartKey}
+        />
+      ) : null}
+    </>
+  );
+}
+
+function SlotCell({
+  disabled,
+  onDelete,
+  onEdit,
+  onOpenDetails,
+  slot,
+}: {
+  disabled: boolean;
+  onDelete: () => void;
+  onEdit: () => void;
+  onOpenDetails: () => void;
+  slot: WeeklyPlanSlot;
+}) {
+  const slotHabits = slot.habits
+    .map((item) => item.habit)
+    .filter((habit): habit is Habit => Boolean(habit));
+
+  return (
+    <div className="h-full min-w-0 rounded-md border border-border/70 bg-card p-1.5 shadow-sm">
+      <div className="flex min-w-0 items-center justify-between gap-1">
+        <button
+          type="button"
+          onClick={onOpenDetails}
+          className="min-w-0 flex-1 text-left"
+        >
+          <div className="flex min-w-0 items-center gap-1 text-[11px] font-semibold">
+            <Clock className="h-3 w-3 shrink-0 text-primary" />
+            <span className="truncate">{formatHour(slot.hour)}</span>
+            <span className="shrink-0 text-muted-foreground">
+              {slotHabits.length}
+            </span>
+          </div>
+        </button>
+        <div className="flex shrink-0 items-center gap-0.5 opacity-80">
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            onClick={onEdit}
+            className="h-6 w-6 rounded-md"
+            aria-label="Edit slot"
+          >
+            <Pencil className="h-3 w-3" />
+          </Button>
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            onClick={onDelete}
+            disabled={disabled}
+            className="h-6 w-6 rounded-md text-destructive hover:text-destructive"
+            aria-label="Delete slot"
+          >
+            <Trash className="h-3 w-3" />
+          </Button>
+        </div>
+      </div>
+
+      <button
+        type="button"
+        onClick={onOpenDetails}
+        className="mt-1 grid w-full min-w-0 gap-0.5 text-left"
       >
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>
-              {habitDialogDay?.label} habits
-            </DialogTitle>
-            <DialogDescription>
-              {habitDialogDay?.dateLabel}
-            </DialogDescription>
-          </DialogHeader>
-          <div className="grid max-h-[60vh] min-w-0 gap-2 overflow-y-auto pr-1">
-            {habitDialogDay?.habits.map((habit) => (
+        {slotHabits.length ? (
+          <>
+            <div className="truncate rounded bg-secondary/35 px-1.5 py-1 text-[11px] font-medium">
+              {slotHabits[0].title}
+            </div>
+            {slotHabits.length > 1 ? (
+              <div className="truncate text-[10px] text-muted-foreground">
+                +{slotHabits.length - 1} more
+              </div>
+            ) : null}
+          </>
+        ) : (
+          <div className="truncate rounded bg-secondary/25 px-1.5 py-1 text-[11px] text-muted-foreground">
+            Empty slot
+          </div>
+        )}
+      </button>
+    </div>
+  );
+}
+
+function SlotDetailsDialog({
+  onClose,
+  onDelete,
+  onEdit,
+  slotDetail,
+}: {
+  onClose: () => void;
+  onDelete: (slot: WeeklyPlanSlot) => void;
+  onEdit: (slot: WeeklyPlanSlot) => void;
+  slotDetail: SlotDetailState;
+}) {
+  const slotHabits =
+    slotDetail?.slot.habits
+      .map((item) => item.habit)
+      .filter((habit): habit is Habit => Boolean(habit)) ?? [];
+
+  return (
+    <Dialog open={Boolean(slotDetail)} onOpenChange={(isOpen) => !isOpen && onClose()}>
+      <DialogContent className="sm:max-w-xl">
+        <DialogHeader>
+          <DialogTitle>
+            {slotDetail
+              ? `${slotDetail.dayLabel} ${formatHour(slotDetail.slot.hour)}`
+              : "Time slot"}
+          </DialogTitle>
+          <DialogDescription>{slotDetail?.dateLabel}</DialogDescription>
+        </DialogHeader>
+
+        <div className="grid max-h-[60vh] min-w-0 gap-2 overflow-y-auto pr-1">
+          {slotHabits.length ? (
+            slotHabits.map((habit) => (
               <Link
                 href={`/habits/${habit.id}`}
                 key={habit.id}
-                onClick={() => setHabitDialogDay(null)}
-                className={cn(
-                  "flex min-w-0 items-center justify-between gap-3 rounded-lg px-3 py-2 text-sm transition-colors",
-                  habit.cadence === "Weekly"
-                    ? "bg-primary/10 hover:bg-primary/15"
-                    : "bg-secondary/35 hover:bg-secondary/55"
-                )}
+                onClick={onClose}
+                className="min-w-0 rounded-lg border border-border/70 bg-background/75 p-3 transition-colors hover:bg-secondary/35"
               >
-                <span className="min-w-0 truncate font-medium">{habit.title}</span>
-                <Badge
-                  variant={habit.cadence === "Daily" ? "secondary" : "default"}
-                  className="shrink-0"
-                >
-                  {habit.cadence}
-                </Badge>
-              </Link>
-            ))}
-          </div>
-        </DialogContent>
-      </Dialog>
-
-      <Card className="min-w-0 border-border/70 shadow-sm">
-        <CardHeader>
-          <CardTitle>Project focus</CardTitle>
-          <CardDescription>Projects included in this week&apos;s distribution.</CardDescription>
-        </CardHeader>
-        <CardContent className="grid min-w-0 gap-3 md:grid-cols-2 xl:grid-cols-3">
-          {projectPlans.length ? (
-            projectPlans.map((plan) => (
-              <Link
-                href={`/projects/${plan.project.id}`}
-                key={plan.project.id}
-                className="flex min-w-0 items-center justify-between gap-3 rounded-lg border border-border/70 bg-background/75 p-4 transition-colors hover:bg-secondary/35"
-              >
-                <div className="min-w-0">
-                  <div className="truncate font-semibold">{plan.project.title}</div>
-                  <div className="mt-1 text-xs text-muted-foreground">
-                    {plan.tasks.length} tasks, {plan.habits.length} habits
-                  </div>
+                <div className="truncate font-medium">{habit.title}</div>
+                <div className="truncate text-sm text-muted-foreground">
+                  {getHabitProjectLabel(habit)}
                 </div>
-                <Badge variant={plan.pendingTasks ? "default" : "secondary"}>
-                  {plan.pendingTasks} open
-                </Badge>
               </Link>
             ))
           ) : (
-            <p className="rounded-lg bg-secondary/35 p-4 text-sm text-muted-foreground md:col-span-2 xl:col-span-3">
-              No projects or habits exist yet.
-            </p>
+            <div className="rounded-lg bg-secondary/30 p-3 text-sm text-muted-foreground">
+              No habits assigned.
+            </div>
           )}
-        </CardContent>
-      </Card>
-    </div>
+        </div>
+
+        {slotDetail ? (
+          <DialogFooter>
+            <Button
+              type="button"
+              variant="destructive"
+              onClick={() => onDelete(slotDetail.slot)}
+            >
+              <Trash className="h-4 w-4" />
+              Delete
+            </Button>
+            <Button type="button" onClick={() => onEdit(slotDetail.slot)}>
+              <Pencil className="h-4 w-4" />
+              Edit
+            </Button>
+          </DialogFooter>
+        ) : null}
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+function SlotDialog({
+  habits,
+  isSaving,
+  onClose,
+  onSave,
+  slotDialog,
+  week,
+  weekStartKey,
+}: {
+  habits: Habit[];
+  isSaving: boolean;
+  onClose: () => void;
+  onSave: (data: WeeklyPlanSlotInput) => void;
+  slotDialog: Exclude<SlotDialogState, null>;
+  week: ReturnType<typeof getCurrentWeek>;
+  weekStartKey: string;
+}) {
+  const [dayIndex, setDayIndex] = useState(String(slotDialog.dayIndex));
+  const [hour, setHour] = useState(String(slotDialog.hour));
+  const [habitIds, setHabitIds] = useState<string[]>(
+    getSlotHabitIds(slotDialog.slot)
+  );
+
+  const toggleHabit = (habitId: string, checked: boolean) => {
+    setHabitIds((current) =>
+      checked
+        ? Array.from(new Set([...current, habitId]))
+        : current.filter((id) => id !== habitId)
+    );
+  };
+
+  const handleSave = () => {
+    onSave({
+      dayIndex: Number(dayIndex),
+      habitIds,
+      hour: Number(hour),
+      weekStartKey,
+    });
+  };
+
+  return (
+    <Dialog open onOpenChange={(isOpen) => !isOpen && onClose()}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>
+            {slotDialog.slot ? "Edit habit hour" : "Add habit hour"}
+          </DialogTitle>
+          <DialogDescription>
+            Assign habits to one hour in this Monday-to-Sunday board.
+          </DialogDescription>
+        </DialogHeader>
+
+        <div className="grid min-w-0 gap-4">
+          <div className="grid gap-3 sm:grid-cols-2">
+            <label className="grid gap-1.5 text-sm font-medium">
+              Day
+              <Select value={dayIndex} onValueChange={setDayIndex}>
+                <SelectTrigger className="h-11 rounded-xl">
+                  <SelectValue placeholder="Day" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectGroup>
+                    <SelectLabel>Weekday</SelectLabel>
+                    {week.map((day, index) => (
+                      <SelectItem key={day.key} value={String(index)}>
+                        {day.label} {day.dateLabel}
+                      </SelectItem>
+                    ))}
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
+            </label>
+
+            <label className="grid gap-1.5 text-sm font-medium">
+              Hour
+              <Select value={hour} onValueChange={setHour}>
+                <SelectTrigger className="h-11 rounded-xl">
+                  <SelectValue placeholder="Hour" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectGroup>
+                    <SelectLabel>Hour</SelectLabel>
+                    {HOURS.map((item) => (
+                      <SelectItem key={item} value={String(item)}>
+                        {formatHour(item)}
+                      </SelectItem>
+                    ))}
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
+            </label>
+          </div>
+
+          <div className="grid max-h-[45vh] min-w-0 gap-2 overflow-y-auto pr-1">
+            {habits.length ? (
+              habits.map((habit) => {
+                const checked = habitIds.includes(habit.id);
+
+                return (
+                  <label
+                    key={habit.id}
+                    className="flex min-w-0 cursor-pointer items-start gap-3 rounded-lg border border-border/70 bg-background/75 p-3 text-sm"
+                  >
+                    <Checkbox
+                      checked={checked}
+                      onCheckedChange={(value) =>
+                        toggleHabit(habit.id, value === true)
+                      }
+                      className="mt-0.5"
+                    />
+                    <span className="min-w-0">
+                      <span className="block truncate font-medium">
+                        {habit.title}
+                      </span>
+                      <span className="block truncate text-xs text-muted-foreground">
+                        {getHabitProjectLabel(habit)}
+                        {habit.reminderTime ? ` - ${habit.reminderTime}` : ""}
+                      </span>
+                    </span>
+                  </label>
+                );
+              })
+            ) : (
+              <div className="rounded-lg bg-secondary/30 p-3 text-sm text-muted-foreground">
+                No habits available.
+              </div>
+            )}
+          </div>
+        </div>
+
+        <DialogFooter>
+          <Button type="button" variant="outline" onClick={onClose}>
+            Cancel
+          </Button>
+          <Button type="button" onClick={handleSave} disabled={isSaving}>
+            {isSaving ? "Saving..." : "Save hour"}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }

@@ -43,10 +43,10 @@ type PersistedPomodoroTimer = {
   isRunning: boolean;
   notes: string;
   phase: FocusPhase;
+  phaseEndsAt: string | null;
   remainingSeconds: number;
   selectedTaskId: string;
   targetCycles: number;
-  updatedAt: number;
   workMinutes: number;
 };
 
@@ -77,6 +77,7 @@ export function PomodoroPanel({ tasks = [] }: { tasks?: Task[] }) {
   const [notes, setNotes] = useState("");
   const [hasRestoredTimer, setHasRestoredTimer] = useState(false);
   const focusStartedAtRef = useRef<Date | null>(null);
+  const phaseEndsAtRef = useRef<Date | null>(null);
   const { data: pomodoro } = usePomodoroDashboard();
   const { mutate: createSession, isPending } = useCreatePomodoroSession();
 
@@ -101,14 +102,24 @@ export function PomodoroPanel({ tasks = [] }: { tasks?: Task[] }) {
 
     try {
       const parsed = JSON.parse(savedTimer) as Partial<PersistedPomodoroTimer>;
-      const savedRemainingSeconds =
+      let savedRemainingSeconds =
         typeof parsed.remainingSeconds === "number"
           ? parsed.remainingSeconds
           : defaultWorkMinutes * 60;
-      const elapsedSeconds =
-        parsed.isRunning && typeof parsed.updatedAt === "number"
-          ? Math.max(Math.floor((Date.now() - parsed.updatedAt) / 1000), 0)
-          : 0;
+      const savedPhaseEndsAt =
+        typeof parsed.phaseEndsAt === "string" ? new Date(parsed.phaseEndsAt) : null;
+
+      if (
+        parsed.isRunning &&
+        savedPhaseEndsAt &&
+        !Number.isNaN(savedPhaseEndsAt.getTime())
+      ) {
+        savedRemainingSeconds = Math.max(
+          Math.ceil((savedPhaseEndsAt.getTime() - Date.now()) / 1000),
+          0
+        );
+        phaseEndsAtRef.current = savedPhaseEndsAt;
+      }
 
       setSelectedTaskId(
         typeof parsed.selectedTaskId === "string" ? parsed.selectedTaskId : ""
@@ -135,7 +146,7 @@ export function PomodoroPanel({ tasks = [] }: { tasks?: Task[] }) {
           : 0
       );
       setPhase(parsed.phase === "break" ? "break" : "focus");
-      setRemainingSeconds(Math.max(savedRemainingSeconds - elapsedSeconds, 0));
+      setRemainingSeconds(savedRemainingSeconds);
       setIsRunning(Boolean(parsed.isRunning));
       setNotes(typeof parsed.notes === "string" ? parsed.notes : "");
       focusStartedAtRef.current = parsed.focusStartedAt
@@ -161,10 +172,10 @@ export function PomodoroPanel({ tasks = [] }: { tasks?: Task[] }) {
       isRunning,
       notes,
       phase,
+      phaseEndsAt: phaseEndsAtRef.current?.toISOString() ?? null,
       remainingSeconds,
       selectedTaskId,
       targetCycles,
-      updatedAt: Date.now(),
       workMinutes,
     };
 
@@ -222,7 +233,13 @@ export function PomodoroPanel({ tasks = [] }: { tasks?: Task[] }) {
       nextPhase === "focus" ? workMinutes * 60 : breakMinutes * 60
     );
     focusStartedAtRef.current = null;
+    phaseEndsAtRef.current = null;
   }, [breakMinutes, workMinutes]);
+
+  const pauseTimer = () => {
+    setIsRunning(false);
+    phaseEndsAtRef.current = null;
+  };
 
   const completeFocusCycle = useCallback(() => {
     if (!selectedTaskId) {
@@ -231,6 +248,7 @@ export function PomodoroPanel({ tasks = [] }: { tasks?: Task[] }) {
     }
 
     setIsRunning(false);
+    phaseEndsAtRef.current = null;
     saveFocusSession({
       durationMinutes: workMinutes,
       endedAt: new Date(),
@@ -248,6 +266,7 @@ export function PomodoroPanel({ tasks = [] }: { tasks?: Task[] }) {
 
         setPhase("break");
         setRemainingSeconds(breakMinutes * 60);
+        phaseEndsAtRef.current = new Date(Date.now() + breakMinutes * 60 * 1000);
         setIsRunning(true);
       },
     });
@@ -265,34 +284,38 @@ export function PomodoroPanel({ tasks = [] }: { tasks?: Task[] }) {
     setPhase("focus");
     setRemainingSeconds(workMinutes * 60);
     focusStartedAtRef.current = null;
+    phaseEndsAtRef.current = new Date(Date.now() + workMinutes * 60 * 1000);
   }, [workMinutes]);
+
+  useEffect(() => {
+    if (!isRunning || remainingSeconds > 0) {
+      return;
+    }
+
+    if (phase === "focus") {
+      completeFocusCycle();
+      return;
+    }
+
+    completeBreak();
+  }, [completeBreak, completeFocusCycle, isRunning, phase, remainingSeconds]);
 
   useEffect(() => {
     if (!isRunning) {
       return;
     }
 
+    if (!phaseEndsAtRef.current) {
+      phaseEndsAtRef.current = new Date(Date.now() + remainingSeconds * 1000);
+    }
+
     const interval = window.setInterval(() => {
-      setRemainingSeconds((seconds) => {
-        if (seconds <= 1) {
-          window.clearInterval(interval);
-          window.setTimeout(() => {
-            if (phase === "focus") {
-              completeFocusCycle();
-              return;
-            }
-
-            completeBreak();
-          }, 0);
-          return 0;
-        }
-
-        return seconds - 1;
-      });
+      const endsAt = phaseEndsAtRef.current?.getTime() ?? Date.now();
+      setRemainingSeconds(Math.max(Math.ceil((endsAt - Date.now()) / 1000), 0));
     }, 1000);
 
     return () => window.clearInterval(interval);
-  }, [completeBreak, completeFocusCycle, isRunning, phase]);
+  }, [isRunning, remainingSeconds]);
 
   const updateWorkMinutes = (value: number) => {
     const nextValue = Math.min(Math.max(value || defaultWorkMinutes, 1), 180);
@@ -319,6 +342,7 @@ export function PomodoroPanel({ tasks = [] }: { tasks?: Task[] }) {
       focusStartedAtRef.current = focusStartedAtRef.current ?? new Date();
     }
 
+    phaseEndsAtRef.current = new Date(Date.now() + remainingSeconds * 1000);
     setIsRunning(true);
   };
 
@@ -327,7 +351,7 @@ export function PomodoroPanel({ tasks = [] }: { tasks?: Task[] }) {
       return;
     }
 
-    setIsRunning(false);
+    pauseTimer();
     const durationMinutes = Math.max(Math.round(elapsedPhaseSeconds / 60), 1);
 
     saveFocusSession({
@@ -341,74 +365,27 @@ export function PomodoroPanel({ tasks = [] }: { tasks?: Task[] }) {
   };
 
   return (
-    <Card className="min-w-0 overflow-hidden border-border/70 shadow-sm">
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <TimerReset className="h-5 w-5 text-primary" />
-          Pomodoro focus
-        </CardTitle>
+    <Card className="min-w-0 overflow-hidden border-border/70 bg-background/85 shadow-sm backdrop-blur">
+      <CardHeader className="px-4 sm:px-6">
+        <div className="flex min-w-0 flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+          <CardTitle className="flex min-w-0 items-center gap-2">
+            <TimerReset className="h-5 w-5 text-primary" />
+            <span className="min-w-0 truncate">Pomodoro focus</span>
+          </CardTitle>
+          <div className="min-w-0 truncate text-sm text-muted-foreground">
+            {selectedTask
+              ? `${selectedTask.project?.title ?? "Project"} / ${
+                  selectedTask.habit?.title ?? "No habit"
+                }`
+              : "Choose a task to start"}
+          </div>
+        </div>
       </CardHeader>
-      <CardContent className="grid min-w-0 gap-4 xl:grid-cols-[minmax(0,0.92fr)_minmax(0,1.08fr)]">
-        <div className="grid min-w-0 gap-4 overflow-hidden rounded-lg border border-border/70 bg-background/70 p-4">
-          <div className="grid min-w-0 gap-3 sm:grid-cols-[minmax(0,1fr)_150px]">
-            <Select value={selectedTaskId} onValueChange={setSelectedTaskId}>
-              <SelectTrigger className="w-full min-w-0 overflow-hidden [&>span]:min-w-0 [&>span]:truncate">
-                <SelectValue placeholder="Choose a task" />
-              </SelectTrigger>
-              <SelectContent className="max-w-[calc(100vw-2rem)] sm:max-w-[var(--radix-select-trigger-width)]">
-                {availableTasks.map((task) => (
-                  <SelectItem
-                    className="max-w-[calc(100vw-2rem)] overflow-hidden sm:max-w-[var(--radix-select-trigger-width)]"
-                    key={task.id}
-                    value={task.id}
-                  >
-                    <span className="block min-w-0 max-w-full truncate">
-                      {task.title}
-                    </span>
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <Select
-              value={focusType}
-              onValueChange={(value) => setFocusType(value as FocusType)}
-            >
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="work">Work</SelectItem>
-                <SelectItem value="study">Study</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="grid min-w-0 gap-3 sm:grid-cols-3">
-            <NumberSetting
-              label="Work"
-              max={180}
-              min={1}
-              onChange={updateWorkMinutes}
-              value={workMinutes}
-            />
-            <NumberSetting
-              label="Break"
-              max={60}
-              min={1}
-              onChange={updateBreakMinutes}
-              value={breakMinutes}
-            />
-            <NumberSetting
-              label="Cycles"
-              max={12}
-              min={1}
-              onChange={updateTargetCycles}
-              value={targetCycles}
-            />
-          </div>
-
-          <div className="min-w-0 overflow-hidden rounded-lg bg-secondary/40 p-6 text-center">
-            <div className="inline-flex items-center gap-2 rounded-full bg-background/75 px-3 py-1 text-xs font-medium text-muted-foreground">
+      <CardContent className="grid min-w-0 gap-5 px-4 sm:px-6">
+        <div className="grid min-w-0 gap-4 xl:grid-cols-[minmax(0,1.35fr)_minmax(280px,0.65fr)]">
+          <section className="grid min-h-[460px] min-w-0 content-start gap-3 overflow-hidden rounded-lg border border-border/70 bg-background/70 p-4 sm:p-5">
+            <div className="min-w-0 overflow-hidden rounded-lg bg-secondary/40 p-5 text-center sm:p-7">
+            <div className="inline-flex max-w-full items-center gap-2 rounded-full bg-background/75 px-3 py-1 text-xs font-medium text-muted-foreground">
               {phase === "focus" ? (
                 focusType === "study" ? (
                   <BookOpen className="h-3.5 w-3.5 text-primary" />
@@ -418,22 +395,24 @@ export function PomodoroPanel({ tasks = [] }: { tasks?: Task[] }) {
               ) : (
                 <Pause className="h-3.5 w-3.5 text-primary" />
               )}
-              {phase === "focus"
-                ? focusType === "study"
-                  ? "Study focus"
-                  : "Work focus"
-                : "Break"}
+              <span className="min-w-0 truncate">
+                {phase === "focus"
+                  ? focusType === "study"
+                    ? "Study focus"
+                    : "Work focus"
+                  : "Break"}
+              </span>
             </div>
-            <div className="mt-4 text-5xl font-semibold tabular-nums tracking-tight sm:text-6xl">
+            <div className="mt-4 text-5xl font-semibold tabular-nums tracking-tight sm:text-6xl lg:text-7xl">
               {formatTimer(remainingSeconds)}
             </div>
-            <div className="mt-3 min-w-0 text-sm text-muted-foreground">
+            <div className="mx-auto mt-4 max-w-2xl min-w-0 text-sm text-muted-foreground">
               {selectedTask ? (
                 <>
-                  <p className="break-words font-medium text-foreground [overflow-wrap:anywhere]">
+                  <p className="truncate font-medium text-foreground">
                     {selectedTask.title ?? "Selected task"}
                   </p>
-                  <p className="break-words text-xs [overflow-wrap:anywhere]">
+                  <p className="truncate text-xs">
                     {selectedTask.project?.title ?? "Project"} /{" "}
                     {selectedTask.habit?.title ?? "No habit"}
                   </p>
@@ -444,7 +423,7 @@ export function PomodoroPanel({ tasks = [] }: { tasks?: Task[] }) {
                 </p>
               )}
             </div>
-            <div className="mt-5 h-2 overflow-hidden rounded-full bg-background">
+            <div className="mt-4 h-2 overflow-hidden rounded-full bg-background">
               <div
                 className="h-full rounded-full bg-primary"
                 style={{ width: `${Math.min(progressPercent, 100)}%` }}
@@ -456,34 +435,28 @@ export function PomodoroPanel({ tasks = [] }: { tasks?: Task[] }) {
             </div>
           </div>
 
-          <Input
-            onChange={(event) => setNotes(event.target.value)}
-            placeholder="Optional note for saved focus sessions"
-            value={notes}
-          />
-
-          <div className="grid min-w-0 gap-2 sm:grid-cols-4">
+          <div className="grid min-w-0 gap-2 pt-1 sm:grid-cols-4">
             <Button
-              className="gap-2"
+              className="min-w-0 gap-2"
               disabled={!selectedTaskId || isRunning || isPending}
               onClick={startTimer}
               type="button"
             >
               <Play className="h-4 w-4" />
-              Start
+              <span className="min-w-0 truncate">Start</span>
             </Button>
             <Button
-              className="gap-2"
+              className="min-w-0 gap-2"
               disabled={!isRunning}
-              onClick={() => setIsRunning(false)}
+              onClick={pauseTimer}
               type="button"
               variant="outline"
             >
               <Pause className="h-4 w-4" />
-              Pause
+              <span className="min-w-0 truncate">Pause</span>
             </Button>
             <Button
-              className="gap-2"
+              className="min-w-0 gap-2"
               onClick={() => {
                 setCompletedCycles(0);
                 resetTimer("focus");
@@ -492,23 +465,94 @@ export function PomodoroPanel({ tasks = [] }: { tasks?: Task[] }) {
               variant="outline"
             >
               <RotateCcw className="h-4 w-4" />
-              Reset
+              <span className="min-w-0 truncate">Reset</span>
             </Button>
             <Button
-              className="gap-2"
+              className="min-w-0 gap-2"
               disabled={!canSavePartial || isPending}
               onClick={savePartialSession}
               type="button"
               variant="secondary"
             >
               <Save className="h-4 w-4" />
-              Save
+              <span className="min-w-0 truncate">Save</span>
             </Button>
           </div>
+          </section>
+
+          <aside className="grid min-w-0 content-start gap-4 overflow-hidden rounded-lg border border-border/70 bg-background/70 p-4 sm:p-5">
+            <div className="min-w-0">
+              <div className="text-sm font-medium">Session setup</div>
+              <div className="mt-3 grid min-w-0 gap-3">
+                <Select value={selectedTaskId} onValueChange={setSelectedTaskId}>
+                  <SelectTrigger className="w-full min-w-0 overflow-hidden [&>span]:min-w-0 [&>span]:truncate">
+                    <SelectValue placeholder="Choose a task" />
+                  </SelectTrigger>
+                  <SelectContent className="max-w-[calc(100vw-2rem)] sm:max-w-[var(--radix-select-trigger-width)]">
+                    {availableTasks.map((task) => (
+                      <SelectItem
+                        className="max-w-[calc(100vw-2rem)] overflow-hidden sm:max-w-[var(--radix-select-trigger-width)]"
+                        key={task.id}
+                        value={task.id}
+                      >
+                        <span className="block min-w-0 max-w-full truncate">
+                          {task.title}
+                        </span>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+
+                <Select
+                  value={focusType}
+                  onValueChange={(value) => setFocusType(value as FocusType)}
+                >
+                  <SelectTrigger className="min-w-0 [&>span]:truncate">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="work">Work</SelectItem>
+                    <SelectItem value="study">Study</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            <div className="grid min-w-0 gap-3 sm:grid-cols-3 xl:grid-cols-1">
+              <NumberSetting
+                label="Work"
+                max={180}
+                min={1}
+                onChange={updateWorkMinutes}
+                value={workMinutes}
+              />
+              <NumberSetting
+                label="Break"
+                max={60}
+                min={1}
+                onChange={updateBreakMinutes}
+                value={breakMinutes}
+              />
+              <NumberSetting
+                label="Cycles"
+                max={12}
+                min={1}
+                onChange={updateTargetCycles}
+                value={targetCycles}
+              />
+            </div>
+
+            <Input
+              className="min-w-0"
+              onChange={(event) => setNotes(event.target.value)}
+              placeholder="Optional note for saved focus sessions"
+              value={notes}
+            />
+          </aside>
         </div>
 
-        <div className="grid min-w-0 gap-3 overflow-hidden">
-          <div className="grid min-w-0 gap-3 sm:grid-cols-3">
+        <section className="grid min-w-0 gap-4 xl:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)]">
+          <div className="grid min-w-0 gap-3 sm:grid-cols-3 xl:grid-cols-1">
             <FocusMetric
               label="Total focused"
               value={formatFocusDuration(pomodoro?.totalMinutes ?? 0)}
@@ -523,18 +567,20 @@ export function PomodoroPanel({ tasks = [] }: { tasks?: Task[] }) {
             />
           </div>
 
-          <FocusBreakdown
-            emptyLabel="No project focus time yet."
-            items={pomodoro?.byProject ?? []}
-            title="Time by project"
-          />
-          <FocusBreakdown
-            emptyLabel="No habit focus time yet."
-            items={pomodoro?.byHabit ?? []}
-            title="Time by habit"
-          />
-          <FocusHistory sessions={pomodoro?.sessions ?? []} />
-        </div>
+          <div className="grid min-w-0 gap-4 lg:grid-cols-3">
+            <FocusBreakdown
+              emptyLabel="No project focus time yet."
+              items={pomodoro?.byProject ?? []}
+              title="Time by project"
+            />
+            <FocusBreakdown
+              emptyLabel="No habit focus time yet."
+              items={pomodoro?.byHabit ?? []}
+              title="Time by habit"
+            />
+            <FocusHistory sessions={pomodoro?.sessions ?? []} />
+          </div>
+        </section>
       </CardContent>
     </Card>
   );
@@ -559,6 +605,7 @@ function NumberSetting({
         {label} min
       </span>
       <Input
+        className="min-w-0"
         max={max}
         min={min}
         onChange={(event) => onChange(Number(event.target.value))}
@@ -578,7 +625,7 @@ function FocusMetric({
 }) {
   return (
     <div className="min-w-0 overflow-hidden rounded-lg border border-border/70 bg-background/70 p-3">
-      <div className="text-xs text-muted-foreground">{label}</div>
+      <div className="truncate text-xs text-muted-foreground">{label}</div>
       <div className="mt-1 break-words text-xl font-semibold [overflow-wrap:anywhere]">
         {value}
       </div>
@@ -596,8 +643,8 @@ function FocusBreakdown({
   title: string;
 }) {
   return (
-    <div className="min-w-0 overflow-hidden rounded-lg border border-border/70 p-3">
-      <div className="text-sm font-medium">{title}</div>
+    <div className="min-w-0 overflow-hidden rounded-lg border border-border/70 bg-background/70 p-3">
+      <div className="truncate text-sm font-medium">{title}</div>
       <div className="mt-2 grid min-w-0 gap-2">
         {items.length ? (
           items.slice(0, 5).map((item) => (
@@ -605,7 +652,7 @@ function FocusBreakdown({
               className="grid min-w-0 grid-cols-[minmax(0,1fr)_auto] items-center gap-3 rounded-lg bg-secondary/35 px-3 py-2 text-sm"
               key={item.id}
             >
-              <span className="min-w-0 break-words text-muted-foreground [overflow-wrap:anywhere]">
+              <span className="min-w-0 truncate text-muted-foreground">
                 {item.title}
               </span>
               <span className="shrink-0 font-medium">
@@ -625,8 +672,8 @@ function FocusBreakdown({
 
 function FocusHistory({ sessions }: { sessions: PomodoroSession[] }) {
   return (
-    <div className="min-w-0 overflow-hidden rounded-lg border border-border/70 p-3">
-      <div className="text-sm font-medium">Productivity history</div>
+    <div className="min-w-0 overflow-hidden rounded-lg border border-border/70 bg-background/70 p-3">
+      <div className="truncate text-sm font-medium">Productivity history</div>
       <div className="mt-2 grid min-w-0 gap-2">
         {sessions.length ? (
           sessions.slice(0, 6).map((session) => (
@@ -638,7 +685,7 @@ function FocusHistory({ sessions }: { sessions: PomodoroSession[] }) {
                 <div className="truncate font-medium">
                   {session.task?.title ?? "Focus session"}
                 </div>
-                <div className="min-w-0 break-words text-xs text-muted-foreground [overflow-wrap:anywhere]">
+                <div className="min-w-0 truncate text-xs text-muted-foreground">
                   {session.task?.project?.title
                     ? `${session.task.project.title} / `
                     : ""}

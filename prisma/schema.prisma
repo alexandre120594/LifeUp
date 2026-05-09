@@ -23,6 +23,7 @@ model User {
   pomodoroSessions PomodoroSession[]
   inboxItems InboxItem[]
   notes Note[]
+  weeklyPlanBoards WeeklyPlanBoard[]
   notifications Notification[]
   createdAt DateTime @default(now())
 }
@@ -53,6 +54,43 @@ model Habit {
   tasks       Task[]   
   inboxItems InboxItem[]
   notes Note[]
+  weeklyPlanSlotHabits WeeklyPlanSlotHabit[]
+}
+
+model WeeklyPlanBoard {
+  id           String   @id @default(cuid())
+  weekStartKey String
+  userId       Int
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  slots        WeeklyPlanSlot[]
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@unique([userId, weekStartKey])
+}
+
+model WeeklyPlanSlot {
+  id        String   @id @default(cuid())
+  dayIndex  Int
+  hour      Int
+  boardId   String
+  board     WeeklyPlanBoard @relation(fields: [boardId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  habits    WeeklyPlanSlotHabit[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([boardId, dayIndex, hour])
+}
+
+model WeeklyPlanSlotHabit {
+  id        String   @id @default(cuid())
+  slotId    String
+  slot      WeeklyPlanSlot @relation(fields: [slotId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  habitId   String
+  habit     Habit    @relation(fields: [habitId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([slotId, habitId])
 }
 
 model Task {
