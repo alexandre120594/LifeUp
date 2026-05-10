@@ -39,12 +39,15 @@ export function toLocalDayKey(value: Date | string) {
 }
 
 export function getCurrentWeek(referenceDate = new Date()) {
-  const today = new Date(referenceDate);
+  const selectedDate = new Date(referenceDate);
+  selectedDate.setHours(0, 0, 0, 0);
+  const today = new Date();
   today.setHours(0, 0, 0, 0);
 
-  const mondayOffset = today.getDay() === 0 ? -6 : 1 - today.getDay();
-  const start = new Date(today);
-  start.setDate(today.getDate() + mondayOffset);
+  const mondayOffset =
+    selectedDate.getDay() === 0 ? -6 : 1 - selectedDate.getDay();
+  const start = new Date(selectedDate);
+  start.setDate(selectedDate.getDate() + mondayOffset);
 
   return DAY_NAMES.map((label, index) => {
     const date = new Date(start);

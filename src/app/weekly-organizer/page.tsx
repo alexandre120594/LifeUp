@@ -159,7 +159,7 @@ export default function WeeklyOrganizerPage() {
 
       <OverviewPanel
         eyebrow="This week"
-        title="Schedule habits from 00:00 to 00:00."
+        title="Weekly habit"
         description="Assign one or more habits to each hour of the selected week."
         stats={[
           {
@@ -261,7 +261,7 @@ function WeeklyHabitBoard({
               <CardDescription>
                 {isLoading
                   ? "Loading weekly board..."
-                  : `${boardSlots.length} scheduled hours from 00:00 to 00:00.`}
+                  : `${boardSlots.length} weekly habit slots.`}
               </CardDescription>
             </div>
             <Badge variant="outline" className="w-fit">
@@ -284,9 +284,20 @@ function WeeklyHabitBoard({
                       day.isToday && "bg-primary/5"
                     )}
                   >
-                    <div className="truncate text-sm font-semibold">{day.label}</div>
-                    <div className="truncate text-[11px] text-muted-foreground">
-                      {day.dateLabel}
+                    <div className="flex min-w-0 items-center justify-between gap-2">
+                      <div className="min-w-0">
+                        <div className="truncate text-sm font-semibold">
+                          {day.label}
+                        </div>
+                        <div className="truncate text-[11px] text-muted-foreground">
+                          {day.dateLabel}
+                        </div>
+                      </div>
+                      {day.isToday ? (
+                        <Badge className="shrink-0 px-2 py-0 text-[10px]">
+                          Today
+                        </Badge>
+                      ) : null}
                     </div>
                   </div>
                 ))}
