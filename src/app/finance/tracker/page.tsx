@@ -78,10 +78,12 @@ export default function FinanceTrackerPage() {
     useState<AccountSpendSourceType>("extrato");
   const [name, setName] = useState("");
   const [file, setFile] = useState<File | null>(null);
+  const [selectedImportId, setSelectedImportId] = useState("all");
   const [selectedMonth, setSelectedMonth] = useState("");
   const [page, setPage] = useState(1);
   const [isPendingNavigation, startTransition] = useTransition();
   const { data, error, isFetching } = useAccountSpendTracker({
+    importId: selectedImportId === "all" ? undefined : selectedImportId,
     month: selectedMonth || undefined,
     page,
     pageSize,
@@ -127,6 +129,7 @@ export default function FinanceTrackerPage() {
         setFile(null);
         setPage(1);
         setSourceType(response.sourceType);
+        setSelectedImportId(response.import.id);
         setSelectedMonth(response.month);
         setIsImportOpen(false);
       },
@@ -212,16 +215,17 @@ export default function FinanceTrackerPage() {
 
       <section className="rounded-2xl border border-border/70 bg-card p-4 shadow-sm">
         <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_auto] xl:items-end">
-          <div className="grid gap-3 sm:grid-cols-[minmax(0,150px)_minmax(0,180px)_minmax(0,1fr)]">
+          <div className="grid min-w-0 gap-3 md:grid-cols-[minmax(0,140px)_minmax(0,170px)_minmax(0,1fr)_auto]">
             <Select
               value={sourceType}
               onValueChange={(value) => {
                 setSourceType(value as AccountSpendSourceType);
+                setSelectedImportId("all");
                 setSelectedMonth("");
                 setPage(1);
               }}
             >
-              <SelectTrigger>
+              <SelectTrigger className="min-w-0">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -234,43 +238,56 @@ export default function FinanceTrackerPage() {
               max="9999-12"
               onChange={(event) => {
                 setSelectedMonth(event.target.value);
+                setSelectedImportId("all");
                 setPage(1);
               }}
               type="month"
               value={selectedMonth || summary?.month || ""}
             />
-            <div className="flex min-w-0 flex-wrap gap-2">
-              {imports.length ? (
-                imports.map((importRecord) => (
-                  <div
-                    className="flex max-w-full items-center gap-2 rounded-full border border-border/70 bg-secondary/30 px-3 py-2 text-sm"
-                    key={importRecord.id}
-                  >
-                    <span className="truncate">
-                      {importRecord.name} - {importRecord.sourceType} -{" "}
-                      {importRecord.rowCount} rows
-                    </span>
-                    <button
-                      className="rounded-full p-1 text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive disabled:opacity-40"
-                      disabled={isDeletingImport}
-                      onClick={() => {
-                        setPage(1);
-                        deleteImport(importRecord.id);
-                      }}
-                      title="Delete import"
-                      type="button"
-                    >
-                      <Trash2 className="h-3.5 w-3.5" />
-                    </button>
-                  </div>
-                ))
-              ) : (
-                <p className="rounded-full bg-secondary/35 px-3 py-2 text-sm text-muted-foreground">
-                  No imported statements for this month.
-                </p>
-              )}
-            </div>
+            <Select
+              disabled={!imports.length}
+              value={selectedImportId}
+              onValueChange={(value) => {
+                setSelectedImportId(value);
+                setPage(1);
+              }}
+            >
+              <SelectTrigger className="min-w-0">
+                <SelectValue placeholder="Imports" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All imports</SelectItem>
+                {imports.map((importRecord) => (
+                  <SelectItem key={importRecord.id} value={importRecord.id}>
+                    {importRecord.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Button
+              className="gap-2 whitespace-nowrap"
+              disabled={isDeletingImport || selectedImportId === "all"}
+              onClick={() => {
+                const importIdToDelete = selectedImportId;
+
+                setPage(1);
+                setSelectedImportId("all");
+                deleteImport(importIdToDelete);
+              }}
+              type="button"
+              variant="outline"
+            >
+              <Trash2 className="h-4 w-4" />
+              Delete import
+            </Button>
           </div>
+          {imports.length ? (
+            <p className="min-w-0 truncate text-sm text-muted-foreground">
+              {selectedImportId === "all"
+                ? `${imports.length} imports in this ${sourceType} month`
+                : imports.find((item) => item.id === selectedImportId)?.name}
+            </p>
+          ) : null}
 
           <div className="grid gap-2 text-sm sm:grid-cols-3 xl:min-w-[520px]">
             <MovementStat
@@ -295,6 +312,12 @@ export default function FinanceTrackerPage() {
             {deleteError.message}
           </p>
         ) : null}
+        {!imports.length ? (
+          <p className="mt-4 rounded-xl border border-dashed border-border/80 bg-secondary/25 p-4 text-sm text-muted-foreground">
+            No imported statements for this month. Choose Extrato or Fatura,
+            then use Import statement to add a CSV or OFX file.
+          </p>
+        ) : null}
       </section>
 
       <Card className="min-w-0 overflow-hidden border-border/70 shadow-sm">
@@ -302,7 +325,9 @@ export default function FinanceTrackerPage() {
           <CardTitle>Statement rows</CardTitle>
           <CardDescription>
             {pagination.totalItems} movements for {formatMonthLabel(summary?.month)}.
-            Showing {sourceType}. Credit values add; debit values subtract.
+            Showing {sourceType}
+            {selectedImportId === "all" ? "" : " from selected import"}. Credit
+            values add; debit values subtract.
           </CardDescription>
         </CardHeader>
         <CardContent className="grid gap-4">

@@ -297,6 +297,7 @@ export async function GET(req: NextRequest) {
   const searchParams = req.nextUrl.searchParams;
   const requestedPage = Number(searchParams.get("page") ?? "1");
   const requestedPageSize = Number(searchParams.get("pageSize") ?? "25");
+  const selectedImportId = searchParams.get("importId") || undefined;
   const selectedMonth = searchParams.get("month") || undefined;
   const sourceType = normalizeSourceType(searchParams.get("sourceType"));
   const page = Number.isInteger(requestedPage) && requestedPage > 0 ? requestedPage : 1;
@@ -336,7 +337,39 @@ export async function GET(req: NextRequest) {
     });
   }
 
-  const where = { month, sourceType, userId };
+  const where = {
+    ...(selectedImportId ? { importId: selectedImportId } : {}),
+    month,
+    sourceType,
+    userId,
+  };
+  const dailyTotalsQuery = selectedImportId
+    ? prisma.$queryRaw<Array<{ day: Date; expense: number; income: number }>>`
+      SELECT
+        DATE("date") AS day,
+        COALESCE(SUM(CASE WHEN "amount" > 0 THEN "amount" ELSE 0 END), 0)::float AS income,
+        ABS(COALESCE(SUM(CASE WHEN "amount" < 0 THEN "amount" ELSE 0 END), 0))::float AS expense
+      FROM "AccountSpendEntry"
+      WHERE "userId" = ${userId}
+        AND "sourceType" = ${sourceType}
+        AND "month" = ${month}
+        AND "importId" = ${selectedImportId}
+      GROUP BY DATE("date")
+      ORDER BY day ASC
+    `
+    : prisma.$queryRaw<Array<{ day: Date; expense: number; income: number }>>`
+      SELECT
+        DATE("date") AS day,
+        COALESCE(SUM(CASE WHEN "amount" > 0 THEN "amount" ELSE 0 END), 0)::float AS income,
+        ABS(COALESCE(SUM(CASE WHEN "amount" < 0 THEN "amount" ELSE 0 END), 0))::float AS expense
+      FROM "AccountSpendEntry"
+      WHERE "userId" = ${userId}
+        AND "sourceType" = ${sourceType}
+        AND "month" = ${month}
+      GROUP BY DATE("date")
+      ORDER BY day ASC
+    `;
+
   const [entries, imports, totalItems, dailyTotals] = await Promise.all([
     prisma.accountSpendEntry.findMany({
       include: { import: true },
@@ -351,25 +384,12 @@ export async function GET(req: NextRequest) {
         sourceType,
         userId,
         entries: {
-          some: where,
+          some: { month, sourceType, userId },
         },
       },
     }),
     prisma.accountSpendEntry.count({ where }),
-    prisma.$queryRaw<
-      Array<{ day: Date; expense: number; income: number }>
-    >`
-      SELECT
-        DATE("date") AS day,
-        COALESCE(SUM(CASE WHEN "amount" > 0 THEN "amount" ELSE 0 END), 0)::float AS income,
-        ABS(COALESCE(SUM(CASE WHEN "amount" < 0 THEN "amount" ELSE 0 END), 0))::float AS expense
-      FROM "AccountSpendEntry"
-      WHERE "userId" = ${userId}
-        AND "sourceType" = ${sourceType}
-        AND "month" = ${month}
-      GROUP BY DATE("date")
-      ORDER BY day ASC
-    `,
+    dailyTotalsQuery,
   ]);
   const totalPages = Math.max(Math.ceil(totalItems / pageSize), 1);
   const daily = dailyTotals.map(normalizeDailyChartRow);

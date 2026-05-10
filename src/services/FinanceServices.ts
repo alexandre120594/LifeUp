@@ -23,11 +23,13 @@ import type {
 export const FinanceServices = {
   getDashboard: () => apiClient<FinanceDashboardResponse>("/api/finance"),
   getAccountSpendTracker: ({
+    importId,
     month,
     page,
     pageSize,
     sourceType,
   }: {
+    importId?: string;
     month?: string;
     page: number;
     pageSize: number;
@@ -41,6 +43,10 @@ export const FinanceServices = {
 
     if (month) {
       params.set("month", month);
+    }
+
+    if (importId) {
+      params.set("importId", importId);
     }
 
     return apiClient<AccountSpendTrackerResponse>(

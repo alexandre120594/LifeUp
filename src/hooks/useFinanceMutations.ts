@@ -9,11 +9,13 @@ export function useFinanceDashboard() {
 }
 
 export function useAccountSpendTracker({
+  importId,
   month,
   page,
   pageSize,
   sourceType,
 }: {
+  importId?: string;
   month?: string;
   page: number;
   pageSize: number;
@@ -23,10 +25,11 @@ export function useAccountSpendTracker({
     queryKey: [
       "finance",
       "spending-tracker",
-      { month, page, pageSize, sourceType },
+      { importId, month, page, pageSize, sourceType },
     ],
     queryFn: () =>
       FinanceServices.getAccountSpendTracker({
+        importId,
         month,
         page,
         pageSize,
