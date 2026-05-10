@@ -23,6 +23,7 @@ Current app position:
 - inbox and notes sections now exist and connect capture/knowledge records to projects, habits, and tasks
 - finance section exists as a Phase 1 Personal Financial Organizer MVP
 - finance now surfaces a total tracked money view from real transactions plus savings, monthly/yearly tracking, planned cash-flow visualization, savings visualization, and single-popup creation flow
+- finance now also has a separate Account Spend Tracker at `/finance/tracker` for CSV or OFX imports tagged as `Extrato` or `Fatura`, not associated with Financial Organizer records, split rows by month, and can be deleted with their rows
 - finance dashboard reads now fall back to a non-editable saved-balance contribution row if an older database has not yet received the `SavingsContribution` table, and add-cash falls back to updating the savings total
 - planned income and expenses can be marked done from finance management, which creates one matching transaction and removes the plan
 - savings goals now include an add-cash field, and savings are shown outside the transaction-tracked total
@@ -207,6 +208,7 @@ Implemented:
 - monthly/yearly period selector for finance totals, insights, and recent transaction history
 - edit and delete flows for finance transactions, categories, budgets, planned income/expense records, and savings goals
 - default finance categories are protected from deletion
+- account spend tracker imports CSV files with `tipo`, `Data`, `valor`, and `descricao` columns or OFX files with equivalent transaction tags into dedicated tables, preserves signed amounts, supports import deletion, reviews rows with month filtering plus database-backed pagination, and charts monthly credits and debits
 
 Main files:
 - `prisma/schema.prisma`
@@ -228,6 +230,29 @@ Main files:
 - `src/hooks/useFinanceMutations.ts`
 - `src/services/FinanceServices.ts`
 - `src/lib/finance.ts`
+
+### Account Spend Tracker
+
+Implemented:
+- separate `/finance/tracker` page outside the Financial Organizer workflow
+- named CSV or OFX imports with required `tipo`, `Data`, `valor`, and `descricao` fields
+- multi-month files are accepted and each row is saved under its own statement month
+- statement type split for `Extrato` and `Fatura`, selectable on import and on the tracker view
+- CSV parsing for comma or semicolon delimiters, Brazilian or ISO dates, and decimal comma values
+- OFX parsing from `TRNTYPE`, `DTPOSTED`, `TRNAMT`, and `MEMO`/`NAME`
+- signed amount totals where negative values subtract and positive values add
+- import deletion through the tracker page, cascading associated rows
+- compact tracker UI with import in a popup, credit/debit row badges, and separate income/expense charts fed by server-side daily aggregates
+- dedicated `AccountSpendImport` and `AccountSpendEntry` tables with user ownership
+- denormalized month indexing for fast month filtering and paginated row reads
+- batched `createMany` inserts so larger CSV files avoid per-row database writes
+
+Main files:
+- `prisma/schema.prisma`
+- `src/app/finance/tracker/page.tsx`
+- `src/app/api/finance/spending-tracker/route.ts`
+- `src/hooks/useFinanceMutations.ts`
+- `src/services/FinanceServices.ts`
 
 ### Local test data
 
@@ -294,6 +319,7 @@ These are known unfinished areas:
 - there is no dedicated historical events model yet
 - existing environments still need `npm run db:backfill-streaks` once if they were populated before the streak fix
 - existing environments should run `npx prisma db push` after schema changes such as `SavingsContribution`, planned income/expense type tracking, `PomodoroSession`, `InboxItem`, `Note`, and weekly plan tables; finance reads and add-cash stay usable before the savings migration, but true contribution edit/delete history, Pomodoro persistence, Inbox, Notes, and persisted weekly habit boards require the current schema
+- existing environments should also run `npx prisma db push` for the account spend tracker tables before importing CSV or OFX files
 - repo-wide lint baseline is still noisy outside recently touched files
 
 ## Recommended Next Steps

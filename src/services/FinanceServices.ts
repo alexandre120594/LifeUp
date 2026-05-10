@@ -1,6 +1,8 @@
 import { apiClient } from "./api-client";
 import type {
   Budget,
+  AccountSpendImportResponse,
+  AccountSpendTrackerResponse,
   BudgetCreateInput,
   FinancePaymentInput,
   FinanceDashboardResponse,
@@ -20,6 +22,50 @@ import type {
 
 export const FinanceServices = {
   getDashboard: () => apiClient<FinanceDashboardResponse>("/api/finance"),
+  getAccountSpendTracker: ({
+    month,
+    page,
+    pageSize,
+    sourceType,
+  }: {
+    month?: string;
+    page: number;
+    pageSize: number;
+    sourceType: "extrato" | "fatura";
+  }) => {
+    const params = new URLSearchParams({
+      page: String(page),
+      pageSize: String(pageSize),
+      sourceType,
+    });
+
+    if (month) {
+      params.set("month", month);
+    }
+
+    return apiClient<AccountSpendTrackerResponse>(
+      `/api/finance/spending-tracker?${params.toString()}`
+    );
+  },
+  importAccountSpendCsv: (data: FormData) =>
+    fetch("/api/finance/spending-tracker", {
+      method: "POST",
+      body: data,
+    }).then(async (response) => {
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || "Unable to import CSV.");
+      }
+
+      return response.json() as Promise<AccountSpendImportResponse>;
+    }),
+  deleteAccountSpendImport: (importId: string) =>
+    apiClient<{ ok: boolean }>(
+      `/api/finance/spending-tracker?importId=${encodeURIComponent(importId)}`,
+      {
+        method: "DELETE",
+      }
+    ),
   createCategory: (data: FinancialCategoryCreateInput) =>
     apiClient<FinancialCategory>("/api/finance/categories", {
       method: "POST",

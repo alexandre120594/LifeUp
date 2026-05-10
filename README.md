@@ -30,6 +30,7 @@ The app currently supports:
   - total tracked money, planned cash-flow, and savings visualizations
   - monthly and yearly finance period tracking
   - editing and deleting finance records
+- separate Account Spend Tracker for importing and deleting bank CSV or OFX files as `Extrato` or `Fatura`, saving rows outside the Financial Organizer, reviewing month-paginated signed account movement, and visualizing credit/debit totals
 - dedicated detail pages for habits and tasks
 - persisted project and habit streaks derived from real task completion dates
 - dashboard analytics for:
@@ -109,6 +110,8 @@ There is also repeatable local seed data for testing charts and flows.
   - weekly habit board for navigating Monday-to-Sunday weeks, scheduling multiple habits into hourly cells, editing or deleting scheduled hours, and keeping task progress visible
 - `src/app/finance/page.tsx`
   - Personal Financial Organizer MVP with summary, one-popup creation, visual totals, recent transactions, plans, and insights
+- `src/app/finance/tracker/page.tsx`
+  - account spend tracker for importing or deleting CSV or OFX statements as `Extrato` or `Fatura`, splitting rows by their own month, reviewing saved statement rows with database-backed pagination, and charting monthly credits and debits
 
 ### Charts and Analytics
 
@@ -177,6 +180,7 @@ There is also repeatable local seed data for testing charts and flows.
 - `src/app/api/finance/recurring-bills/route.ts`
 - `src/app/api/finance/planned-expenses/route.ts`
 - `src/app/api/finance/savings-goals/route.ts`
+- `src/app/api/finance/spending-tracker/route.ts`
 
 ### Data Layer
 
@@ -246,6 +250,12 @@ There is also repeatable local seed data for testing charts and flows.
 - `SavingsContribution`
   - belongs to user and savings goal
   - tracks each added cash entry so it can be edited or removed
+- `AccountSpendImport`
+  - belongs to user
+  - stores a named CSV or OFX import for account-spending visualization
+- `AccountSpendEntry`
+  - belongs to user and an account spend import
+  - stores each imported row with `sourceType`, `type`, signed amount, description, and denormalized `month` for fast month/type filtering and pagination
 
 Current Prisma relations use explicit cascade behavior for cleanup.
 The finance dashboard read path tolerates databases that have not yet been
@@ -259,6 +269,9 @@ store whether they are income or expense.
 Inbox, Notes, and the weekly habit board require the current Prisma schema
 because they add their own persisted tables plus optional links back to
 projects, habits, and tasks.
+The account spend tracker also requires the current schema because it stores
+monthly CSV/OFX imports and their paginated rows in dedicated tables outside the
+Financial Organizer records.
 
 ## Local Development
 
@@ -346,6 +359,7 @@ What is stable enough to continue from:
 - savings goals keep a recent added-cash history with edit/delete controls for each contribution
 - finance totals, insights, and recent transactions can switch between monthly and yearly tracking
 - finance records can be edited or deleted from the Finance management section; default categories are protected from deletion
+- finance account-spend tracking is intentionally separate from organizer transactions and imports CSV or OFX rows into dedicated tables by each row month
 - section pages for projects, habits, and tasks now follow the newer dashboard structure
 - Inbox and Notes pages are available from the sidebar and connect captured information back to projects, habits, and tasks
 - Pomodoro page includes task association, work/break cycles, study/work tracking, and productivity history by project and habit

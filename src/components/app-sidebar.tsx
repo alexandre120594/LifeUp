@@ -15,6 +15,7 @@ import {
   Repeat,
   TimerReset,
   WalletCards,
+  FileSpreadsheet,
 } from "lucide-react";
 import { useInboxItems } from "@/hooks/useInboxMutations";
 import { useHabit } from "@/hooks/useHabitMutations";
@@ -77,6 +78,12 @@ const essentialItems = [
     icon: WalletCards,
     description: "Cash flow and plans",
   },
+  {
+    title: "Spend Tracker",
+    url: "/finance/tracker",
+    icon: FileSpreadsheet,
+    description: "CSV account spending",
+  },
 ];
 
 const planningItems = [
@@ -107,6 +114,10 @@ const planningItems = [
 ];
 
 function isSidebarItemActive(pathname: string, url: string) {
+  if (url === "/finance") {
+    return pathname === "/finance";
+  }
+
   return url === "/" ? pathname === "/" : pathname === url || pathname.startsWith(`${url}/`);
 }
 
@@ -174,6 +185,7 @@ export function AppSidebar() {
     "/weekly-organizer": tasks?.length ?? 0,
     "/pomodoro": 0,
     "/finance": 0,
+    "/finance/tracker": 0,
   };
 
   return (

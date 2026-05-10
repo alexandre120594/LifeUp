@@ -331,6 +331,58 @@ export interface FinanceDashboardResponse {
   summary: FinanceSummary;
 }
 
+export interface AccountSpendImport {
+  id: string;
+  name: string;
+  month: string;
+  sourceType: "extrato" | "fatura";
+  rowCount: number;
+  createdAt: Date | string;
+}
+
+export interface AccountSpendEntry {
+  id: string;
+  date: Date | string;
+  amount: number | string;
+  sourceType: "extrato" | "fatura";
+  type: string;
+  description: string;
+  importId: string;
+  import?: AccountSpendImport;
+}
+
+export interface AccountSpendTrackerResponse {
+  entries: AccountSpendEntry[];
+  imports: AccountSpendImport[];
+  months: string[];
+  pagination: {
+    page: number;
+    pageSize: number;
+    totalItems: number;
+    totalPages: number;
+  };
+  summary: {
+    daily: Array<{
+      day: string;
+      expense: number;
+      income: number;
+    }>;
+    month: string | null;
+    netTotal: number;
+    rowCount: number;
+    importCount: number;
+    totalExpense: number;
+    totalIncome: number;
+  };
+}
+
+export interface AccountSpendImportResponse {
+  import: AccountSpendImport;
+  insertedRows: number;
+  month: string;
+  sourceType: "extrato" | "fatura";
+}
+
 export interface FinancialCategoryCreateInput {
   name: string;
   type: FinanceRecordType;

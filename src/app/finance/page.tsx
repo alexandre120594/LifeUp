@@ -1,6 +1,7 @@
 "use client";
 
 import { Children, type ReactNode, useState } from "react";
+import Link from "next/link";
 import { Controller, useForm, useWatch } from "react-hook-form";
 import {
   Bar,
@@ -18,6 +19,7 @@ import {
   PiggyBank,
   Plus,
   ReceiptText,
+  Search,
   WalletCards,
 } from "lucide-react";
 import { MenuPageHeader } from "@/components/menu-page-header";
@@ -376,7 +378,7 @@ export default function FinancePage() {
           eyebrow="Personal finance"
           title="Financial Organizer"
         />
-        <div className="grid min-w-0 gap-3 sm:grid-cols-[minmax(0,150px)_minmax(0,180px)_auto] lg:mt-1">
+        <div className="grid min-w-0 gap-3 sm:grid-cols-[minmax(0,150px)_minmax(0,180px)_auto_auto] lg:mt-1">
           <Select
             value={periodMode}
             onValueChange={(value) => setPeriodMode(value as FinancePeriodMode)}
@@ -490,6 +492,12 @@ export default function FinancePage() {
               </div>
             </DialogContent>
           </Dialog>
+          <Button asChild className="h-11 gap-2 rounded-lg" variant="outline">
+            <Link href="/finance/tracker">
+              <Search className="h-4 w-4" />
+              Spend tracker
+            </Link>
+          </Button>
         </div>
       </div>
 

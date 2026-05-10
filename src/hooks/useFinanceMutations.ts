@@ -8,6 +8,59 @@ export function useFinanceDashboard() {
   });
 }
 
+export function useAccountSpendTracker({
+  month,
+  page,
+  pageSize,
+  sourceType,
+}: {
+  month?: string;
+  page: number;
+  pageSize: number;
+  sourceType: "extrato" | "fatura";
+}) {
+  return useQuery({
+    queryKey: [
+      "finance",
+      "spending-tracker",
+      { month, page, pageSize, sourceType },
+    ],
+    queryFn: () =>
+      FinanceServices.getAccountSpendTracker({
+        month,
+        page,
+        pageSize,
+        sourceType,
+      }),
+  });
+}
+
+export function useImportAccountSpendCsv() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: FinanceServices.importAccountSpendCsv,
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["finance", "spending-tracker"],
+      });
+    },
+  });
+}
+
+export function useDeleteAccountSpendImport() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: FinanceServices.deleteAccountSpendImport,
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["finance", "spending-tracker"],
+      });
+    },
+  });
+}
+
 export function useCreateFinancialCategory() {
   const queryClient = useQueryClient();
 
