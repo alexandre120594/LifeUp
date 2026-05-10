@@ -40,6 +40,7 @@ The app currently supports:
   - top-line finance income, expenses, and total cash
 - calendar page for reviewing tasks by day and scheduling future tasks
 - weekly organizer for creating database-backed Monday-to-Sunday habit boards with previous/next navigation and hourly scheduling from 00:00 through 23:00
+- weekly organizer slots can assign habits and tasks, with project filtering inside the slot dialog
 - dashboard includes a daily/weekly tracker snapshot instead of the project throughput graph
 - project detail analytics for:
   - project-level activity trend
@@ -361,6 +362,7 @@ What is stable enough to continue from:
 - finance records can be edited or deleted from the Finance management section; default categories are protected from deletion
 - finance account-spend tracking is intentionally separate from organizer transactions and imports CSV or OFX rows into dedicated tables by each row month
 - section pages for projects, habits, and tasks now follow the newer dashboard structure
+- Habits can be filtered by project, and Tasks can be filtered by project and habit with related metrics/charts following the selected filters
 - Inbox and Notes pages are available from the sidebar and connect captured information back to projects, habits, and tasks
 - Pomodoro page includes task association, work/break cycles, study/work tracking, and productivity history by project and habit
 - project detail analytics are present and usable

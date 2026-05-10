@@ -26,6 +26,13 @@ async function getWeeklyBoard(userId: number, weekStartKey: string) {
               },
             },
           },
+          tasks: {
+            include: {
+              task: {
+                include: { habit: true, project: true },
+              },
+            },
+          },
         },
         orderBy: [{ dayIndex: "asc" }, { hour: "asc" }],
       },

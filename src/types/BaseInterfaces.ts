@@ -156,12 +156,21 @@ export interface WeeklyPlanSlotHabit {
   createdAt: Date | string;
 }
 
+export interface WeeklyPlanSlotTask {
+  id: string;
+  slotId: string;
+  taskId: string;
+  task?: Task;
+  createdAt: Date | string;
+}
+
 export interface WeeklyPlanSlot {
   id: string;
   dayIndex: number;
   hour: number;
   boardId: string;
   habits: WeeklyPlanSlotHabit[];
+  tasks?: WeeklyPlanSlotTask[];
   createdAt: Date | string;
   updatedAt: Date | string;
 }
@@ -177,6 +186,7 @@ export interface WeeklyPlanSlotInput {
   dayIndex: number;
   hour: number;
   habitIds: string[];
+  taskIds?: string[];
 }
 
 export interface Project {

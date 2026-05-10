@@ -78,6 +78,7 @@ model WeeklyPlanSlot {
   boardId   String
   board     WeeklyPlanBoard @relation(fields: [boardId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   habits    WeeklyPlanSlotHabit[]
+  tasks     WeeklyPlanSlotTask[]
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -95,6 +96,17 @@ model WeeklyPlanSlotHabit {
   @@unique([slotId, habitId])
 }
 
+model WeeklyPlanSlotTask {
+  id        String   @id @default(cuid())
+  slotId    String
+  slot      WeeklyPlanSlot @relation(fields: [slotId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  taskId    String
+  task      Task     @relation(fields: [taskId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([slotId, taskId])
+}
+
 model Task {
   id          String   @id @default(cuid())
   title       String
@@ -107,6 +119,7 @@ model Task {
   dateFinish DateTime? 
   time        String?
   pomodoroSessions PomodoroSession[]
+  weeklyPlanSlotTasks WeeklyPlanSlotTask[]
   inboxItems InboxItem[]
   notes Note[]
 }

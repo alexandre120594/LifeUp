@@ -39,9 +39,11 @@ Current app position:
 - Notes page stores searchable categorized notes with pagination, popup editing, and optional project, habit, and task links
 - dashboard now shows a daily/weekly tracker snapshot instead of the project throughput graph
 - weekly organizer page derives Monday-to-Sunday weeks from the selected date, persists one habit board per user/week, supports previous/next week navigation, and schedules multiple habits into hourly cells from 00:00 through 23:00
+- weekly organizer slot dialog now filters by project and can assign both habits and tasks to an hour
 - project lists and the habit tracker grid now paginate
 - project and habit charts now use combined bars and lines for workload, completion rate, check-ins, and streak context
 - project and habit chart axes now use compact labels and horizontal overflow for crowded datasets
+- habit listing now filters by project, and task listing now filters by project and habit with summaries/charts scoped to those selections
 
 ## Completed Recently
 

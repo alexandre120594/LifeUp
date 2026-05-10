@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { CheckCircle2, Clock3, Flame, ListChecks, Repeat } from "lucide-react";
 import { EntityCreateDialog } from "@/components/entity-create-dialog";
@@ -12,8 +13,16 @@ import {
   ActivityTrendChart,
   HabitPerformanceChart,
 } from "@/components/ChartsComponent/InsightsCharts";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import type { ChartConfig } from "@/components/ui/chart";
 import { useHabit } from "@/hooks/useHabitMutations";
+import { useProjects } from "@/hooks/useProjectMutations";
 import { useTask } from "@/hooks/useTaskMutation";
 import {
   buildActivityTrend,
@@ -33,8 +42,12 @@ const radialChartConfig = {
 
 export default function HabitsPage() {
   const router = useRouter();
-  const { data: habits, isLoading } = useHabit();
-  const { data: tasks } = useTask();
+  const [selectedProjectId, setSelectedProjectId] = useState("all");
+  const projectFilter =
+    selectedProjectId === "all" ? undefined : selectedProjectId;
+  const { data: projects = [] } = useProjects();
+  const { data: habits, isLoading } = useHabit(projectFilter);
+  const { data: tasks } = useTask({ projectId: projectFilter });
 
   const habitPerformance = buildHabitPerformance(habits ?? [], tasks ?? []);
   const activityTrend = buildActivityTrend(tasks ?? [], habits ?? []);
@@ -57,6 +70,36 @@ export default function HabitsPage() {
         title="Habits"
         action={<EntityCreateDialog defaultMode="habit" />}
       />
+
+      <section className="rounded-2xl border border-border/70 bg-card p-4 shadow-sm">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="text-sm font-semibold">Filters</div>
+          <label className="grid min-w-0 gap-1.5 sm:w-[320px]">
+            <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+              Project
+            </span>
+            <Select value={selectedProjectId} onValueChange={setSelectedProjectId}>
+              <SelectTrigger className="min-w-0 overflow-hidden rounded-xl">
+                <SelectValue placeholder="Project" className="truncate" />
+              </SelectTrigger>
+              <SelectContent className="max-w-[min(320px,calc(100vw-2rem))]">
+                <SelectItem value="all">All projects</SelectItem>
+                {projects.map((project) => (
+                  <SelectItem
+                    className="max-w-[min(300px,calc(100vw-3rem))]"
+                    key={project.id}
+                    value={project.id}
+                  >
+                    <span className="block max-w-full truncate">
+                      {project.title}
+                    </span>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </label>
+        </div>
+      </section>
 
       <OverviewPanel
         title="Routine performance at a glance"

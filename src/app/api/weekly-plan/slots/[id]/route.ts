@@ -8,6 +8,7 @@ type SlotPayload = {
   dayIndex?: unknown;
   habitIds?: unknown;
   hour?: unknown;
+  taskIds?: unknown;
   weekStartKey?: unknown;
 };
 
@@ -17,10 +18,13 @@ function normalizeSlotPayload(body: SlotPayload) {
   const habitIds = Array.isArray(body.habitIds)
     ? Array.from(new Set(body.habitIds.filter((id) => typeof id === "string")))
     : [];
+  const taskIds = Array.isArray(body.taskIds)
+    ? Array.from(new Set(body.taskIds.filter((id) => typeof id === "string")))
+    : [];
   const weekStartKey =
     typeof body.weekStartKey === "string" ? body.weekStartKey : "";
 
-  return { dayIndex, habitIds, hour, weekStartKey };
+  return { dayIndex, habitIds, hour, taskIds, weekStartKey };
 }
 
 function isValidSlotPayload(payload: ReturnType<typeof normalizeSlotPayload>) {
@@ -50,6 +54,21 @@ async function validateHabitIds(userId: number, habitIds: string[]) {
   return count === habitIds.length;
 }
 
+async function validateTaskIds(userId: number, taskIds: string[]) {
+  if (taskIds.length === 0) {
+    return true;
+  }
+
+  const count = await prisma.task.count({
+    where: {
+      id: { in: taskIds },
+      project: { userId },
+    },
+  });
+
+  return count === taskIds.length;
+}
+
 async function getWeeklyBoard(userId: number, weekStartKey: string) {
   const board = await prisma.weeklyPlanBoard.findUnique({
     where: {
@@ -65,6 +84,13 @@ async function getWeeklyBoard(userId: number, weekStartKey: string) {
             include: {
               habit: {
                 include: { project: true },
+              },
+            },
+          },
+          tasks: {
+            include: {
+              task: {
+                include: { habit: true, project: true },
               },
             },
           },
@@ -102,7 +128,7 @@ export async function PATCH(
       );
     }
 
-    const [slot, hasValidHabits] = await Promise.all([
+    const [slot, hasValidHabits, hasValidTasks] = await Promise.all([
       prisma.weeklyPlanSlot.findFirst({
         where: {
           id,
@@ -114,6 +140,7 @@ export async function PATCH(
         include: { board: true },
       }),
       validateHabitIds(userId, payload.habitIds),
+      validateTaskIds(userId, payload.taskIds),
     ]);
 
     if (!slot) {
@@ -126,6 +153,13 @@ export async function PATCH(
     if (!hasValidHabits) {
       return NextResponse.json(
         { message: "One or more habits were not found." },
+        { status: 404 }
+      );
+    }
+
+    if (!hasValidTasks) {
+      return NextResponse.json(
+        { message: "One or more tasks were not found." },
         { status: 404 }
       );
     }
@@ -159,11 +193,23 @@ export async function PATCH(
       await tx.weeklyPlanSlotHabit.deleteMany({
         where: { slotId: id },
       });
+      await tx.weeklyPlanSlotTask.deleteMany({
+        where: { slotId: id },
+      });
 
       if (payload.habitIds.length > 0) {
         await tx.weeklyPlanSlotHabit.createMany({
           data: payload.habitIds.map((habitId) => ({
             habitId,
+            slotId: id,
+          })),
+        });
+      }
+
+      if (payload.taskIds.length > 0) {
+        await tx.weeklyPlanSlotTask.createMany({
+          data: payload.taskIds.map((taskId) => ({
+            taskId,
             slotId: id,
           })),
         });

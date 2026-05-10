@@ -55,6 +55,8 @@ import { buildWeekDayPlans, getCurrentWeek } from "@/lib/weekly-organizer";
 import { cn } from "@/lib/utils";
 import type {
   Habit,
+  Project,
+  Task,
   WeeklyPlanSlot,
   WeeklyPlanSlotInput,
 } from "@/types/BaseInterfaces";
@@ -83,6 +85,10 @@ function getHabitProjectLabel(habit?: Habit) {
 
 function getSlotHabitIds(slot?: WeeklyPlanSlot) {
   return slot?.habits.map((item) => item.habitId) ?? [];
+}
+
+function getSlotTaskIds(slot?: WeeklyPlanSlot) {
+  return slot?.tasks?.map((item) => item.taskId) ?? [];
 }
 
 export default function WeeklyOrganizerPage() {
@@ -210,6 +216,8 @@ export default function WeeklyOrganizerPage() {
         boardSlots={board?.slots ?? []}
         habits={habits}
         isLoading={isBoardLoading}
+        projects={projects}
+        tasks={tasks}
         week={week}
         weekStartKey={weekStartKey}
       />
@@ -221,12 +229,16 @@ function WeeklyHabitBoard({
   boardSlots,
   habits,
   isLoading,
+  projects,
+  tasks,
   week,
   weekStartKey,
 }: {
   boardSlots: WeeklyPlanSlot[];
   habits: Habit[];
   isLoading: boolean;
+  projects: Project[];
+  tasks: Task[];
   week: ReturnType<typeof getCurrentWeek>;
   weekStartKey: string;
 }) {
@@ -444,7 +456,9 @@ function WeeklyHabitBoard({
           isSaving={isCreating || isUpdating}
           onClose={() => setSlotDialog(null)}
           onSave={(data) => saveSlot(data, slotDialog.slot?.id)}
+          projects={projects}
           slotDialog={slotDialog}
+          tasks={tasks}
           week={week}
           weekStartKey={weekStartKey}
         />
@@ -469,6 +483,11 @@ function SlotCell({
   const slotHabits = slot.habits
     .map((item) => item.habit)
     .filter((habit): habit is Habit => Boolean(habit));
+  const slotTasks =
+    slot.tasks
+      ?.map((item) => item.task)
+      .filter((task): task is Task => Boolean(task)) ?? [];
+  const totalItems = slotHabits.length + slotTasks.length;
 
   return (
     <div className="h-full min-w-0 rounded-md border border-border/70 bg-card p-1.5 shadow-sm">
@@ -482,7 +501,7 @@ function SlotCell({
             <Clock className="h-3 w-3 shrink-0 text-primary" />
             <span className="truncate">{formatHour(slot.hour)}</span>
             <span className="shrink-0 text-muted-foreground">
-              {slotHabits.length}
+              {totalItems}
             </span>
           </div>
         </button>
@@ -516,14 +535,14 @@ function SlotCell({
         onClick={onOpenDetails}
         className="mt-1 grid w-full min-w-0 gap-0.5 text-left"
       >
-        {slotHabits.length ? (
+        {totalItems ? (
           <>
             <div className="truncate rounded bg-secondary/35 px-1.5 py-1 text-[11px] font-medium">
-              {slotHabits[0].title}
+              {slotHabits[0]?.title ?? slotTasks[0]?.title}
             </div>
-            {slotHabits.length > 1 ? (
+            {totalItems > 1 ? (
               <div className="truncate text-[10px] text-muted-foreground">
-                +{slotHabits.length - 1} more
+                +{totalItems - 1} more
               </div>
             ) : null}
           </>
@@ -552,6 +571,10 @@ function SlotDetailsDialog({
     slotDetail?.slot.habits
       .map((item) => item.habit)
       .filter((habit): habit is Habit => Boolean(habit)) ?? [];
+  const slotTasks =
+    slotDetail?.slot.tasks
+      ?.map((item) => item.task)
+      .filter((task): task is Task => Boolean(task)) ?? [];
 
   return (
     <Dialog open={Boolean(slotDetail)} onOpenChange={(isOpen) => !isOpen && onClose()}>
@@ -566,8 +589,9 @@ function SlotDetailsDialog({
         </DialogHeader>
 
         <div className="grid max-h-[60vh] min-w-0 gap-2 overflow-y-auto pr-1">
-          {slotHabits.length ? (
-            slotHabits.map((habit) => (
+          {slotHabits.length || slotTasks.length ? (
+            <>
+            {slotHabits.map((habit) => (
               <Link
                 href={`/habits/${habit.id}`}
                 key={habit.id}
@@ -579,10 +603,25 @@ function SlotDetailsDialog({
                   {getHabitProjectLabel(habit)}
                 </div>
               </Link>
-            ))
+            ))}
+            {slotTasks.map((task) => (
+              <Link
+                href={`/tasks/${task.id}`}
+                key={task.id}
+                onClick={onClose}
+                className="min-w-0 rounded-lg border border-border/70 bg-background/75 p-3 transition-colors hover:bg-secondary/35"
+              >
+                <div className="truncate font-medium">{task.title}</div>
+                <div className="truncate text-sm text-muted-foreground">
+                  {task.project?.title ?? "No project"}
+                  {task.habit?.title ? ` - ${task.habit.title}` : ""}
+                </div>
+              </Link>
+            ))}
+            </>
           ) : (
             <div className="rounded-lg bg-secondary/30 p-3 text-sm text-muted-foreground">
-              No habits assigned.
+              No habits or tasks assigned.
             </div>
           )}
         </div>
@@ -613,7 +652,9 @@ function SlotDialog({
   isSaving,
   onClose,
   onSave,
+  projects,
   slotDialog,
+  tasks,
   week,
   weekStartKey,
 }: {
@@ -621,15 +662,25 @@ function SlotDialog({
   isSaving: boolean;
   onClose: () => void;
   onSave: (data: WeeklyPlanSlotInput) => void;
+  projects: Project[];
   slotDialog: Exclude<SlotDialogState, null>;
+  tasks: Task[];
   week: ReturnType<typeof getCurrentWeek>;
   weekStartKey: string;
 }) {
   const [dayIndex, setDayIndex] = useState(String(slotDialog.dayIndex));
   const [hour, setHour] = useState(String(slotDialog.hour));
+  const [projectId, setProjectId] = useState("all");
   const [habitIds, setHabitIds] = useState<string[]>(
     getSlotHabitIds(slotDialog.slot)
   );
+  const [taskIds, setTaskIds] = useState<string[]>(getSlotTaskIds(slotDialog.slot));
+  const filteredHabits =
+    projectId === "all"
+      ? habits
+      : habits.filter((habit) => habit.projectId === projectId);
+  const filteredTasks =
+    projectId === "all" ? tasks : tasks.filter((task) => task.projectId === projectId);
 
   const toggleHabit = (habitId: string, checked: boolean) => {
     setHabitIds((current) =>
@@ -639,11 +690,20 @@ function SlotDialog({
     );
   };
 
+  const toggleTask = (taskId: string, checked: boolean) => {
+    setTaskIds((current) =>
+      checked
+        ? Array.from(new Set([...current, taskId]))
+        : current.filter((id) => id !== taskId)
+    );
+  };
+
   const handleSave = () => {
     onSave({
       dayIndex: Number(dayIndex),
       habitIds,
       hour: Number(hour),
+      taskIds,
       weekStartKey,
     });
   };
@@ -653,10 +713,10 @@ function SlotDialog({
       <DialogContent>
         <DialogHeader>
           <DialogTitle>
-            {slotDialog.slot ? "Edit habit hour" : "Add habit hour"}
+            {slotDialog.slot ? "Edit weekly slot" : "Add weekly slot"}
           </DialogTitle>
           <DialogDescription>
-            Assign habits to one hour in this Monday-to-Sunday board.
+            Assign habits and tasks to one hour in this Monday-to-Sunday board.
           </DialogDescription>
         </DialogHeader>
 
@@ -701,9 +761,28 @@ function SlotDialog({
             </label>
           </div>
 
-          <div className="grid max-h-[45vh] min-w-0 gap-2 overflow-y-auto pr-1">
-            {habits.length ? (
-              habits.map((habit) => {
+          <label className="grid gap-1.5 text-sm font-medium">
+            Project filter
+            <Select value={projectId} onValueChange={setProjectId}>
+              <SelectTrigger className="h-11 rounded-xl">
+                <SelectValue placeholder="Project" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All projects</SelectItem>
+                {projects.map((project) => (
+                  <SelectItem key={project.id} value={project.id}>
+                    {project.title}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </label>
+
+          <div className="grid max-h-[45vh] min-w-0 gap-4 overflow-y-auto pr-1">
+            <div className="grid gap-2">
+              <div className="text-sm font-semibold">Habits</div>
+              {filteredHabits.length ? (
+                filteredHabits.map((habit) => {
                 const checked = habitIds.includes(habit.id);
 
                 return (
@@ -730,11 +809,49 @@ function SlotDialog({
                   </label>
                 );
               })
-            ) : (
-              <div className="rounded-lg bg-secondary/30 p-3 text-sm text-muted-foreground">
-                No habits available.
-              </div>
-            )}
+              ) : (
+                <div className="rounded-lg bg-secondary/30 p-3 text-sm text-muted-foreground">
+                  No habits for this filter.
+                </div>
+              )}
+            </div>
+
+            <div className="grid gap-2">
+              <div className="text-sm font-semibold">Tasks</div>
+              {filteredTasks.length ? (
+                filteredTasks.map((task) => {
+                  const checked = taskIds.includes(task.id);
+
+                  return (
+                    <label
+                      key={task.id}
+                      className="flex min-w-0 cursor-pointer items-start gap-3 rounded-lg border border-border/70 bg-background/75 p-3 text-sm"
+                    >
+                      <Checkbox
+                        checked={checked}
+                        onCheckedChange={(value) =>
+                          toggleTask(task.id, value === true)
+                        }
+                        className="mt-0.5"
+                      />
+                      <span className="min-w-0">
+                        <span className="block truncate font-medium">
+                          {task.title}
+                        </span>
+                        <span className="block truncate text-xs text-muted-foreground">
+                          {task.project?.title ?? "No project"}
+                          {task.habit?.title ? ` - ${task.habit.title}` : ""}
+                        </span>
+                      </span>
+                    </label>
+                  );
+                })
+              ) : (
+                <div className="rounded-lg bg-secondary/30 p-3 text-sm text-muted-foreground">
+                  No tasks for this filter.
+                </div>
+              )}
+            </div>
           </div>
         </div>
 
