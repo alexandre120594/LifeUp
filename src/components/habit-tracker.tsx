@@ -166,7 +166,8 @@ export function HabitTracker({
         <div>
           <CardTitle>Habit tracker</CardTitle>
           <CardDescription>
-            Create habits, set cadence, mark progress, and watch streaks move.
+            Create habits, set cadence, and mark check-ins without making every
+            routine responsible for the main project streak.
           </CardDescription>
         </div>
         <Button

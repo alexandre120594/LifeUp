@@ -117,6 +117,7 @@ If full-repo lint is already noisy, do not make that baseline worse.
 ## Current Known State
 
 - Dashboard and project-detail analytics are active.
+- Sidebar navigation sends users through Projects for habit and task workflows; direct habit/task pages still exist but are not primary menu entries.
 - Inbox and Notes are active and link back to projects, habits, and tasks.
 - Chart colors follow the current theme tokens.
 - Seed data exists for local visual testing.

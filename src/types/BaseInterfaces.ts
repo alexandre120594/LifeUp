@@ -175,6 +175,39 @@ export interface WeeklyPlanSlot {
   updatedAt: Date | string;
 }
 
+export interface StudySubject {
+  id: string;
+  name: string;
+  color?: string | null;
+  plannedHoursPerWeek: number;
+  notes?: string | null;
+  scheduleBlocks?: StudyScheduleBlock[];
+  createdAt: Date | string;
+  updatedAt: Date | string;
+}
+
+export interface StudyScheduleBlock {
+  id: string;
+  dayIndex: number;
+  hour: number;
+  subjectId: string;
+  subject?: StudySubject;
+  createdAt: Date | string;
+}
+
+export interface StudySubjectInput {
+  name: string;
+  color?: string | null;
+  plannedHoursPerWeek?: number;
+  notes?: string | null;
+}
+
+export interface StudyScheduleInput {
+  dayIndex: number;
+  hour: number;
+  subjectIds: string[];
+}
+
 export interface WeeklyPlanBoard {
   id: string | null;
   weekStartKey: string;
@@ -196,6 +229,7 @@ export interface Project {
   userId: number;
   lastActivityDate?: Date | string;
   streakGlobal?:number
+  dailyStreakTarget?: number;
   createdAt: Date | string;
   habits?: Habit[]; 
   tasks?: Task[]; 
@@ -209,6 +243,7 @@ export interface ProjectRequest {
   createdAt: Date | string;
   lastActivityDate?: Date | string;
   streakGlobal?:number
+  dailyStreakTarget?: number;
   habits?: Habit[]; 
   tasks?: Task[]; 
 }
@@ -216,6 +251,7 @@ export interface ProjectRequest {
 export interface ProjectCreateInput {
   title?: string;
   color?: string | null;
+  dailyStreakTarget?: number;
 }
 
 export interface HabitCreateInput {

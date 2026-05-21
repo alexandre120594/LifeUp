@@ -4,9 +4,9 @@ import {
   CalendarDays,
   CheckCircle2,
   Clock3,
+  Flame,
   FolderKanban,
   ListTodo,
-  Repeat,
 } from "lucide-react";
 import { useProjects } from "@/hooks/useProjectMutations";
 import { useTask } from "@/hooks/useTaskMutation";
@@ -15,7 +15,6 @@ import { useFinanceDashboard } from "@/hooks/useFinanceMutations";
 import { ChartRadialText } from "@/components/ChartsComponent/RadialChart";
 import { ActivityTrendChart } from "@/components/ChartsComponent/InsightsCharts";
 import { EntityCreateDialog } from "@/components/entity-create-dialog";
-import { ListSection } from "@/components/list-section";
 import { MenuPageHeader } from "@/components/menu-page-header";
 import { OverviewPanel } from "@/components/overview-panel";
 import {
@@ -26,7 +25,6 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { type ChartConfig } from "@/components/ui/chart";
-import ProjectItem from "./projects/components/ProjectItem";
 import TaskList from "./tasks/components/TaskListWithPagination";
 import { buildActivityTrend, getTaskSummary } from "@/lib/analytics";
 import { formatCurrency } from "@/lib/finance";
@@ -120,7 +118,7 @@ function DailyWeeklyTracker({
 }
 
 export default function DashboardPage() {
-  const { data: projects, isLoading } = useProjects();
+  const { data: projects } = useProjects();
   const { data: tasks } = useTask();
   const { data: habits } = useHabit();
   const { data: finance } = useFinanceDashboard();
@@ -129,6 +127,9 @@ export default function DashboardPage() {
   const activityTrend = buildActivityTrend(tasks ?? [], habits ?? []);
   const financeSummary = finance?.summary;
   const totalCash = financeSummary?.netCashFlow ?? 0;
+  const projectsOnStreak = (projects ?? []).filter(
+    (project) => (project.streakGlobal ?? 0) > 0
+  ).length;
 
   const radialChartData = [
     {
@@ -145,9 +146,9 @@ export default function DashboardPage() {
       icon: FolderKanban,
     },
     {
-      label: "Habits",
-      value: habits?.length ?? 0,
-      icon: Repeat,
+      label: "Project streaks",
+      value: projectsOnStreak,
+      icon: Flame,
     },
     {
       label: "Tasks",
@@ -232,19 +233,6 @@ export default function DashboardPage() {
         <DailyWeeklyTracker habits={habits} tasks={tasks} />
         <TaskList tasks={tasks} />
       </section>
-
-      <ListSection
-        title="Projects"
-        description="Open each project to inspect habit-level performance."
-        isLoading={isLoading}
-        isEmpty={!projects?.length}
-        loadingLabel="Loading projects..."
-        emptyLabel="No projects found. Create your first project above."
-      >
-        {projects?.map((project) => (
-          <ProjectItem key={project.id} project={project} />
-        ))}
-      </ListSection>
     </div>
   );
 }

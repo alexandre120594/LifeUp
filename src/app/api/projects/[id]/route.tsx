@@ -1,6 +1,7 @@
 // src/app/api/habits/[id]/route.ts
 import prisma from "@/lib/prisma";
 import { requireCurrentUserId } from "@/lib/auth";
+import { calculateProjectStreak } from "@/lib/streaks";
 import { NextRequest, NextResponse } from "next/server";
 
 interface RouteParams {
@@ -35,7 +36,7 @@ export async function GET(req: NextRequest, { params }: RouteParams) {
     }
 
     return NextResponse.json(project);
-  } catch (error) {
+  } catch {
     return NextResponse.json(
       { error: "Internal Server Error" },
       { status: 500 }
@@ -94,22 +95,51 @@ export async function PATCH(req: NextRequest, { params }: RouteParams) {
   }
 
   try {
-    const { title, color } = await req.json();
-    const project = await prisma.project.findFirst({
-      where: { id, userId },
-      select: { id: true },
+    const { title, color, dailyStreakTarget } = await req.json();
+    const normalizedTarget =
+      dailyStreakTarget === undefined
+        ? undefined
+        : Math.max(1, Number(dailyStreakTarget) || 1);
+
+    return await prisma.$transaction(async (tx) => {
+      const project = await tx.project.findFirst({
+        where: { id, userId },
+        include: {
+          tasks: {
+            where: { completed: true },
+            select: {
+              date: true,
+              dateFinish: true,
+            },
+          },
+        },
+      });
+
+      if (!project) {
+        return NextResponse.json({ error: "Project not found" }, { status: 404 });
+      }
+
+      const effectiveTarget = normalizedTarget ?? project.dailyStreakTarget;
+      const streakState = calculateProjectStreak(
+        project.tasks.map((task) => new Date(task.dateFinish ?? task.date)),
+        effectiveTarget
+      );
+
+      const updatedProject = await tx.project.update({
+        where: { id },
+        data: {
+          title,
+          color,
+          ...(normalizedTarget !== undefined
+            ? { dailyStreakTarget: normalizedTarget }
+            : {}),
+          lastActivityDate: streakState.lastActivityDate,
+          streakGlobal: streakState.streakGlobal,
+        },
+      });
+
+      return NextResponse.json(updatedProject);
     });
-
-    if (!project) {
-      return NextResponse.json({ error: "Project not found" }, { status: 404 });
-    }
-
-    const habit = await prisma.project.update({
-      where: { id },
-      data: { title, color },
-    });
-
-    return NextResponse.json(habit);
   } catch (error) {
     console.error("PATCH_ERROR:", error);
     return NextResponse.json(

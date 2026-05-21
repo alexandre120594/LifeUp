@@ -35,9 +35,10 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const { title, color } = await req.json();
+    const { title, color, dailyStreakTarget } = await req.json();
+    const normalizedTarget = Math.max(1, Number(dailyStreakTarget) || 1);
     const project = await prisma.project.create({
-      data: { title, color, userId },
+      data: { title, color, userId, dailyStreakTarget: normalizedTarget },
     });
     return NextResponse.json(project, { status: 201 });
   } catch (error) {

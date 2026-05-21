@@ -143,6 +143,8 @@ export default function TasksPage() {
         </div>
       </section>
 
+      <TaskList key={`${selectedProjectId}-${selectedHabitId}`} tasks={tasks} />
+
       <OverviewPanel
         title="Execution flow without noise"
         description="Review the task queue by project, add new work with context, and drill into specific tasks for details."
@@ -215,11 +217,6 @@ export default function TasksPage() {
         title="Tasks By Project"
         description="Task workload, open work, and completion rate by project"
         data={projectPerformance}
-      />
-
-      <TaskList
-        key={`${selectedProjectId}-${selectedHabitId}`}
-        tasks={tasks}
       />
     </div>
   );

@@ -10,15 +10,12 @@ import {
   Home,
   Inbox,
   ListChecks,
-  ListTodo,
   NotebookText,
-  Repeat,
   TimerReset,
   WalletCards,
   FileSpreadsheet,
 } from "lucide-react";
 import { useInboxItems } from "@/hooks/useInboxMutations";
-import { useHabit } from "@/hooks/useHabitMutations";
 import { useNotes } from "@/hooks/useNoteMutations";
 import { useProjects } from "@/hooks/useProjectMutations";
 import { useTask } from "@/hooks/useTaskMutation";
@@ -46,13 +43,7 @@ const essentialItems = [
     title: "Projects",
     url: "/projects",
     icon: FolderKanban,
-    description: "Project health and details",
-  },
-  {
-    title: "Tasks",
-    url: "/tasks",
-    icon: ListTodo,
-    description: "Execution queue",
+    description: "Habits and tasks",
   },
   {
     title: "Inbox",
@@ -65,12 +56,6 @@ const essentialItems = [
     url: "/notes",
     icon: NotebookText,
     description: "Connected knowledge",
-  },
-  {
-    title: "Habits",
-    url: "/habits",
-    icon: Repeat,
-    description: "Consistency and streaks",
   },
   {
     title: "Finance",
@@ -94,10 +79,10 @@ const planningItems = [
     description: "Focus cycles and history",
   },
   {
-    title: "Habit Tracker",
+    title: "App Tracker",
     url: "/habit-tracker",
     icon: ListChecks,
-    description: "Daily routine grid",
+    description: "Project streak targets",
   },
   {
     title: "Calendar",
@@ -169,16 +154,13 @@ function SidebarLinkList({
 
 export function AppSidebar() {
   const { data: projects } = useProjects();
-  const { data: habits } = useHabit();
   const { data: tasks } = useTask();
   const { data: inboxItems } = useInboxItems({ status: "unprocessed" });
   const { data: notes } = useNotes();
 
   const badges: Record<string, number> = {
     "/projects": projects?.length ?? 0,
-    "/habits": habits?.length ?? 0,
-    "/habit-tracker": habits?.length ?? 0,
-    "/tasks": tasks?.length ?? 0,
+    "/habit-tracker": projects?.length ?? 0,
     "/inbox": inboxItems?.length ?? 0,
     "/notes": notes?.length ?? 0,
     "/calendar": tasks?.length ?? 0,
@@ -227,8 +209,7 @@ export function AppSidebar() {
         <SidebarFooter className="mt-auto rounded-3xl border border-white/10 bg-white/8 p-4 text-sm text-sidebar-foreground/80">
           <p className="font-medium">Current focus</p>
           <p className="mt-1 text-xs text-sidebar-foreground/70">
-            Use the section pages to compare trends, then open detail pages for
-            habit, project, and task-level context.
+            Open a project to manage habits, tasks, and execution context together.
           </p>
         </SidebarFooter>
       </SidebarContent>

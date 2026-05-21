@@ -8,16 +8,19 @@ The app currently supports:
 - project creation and listing
 - habit creation and editing inside projects
 - task creation, completion, and listing
-- pagination for project lists, task queues, and the habit tracker grid
+- pagination for project lists and task queues
 - popup creation for projects, habits, and tasks across the main menu pages
-- essential sidebar navigation for dashboard, projects, tasks, habits, and finance
+- essential sidebar navigation for dashboard, projects, inbox, notes, and finance; habits and tasks are reached through projects
 - simple email login with per-user project, habit, task, and finance data isolation
-- secondary planning tools for habit tracking, task calendar, and weekly planning
+- secondary planning tools for app streak tracking, task calendar, and weekly planning
+- weekly study mode for subjects, planned weekly hours, and repeating day/hour study blocks
+- weekly organizer separates Study Plan and Weekly Plan into tabs
 - task creation supports an optional scheduled hour, and the calendar shows tasks by time inside each day
+- task queues use responsive cards with pending-first sorting, status counters, and compact pagination
 - Pomodoro page organizes work/study focus cycles with breaks, task association, progress, navigation-persistent countdown state, and productivity history by project and habit
 - Inbox page captures temporary ideas, reminders, study topics, and loose work, paginates the queue, and uses a popup to view/edit links to projects, habits, tasks, or converted notes
 - Notes page stores searchable long-term notes with pagination, view/edit popups, categories, and optional project, habit, and task context
-- habit creation flows include daily/weekly frequency, and the habit tracker adds reminder time, completions, streaks, and statistics progress
+- habit creation flows include daily/weekly frequency, reminder time, and secondary habit statistics
 - responsive layouts for mobile, tablet, and desktop screens
 - updated modern Grove, Harbor, Vault, Sentinel, and Graphite theme palettes with compact swatch switching, light/night mode, and stronger contrast
 - Personal Financial Organizer MVP for:
@@ -32,7 +35,7 @@ The app currently supports:
   - editing and deleting finance records
 - separate Account Spend Tracker for importing and deleting bank CSV or OFX files as `Extrato` or `Fatura`, saving rows outside the Financial Organizer, reviewing month-paginated signed account movement, and visualizing credit/debit totals
 - dedicated detail pages for habits and tasks
-- persisted project and habit streaks derived from real task completion dates
+- persisted project streaks derive from daily completed-task targets, while habit streaks remain secondary check-in analytics
 - dashboard analytics for:
   - overall task completion
   - 7-day activity trend
@@ -40,8 +43,9 @@ The app currently supports:
   - top-line finance income, expenses, and total cash
 - calendar page for reviewing tasks by day and scheduling future tasks
 - weekly organizer for creating database-backed Monday-to-Sunday habit boards with previous/next navigation and hourly scheduling from 00:00 through 23:00
-- weekly organizer slots can assign habits and tasks, with project filtering inside the slot dialog
+- weekly organizer separates repeating study subjects from selected-week habit/task planning with Study Plan and Weekly Plan tabs
 - dashboard includes a daily/weekly tracker snapshot instead of the project throughput graph
+- dashboard keeps project access summarized and leaves the full project list on the Projects page
 - project detail analytics for:
   - project-level activity trend
   - habit performance
@@ -86,7 +90,7 @@ There is also repeatable local seed data for testing charts and flows.
 - `src/app/login/page.tsx`
   - simple email login page
 - `src/app/projects/[id]/page.tsx`
-  - project detail page with project-specific analytics
+  - project detail page with tabbed habits/tasks boards above project-specific analytics
 - `src/app/projects/page.tsx`
   - project index page with throughput overview and navigation into project detail
 - `src/app/habits/page.tsx`
@@ -94,9 +98,9 @@ There is also repeatable local seed data for testing charts and flows.
 - `src/app/habits/[id]/page.tsx`
   - habit detail page with linked tasks and habit-specific charts
 - `src/app/habit-tracker/page.tsx`
-  - habit tracker page with a recent-day completion grid
+  - app tracker page for project daily streak targets and today's task progress
 - `src/app/tasks/page.tsx`
-  - task index page with queue overview, creation form, and task list
+  - task index page with the task queue prioritized above summaries and charts
 - `src/app/inbox/page.tsx`
   - fast capture page for unprocessed ideas, reminders, study topics, and loose work with paginated cards, project/habit/task links, popup editing, and note conversion
 - `src/app/notes/page.tsx`
@@ -108,7 +112,7 @@ There is also repeatable local seed data for testing charts and flows.
 - `src/app/calendar/page.tsx`
   - task calendar page for day-level planning, scheduled task hours, and future task creation
 - `src/app/weekly-organizer/page.tsx`
-  - weekly habit board for navigating Monday-to-Sunday weeks, scheduling multiple habits into hourly cells, editing or deleting scheduled hours, and keeping task progress visible
+  - tabbed weekly board for Study Plan subject routines and Weekly Plan habit/task slots
 - `src/app/finance/page.tsx`
   - Personal Financial Organizer MVP with summary, one-popup creation, visual totals, recent transactions, plans, and insights
 - `src/app/finance/tracker/page.tsx`
@@ -127,7 +131,7 @@ There is also repeatable local seed data for testing charts and flows.
 - `src/components/task-calendar.tsx`
   - task calendar for day-level task review and future task scheduling
 - `src/components/habit-tracker.tsx`
-  - recent-day habit completion grid with check-in toggles
+  - legacy recent-day habit completion grid component retained for older habit check-in surfaces
 - `src/lib/analytics.ts`
   - shared metric builders for charts
 - `src/lib/weekly-organizer.ts`
@@ -170,6 +174,9 @@ There is also repeatable local seed data for testing charts and flows.
 - `src/app/api/weekly-plan/route.ts`
 - `src/app/api/weekly-plan/slots/route.ts`
 - `src/app/api/weekly-plan/slots/[id]/route.ts`
+- `src/app/api/study-subjects/route.ts`
+- `src/app/api/study-subjects/[id]/route.ts`
+- `src/app/api/study-schedule/route.ts`
 - `src/app/api/pomodoro/route.ts`
 - `src/app/api/auth/login/route.ts`
 - `src/app/api/auth/logout/route.ts`
@@ -205,10 +212,11 @@ There is also repeatable local seed data for testing charts and flows.
   - belongs to user
   - owns many habits
   - owns many tasks
+  - stores a `dailyStreakTarget`, current project streak, and last qualifying activity date
 - `Habit`
   - belongs to project
   - owns many tasks
-  - stores streak, daily/weekly frequency, reminder time, and `history` array used by current analytics and habit tracking
+  - stores secondary streak/check-in analytics, daily/weekly frequency, reminder time, and `history` array used by current analytics and habit tracking
 - `Task`
   - belongs to project
   - optionally belongs to habit
@@ -221,6 +229,10 @@ There is also repeatable local seed data for testing charts and flows.
   - stores one `dayIndex` and `hour` cell
 - `WeeklyPlanSlotHabit`
   - joins scheduled hourly slots to one or more habits
+- `StudySubject`
+  - belongs to user and stores a subject name, color, notes, and planned weekly study hours
+- `StudyScheduleBlock`
+  - belongs to user and study subject, and stores repeating weekly day/hour study blocks
 - `InboxItem`
   - belongs to user
   - stores temporary capture records with type, status, content, and optional project, habit, task, or note links
@@ -270,6 +282,8 @@ store whether they are income or expense.
 Inbox, Notes, and the weekly habit board require the current Prisma schema
 because they add their own persisted tables plus optional links back to
 projects, habits, and tasks.
+Study subjects and repeating study schedule blocks also require the current
+Prisma schema before study mode can persist weekly routines.
 The account spend tracker also requires the current schema because it stores
 monthly CSV/OFX imports and their paginated rows in dedicated tables outside the
 Financial Organizer records.
@@ -343,8 +357,10 @@ What is stable enough to continue from:
 - the dashboard greeting shows the logged-in user name or email prefix instead of a fixed placeholder
 - calendar page shows task names in a large month view, opens selected-day tasks in a popup, supports task edit/delete, and creates multiple future-dated tasks from an Add task button
 - weekly organizer builds Monday-to-Sunday habit boards from the selected week, persists them per user, supports previous/next week navigation, and schedules multiple habits into hourly cells from 00:00 through 23:00
+- weekly organizer includes a separate Study Plan tab for reusable subjects, planned weekly study hours, day-by-day subject summaries, and repeating hourly study blocks
 - calendar tasks can carry scheduled hours and are shown in time order inside day cells and day detail popups
-- habit tracker page creates habits, marks daily progress, stores daily/weekly frequency and reminder time, and shows streak/calendar/statistics progress
+- app tracker page shows project streak targets and today's task progress from completed tasks
+- project streaks now count days where completed tasks in that project meet the project's daily target, defaulting to 1 completed task per day
 - chart colors now follow the active app theme
 - project and habit charts use combined bars and lines for workload, completion rate, check-ins, and streak context
 - project and habit chart axes use compact initials/starting letters with horizontal overflow for crowded datasets
@@ -362,20 +378,20 @@ What is stable enough to continue from:
 - finance records can be edited or deleted from the Finance management section; default categories are protected from deletion
 - finance account-spend tracking is intentionally separate from organizer transactions and imports CSV or OFX rows into dedicated tables by each row month
 - section pages for projects, habits, and tasks now follow the newer dashboard structure
-- Habits can be filtered by project, and Tasks can be filtered by project and habit with related metrics/charts following the selected filters
+- Habit and task section pages still exist, but primary navigation now routes users through Projects before managing habits and tasks
 - Inbox and Notes pages are available from the sidebar and connect captured information back to projects, habits, and tasks
 - Pomodoro page includes task association, work/break cycles, study/work tracking, and productivity history by project and habit
 - project detail analytics are present and usable
 - habit and task detail pages are present and usable
-- project and habit streak persistence now derives from stored completed task dates
+- project streak persistence now derives from stored completed task dates and each project's daily target
 - seed data is available for testing visual states
-- project lists and the habit tracker grid paginate so larger local datasets remain usable
+- project lists paginate so larger local datasets remain usable
 
 What is still incomplete or older:
 - login is intentionally simple and email-only; there is no password, OAuth, or production-grade session hardening yet
 - some lower-level list item components still carry older interaction patterns internally
 - the analytics layer is derived from task dates and habit history arrays, not from a dedicated historical events table
-- existing databases may need the streak backfill command run once if they contain older fake or drifted streak values
+- existing databases need `npx prisma db push` for `Project.dailyStreakTarget`, study subject tables, and repeating study schedule tables, then may need the streak backfill command run once if they contain older fake or drifted streak values
 - the repository still has an older global lint baseline outside the touched files
 
 ## Where To Continue

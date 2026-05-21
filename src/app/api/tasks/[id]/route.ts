@@ -1,85 +1,11 @@
 // src/app/api/habits/[id]/route.ts
 import prisma from "@/lib/prisma";
 import { requireCurrentUserId } from "@/lib/auth";
+import { calculateHabitState, calculateProjectStreak } from "@/lib/streaks";
 import { NextRequest, NextResponse } from "next/server";
 
 interface RouteParams {
   params: Promise<{ id: string }>;
-}
-
-function toDayKey(date: Date) {
-  return date.toISOString().slice(0, 10);
-}
-
-function calculateProjectStreak(dates: Date[]) {
-  const validDates = dates.filter((date) => !Number.isNaN(date.getTime()));
-
-  if (validDates.length === 0) {
-    return {
-      streakGlobal: 0,
-      lastActivityDate: null as Date | null,
-    };
-  }
-
-  const uniqueDays = Array.from(new Set(validDates.map((date) => toDayKey(date)))).sort();
-
-  let streakGlobal = 1;
-
-  for (let index = uniqueDays.length - 1; index > 0; index -= 1) {
-    const current = new Date(`${uniqueDays[index]}T00:00:00.000Z`);
-    const previous = new Date(`${uniqueDays[index - 1]}T00:00:00.000Z`);
-    const diffInDays =
-      (current.getTime() - previous.getTime()) / (1000 * 60 * 60 * 24);
-
-    if (diffInDays === 1) {
-      streakGlobal += 1;
-    } else {
-      break;
-    }
-  }
-
-  return {
-    streakGlobal,
-    lastActivityDate: new Date(`${uniqueDays[uniqueDays.length - 1]}T00:00:00.000Z`),
-  };
-}
-
-function calculateHabitState(dates: Date[]) {
-  const validDates = dates.filter((date) => !Number.isNaN(date.getTime()));
-  const history = Array.from(new Set(validDates.map((date) => toDayKey(date)))).sort();
-
-  if (history.length === 0) {
-    return {
-      history: [] as string[],
-      streak: 0,
-    };
-  }
-
-  const todayKey = toDayKey(new Date());
-  const latestKey = history[history.length - 1];
-  let streak = 0;
-
-  if (latestKey === todayKey) {
-    streak = 1;
-
-    for (let index = history.length - 1; index > 0; index -= 1) {
-      const current = new Date(`${history[index]}T00:00:00.000Z`);
-      const previous = new Date(`${history[index - 1]}T00:00:00.000Z`);
-      const diffInDays =
-        (current.getTime() - previous.getTime()) / (1000 * 60 * 60 * 24);
-
-      if (diffInDays === 1) {
-        streak += 1;
-      } else {
-        break;
-      }
-    }
-  }
-
-  return {
-    history,
-    streak,
-  };
 }
 
 export async function GET(req: NextRequest, { params }: RouteParams) {
@@ -124,20 +50,91 @@ export async function DELETE(req: NextRequest, { params }: RouteParams) {
   }
 
   try {
-    const task = await prisma.task.findFirst({
-      where: { id, project: { userId } },
-      select: { id: true },
+    await prisma.$transaction(async (tx) => {
+      const task = await tx.task.findFirst({
+        where: { id, project: { userId } },
+        select: {
+          id: true,
+          habitId: true,
+          projectId: true,
+          project: {
+            select: {
+              dailyStreakTarget: true,
+            },
+          },
+        },
+      });
+
+      if (!task) {
+        throw new Error("TASK_NOT_FOUND");
+      }
+
+      await tx.task.delete({
+        where: { id },
+      });
+
+      const completedTasks = await tx.task.findMany({
+        where: {
+          projectId: task.projectId,
+          completed: true,
+        },
+        select: {
+          date: true,
+          dateFinish: true,
+        },
+      });
+
+      const streakState = calculateProjectStreak(
+        completedTasks.map((completedTask) =>
+          new Date(completedTask.dateFinish ?? completedTask.date)
+        ),
+        task.project.dailyStreakTarget
+      );
+
+      await tx.project.update({
+        where: { id: task.projectId },
+        data: {
+          lastActivityDate: streakState.lastActivityDate,
+          streakGlobal: streakState.streakGlobal,
+        },
+      });
+
+      if (task.habitId) {
+        const completedHabitTasks = await tx.task.findMany({
+          where: {
+            habitId: task.habitId,
+            completed: true,
+          },
+          select: {
+            date: true,
+            dateFinish: true,
+          },
+        });
+
+        const habitState = calculateHabitState(
+          completedHabitTasks.map((habitTask) =>
+            new Date(habitTask.dateFinish ?? habitTask.date)
+          )
+        );
+
+        await tx.habit.update({
+          where: { id: task.habitId },
+          data: {
+            history: habitState.history,
+            streak: habitState.streak,
+          },
+        });
+      }
+
+      return null;
     });
 
-    if (!task) {
+    return NextResponse.json({ message: "task deleted" });
+  } catch (error) {
+    if (error instanceof Error && error.message === "TASK_NOT_FOUND") {
       return NextResponse.json({ error: "Task not found" }, { status: 404 });
     }
 
-    await prisma.task.delete({
-      where: { id },
-    });
-    return NextResponse.json({ message: "task deleted" });
-  } catch {
     return NextResponse.json(
       { error: "Failed to delete task" },
       { status: 500 }
@@ -188,6 +185,13 @@ export async function PATCH(req: NextRequest, { params }: RouteParams) {
 
       const task = await tx.task.update({
         where: { id },
+        include: {
+          project: {
+            select: {
+              dailyStreakTarget: true,
+            },
+          },
+        },
         data: {
           title,
           ...(typeof completed === "boolean"
@@ -215,7 +219,8 @@ export async function PATCH(req: NextRequest, { params }: RouteParams) {
       const streakState = calculateProjectStreak(
         completedTasks.map((completedTask) =>
           new Date(completedTask.dateFinish ?? completedTask.date)
-        )
+        ),
+        task.project.dailyStreakTarget
       );
 
       await tx.project.update({

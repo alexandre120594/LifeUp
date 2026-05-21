@@ -11,8 +11,8 @@ Date of latest update:
 Current app position:
 - dashboard exists and is actively used as the main overview
 - dashboard top line now includes current finance income, expenses, and total cash
-- essential sidebar menu now focuses on dashboard, projects, tasks, inbox, notes, habits, and finance
-- secondary planning tools now contain the task calendar, weekly plan, and habit tracker
+- essential sidebar menu now focuses on dashboard, projects, inbox, notes, finance, and planning tools; habits and tasks are reached through project context
+- secondary planning tools now contain the task calendar, weekly plan, and app tracker
 - all habit creation flows now ask for daily or weekly frequency
 - simple email login now gates the app and scopes projects, habits, tasks, and finance records to the logged-in user
 - dashboard greeting now resolves the current logged-in user's name from the session instead of a fixed placeholder
@@ -29,21 +29,26 @@ Current app position:
 - savings goals now include an add-cash field, and savings are shown outside the transaction-tracked total
 - savings added cash is now persisted as contribution history, with recent entries editable and removable from the savings section
 - project detail page exists and includes analytics
+- project detail pages now show habits and the task queue in tabs before analytics
 - habit and task detail pages now exist and include contextual analytics
 - local seed data exists for visual/testing flows
 - Prisma relations were hardened with cascade behavior
 - chart colors now follow the active app theme
 - task creation supports optional scheduled hours, and the calendar displays tasks by time inside each day
+- task queues now use responsive cards with status counters, metadata chips, and compact pagination
 - Pomodoro page now saves work/study focus sessions against tasks, supports work/break cycles, keeps the countdown state while navigating away, and rolls time through projects and habits
 - Inbox page captures unprocessed ideas, reminders, study topics, and loose work, paginates the queue, supports popup editing with project/habit/task linking, and can convert items into notes
 - Notes page stores searchable categorized notes with pagination, popup editing, and optional project, habit, and task links
 - dashboard now shows a daily/weekly tracker snapshot instead of the project throughput graph
+- dashboard no longer shows the full project list; project records live on the Projects page
 - weekly organizer page derives Monday-to-Sunday weeks from the selected date, persists one habit board per user/week, supports previous/next week navigation, and schedules multiple habits into hourly cells from 00:00 through 23:00
 - weekly organizer slot dialog now filters by project and can assign both habits and tasks to an hour
-- project lists and the habit tracker grid now paginate
+- weekly organizer now separates Study Plan and Weekly Plan into tabs; study mode has reusable subjects, planned weekly hours, day-by-day subject summaries, and repeating study blocks by weekday/hour
+- project lists now paginate
 - project and habit charts now use combined bars and lines for workload, completion rate, check-ins, and streak context
 - project and habit chart axes now use compact labels and horizontal overflow for crowded datasets
 - habit listing now filters by project, and task listing now filters by project and habit with summaries/charts scoped to those selections
+- project streaks now use a per-project daily completed-task target, defaulting to 1, so task execution drives the main streak instead of requiring every habit to stay active
 
 ## Completed Recently
 
@@ -55,10 +60,11 @@ Implemented:
 - current finance income, expenses, and total cash in the dashboard top line
 - calendar page with a large month view, task names on each day, selected-day popup with edit/delete actions, and button-triggered future-date task creation
 - weekly organizer page for database-backed weekly habit time planning
+- study subject and repeating schedule management inside the weekly organizer Study Plan tab
 - scheduled task hours on task creation/editing, with calendar day cells and day detail popups sorted by task time
-- pagination on the project list and habit tracker grid
+- pagination on the project list
 - richer combined charts for project throughput, habit performance, task-by-project, and activity trend sections
-- habit tracker page with habit creation, a 21-day completion grid, daily/weekly cadence, reminder time, current streaks, calendar progress, and basic statistics
+- app tracker page with project daily streak targets and today's task progress
 - radial completion chart
 - 7-day activity trend chart
 - project throughput chart
@@ -84,6 +90,11 @@ Main files:
 - `src/app/api/weekly-plan/route.ts`
 - `src/app/api/weekly-plan/slots/route.ts`
 - `src/app/api/weekly-plan/slots/[id]/route.ts`
+- `src/app/api/study-subjects/route.ts`
+- `src/app/api/study-subjects/[id]/route.ts`
+- `src/app/api/study-schedule/route.ts`
+- `src/hooks/useStudyMutations.ts`
+- `src/services/StudyServices.ts`
 - `src/hooks/useWeeklyPlanMutations.ts`
 - `src/services/WeeklyPlanServices.ts`
 - `src/components/task-calendar.tsx`
@@ -110,11 +121,12 @@ Main file:
 
 Implemented:
 - sidebar navigation now groups essential routes above secondary planning tools
+- sidebar navigation no longer exposes direct Habits or Tasks menu entries; users enter those workflows from Projects
 - new projects index page with project throughput overview
 - inbox page with fast capture, status filtering, pagination, linked entity display, popup view/edit, project/habit/task linking, note conversion, completion, and deletion
 - notes page with search, categories, pagination, creation, popup view/edit, project/habit/task linking, and deletion
 - habits index page with streak/check-in analytics and drill-down links
-- tasks index page with queue analytics and improved creation flow
+- tasks index page with the task queue shown before analytics and creation context
 - habit detail page with linked task completion and habit activity charts
 - task detail page with parent-project activity context
 - Pomodoro page with persisted task-linked sessions, configurable work/break cycles, navigation-persistent countdown state, work/study totals, project/habit time summaries, productivity history, and task/project/habit detail focus totals
@@ -150,13 +162,15 @@ Main files:
 
 Implemented:
 - new habits no longer start with fake streak/history values
-- project streak is recomputed from persisted completed task dates when tasks change
+- project streak is recomputed from persisted completed task dates and each project's daily target when tasks or target settings change
 - habit history and streak are recomputed from persisted completed habit-task dates when tasks change
 - one-time backfill script is available for existing databases with drifted streak values
 
 Main files:
 - `src/app/api/habits/route.ts`
 - `src/app/api/tasks/[id]/route.ts`
+- `src/app/api/projects/[id]/route.tsx`
+- `src/lib/streaks.ts`
 - `prisma/backfill-streaks.ts`
 - `package.json`
 
@@ -319,9 +333,10 @@ These are known unfinished areas:
 - section pages are aligned, but some lower-level item components still reflect older implementation style
 - analytics are currently derived from task timestamps and habit history arrays
 - there is no dedicated historical events model yet
-- existing environments still need `npm run db:backfill-streaks` once if they were populated before the streak fix
+- existing environments still need `npx prisma db push` for the project streak target column and `npm run db:backfill-streaks` once if they were populated before the streak fix
 - existing environments should run `npx prisma db push` after schema changes such as `SavingsContribution`, planned income/expense type tracking, `PomodoroSession`, `InboxItem`, `Note`, and weekly plan tables; finance reads and add-cash stay usable before the savings migration, but true contribution edit/delete history, Pomodoro persistence, Inbox, Notes, and persisted weekly habit boards require the current schema
 - existing environments should also run `npx prisma db push` for the account spend tracker tables before importing CSV or OFX files
+- existing environments should run `npx prisma db push` for study subject and repeating study schedule tables before using weekly study mode
 - repo-wide lint baseline is still noisy outside recently touched files
 
 ## Recommended Next Steps
@@ -378,7 +393,8 @@ Development currently stops at:
 - dashboard daily/weekly tracker snapshot replacing the project throughput graph
 - scheduled task hours shown in the calendar daily view
 - weekly organizer available for planning current, previous, and next weeks through persisted hourly habit boards
-- streak persistence logic corrected for new and updated records
+- weekly organizer study mode available in its own tab for repeating subject schedules and planned study-hour visibility
+- streak persistence now centers on project daily completed-task targets, with habit streaks kept as secondary check-in analytics
 - seeded local data available
 - docs updated to reflect current structure
 

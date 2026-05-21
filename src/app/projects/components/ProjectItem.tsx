@@ -20,7 +20,11 @@ export default function ProjectItem({ project }: { project: Project }) {
   const [isEditing, setIsEditing] = useState(false);
   const router = useRouter();
   const { register, handleSubmit } = useForm<ProjectCreateInput>({
-    defaultValues: { title: project.title, color: project.color },
+    defaultValues: {
+      title: project.title,
+      color: project.color,
+      dailyStreakTarget: project.dailyStreakTarget ?? 1,
+    },
   });
 
   const { mutate: updateProject, isPending: isUpdating } = useUpdateProject();
@@ -60,6 +64,17 @@ export default function ProjectItem({ project }: { project: Project }) {
               {...register("color")}
               type="color"
               className="h-10 w-12 cursor-pointer rounded-lg border bg-transparent p-1"
+            />
+            <input
+              {...register("dailyStreakTarget", {
+                min: 1,
+                valueAsNumber: true,
+              })}
+              aria-label="Daily completed task target"
+              className="h-10 w-28 rounded-lg border bg-background px-3 text-sm outline-none ring-0"
+              min={1}
+              title="Daily completed task target"
+              type="number"
             />
           </div>
 
@@ -112,7 +127,7 @@ export default function ProjectItem({ project }: { project: Project }) {
                 </span>
               </div>
               <p className="mt-1 text-xs text-muted-foreground sm:text-sm">
-                Review throughput, habit performance, and project activity.
+                Open habits and tasks together for this project.
               </p>
             </div>
           </div>
@@ -140,6 +155,9 @@ export default function ProjectItem({ project }: { project: Project }) {
               <div className="mt-1 text-lg font-semibold">
                 {project.streakGlobal ?? 0}
               </div>
+              <p className="mt-1 text-[11px] text-muted-foreground">
+                target {project.dailyStreakTarget ?? 1}/day
+              </p>
             </div>
           </div>
         </div>
