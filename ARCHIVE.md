@@ -6,7 +6,7 @@ If a new agent needs to know where work stopped, start here.
 ## Current Snapshot
 
 Date of latest update:
-- 2026-05-02
+- 2026-05-24
 
 Current app position:
 - dashboard exists and is actively used as the main overview
@@ -43,7 +43,11 @@ Current app position:
 - dashboard no longer shows the full project list; project records live on the Projects page
 - weekly organizer page derives Monday-to-Sunday weeks from the selected date, persists one habit board per user/week, supports previous/next week navigation, and schedules multiple habits into hourly cells from 00:00 through 23:00
 - weekly organizer slot dialog now filters by project and can assign both habits and tasks to an hour
-- weekly organizer now separates Study Plan and Weekly Plan into tabs; study mode has reusable subjects, planned weekly hours, day-by-day subject summaries, and repeating study blocks by weekday/hour
+- weekly organizer is now personal-only again, with a restored hero and habit/task planning board
+- Study Tools now has its own sidebar group, study dashboard, and subject-based mistake log for review workflows
+- Study Plan is available as a Study Tools menu page with week-specific planned blocks and manual studied-hour registration
+- Study Plan now registers actual study sessions from begin/finish datetimes, calculates studied minutes, compares planned versus studied hours, and filters the week board by subject
+- mistake log captures question, user's answer, correct answer, error type, correct rule, trap word, review date, and unresolved/reviewed/mastered status
 - project lists now paginate
 - project and habit charts now use combined bars and lines for workload, completion rate, check-ins, and streak context
 - project and habit chart axes now use compact labels and horizontal overflow for crowded datasets
@@ -60,7 +64,7 @@ Implemented:
 - current finance income, expenses, and total cash in the dashboard top line
 - calendar page with a large month view, task names on each day, selected-day popup with edit/delete actions, and button-triggered future-date task creation
 - weekly organizer page for database-backed weekly habit time planning
-- study subject and repeating schedule management inside the weekly organizer Study Plan tab
+- study subject and repeating schedule data still exists, but study review now lives under Study Tools instead of the weekly organizer
 - scheduled task hours on task creation/editing, with calendar day cells and day detail popups sorted by task time
 - pagination on the project list
 - richer combined charts for project throughput, habit performance, task-by-project, and activity trend sections
@@ -93,6 +97,18 @@ Main files:
 - `src/app/api/study-subjects/route.ts`
 - `src/app/api/study-subjects/[id]/route.ts`
 - `src/app/api/study-schedule/route.ts`
+- `src/app/study/page.tsx`
+- `src/app/study/mistakes/page.tsx`
+- `src/app/study/planner/page.tsx`
+- `src/app/api/study-plan/route.ts`
+- `src/app/api/study-plan/blocks/route.ts`
+- `src/app/api/study-plan/blocks/[id]/route.ts`
+- `src/app/api/study-sessions/route.ts`
+- `src/app/api/study-sessions/[id]/route.ts`
+- `src/app/api/study-mistakes/route.ts`
+- `src/app/api/study-mistakes/[id]/route.ts`
+- `src/hooks/useStudyMistakeMutations.ts`
+- `src/services/StudyMistakeServices.ts`
 - `src/hooks/useStudyMutations.ts`
 - `src/services/StudyServices.ts`
 - `src/hooks/useWeeklyPlanMutations.ts`
@@ -336,7 +352,8 @@ These are known unfinished areas:
 - existing environments still need `npx prisma db push` for the project streak target column and `npm run db:backfill-streaks` once if they were populated before the streak fix
 - existing environments should run `npx prisma db push` after schema changes such as `SavingsContribution`, planned income/expense type tracking, `PomodoroSession`, `InboxItem`, `Note`, and weekly plan tables; finance reads and add-cash stay usable before the savings migration, but true contribution edit/delete history, Pomodoro persistence, Inbox, Notes, and persisted weekly habit boards require the current schema
 - existing environments should also run `npx prisma db push` for the account spend tracker tables before importing CSV or OFX files
-- existing environments should run `npx prisma db push` for study subject and repeating study schedule tables before using weekly study mode
+- existing environments should run `npx prisma db push` for study subject, repeating study schedule, and week-specific study plan tables before using persisted study planning data
+- existing environments should run `npx prisma db push` for the study mistake table before using the mistake log
 - repo-wide lint baseline is still noisy outside recently touched files
 
 ## Recommended Next Steps
@@ -393,7 +410,8 @@ Development currently stops at:
 - dashboard daily/weekly tracker snapshot replacing the project throughput graph
 - scheduled task hours shown in the calendar daily view
 - weekly organizer available for planning current, previous, and next weeks through persisted hourly habit boards
-- weekly organizer study mode available in its own tab for repeating subject schedules and planned study-hour visibility
+- weekly organizer is dedicated to personal habit/task scheduling; study review workflows are separate under Study Tools
+- Study Tools workspace available for review-first study workflows, including a dashboard and mistake log
 - streak persistence now centers on project daily completed-task targets, with habit streaks kept as secondary check-in analytics
 - seeded local data available
 - docs updated to reflect current structure

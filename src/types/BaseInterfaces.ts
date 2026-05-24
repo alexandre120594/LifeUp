@@ -182,8 +182,72 @@ export interface StudySubject {
   plannedHoursPerWeek: number;
   notes?: string | null;
   scheduleBlocks?: StudyScheduleBlock[];
+  planBlocks?: StudyPlanBlock[];
+  mistakes?: StudyMistake[];
+  sessions?: StudySession[];
   createdAt: Date | string;
   updatedAt: Date | string;
+}
+
+export interface StudySession {
+  id: string;
+  startedAt: Date | string;
+  endedAt: Date | string;
+  durationMinutes: number;
+  notes?: string | null;
+  subjectId: string;
+  subject?: StudySubject;
+  createdAt: Date | string;
+  updatedAt: Date | string;
+}
+
+export interface StudySessionCreateInput {
+  startedAt: string;
+  endedAt: string;
+  notes?: string | null;
+  subjectId: string;
+}
+
+export type StudyMistakeStatus = "unresolved" | "reviewed" | "mastered";
+
+export interface StudyMistake {
+  id: string;
+  question: string;
+  myAnswer: string;
+  correctAnswer: string;
+  errorType: string;
+  correctRule: string;
+  trapWord?: string | null;
+  reviewDate: Date | string;
+  status: StudyMistakeStatus;
+  subjectId: string;
+  subject?: StudySubject;
+  createdAt: Date | string;
+  updatedAt: Date | string;
+}
+
+export interface StudyMistakeCreateInput {
+  question: string;
+  myAnswer: string;
+  correctAnswer: string;
+  errorType: string;
+  correctRule: string;
+  trapWord?: string | null;
+  reviewDate: string;
+  status?: StudyMistakeStatus;
+  subjectId: string;
+}
+
+export interface StudyMistakeUpdateInput {
+  question?: string;
+  myAnswer?: string;
+  correctAnswer?: string;
+  errorType?: string;
+  correctRule?: string;
+  trapWord?: string | null;
+  reviewDate?: string;
+  status?: StudyMistakeStatus;
+  subjectId?: string;
 }
 
 export interface StudyScheduleBlock {
@@ -195,10 +259,38 @@ export interface StudyScheduleBlock {
   createdAt: Date | string;
 }
 
+export interface StudyPlanBlock {
+  id: string;
+  dayIndex: number;
+  startTime: string;
+  durationMinutes: number;
+  notes?: string | null;
+  boardId: string;
+  subjectId: string;
+  subject?: StudySubject;
+  createdAt: Date | string;
+  updatedAt: Date | string;
+}
+
+export interface StudyPlanBoard {
+  id: string | null;
+  weekStartKey: string;
+  blocks: StudyPlanBlock[];
+}
+
 export interface StudySubjectInput {
   name: string;
   color?: string | null;
   plannedHoursPerWeek?: number;
+  notes?: string | null;
+}
+
+export interface StudyPlanBlockInput {
+  weekStartKey: string;
+  dayIndex: number;
+  startTime: string;
+  durationMinutes: number;
+  subjectId: string;
   notes?: string | null;
 }
 

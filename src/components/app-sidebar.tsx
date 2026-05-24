@@ -7,10 +7,12 @@ import {
   CalendarDays,
   CalendarRange,
   FolderKanban,
+  GraduationCap,
   Home,
   Inbox,
   ListChecks,
   NotebookText,
+  AlertCircle,
   TimerReset,
   WalletCards,
   FileSpreadsheet,
@@ -18,6 +20,8 @@ import {
 import { useInboxItems } from "@/hooks/useInboxMutations";
 import { useNotes } from "@/hooks/useNoteMutations";
 import { useProjects } from "@/hooks/useProjectMutations";
+import { useStudyMistakes } from "@/hooks/useStudyMistakeMutations";
+import { useStudySubjects } from "@/hooks/useStudyMutations";
 import { useTask } from "@/hooks/useTaskMutation";
 import {
   Sidebar,
@@ -32,7 +36,14 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 
-const essentialItems = [
+type SidebarItem = {
+  title: string;
+  url: string;
+  icon: typeof Home;
+  description: string;
+};
+
+const personalItems: SidebarItem[] = [
   {
     title: "Dashboard",
     url: "/",
@@ -71,13 +82,7 @@ const essentialItems = [
   },
 ];
 
-const planningItems = [
-  {
-    title: "Pomodoro",
-    url: "/pomodoro",
-    icon: TimerReset,
-    description: "Focus cycles and history",
-  },
+const planningItems: SidebarItem[] = [
   {
     title: "App Tracker",
     url: "/habit-tracker",
@@ -98,12 +103,41 @@ const planningItems = [
   },
 ];
 
+const studyItems: SidebarItem[] = [
+  {
+    title: "Study Dashboard",
+    url: "/study",
+    icon: GraduationCap,
+    description: "Review and weak spots",
+  },
+  {
+    title: "Mistake Log",
+    url: "/study/mistakes",
+    icon: AlertCircle,
+    description: "Questions and rules",
+  },
+  {
+    title: "Study Plan",
+    url: "/study/planner",
+    icon: CalendarRange,
+    description: "Subjects and schedule",
+  },
+  {
+    title: "Focus Timer",
+    url: "/pomodoro",
+    icon: TimerReset,
+    description: "Study focus cycles",
+  },
+];
+
 function isSidebarItemActive(pathname: string, url: string) {
-  if (url === "/finance") {
-    return pathname === "/finance";
+  if (url === "/finance" || url === "/study") {
+    return pathname === url;
   }
 
-  return url === "/" ? pathname === "/" : pathname === url || pathname.startsWith(`${url}/`);
+  return url === "/"
+    ? pathname === "/"
+    : pathname === url || pathname.startsWith(`${url}/`);
 }
 
 function SidebarLinkList({
@@ -111,7 +145,7 @@ function SidebarLinkList({
   items,
 }: {
   badges: Record<string, number>;
-  items: typeof essentialItems;
+  items: SidebarItem[];
 }) {
   const pathname = usePathname();
 
@@ -157,6 +191,8 @@ export function AppSidebar() {
   const { data: tasks } = useTask();
   const { data: inboxItems } = useInboxItems({ status: "unprocessed" });
   const { data: notes } = useNotes();
+  const { data: studyMistakes } = useStudyMistakes();
+  const { data: studySubjects } = useStudySubjects();
 
   const badges: Record<string, number> = {
     "/projects": projects?.length ?? 0,
@@ -168,6 +204,9 @@ export function AppSidebar() {
     "/pomodoro": 0,
     "/finance": 0,
     "/finance/tracker": 0,
+    "/study": studySubjects?.length ?? 0,
+    "/study/mistakes": studyMistakes?.filter((mistake) => mistake.status !== "mastered").length ?? 0,
+    "/study/planner": studySubjects?.length ?? 0,
   };
 
   return (
@@ -193,23 +232,32 @@ export function AppSidebar() {
           </div>
 
           <SidebarGroupContent>
-            <SidebarLinkList badges={badges} items={essentialItems} />
+            <SidebarLinkList badges={badges} items={personalItems} />
           </SidebarGroupContent>
         </SidebarGroup>
 
         <SidebarGroup className="mt-2">
           <SidebarGroupLabel className="mb-2 text-sidebar-foreground/60">
-            Planning tools
+            Personal planning
           </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarLinkList badges={badges} items={planningItems} />
           </SidebarGroupContent>
         </SidebarGroup>
 
+        <SidebarGroup className="mt-2">
+          <SidebarGroupLabel className="mb-2 text-sidebar-foreground/60">
+            Study tools
+          </SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarLinkList badges={badges} items={studyItems} />
+          </SidebarGroupContent>
+        </SidebarGroup>
+
         <SidebarFooter className="mt-auto rounded-3xl border border-white/10 bg-white/8 p-4 text-sm text-sidebar-foreground/80">
           <p className="font-medium">Current focus</p>
           <p className="mt-1 text-xs text-sidebar-foreground/70">
-            Open a project to manage habits, tasks, and execution context together.
+            Use Personal for life management and Study for review, planning, and focus.
           </p>
         </SidebarFooter>
       </SidebarContent>

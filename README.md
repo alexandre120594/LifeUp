@@ -13,8 +13,12 @@ The app currently supports:
 - essential sidebar navigation for dashboard, projects, inbox, notes, and finance; habits and tasks are reached through projects
 - simple email login with per-user project, habit, task, and finance data isolation
 - secondary planning tools for app streak tracking, task calendar, and weekly planning
-- weekly study mode for subjects, planned weekly hours, and repeating day/hour study blocks
-- weekly organizer separates Study Plan and Weekly Plan into tabs
+- study records for subjects, planned weekly hours, and repeating day/hour study blocks in the data layer
+- dedicated Study Tools workspace with a study dashboard and subject-based mistake log
+- Study Plan page for week-specific planned study blocks and manual studied-time registration
+- Study Plan registers actual study sessions from begin/finish datetimes, calculates studied duration, compares planned versus studied hours, and filters the week board by subject
+- mistake log records questions, user's answer, correct answer, error type, correct rule, trap word, review date, and unresolved/reviewed/mastered status
+- weekly organizer focuses on personal habit/task planning only
 - task creation supports an optional scheduled hour, and the calendar shows tasks by time inside each day
 - task queues use responsive cards with pending-first sorting, status counters, and compact pagination
 - Pomodoro page organizes work/study focus cycles with breaks, task association, progress, navigation-persistent countdown state, and productivity history by project and habit
@@ -43,7 +47,7 @@ The app currently supports:
   - top-line finance income, expenses, and total cash
 - calendar page for reviewing tasks by day and scheduling future tasks
 - weekly organizer for creating database-backed Monday-to-Sunday habit boards with previous/next navigation and hourly scheduling from 00:00 through 23:00
-- weekly organizer separates repeating study subjects from selected-week habit/task planning with Study Plan and Weekly Plan tabs
+- weekly organizer focuses on selected-week habit/task planning
 - dashboard includes a daily/weekly tracker snapshot instead of the project throughput graph
 - dashboard keeps project access summarized and leaves the full project list on the Projects page
 - project detail analytics for:
@@ -112,7 +116,13 @@ There is also repeatable local seed data for testing charts and flows.
 - `src/app/calendar/page.tsx`
   - task calendar page for day-level planning, scheduled task hours, and future task creation
 - `src/app/weekly-organizer/page.tsx`
-  - tabbed weekly board for Study Plan subject routines and Weekly Plan habit/task slots
+  - weekly board for personal habit/task slots with a restored planning hero
+- `src/app/study/page.tsx`
+  - study dashboard for review pressure, weak subjects, due mistakes, subjects, and scheduled study hours
+- `src/app/study/mistakes/page.tsx`
+  - subject-based mistake log with search, filters, review dates, status changes, and edit/delete dialogs
+- `src/app/study/planner/page.tsx`
+  - week-specific study board with planned blocks, manual studied sessions, subject filtering, and planned-vs-actual totals
 - `src/app/finance/page.tsx`
   - Personal Financial Organizer MVP with summary, one-popup creation, visual totals, recent transactions, plans, and insights
 - `src/app/finance/tracker/page.tsx`
@@ -177,6 +187,13 @@ There is also repeatable local seed data for testing charts and flows.
 - `src/app/api/study-subjects/route.ts`
 - `src/app/api/study-subjects/[id]/route.ts`
 - `src/app/api/study-schedule/route.ts`
+- `src/app/api/study-plan/route.ts`
+- `src/app/api/study-plan/blocks/route.ts`
+- `src/app/api/study-plan/blocks/[id]/route.ts`
+- `src/app/api/study-sessions/route.ts`
+- `src/app/api/study-sessions/[id]/route.ts`
+- `src/app/api/study-mistakes/route.ts`
+- `src/app/api/study-mistakes/[id]/route.ts`
 - `src/app/api/pomodoro/route.ts`
 - `src/app/api/auth/login/route.ts`
 - `src/app/api/auth/logout/route.ts`
@@ -233,6 +250,14 @@ There is also repeatable local seed data for testing charts and flows.
   - belongs to user and stores a subject name, color, notes, and planned weekly study hours
 - `StudyScheduleBlock`
   - belongs to user and study subject, and stores repeating weekly day/hour study blocks
+- `StudyPlanBoard`
+  - belongs to user and stores one study planning board per `weekStartKey`
+- `StudyPlanBlock`
+  - belongs to a study plan board and subject, and stores concrete weekday, start time, duration, and optional notes
+- `StudySession`
+  - belongs to user and study subject, and stores begin time, finish time, calculated duration minutes, and optional notes
+- `StudyMistake`
+  - belongs to user and study subject, and stores question, user's answer, correct answer, error type, correct rule, trap word, review date, and review status
 - `InboxItem`
   - belongs to user
   - stores temporary capture records with type, status, content, and optional project, habit, task, or note links
@@ -282,8 +307,11 @@ store whether they are income or expense.
 Inbox, Notes, and the weekly habit board require the current Prisma schema
 because they add their own persisted tables plus optional links back to
 projects, habits, and tasks.
-Study subjects and repeating study schedule blocks also require the current
-Prisma schema before study mode can persist weekly routines.
+Study subjects, repeating study schedule blocks, and week-specific study plan
+boards also require the current Prisma schema before study planning can persist
+weekly routines and concrete planned blocks.
+Study mistakes also require the current Prisma schema before the mistake log can
+persist review records.
 The account spend tracker also requires the current schema because it stores
 monthly CSV/OFX imports and their paginated rows in dedicated tables outside the
 Financial Organizer records.
@@ -357,7 +385,7 @@ What is stable enough to continue from:
 - the dashboard greeting shows the logged-in user name or email prefix instead of a fixed placeholder
 - calendar page shows task names in a large month view, opens selected-day tasks in a popup, supports task edit/delete, and creates multiple future-dated tasks from an Add task button
 - weekly organizer builds Monday-to-Sunday habit boards from the selected week, persists them per user, supports previous/next week navigation, and schedules multiple habits into hourly cells from 00:00 through 23:00
-- weekly organizer includes a separate Study Plan tab for reusable subjects, planned weekly study hours, day-by-day subject summaries, and repeating hourly study blocks
+- weekly organizer is dedicated to personal habit/task planning; study review lives under Study Tools
 - calendar tasks can carry scheduled hours and are shown in time order inside day cells and day detail popups
 - app tracker page shows project streak targets and today's task progress from completed tasks
 - project streaks now count days where completed tasks in that project meet the project's daily target, defaulting to 1 completed task per day

@@ -29,6 +29,9 @@ model User {
   notifications Notification[]
   studySubjects StudySubject[]
   studyScheduleBlocks StudyScheduleBlock[]
+  studyPlanBoards StudyPlanBoard[]
+  studyMistakes StudyMistake[]
+  studySessions StudySession[]
   createdAt DateTime @default(now())
 }
 model Project {
@@ -119,10 +122,51 @@ model StudySubject {
   userId              Int
   user                User     @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   scheduleBlocks      StudyScheduleBlock[]
+  planBlocks          StudyPlanBlock[]
+  mistakes            StudyMistake[]
+  sessions            StudySession[]
   createdAt           DateTime @default(now())
   updatedAt           DateTime @updatedAt
 
   @@unique([userId, name])
+}
+
+model StudySession {
+  id              String   @id @default(cuid())
+  startedAt       DateTime
+  endedAt         DateTime
+  durationMinutes Int
+  notes           String?
+  subjectId       String
+  subject         StudySubject @relation(fields: [subjectId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  userId          Int
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([userId, startedAt])
+  @@index([userId, subjectId])
+}
+
+model StudyMistake {
+  id            String   @id @default(cuid())
+  question      String
+  myAnswer      String
+  correctAnswer String
+  errorType     String
+  correctRule   String
+  trapWord      String?
+  reviewDate    DateTime
+  status        String   @default("unresolved") // unresolved, reviewed, mastered
+  subjectId     String
+  subject       StudySubject @relation(fields: [subjectId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  userId        Int
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([userId, status, reviewDate])
+  @@index([userId, subjectId])
 }
 
 model StudyScheduleBlock {
@@ -137,6 +181,35 @@ model StudyScheduleBlock {
 
   @@unique([userId, subjectId, dayIndex, hour])
   @@index([userId, dayIndex, hour])
+}
+
+model StudyPlanBoard {
+  id           String   @id @default(cuid())
+  weekStartKey String
+  userId       Int
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  blocks       StudyPlanBlock[]
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@unique([userId, weekStartKey])
+}
+
+model StudyPlanBlock {
+  id              String   @id @default(cuid())
+  dayIndex        Int
+  startTime       String
+  durationMinutes Int
+  notes           String?
+  boardId         String
+  board           StudyPlanBoard @relation(fields: [boardId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  subjectId       String
+  subject         StudySubject   @relation(fields: [subjectId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([boardId, dayIndex, startTime])
+  @@index([subjectId])
 }
 
 model Task {

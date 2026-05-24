@@ -62,6 +62,20 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    const existingSubject = await prisma.studySubject.findFirst({
+      where: {
+        name: { equals: payload.name, mode: "insensitive" },
+        userId,
+      },
+      include: {
+        scheduleBlocks: true,
+      },
+    });
+
+    if (existingSubject) {
+      return NextResponse.json(existingSubject);
+    }
+
     const subject = await prisma.studySubject.create({
       data: {
         ...payload,

@@ -78,6 +78,7 @@ export function PomodoroPanel({ tasks = [] }: { tasks?: Task[] }) {
   const [hasRestoredTimer, setHasRestoredTimer] = useState(false);
   const focusStartedAtRef = useRef<Date | null>(null);
   const phaseEndsAtRef = useRef<Date | null>(null);
+  const autoSaveInProgressRef = useRef(false);
   const { data: pomodoro } = usePomodoroDashboard();
   const { mutate: createSession, isPending } = useCreatePomodoroSession();
 
@@ -220,7 +221,12 @@ export function PomodoroPanel({ tasks = [] }: { tasks?: Task[] }) {
           startedAt: startedAt.toISOString(),
           taskId: selectedTaskId,
         },
-        { onSuccess }
+        {
+          onError: () => {
+            autoSaveInProgressRef.current = false;
+          },
+          onSuccess,
+        }
       );
     },
     [createSession, focusType, notes, selectedTaskId]
@@ -242,6 +248,10 @@ export function PomodoroPanel({ tasks = [] }: { tasks?: Task[] }) {
   };
 
   const completeFocusCycle = useCallback(() => {
+    if (autoSaveInProgressRef.current || isPending) {
+      return;
+    }
+
     if (!selectedTaskId) {
       resetTimer("focus");
       return;
@@ -249,13 +259,16 @@ export function PomodoroPanel({ tasks = [] }: { tasks?: Task[] }) {
 
     setIsRunning(false);
     phaseEndsAtRef.current = null;
+    autoSaveInProgressRef.current = true;
     saveFocusSession({
       durationMinutes: workMinutes,
       endedAt: new Date(),
       onSuccess: () => {
+        autoSaveInProgressRef.current = false;
         const nextCompletedCycles = completedCycles + 1;
         setCompletedCycles(nextCompletedCycles);
         focusStartedAtRef.current = null;
+        setNotes("");
 
         if (nextCompletedCycles >= targetCycles) {
           setIsRunning(false);
@@ -273,6 +286,7 @@ export function PomodoroPanel({ tasks = [] }: { tasks?: Task[] }) {
   }, [
     breakMinutes,
     completedCycles,
+    isPending,
     resetTimer,
     saveFocusSession,
     selectedTaskId,

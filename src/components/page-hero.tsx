@@ -16,6 +16,13 @@ export function PageHero({
   stats: Array<{ label: string; value: string | number }>;
   className?: string;
 }) {
+  const statsGridClass =
+    stats.length > 3
+      ? "grid-cols-2"
+      : stats.length > 2
+        ? "sm:grid-cols-3"
+        : "grid-cols-2";
+
   return (
     <Card
       className={`overflow-hidden border-0 bg-gradient-to-br from-[var(--primary-yevox)]/15 via-card to-[var(--secondary-yevox)]/70 shadow-sm ${className ?? ""}`.trim()}
@@ -35,7 +42,7 @@ export function PageHero({
             </p>
           </div>
         </div>
-        <div className={`grid min-w-0 gap-3 text-sm ${stats.length > 2 ? "sm:grid-cols-3" : "grid-cols-2"}`}>
+        <div className={`grid min-w-0 gap-3 text-sm ${statsGridClass}`}>
           {stats.map((stat) => (
             <div
               key={stat.label}
