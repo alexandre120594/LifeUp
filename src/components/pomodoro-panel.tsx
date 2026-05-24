@@ -4,6 +4,9 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import {
   BookOpen,
   BriefcaseBusiness,
+  ChevronLeft,
+  ChevronRight,
+  Clock3,
   Pause,
   Play,
   RotateCcw,
@@ -34,6 +37,7 @@ const defaultWorkMinutes = 25;
 const defaultBreakMinutes = 5;
 const defaultTargetCycles = 4;
 const pomodoroTimerStorageKey = "lifeup:pomodoro-timer";
+const focusHistoryPageSize = 6;
 
 type PersistedPomodoroTimer = {
   breakMinutes: number;
@@ -565,8 +569,8 @@ export function PomodoroPanel({ tasks = [] }: { tasks?: Task[] }) {
           </aside>
         </div>
 
-        <section className="grid min-w-0 gap-4 xl:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)]">
-          <div className="grid min-w-0 gap-3 sm:grid-cols-3 xl:grid-cols-1">
+        <section className="grid min-w-0 gap-4">
+          <div className="grid min-w-0 gap-3 sm:grid-cols-3">
             <FocusMetric
               label="Total focused"
               value={formatFocusDuration(pomodoro?.totalMinutes ?? 0)}
@@ -581,7 +585,8 @@ export function PomodoroPanel({ tasks = [] }: { tasks?: Task[] }) {
             />
           </div>
 
-          <div className="grid min-w-0 gap-4 lg:grid-cols-3">
+          <div className="grid min-w-0 gap-4 xl:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
+            <div className="grid min-w-0 gap-4 md:grid-cols-2 xl:grid-cols-1">
             <FocusBreakdown
               emptyLabel="No project focus time yet."
               items={pomodoro?.byProject ?? []}
@@ -592,6 +597,7 @@ export function PomodoroPanel({ tasks = [] }: { tasks?: Task[] }) {
               items={pomodoro?.byHabit ?? []}
               title="Time by habit"
             />
+            </div>
             <FocusHistory sessions={pomodoro?.sessions ?? []} />
           </div>
         </section>
@@ -685,29 +691,89 @@ function FocusBreakdown({
 }
 
 function FocusHistory({ sessions }: { sessions: PomodoroSession[] }) {
+  const [page, setPage] = useState(1);
+  const totalPages = Math.max(Math.ceil(sessions.length / focusHistoryPageSize), 1);
+  const currentPage = Math.min(page, totalPages);
+  const visibleSessions = sessions.slice(
+    (currentPage - 1) * focusHistoryPageSize,
+    currentPage * focusHistoryPageSize
+  );
+
   return (
-    <div className="min-w-0 overflow-hidden rounded-lg border border-border/70 bg-background/70 p-3">
-      <div className="truncate text-sm font-medium">Productivity history</div>
-      <div className="mt-2 grid min-w-0 gap-2">
+    <div className="min-w-0 overflow-hidden rounded-lg border border-border/70 bg-background/70">
+      <div className="flex flex-col gap-3 border-b border-border/70 p-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="min-w-0">
+          <div className="flex min-w-0 items-center gap-2 text-sm font-medium">
+            <Clock3 className="h-4 w-4 text-primary" />
+            <span className="truncate">Productivity history</span>
+          </div>
+          <div className="mt-1 text-xs text-muted-foreground">
+            {sessions.length
+              ? `${sessions.length} saved sessions`
+              : "No saved sessions yet"}
+          </div>
+        </div>
         {sessions.length ? (
-          sessions.slice(0, 6).map((session) => (
+          <div className="flex shrink-0 items-center gap-2 text-xs text-muted-foreground">
+            <span>
+              Page {currentPage} of {totalPages}
+            </span>
+            <div className="flex gap-1">
+              <Button
+                aria-label="Previous productivity history page"
+                className="h-8 w-8"
+                disabled={currentPage <= 1}
+                onClick={() => setPage(Math.max(currentPage - 1, 1))}
+                size="icon"
+                type="button"
+                variant="outline"
+              >
+                <ChevronLeft className="h-4 w-4" />
+              </Button>
+              <Button
+                aria-label="Next productivity history page"
+                className="h-8 w-8"
+                disabled={currentPage >= totalPages}
+                onClick={() => setPage(Math.min(currentPage + 1, totalPages))}
+                size="icon"
+                type="button"
+                variant="outline"
+              >
+                <ChevronRight className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
+        ) : null}
+      </div>
+      <div className="grid min-w-0 gap-2 p-3">
+        {sessions.length ? (
+          visibleSessions.map((session) => (
             <div
-              className="grid min-w-0 gap-2 rounded-lg bg-secondary/35 px-3 py-2 text-sm sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center"
+              className="grid min-w-0 gap-3 rounded-lg border border-border/50 bg-secondary/30 px-3 py-3 text-sm sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center"
               key={session.id}
             >
               <div className="min-w-0">
-                <div className="truncate font-medium">
-                  {session.task?.title ?? "Focus session"}
+                <div className="flex min-w-0 flex-wrap items-center gap-2">
+                  <span className="min-w-0 truncate font-medium">
+                    {session.task?.title ?? "Focus session"}
+                  </span>
+                  <span className="rounded-md bg-background/75 px-2 py-0.5 text-xs font-medium text-muted-foreground">
+                    {session.focusType === "study" ? "Study" : "Work"}
+                  </span>
                 </div>
-                <div className="min-w-0 truncate text-xs text-muted-foreground">
+                <div className="mt-1 min-w-0 truncate text-xs text-muted-foreground">
                   {session.task?.project?.title
                     ? `${session.task.project.title} / `
                     : ""}
-                  {session.focusType === "study" ? "Study" : "Work"} /{" "}
                   {new Date(session.endedAt).toLocaleString()}
                 </div>
+                {session.notes ? (
+                  <div className="mt-1 line-clamp-2 text-xs text-muted-foreground">
+                    {session.notes}
+                  </div>
+                ) : null}
               </div>
-              <div className="shrink-0 font-semibold">
+              <div className="rounded-md bg-background/75 px-3 py-2 text-right font-semibold">
                 {formatFocusDuration(session.durationMinutes)}
               </div>
             </div>

@@ -27,7 +27,7 @@ export function PageHero({
     <Card
       className={`overflow-hidden border-0 bg-gradient-to-br from-[var(--primary-yevox)]/15 via-card to-[var(--secondary-yevox)]/70 shadow-sm ${className ?? ""}`.trim()}
     >
-      <CardContent className="grid min-w-0 gap-6 p-4 sm:p-6 md:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)] md:items-end md:p-8">
+      <CardContent className="grid min-w-0 gap-6 p-4 sm:p-6 md:p-8">
         <div className="min-w-0 space-y-3">
           <div className="inline-flex items-center gap-2 rounded-full border border-border/60 bg-background/70 px-3 py-1 text-sm text-muted-foreground backdrop-blur-sm">
             <BadgeIcon className="h-4 w-4 text-primary" />
