@@ -12,12 +12,15 @@ export function useCreatePomodoroSession() {
   const queryClient = useQueryClient();
 
   return useMutation({
+    meta: { successMessage: "Focus session saved.", successTitle: "Saved" },
     mutationFn: PomodoroServices.createSession,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["pomodoro"] });
-      queryClient.invalidateQueries({ queryKey: ["task"] });
-      queryClient.invalidateQueries({ queryKey: ["projects"] });
-      queryClient.invalidateQueries({ queryKey: ["habits"] });
+    onSuccess: async () => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["pomodoro"], refetchType: "all" }),
+        queryClient.invalidateQueries({ queryKey: ["task"], refetchType: "all" }),
+        queryClient.invalidateQueries({ queryKey: ["projects"], refetchType: "all" }),
+        queryClient.invalidateQueries({ queryKey: ["habits"], refetchType: "all" }),
+      ]);
     },
   });
 }

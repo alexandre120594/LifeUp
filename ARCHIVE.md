@@ -53,6 +53,7 @@ Current app position:
 - project and habit chart axes now use compact labels and horizontal overflow for crowded datasets
 - habit listing now filters by project, and task listing now filters by project and habit with summaries/charts scoped to those selections
 - project streaks now use a per-project daily completed-task target, defaulting to 1, so task execution drives the main streak instead of requiring every habit to stay active
+- mutation flows now force fresh API reads, await React Query invalidations, and show toast feedback for save, update, delete, and failed actions so edited content appears without leaving and returning to the page
 
 ## Completed Recently
 
@@ -206,12 +207,18 @@ Main file:
 Implemented:
 - aligned task filters across API route, service layer, and React Query hooks
 - fixed habit hook behavior so project-filtered habits actually load
+- disabled client-side fetch caching for API wrapper reads after stale save/update/delete behavior
+- added app-level toast feedback through React Query mutation events
+- updated project, habit, task, inbox, notes, finance, weekly plan, study, mistake log, and Pomodoro mutation hooks to await affected query invalidations with active/inactive refetching
 
 Main files:
 - `src/app/api/tasks/route.ts`
 - `src/services/TasksServices.ts`
 - `src/hooks/useTaskMutation.ts`
 - `src/hooks/useHabitMutations.ts`
+- `src/services/api-client.ts`
+- `src/components/providers.tsx`
+- `src/components/ui/toast.tsx`
 
 ### Prisma relation hardening
 

@@ -19,10 +19,16 @@ export function useHabitDetail(id: string) {
 export function useCreateHabits() {
   const queryClient = useQueryClient();
   return useMutation({
+    meta: {
+      successMessage: "Habit created.",
+      successTitle: "Saved",
+    },
     mutationFn: HabitsServices.create,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["habits"] });
-      queryClient.invalidateQueries({ queryKey: ["projects"] });
+    onSuccess: async () => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["habits"], refetchType: "all" }),
+        queryClient.invalidateQueries({ queryKey: ["projects"], refetchType: "all" }),
+      ]);
     },
   });
 }
@@ -30,14 +36,20 @@ export function useCreateHabits() {
 export function useUpdateHabits() {
   const queryClient = useQueryClient();
   return useMutation({
+    meta: {
+      successMessage: "Habit updated.",
+      successTitle: "Updated",
+    },
     mutationFn: ({ id, data }: { id: string; data: HabitCreateInput }) =>
       HabitsServices.update(data, id),
-    onSuccess: (data, variables) => {
+    onSuccess: async (data, variables) => {
       const id = variables.id;
 
-      queryClient.invalidateQueries({ queryKey: ["projects"] });
-      queryClient.invalidateQueries({ queryKey: ["projects", id] });
-      queryClient.invalidateQueries({ queryKey: ["habits"] });
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["projects"], refetchType: "all" }),
+        queryClient.invalidateQueries({ queryKey: ["habits"], refetchType: "all" }),
+        queryClient.invalidateQueries({ queryKey: ["habits", id], refetchType: "all" }),
+      ]);
     },
   });
 }
@@ -45,12 +57,18 @@ export function useUpdateHabits() {
 export function useDeleteHabits(id?: string) {
   const queryClient = useQueryClient();
   return useMutation({
+    meta: {
+      successMessage: "Habit deleted.",
+      successTitle: "Deleted",
+    },
     mutationKey: ["deleteHabits", id],
     mutationFn: (id?: string) => HabitsServices.delete(id),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["projects"] });
-      queryClient.invalidateQueries({ queryKey: ["projects", id] });
-      queryClient.invalidateQueries({ queryKey: ["habits"] });
+    onSuccess: async () => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["projects"], refetchType: "all" }),
+        queryClient.invalidateQueries({ queryKey: ["habits"], refetchType: "all" }),
+        queryClient.invalidateQueries({ queryKey: ["habits", id], refetchType: "all" }),
+      ]);
     },
   });
 }

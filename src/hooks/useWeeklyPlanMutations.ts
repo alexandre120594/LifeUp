@@ -14,10 +14,12 @@ export function useCreateWeeklyPlanSlot() {
   const queryClient = useQueryClient();
 
   return useMutation({
+    meta: { successMessage: "Weekly slot saved.", successTitle: "Saved" },
     mutationFn: WeeklyPlanServices.createSlot,
-    onSuccess: (board) => {
-      queryClient.invalidateQueries({
+    onSuccess: async (board) => {
+      await queryClient.invalidateQueries({
         queryKey: ["weekly-plan", board.weekStartKey],
+        refetchType: "all",
       });
     },
   });
@@ -27,11 +29,13 @@ export function useUpdateWeeklyPlanSlot() {
   const queryClient = useQueryClient();
 
   return useMutation({
+    meta: { successMessage: "Weekly slot updated.", successTitle: "Updated" },
     mutationFn: ({ id, data }: { id: string; data: WeeklyPlanSlotInput }) =>
       WeeklyPlanServices.updateSlot(id, data),
-    onSuccess: (board) => {
-      queryClient.invalidateQueries({
+    onSuccess: async (board) => {
+      await queryClient.invalidateQueries({
         queryKey: ["weekly-plan", board.weekStartKey],
+        refetchType: "all",
       });
     },
   });
@@ -41,9 +45,13 @@ export function useDeleteWeeklyPlanSlot(weekStartKey: string) {
   const queryClient = useQueryClient();
 
   return useMutation({
+    meta: { successMessage: "Weekly slot deleted.", successTitle: "Deleted" },
     mutationFn: WeeklyPlanServices.deleteSlot,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["weekly-plan", weekStartKey] });
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: ["weekly-plan", weekStartKey],
+        refetchType: "all",
+      });
     },
   });
 }

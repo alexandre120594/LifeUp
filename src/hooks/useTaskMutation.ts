@@ -20,11 +20,17 @@ export function useTaskById(id: string) {
 export function useCreateTask() {
   const queryClient = useQueryClient();
   return useMutation({
+    meta: {
+      successMessage: "Task created.",
+      successTitle: "Saved",
+    },
     mutationFn: TaskService.create,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["task"] });
-      queryClient.invalidateQueries({ queryKey: ["projects"] });
-      queryClient.invalidateQueries({ queryKey: ["habits"] });
+    onSuccess: async () => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["task"], refetchType: "all" }),
+        queryClient.invalidateQueries({ queryKey: ["projects"], refetchType: "all" }),
+        queryClient.invalidateQueries({ queryKey: ["habits"], refetchType: "all" }),
+      ]);
     },
   });
 }
@@ -32,15 +38,21 @@ export function useCreateTask() {
 export function useUpdateTask() {
   const queryClient = useQueryClient();
   return useMutation({
+    meta: {
+      successMessage: "Task updated.",
+      successTitle: "Updated",
+    },
     mutationFn: ({ id, data }: { id: string; data: Task }) =>
       TaskService.update(data, id),
-    onSuccess: (data, variables) => {
+    onSuccess: async (data, variables) => {
       const id = variables.id;
 
-      queryClient.invalidateQueries({ queryKey: ["habits"] });
-      queryClient.invalidateQueries({ queryKey: ["task", id] });
-      queryClient.invalidateQueries({ queryKey: ["projects"] });
-      queryClient.invalidateQueries({ queryKey: ["task"] });
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["habits"], refetchType: "all" }),
+        queryClient.invalidateQueries({ queryKey: ["task", id], refetchType: "all" }),
+        queryClient.invalidateQueries({ queryKey: ["projects"], refetchType: "all" }),
+        queryClient.invalidateQueries({ queryKey: ["task"], refetchType: "all" }),
+      ]);
     },
   });
 }
@@ -48,13 +60,19 @@ export function useUpdateTask() {
 export function useDeleteTask(id?: string) {
   const queryClient = useQueryClient();
   return useMutation({
+    meta: {
+      successMessage: "Task deleted.",
+      successTitle: "Deleted",
+    },
     mutationKey: ["deleteTask", id],
     mutationFn: (id: string) => TaskService.delete(id),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["task", id] });
-      queryClient.invalidateQueries({ queryKey: ["task"] });
-      queryClient.invalidateQueries({ queryKey: ["habits"] });
-      queryClient.invalidateQueries({ queryKey: ["projects"] });
+    onSuccess: async () => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["task", id], refetchType: "all" }),
+        queryClient.invalidateQueries({ queryKey: ["task"], refetchType: "all" }),
+        queryClient.invalidateQueries({ queryKey: ["habits"], refetchType: "all" }),
+        queryClient.invalidateQueries({ queryKey: ["projects"], refetchType: "all" }),
+      ]);
     },
   });
 }

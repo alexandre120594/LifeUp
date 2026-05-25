@@ -39,11 +39,14 @@ export function useCreateStudySubject() {
   const queryClient = useQueryClient();
 
   return useMutation({
+    meta: { successMessage: "Study subject saved.", successTitle: "Saved" },
     mutationFn: StudyServices.createSubject,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["study-subjects"] });
-      queryClient.invalidateQueries({ queryKey: ["study-schedule"] });
-      queryClient.invalidateQueries({ queryKey: ["study-plan"] });
+    onSuccess: async () => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["study-subjects"], refetchType: "all" }),
+        queryClient.invalidateQueries({ queryKey: ["study-schedule"], refetchType: "all" }),
+        queryClient.invalidateQueries({ queryKey: ["study-plan"], refetchType: "all" }),
+      ]);
     },
   });
 }
@@ -52,11 +55,14 @@ export function useUpdateStudySubject() {
   const queryClient = useQueryClient();
 
   return useMutation({
+    meta: { successMessage: "Study subject updated.", successTitle: "Updated" },
     mutationFn: ({ id, data }: { id: string; data: StudySubjectInput }) =>
       StudyServices.updateSubject(id, data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["study-subjects"] });
-      queryClient.invalidateQueries({ queryKey: ["study-schedule"] });
+    onSuccess: async () => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["study-subjects"], refetchType: "all" }),
+        queryClient.invalidateQueries({ queryKey: ["study-schedule"], refetchType: "all" }),
+      ]);
     },
   });
 }
@@ -65,10 +71,13 @@ export function useDeleteStudySubject() {
   const queryClient = useQueryClient();
 
   return useMutation({
+    meta: { successMessage: "Study subject deleted.", successTitle: "Deleted" },
     mutationFn: StudyServices.deleteSubject,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["study-subjects"] });
-      queryClient.invalidateQueries({ queryKey: ["study-schedule"] });
+    onSuccess: async () => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["study-subjects"], refetchType: "all" }),
+        queryClient.invalidateQueries({ queryKey: ["study-schedule"], refetchType: "all" }),
+      ]);
     },
   });
 }
@@ -77,11 +86,14 @@ export function useSaveStudyScheduleBlock() {
   const queryClient = useQueryClient();
 
   return useMutation({
+    meta: { successMessage: "Study schedule saved.", successTitle: "Saved" },
     mutationFn: (data: StudyScheduleInput) => StudyServices.saveScheduleBlock(data),
-    onSuccess: (schedule) => {
+    onSuccess: async (schedule) => {
       queryClient.setQueryData(["study-schedule"], schedule);
-      queryClient.invalidateQueries({ queryKey: ["study-schedule"] });
-      queryClient.invalidateQueries({ queryKey: ["study-subjects"] });
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["study-schedule"], refetchType: "all" }),
+        queryClient.invalidateQueries({ queryKey: ["study-subjects"], refetchType: "all" }),
+      ]);
     },
   });
 }
@@ -90,13 +102,15 @@ export function useCreateStudyPlanBlock() {
   const queryClient = useQueryClient();
 
   return useMutation({
+    meta: { successMessage: "Study plan block saved.", successTitle: "Saved" },
     mutationFn: (data: StudyPlanBlockInput) =>
       StudyServices.createPlanBlock(data),
-    onSuccess: (_block, variables) => {
-      queryClient.invalidateQueries({
+    onSuccess: async (_block, variables) => {
+      await queryClient.invalidateQueries({
         queryKey: ["study-plan", variables.weekStartKey],
+        refetchType: "all",
       });
-      queryClient.invalidateQueries({ queryKey: ["study-subjects"] });
+      await queryClient.invalidateQueries({ queryKey: ["study-subjects"], refetchType: "all" });
     },
   });
 }
@@ -105,13 +119,15 @@ export function useUpdateStudyPlanBlock() {
   const queryClient = useQueryClient();
 
   return useMutation({
+    meta: { successMessage: "Study plan block updated.", successTitle: "Updated" },
     mutationFn: ({ id, data }: { id: string; data: StudyPlanBlockInput }) =>
       StudyServices.updatePlanBlock(id, data),
-    onSuccess: (_block, variables) => {
-      queryClient.invalidateQueries({
+    onSuccess: async (_block, variables) => {
+      await queryClient.invalidateQueries({
         queryKey: ["study-plan", variables.data.weekStartKey],
+        refetchType: "all",
       });
-      queryClient.invalidateQueries({ queryKey: ["study-subjects"] });
+      await queryClient.invalidateQueries({ queryKey: ["study-subjects"], refetchType: "all" });
     },
   });
 }
@@ -120,10 +136,13 @@ export function useDeleteStudyPlanBlock() {
   const queryClient = useQueryClient();
 
   return useMutation({
+    meta: { successMessage: "Study plan block deleted.", successTitle: "Deleted" },
     mutationFn: StudyServices.deletePlanBlock,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["study-plan"] });
-      queryClient.invalidateQueries({ queryKey: ["study-subjects"] });
+    onSuccess: async () => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["study-plan"], refetchType: "all" }),
+        queryClient.invalidateQueries({ queryKey: ["study-subjects"], refetchType: "all" }),
+      ]);
     },
   });
 }
@@ -132,11 +151,14 @@ export function useCreateStudySession() {
   const queryClient = useQueryClient();
 
   return useMutation({
+    meta: { successMessage: "Study session saved.", successTitle: "Saved" },
     mutationFn: (data: StudySessionCreateInput) =>
       StudyServices.createSession(data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["study-sessions"] });
-      queryClient.invalidateQueries({ queryKey: ["study-subjects"] });
+    onSuccess: async () => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["study-sessions"], refetchType: "all" }),
+        queryClient.invalidateQueries({ queryKey: ["study-subjects"], refetchType: "all" }),
+      ]);
     },
   });
 }
@@ -145,10 +167,13 @@ export function useDeleteStudySession() {
   const queryClient = useQueryClient();
 
   return useMutation({
+    meta: { successMessage: "Study session deleted.", successTitle: "Deleted" },
     mutationFn: StudyServices.deleteSession,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["study-sessions"] });
-      queryClient.invalidateQueries({ queryKey: ["study-subjects"] });
+    onSuccess: async () => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["study-sessions"], refetchType: "all" }),
+        queryClient.invalidateQueries({ queryKey: ["study-subjects"], refetchType: "all" }),
+      ]);
     },
   });
 }

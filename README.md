@@ -45,6 +45,7 @@ The app currently supports:
   - 7-day activity trend
   - project throughput
   - top-line finance income, expenses, and total cash
+- save, update, and delete actions show toast feedback and refresh affected lists/details immediately
 - calendar page for reviewing tasks by day and scheduling future tasks
 - weekly organizer for creating database-backed Monday-to-Sunday habit boards with previous/next navigation and hourly scheduling from 00:00 through 23:00
 - weekly organizer focuses on selected-week habit/task planning
@@ -381,6 +382,8 @@ Seeded project names:
 What is stable enough to continue from:
 - dashboard charts are wired through shared analytics helpers
 - dashboard top line includes current finance income, expenses, and total cash from the finance summary
+- client API reads bypass browser caching, and mutation hooks await affected React Query invalidations so saved records appear without leaving and returning to a page
+- app-level toast feedback is wired through React Query mutations for save, update, delete, and failed actions
 - login stores the current user in an HTTP-only cookie and API routes scope records to that user
 - the dashboard greeting shows the logged-in user name or email prefix instead of a fixed placeholder
 - calendar page shows task names in a large month view, opens selected-day tasks in a popup, supports task edit/delete, and creates multiple future-dated tasks from an Add task button

@@ -19,11 +19,14 @@ export function useCreateStudyMistake() {
   const queryClient = useQueryClient();
 
   return useMutation({
+    meta: { successMessage: "Mistake saved.", successTitle: "Saved" },
     mutationFn: (data: StudyMistakeCreateInput) =>
       StudyMistakeServices.create(data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["study-mistakes"] });
-      queryClient.invalidateQueries({ queryKey: ["study-subjects"] });
+    onSuccess: async () => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["study-mistakes"], refetchType: "all" }),
+        queryClient.invalidateQueries({ queryKey: ["study-subjects"], refetchType: "all" }),
+      ]);
     },
   });
 }
@@ -32,6 +35,7 @@ export function useUpdateStudyMistake() {
   const queryClient = useQueryClient();
 
   return useMutation({
+    meta: { successMessage: "Mistake updated.", successTitle: "Updated" },
     mutationFn: ({
       data,
       id,
@@ -39,9 +43,11 @@ export function useUpdateStudyMistake() {
       data: StudyMistakeUpdateInput;
       id: string;
     }) => StudyMistakeServices.update(id, data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["study-mistakes"] });
-      queryClient.invalidateQueries({ queryKey: ["study-subjects"] });
+    onSuccess: async () => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["study-mistakes"], refetchType: "all" }),
+        queryClient.invalidateQueries({ queryKey: ["study-subjects"], refetchType: "all" }),
+      ]);
     },
   });
 }
@@ -50,10 +56,13 @@ export function useDeleteStudyMistake() {
   const queryClient = useQueryClient();
 
   return useMutation({
+    meta: { successMessage: "Mistake deleted.", successTitle: "Deleted" },
     mutationFn: StudyMistakeServices.delete,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["study-mistakes"] });
-      queryClient.invalidateQueries({ queryKey: ["study-subjects"] });
+    onSuccess: async () => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["study-mistakes"], refetchType: "all" }),
+        queryClient.invalidateQueries({ queryKey: ["study-subjects"], refetchType: "all" }),
+      ]);
     },
   });
 }

@@ -20,9 +20,13 @@ export function useProjectsById(id: string) {
 export function useCreateProject() {
   const queryClient = useQueryClient();
   return useMutation({
+    meta: {
+      successMessage: "Project created.",
+      successTitle: "Saved",
+    },
     mutationFn: projectServices.create,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["projects"] });
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["projects"], refetchType: "all" });
     },
   });
 }
@@ -30,14 +34,20 @@ export function useCreateProject() {
 export function useUpdateProject() {
   const queryClient = useQueryClient();
   return useMutation({
+    meta: {
+      successMessage: "Project updated.",
+      successTitle: "Updated",
+    },
     mutationFn: ({ id, data }: { id?: string; data?: ProjectCreateInput }) =>
       projectServices.update(data, id),
-    onSuccess: (data, variables) => {
+    onSuccess: async (data, variables) => {
       const id = variables.id;
 
-      queryClient.invalidateQueries({ queryKey: ["projects"] });
-      queryClient.invalidateQueries({ queryKey: ["projects", id] });
-      queryClient.invalidateQueries({ queryKey: ["habits"] });
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["projects"], refetchType: "all" }),
+        queryClient.invalidateQueries({ queryKey: ["projects", id], refetchType: "all" }),
+        queryClient.invalidateQueries({ queryKey: ["habits"], refetchType: "all" }),
+      ]);
     },
   });
 }
@@ -45,12 +55,18 @@ export function useUpdateProject() {
 export function useDeleteProject(id: string) {
   const queryClient = useQueryClient();
   return useMutation({
+    meta: {
+      successMessage: "Project deleted.",
+      successTitle: "Deleted",
+    },
     mutationKey: ["deleteProject", id],
     mutationFn: (id: string) => projectServices.delete(id),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["projects"] });
-      queryClient.invalidateQueries({ queryKey: ["projects", id] });
-      queryClient.invalidateQueries({ queryKey: ["habits"] });
+    onSuccess: async () => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["projects"], refetchType: "all" }),
+        queryClient.invalidateQueries({ queryKey: ["projects", id], refetchType: "all" }),
+        queryClient.invalidateQueries({ queryKey: ["habits"], refetchType: "all" }),
+      ]);
     },
   });
 }
