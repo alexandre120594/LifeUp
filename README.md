@@ -390,6 +390,7 @@ What is stable enough to continue from:
 - weekly organizer builds Monday-to-Sunday habit boards from the selected week, persists them per user, supports previous/next week navigation, and schedules multiple habits into hourly cells from 00:00 through 23:00
 - weekly organizer is dedicated to personal habit/task planning; study review lives under Study Tools
 - calendar tasks can carry scheduled hours and are shown in time order inside day cells and day detail popups
+- study plan planned blocks can be finished directly from the week board, prompting for actual minutes studied and saving that time under the block's subject
 - app tracker page shows project streak targets and today's task progress from completed tasks
 - project streaks now count days where completed tasks in that project meet the project's daily target, defaulting to 1 completed task per day
 - chart colors now follow the active app theme

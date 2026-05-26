@@ -90,6 +90,12 @@ type BlockFormState = {
   subjectId: string;
 };
 
+type FinishStudyFormState = {
+  endedAt: string;
+  notes: string;
+  startedAt: string;
+};
+
 const emptySessionForm: SessionFormState = {
   endedAt: "",
   notes: "",
@@ -103,6 +109,12 @@ const emptyBlockForm: BlockFormState = {
   notes: "",
   startTime: "08:00",
   subjectId: "",
+};
+
+const emptyFinishStudyForm: FinishStudyFormState = {
+  endedAt: "",
+  notes: "",
+  startedAt: "",
 };
 
 function formatStudyDuration(minutes: number) {
@@ -187,6 +199,18 @@ function getMinutesBetween(startedAt: string, endedAt: string) {
   return Math.max(1, Math.round((end.getTime() - start.getTime()) / 60000));
 }
 
+function getBlockStartDate(
+  block: StudyPlanBlock,
+  week: ReturnType<typeof getWeek>
+) {
+  const day = week[block.dayIndex];
+  const [hours = "0", minutes = "0"] = block.startTime.split(":");
+  const date = new Date(day?.date ?? new Date());
+  date.setHours(Number(hours), Number(minutes), 0, 0);
+
+  return date;
+}
+
 function findSubjectByName(subjects: StudySubject[], name: string) {
   const normalizedName = name.trim().toLowerCase();
   return subjects.find(
@@ -205,6 +229,11 @@ export default function StudyPlannerPage() {
     useState<SessionFormState>(emptySessionForm);
   const [blockForm, setBlockForm] = useState<BlockFormState>(emptyBlockForm);
   const [editingBlockId, setEditingBlockId] = useState<string | null>(null);
+  const [finishingBlock, setFinishingBlock] = useState<StudyPlanBlock | null>(
+    null
+  );
+  const [finishStudyForm, setFinishStudyForm] =
+    useState<FinishStudyFormState>(emptyFinishStudyForm);
   const [isBlockDialogOpen, setIsBlockDialogOpen] = useState(false);
   const [isSubjectDialogOpen, setIsSubjectDialogOpen] = useState(false);
   const [newSubjectName, setNewSubjectName] = useState("");
@@ -391,6 +420,41 @@ export default function StudyPlannerPage() {
     });
     setEditingBlockId(null);
     setIsBlockDialogOpen(true);
+  };
+
+  const openFinishStudyDialog = (block: StudyPlanBlock) => {
+    const startedAt = getBlockStartDate(block, week);
+    const endedAt = new Date(startedAt);
+    endedAt.setMinutes(startedAt.getMinutes() + block.durationMinutes);
+
+    setFinishingBlock(block);
+    setFinishStudyForm({
+      endedAt: toDateTimeInputValue(endedAt),
+      notes: block.notes ?? "",
+      startedAt: toDateTimeInputValue(startedAt),
+    });
+  };
+
+  const handleFinishStudySubmit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    if (!finishingBlock) {
+      return;
+    }
+
+    if (!getMinutesBetween(finishStudyForm.startedAt, finishStudyForm.endedAt)) {
+      return;
+    }
+
+    await createSession.mutateAsync({
+      endedAt: new Date(finishStudyForm.endedAt).toISOString(),
+      notes: finishStudyForm.notes.trim() || null,
+      startedAt: new Date(finishStudyForm.startedAt).toISOString(),
+      subjectId: finishingBlock.subjectId,
+    });
+
+    setFinishingBlock(null);
+    setFinishStudyForm(emptyFinishStudyForm);
   };
 
   return (
@@ -616,7 +680,7 @@ export default function StudyPlannerPage() {
           </div>
         </div>
 
-        <form
+        {/* <form
           className="grid gap-3 rounded-lg border border-border/70 bg-background/70 p-3 lg:grid-cols-2 xl:grid-cols-[minmax(0,1fr)_minmax(0,0.8fr)_minmax(0,0.8fr)]"
           onSubmit={handleSessionSubmit}
         >
@@ -684,7 +748,7 @@ export default function StudyPlannerPage() {
               Save studied time
             </Button>
           </div>
-        </form>
+        </form> */}
 
         <div className="grid gap-4">
           <div className="min-w-0 rounded-lg border border-border/70 bg-background/70 p-4">
@@ -738,12 +802,83 @@ export default function StudyPlannerPage() {
         deleteBlock={(id) => deleteBlock.mutate(id)}
         deleteSession={(id) => deleteSession.mutate(id)}
         editBlock={editBlock}
+        finishBlock={openFinishStudyDialog}
         sessions={weekSessions}
         setWeekOffset={setWeekOffset}
         week={week}
         weekOffset={weekOffset}
         weekRange={weekRange}
       />
+
+      <Dialog
+        open={Boolean(finishingBlock)}
+        onOpenChange={(open) => {
+          if (!open) {
+            setFinishingBlock(null);
+            setFinishStudyForm(emptyFinishStudyForm);
+          }
+        }}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Finish planned study</DialogTitle>
+            <DialogDescription>
+              Save studied time for{" "}
+              {finishingBlock
+                ? getBlockSubjectName(finishingBlock)
+                : "this subject"}
+              .
+            </DialogDescription>
+          </DialogHeader>
+          <form className="grid gap-3" onSubmit={handleFinishStudySubmit}>
+            <Input
+              onChange={(event) =>
+                setFinishStudyForm((current) => ({
+                  ...current,
+                  startedAt: event.target.value,
+                }))
+              }
+              type="datetime-local"
+              value={finishStudyForm.startedAt}
+            />
+            <Input
+              onChange={(event) =>
+                setFinishStudyForm((current) => ({
+                  ...current,
+                  endedAt: event.target.value,
+                }))
+              }
+              type="datetime-local"
+              value={finishStudyForm.endedAt}
+            />
+            <Input
+              onChange={(event) =>
+                setFinishStudyForm((current) => ({
+                  ...current,
+                  notes: event.target.value,
+                }))
+              }
+              placeholder="Optional notes"
+              value={finishStudyForm.notes}
+            />
+            <DialogFooter>
+              <Button
+                disabled={
+                  !getMinutesBetween(
+                    finishStudyForm.startedAt,
+                    finishStudyForm.endedAt
+                  ) ||
+                  createSession.isPending
+                }
+                type="submit"
+              >
+                <CheckCircle2 className="h-4 w-4" />
+                Add studied time
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
@@ -753,6 +888,7 @@ function StudyWeekBoard({
   deleteBlock,
   deleteSession,
   editBlock,
+  finishBlock,
   sessions,
   setWeekOffset,
   week,
@@ -763,6 +899,7 @@ function StudyWeekBoard({
   deleteBlock: (id: string) => void;
   deleteSession: (id: string) => void;
   editBlock: (block: StudyPlanBlock) => void;
+  finishBlock: (block: StudyPlanBlock) => void;
   sessions: StudySession[];
   setWeekOffset: Dispatch<SetStateAction<number>>;
   week: ReturnType<typeof getWeek>;
@@ -876,27 +1013,38 @@ function StudyWeekBoard({
                                 {formatStudyDuration(block.durationMinutes)}
                               </div>
                             </div>
-                            <div className="flex items-center justify-end gap-1">
+                            <div className="grid gap-1">
                               <Button
-                                aria-label="Edit planned block"
-                                className="h-7 w-7"
-                                onClick={() => editBlock(block)}
-                                size="icon"
+                                className="h-8 justify-center"
+                                onClick={() => finishBlock(block)}
                                 type="button"
-                                variant="ghost"
+                                variant="outline"
                               >
-                                <Pencil className="h-3.5 w-3.5" />
+                                <CheckCircle2 className="h-3.5 w-3.5" />
+                                Finish
                               </Button>
-                              <Button
-                                aria-label="Delete planned block"
-                                className="h-7 w-7"
-                                onClick={() => deleteBlock(block.id)}
-                                size="icon"
-                                type="button"
-                                variant="ghost"
-                              >
-                                <Trash className="h-3.5 w-3.5 text-destructive" />
-                              </Button>
+                              <div className="flex items-center justify-end gap-1">
+                                <Button
+                                  aria-label="Edit planned block"
+                                  className="h-7 w-7"
+                                  onClick={() => editBlock(block)}
+                                  size="icon"
+                                  type="button"
+                                  variant="ghost"
+                                >
+                                  <Pencil className="h-3.5 w-3.5" />
+                                </Button>
+                                <Button
+                                  aria-label="Delete planned block"
+                                  className="h-7 w-7"
+                                  onClick={() => deleteBlock(block.id)}
+                                  size="icon"
+                                  type="button"
+                                  variant="ghost"
+                                >
+                                  <Trash className="h-3.5 w-3.5 text-destructive" />
+                                </Button>
+                              </div>
                             </div>
                           </div>
                         ))
