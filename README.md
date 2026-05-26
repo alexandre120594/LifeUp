@@ -391,6 +391,8 @@ What is stable enough to continue from:
 - weekly organizer is dedicated to personal habit/task planning; study review lives under Study Tools
 - calendar tasks can carry scheduled hours and are shown in time order inside day cells and day detail popups
 - study plan planned blocks can be finished directly from the week board, prompting for actual minutes studied and saving that time under the block's subject
+- dashboard shows study mistake pressure with a weak-subject chart and paginated due-review queue
+- mistake log shows paginated weak-subject and due-review panels above the detailed review queue
 - app tracker page shows project streak targets and today's task progress from completed tasks
 - project streaks now count days where completed tasks in that project meet the project's daily target, defaulting to 1 completed task per day
 - chart colors now follow the active app theme

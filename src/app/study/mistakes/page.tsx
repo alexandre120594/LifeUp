@@ -48,12 +48,17 @@ import {
   useUpdateStudyMistake,
 } from "@/hooks/useStudyMistakeMutations";
 import { useStudySubjects } from "@/hooks/useStudyMutations";
+import {
+  buildWeakSubjectMistakes,
+  getDueStudyMistakes,
+} from "@/lib/analytics";
 import type {
   StudyMistake,
   StudyMistakeStatus,
 } from "@/types/BaseInterfaces";
 
 const mistakePageSize = 8;
+const focusPageSize = 5;
 const statusOptions: StudyMistakeStatus[] = [
   "unresolved",
   "reviewed",
@@ -76,14 +81,6 @@ function formatDate(date: Date | string) {
   });
 }
 
-function isDueForReview(mistake: StudyMistake) {
-  const reviewDate = new Date(mistake.reviewDate);
-  const today = new Date();
-  today.setHours(23, 59, 59, 999);
-
-  return mistake.status !== "mastered" && reviewDate <= today;
-}
-
 function statusLabel(status: StudyMistakeStatus) {
   return status.charAt(0).toUpperCase() + status.slice(1);
 }
@@ -97,7 +94,10 @@ export default function StudyMistakesPage() {
   const [errorTypeFilter, setErrorTypeFilter] = useState("all");
   const [dueOnly, setDueOnly] = useState(false);
   const [page, setPage] = useState(1);
+  const [duePage, setDuePage] = useState(1);
+  const [weakSubjectPage, setWeakSubjectPage] = useState(1);
   const { data: subjects = [] } = useStudySubjects();
+  const { data: allMistakes = [] } = useStudyMistakes();
   const { data: mistakes = [], isLoading } = useStudyMistakes({
     due: dueOnly,
     errorType: errorTypeFilter === "all" ? undefined : errorTypeFilter,
@@ -116,7 +116,9 @@ export default function StudyMistakesPage() {
       ),
     [mistakes]
   );
-  const dueMistakes = mistakes.filter(isDueForReview);
+  const dueMistakes = getDueStudyMistakes(mistakes);
+  const allDueMistakes = getDueStudyMistakes(allMistakes);
+  const weakSubjects = buildWeakSubjectMistakes(allMistakes);
   const unresolved = mistakes.filter(
     (mistake) => mistake.status === "unresolved"
   );
@@ -178,6 +180,21 @@ export default function StudyMistakesPage() {
           { label: "Error types", value: errorTypes.length, icon: AlertCircle },
         ]}
       />
+
+      <section className="grid min-w-0 gap-4 xl:grid-cols-2">
+        <WeakSubjectsPanel
+          page={weakSubjectPage}
+          pageSize={focusPageSize}
+          setPage={setWeakSubjectPage}
+          subjects={weakSubjects}
+        />
+        <DueReviewPanel
+          mistakes={allDueMistakes}
+          page={duePage}
+          pageSize={focusPageSize}
+          setPage={setDuePage}
+        />
+      </section>
 
       <Card className="min-w-0 overflow-hidden border-border/70 shadow-sm">
         <CardHeader className="gap-3">
@@ -377,6 +394,168 @@ export default function StudyMistakesPage() {
           ) : null}
         </CardContent>
       </Card>
+    </div>
+  );
+}
+
+function WeakSubjectsPanel({
+  page,
+  pageSize,
+  setPage,
+  subjects,
+}: {
+  page: number;
+  pageSize: number;
+  setPage: (page: number) => void;
+  subjects: ReturnType<typeof buildWeakSubjectMistakes>;
+}) {
+  const totalPages = Math.max(Math.ceil(subjects.length / pageSize), 1);
+  const visibleSubjects = subjects.slice((page - 1) * pageSize, page * pageSize);
+
+  return (
+    <Card className="min-w-0 overflow-hidden border-border/70 shadow-sm">
+      <CardHeader>
+        <CardTitle>Weak subjects</CardTitle>
+        <CardDescription>
+          Subjects with the most logged mistakes.
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="grid gap-3">
+        {visibleSubjects.length ? (
+          visibleSubjects.map((subject) => (
+            <div
+              className="grid gap-2 rounded-lg border border-border/60 bg-background/70 p-3"
+              key={subject.subjectId}
+            >
+              <div className="flex items-center justify-between gap-3">
+                <div className="min-w-0">
+                  <div className="truncate font-medium">{subject.name}</div>
+                  <div className="text-xs text-muted-foreground">
+                    {subject.unresolved} unresolved / {subject.mastered} mastered
+                  </div>
+                </div>
+                <Badge>{subject.total} mistakes</Badge>
+              </div>
+              <div className="flex flex-wrap gap-2 text-xs">
+                <Badge variant="outline">{subject.due} due</Badge>
+                <Badge variant="outline">{subject.reviewed} reviewed</Badge>
+              </div>
+            </div>
+          ))
+        ) : (
+          <p className="rounded-lg bg-secondary/35 p-4 text-sm text-muted-foreground">
+            No subjects have logged mistakes yet.
+          </p>
+        )}
+
+        <PanelPagination
+          page={page}
+          setPage={setPage}
+          totalItems={subjects.length}
+          totalPages={totalPages}
+        />
+      </CardContent>
+    </Card>
+  );
+}
+
+function DueReviewPanel({
+  mistakes,
+  page,
+  pageSize,
+  setPage,
+}: {
+  mistakes: StudyMistake[];
+  page: number;
+  pageSize: number;
+  setPage: (page: number) => void;
+}) {
+  const totalPages = Math.max(Math.ceil(mistakes.length / pageSize), 1);
+  const visibleMistakes = mistakes.slice((page - 1) * pageSize, page * pageSize);
+
+  return (
+    <Card className="min-w-0 overflow-hidden border-border/70 shadow-sm">
+      <CardHeader>
+        <CardTitle>Due for review</CardTitle>
+        <CardDescription>
+          Mistakes with a review date up to today and not mastered.
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="grid gap-3">
+        {visibleMistakes.length ? (
+          visibleMistakes.map((mistake) => (
+            <div
+              className="grid gap-2 rounded-lg border border-border/60 bg-background/70 p-3"
+              key={mistake.id}
+            >
+              <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+                <Badge>{mistake.subject?.name ?? "Subject"}</Badge>
+                <Badge variant="outline">{statusLabel(mistake.status)}</Badge>
+                <span>Review {formatDate(mistake.reviewDate)}</span>
+              </div>
+              <div className="line-clamp-2 text-sm font-medium">
+                {mistake.question}
+              </div>
+              <div className="text-xs text-muted-foreground">
+                {mistake.errorType}
+              </div>
+            </div>
+          ))
+        ) : (
+          <p className="rounded-lg bg-secondary/35 p-4 text-sm text-muted-foreground">
+            No mistakes are due for review.
+          </p>
+        )}
+
+        <PanelPagination
+          page={page}
+          setPage={setPage}
+          totalItems={mistakes.length}
+          totalPages={totalPages}
+        />
+      </CardContent>
+    </Card>
+  );
+}
+
+function PanelPagination({
+  page,
+  setPage,
+  totalItems,
+  totalPages,
+}: {
+  page: number;
+  setPage: (page: number) => void;
+  totalItems: number;
+  totalPages: number;
+}) {
+  if (totalItems <= focusPageSize) {
+    return null;
+  }
+
+  return (
+    <div className="flex flex-wrap items-center justify-between gap-3 pt-1 text-sm text-muted-foreground">
+      <span>
+        Page {page} of {totalPages}
+      </span>
+      <div className="flex gap-2">
+        <Button
+          disabled={page <= 1}
+          onClick={() => setPage(Math.max(page - 1, 1))}
+          type="button"
+          variant="outline"
+        >
+          Previous
+        </Button>
+        <Button
+          disabled={page >= totalPages}
+          onClick={() => setPage(Math.min(page + 1, totalPages))}
+          type="button"
+          variant="outline"
+        >
+          Next
+        </Button>
+      </div>
     </div>
   );
 }

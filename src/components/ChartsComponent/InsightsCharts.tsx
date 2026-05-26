@@ -69,6 +69,21 @@ const habitConfig = {
   },
 } satisfies ChartConfig;
 
+const weakSubjectsConfig = {
+  total: {
+    label: "Mistakes",
+    color: "var(--chart-1)",
+  },
+  due: {
+    label: "Due for review",
+    color: "var(--chart-5)",
+  },
+  unresolved: {
+    label: "Unresolved",
+    color: "var(--chart-3)",
+  },
+} satisfies ChartConfig;
+
 type ActivityDatum = {
   date: string;
   tasksCompleted: number;
@@ -91,6 +106,16 @@ type HabitDatum = {
   recentCheckIns: number;
   streak: number;
   totalTasks: number;
+};
+
+type WeakSubjectDatum = {
+  due: number;
+  mastered: number;
+  name: string;
+  reviewed: number;
+  subjectId: string;
+  total: number;
+  unresolved: number;
 };
 
 function abbreviateAxisLabel(value: string) {
@@ -414,6 +439,112 @@ export function HabitPerformanceChart({
           </ComposedChart>
         </ChartContainer>
         </div>
+      </CardContent>
+    </Card>
+  );
+}
+
+export function WeakSubjectsChart({
+  data,
+  title,
+  description,
+}: {
+  data: WeakSubjectDatum[];
+  title: string;
+  description: string;
+}) {
+  return (
+    <Card className="min-w-0 overflow-hidden border shadow-sm">
+      <CardHeader>
+        <CardTitle>{title}</CardTitle>
+        <CardDescription>{description}</CardDescription>
+      </CardHeader>
+      <CardContent>
+        {data.length ? (
+          <div className="overflow-x-auto">
+            <ChartContainer
+              config={weakSubjectsConfig}
+              className="h-[260px] w-full min-w-[var(--chart-min-width)] sm:h-[300px]"
+              style={
+                {
+                  "--chart-min-width": `${getChartMinWidth(data.length)}px`,
+                } as CSSProperties
+              }
+            >
+              <ComposedChart accessibilityLayer data={data}>
+                <CartesianGrid vertical={false} />
+                <XAxis
+                  dataKey="name"
+                  tickFormatter={abbreviateAxisLabel}
+                  tickLine={false}
+                  axisLine={false}
+                  interval={0}
+                  minTickGap={12}
+                  tickMargin={8}
+                  height={34}
+                />
+                <YAxis allowDecimals={false} tickLine={false} axisLine={false} />
+                <ChartTooltip
+                  content={
+                    <ChartTooltipContent
+                      labelFormatter={(_, payload) => {
+                        const subject = payload[0]?.payload as
+                          | WeakSubjectDatum
+                          | undefined;
+
+                        if (!subject) {
+                          return null;
+                        }
+
+                        return (
+                          <div className="grid gap-1">
+                            <span>{subject.name}</span>
+                            <span className="text-[11px] font-normal text-muted-foreground">
+                              {subject.total} mistakes, {subject.due} due
+                            </span>
+                          </div>
+                        );
+                      }}
+                      formatter={(value, name) => (
+                        <div className="flex min-w-36 items-center justify-between gap-3">
+                          <span>
+                            {name === "total"
+                              ? "Logged mistakes"
+                              : name === "due"
+                                ? "Due for review"
+                                : "Unresolved"}
+                          </span>
+                          <span className="font-medium">{value}</span>
+                        </div>
+                      )}
+                    />
+                  }
+                />
+                <Bar
+                  dataKey="total"
+                  fill="var(--color-total)"
+                  radius={[6, 6, 0, 0]}
+                />
+                <Bar
+                  dataKey="unresolved"
+                  fill="var(--color-unresolved)"
+                  radius={[6, 6, 0, 0]}
+                />
+                <Line
+                  dataKey="due"
+                  dot={{ r: 4 }}
+                  stroke="var(--color-due)"
+                  strokeWidth={3}
+                  type="monotone"
+                />
+              </ComposedChart>
+            </ChartContainer>
+          </div>
+        ) : (
+          <p className="rounded-lg bg-secondary/35 p-4 text-sm text-muted-foreground">
+            No study mistakes logged yet.
+          </p>
+        )}
       </CardContent>
     </Card>
   );

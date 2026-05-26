@@ -1,6 +1,8 @@
 "use client";
 
+import { useState } from "react";
 import {
+  BookOpenCheck,
   CalendarDays,
   CheckCircle2,
   Clock3,
@@ -12,11 +14,17 @@ import { useProjects } from "@/hooks/useProjectMutations";
 import { useTask } from "@/hooks/useTaskMutation";
 import { useHabit } from "@/hooks/useHabitMutations";
 import { useFinanceDashboard } from "@/hooks/useFinanceMutations";
+import { useStudyMistakes } from "@/hooks/useStudyMistakeMutations";
 import { ChartRadialText } from "@/components/ChartsComponent/RadialChart";
-import { ActivityTrendChart } from "@/components/ChartsComponent/InsightsCharts";
+import {
+  ActivityTrendChart,
+  WeakSubjectsChart,
+} from "@/components/ChartsComponent/InsightsCharts";
 import { EntityCreateDialog } from "@/components/entity-create-dialog";
 import { MenuPageHeader } from "@/components/menu-page-header";
 import { OverviewPanel } from "@/components/overview-panel";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -26,11 +34,18 @@ import {
 } from "@/components/ui/card";
 import { type ChartConfig } from "@/components/ui/chart";
 import TaskList from "./tasks/components/TaskListWithPagination";
-import { buildActivityTrend, getTaskSummary } from "@/lib/analytics";
+import {
+  buildActivityTrend,
+  buildWeakSubjectMistakes,
+  getDueStudyMistakes,
+  getTaskSummary,
+} from "@/lib/analytics";
 import { formatCurrency } from "@/lib/finance";
 import { cn } from "@/lib/utils";
 import { CurrentUserName } from "@/components/current-user-name";
-import type { Habit, Task } from "@/types/BaseInterfaces";
+import type { Habit, StudyMistake, Task } from "@/types/BaseInterfaces";
+
+const dueReviewPageSize = 4;
 
 const radialChartConfig = {
   data: {
@@ -117,14 +132,106 @@ function DailyWeeklyTracker({
   );
 }
 
+function formatReviewDate(date: Date | string) {
+  return new Date(date).toLocaleDateString(undefined, {
+    day: "2-digit",
+    month: "short",
+  });
+}
+
+function StudyReviewQueue({ mistakes = [] }: { mistakes?: StudyMistake[] }) {
+  const [page, setPage] = useState(1);
+  const dueMistakes = getDueStudyMistakes(mistakes);
+  const totalPages = Math.max(Math.ceil(dueMistakes.length / dueReviewPageSize), 1);
+  const visibleMistakes = dueMistakes.slice(
+    (page - 1) * dueReviewPageSize,
+    page * dueReviewPageSize
+  );
+
+  return (
+    <Card className="min-w-0 overflow-hidden border-border/70 shadow-sm">
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <BookOpenCheck className="h-5 w-5 text-primary" />
+          Due for review
+        </CardTitle>
+        <CardDescription>
+          Mistakes with a review date up to today and not mastered.
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-3">
+        {visibleMistakes.length ? (
+          visibleMistakes.map((mistake) => (
+            <div
+              className="grid min-w-0 gap-2 rounded-lg border border-border/60 bg-background/70 p-3 text-sm"
+              key={mistake.id}
+            >
+              <div className="flex min-w-0 items-center justify-between gap-3">
+                <div className="min-w-0">
+                  <div className="truncate font-medium">
+                    {mistake.subject?.name ?? "Subject"}
+                  </div>
+                  <div className="truncate text-xs text-muted-foreground">
+                    {mistake.errorType}
+                  </div>
+                </div>
+                <Badge className="shrink-0" variant="outline">
+                  {formatReviewDate(mistake.reviewDate)}
+                </Badge>
+              </div>
+              <p className="line-clamp-2 text-muted-foreground">
+                {mistake.question}
+              </p>
+            </div>
+          ))
+        ) : (
+          <p className="rounded-lg bg-secondary/35 p-4 text-sm text-muted-foreground">
+            No mistakes are due for review.
+          </p>
+        )}
+
+        {dueMistakes.length > dueReviewPageSize ? (
+          <div className="flex flex-wrap items-center justify-between gap-3 pt-1 text-sm text-muted-foreground">
+            <span>
+              Page {page} of {totalPages}
+            </span>
+            <div className="flex gap-2">
+              <Button
+                disabled={page <= 1}
+                onClick={() => setPage((current) => Math.max(current - 1, 1))}
+                type="button"
+                variant="outline"
+              >
+                Previous
+              </Button>
+              <Button
+                disabled={page >= totalPages}
+                onClick={() =>
+                  setPage((current) => Math.min(current + 1, totalPages))
+                }
+                type="button"
+                variant="outline"
+              >
+                Next
+              </Button>
+            </div>
+          </div>
+        ) : null}
+      </CardContent>
+    </Card>
+  );
+}
+
 export default function DashboardPage() {
   const { data: projects } = useProjects();
   const { data: tasks } = useTask();
   const { data: habits } = useHabit();
   const { data: finance } = useFinanceDashboard();
+  const { data: studyMistakes } = useStudyMistakes();
 
   const taskSummary = getTaskSummary(tasks ?? []);
   const activityTrend = buildActivityTrend(tasks ?? [], habits ?? []);
+  const weakSubjects = buildWeakSubjectMistakes(studyMistakes ?? []).slice(0, 8);
   const financeSummary = finance?.summary;
   const totalCash = financeSummary?.netCashFlow ?? 0;
   const projectsOnStreak = (projects ?? []).filter(
@@ -227,6 +334,15 @@ export default function DashboardPage() {
             {taskSummary.pending} pending tasks left
           </div>
         </ChartRadialText>
+      </section>
+
+      <section className="grid min-w-0 gap-4 xl:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]">
+        <WeakSubjectsChart
+          title="Weak Subjects"
+          description="Subjects with the most logged mistakes, with due reviews highlighted."
+          data={weakSubjects}
+        />
+        <StudyReviewQueue mistakes={studyMistakes} />
       </section>
 
       <section className="grid min-w-0 gap-4 xl:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]">

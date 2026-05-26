@@ -1,4 +1,4 @@
-import { Habit, Project, Task } from "@/types/BaseInterfaces";
+import { Habit, Project, StudyMistake, Task } from "@/types/BaseInterfaces";
 
 const DAY_LABELS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
@@ -115,5 +115,76 @@ export function buildHabitPerformance(habits: Habit[] = [], tasks: Task[] = []) 
       completedTasks,
       recentCheckIns,
     };
+  });
+}
+
+export function getDueStudyMistakes(
+  mistakes: StudyMistake[] = [],
+  referenceDate = new Date()
+) {
+  const endOfDay = new Date(referenceDate);
+  endOfDay.setHours(23, 59, 59, 999);
+
+  return mistakes
+    .filter((mistake) => {
+      const reviewDate = normalizeDate(mistake.reviewDate);
+
+      return (
+        mistake.status !== "mastered" &&
+        reviewDate !== null &&
+        reviewDate <= endOfDay
+      );
+    })
+    .sort(
+      (a, b) =>
+        new Date(a.reviewDate).getTime() - new Date(b.reviewDate).getTime()
+    );
+}
+
+export function buildWeakSubjectMistakes(mistakes: StudyMistake[] = []) {
+  const subjects = new Map<
+    string,
+    {
+      due: number;
+      mastered: number;
+      name: string;
+      reviewed: number;
+      subjectId: string;
+      total: number;
+      unresolved: number;
+    }
+  >();
+  const dueMistakeIds = new Set(
+    getDueStudyMistakes(mistakes).map((mistake) => mistake.id)
+  );
+
+  mistakes.forEach((mistake) => {
+    const subjectId = mistake.subjectId;
+    const current =
+      subjects.get(subjectId) ??
+      {
+        due: 0,
+        mastered: 0,
+        name: mistake.subject?.name ?? "Subject",
+        reviewed: 0,
+        subjectId,
+        total: 0,
+        unresolved: 0,
+      };
+
+    current.total += 1;
+    current.due += dueMistakeIds.has(mistake.id) ? 1 : 0;
+    current.mastered += mistake.status === "mastered" ? 1 : 0;
+    current.reviewed += mistake.status === "reviewed" ? 1 : 0;
+    current.unresolved += mistake.status === "unresolved" ? 1 : 0;
+    subjects.set(subjectId, current);
+  });
+
+  return Array.from(subjects.values()).sort((a, b) => {
+    if (b.total !== a.total) {
+      return b.total - a.total;
+    }
+
+    return b.due - a.due;
   });
 }

@@ -48,6 +48,8 @@ Current app position:
 - Study Plan is available as a Study Tools menu page with week-specific planned blocks and manual studied-hour registration
 - Study Plan now registers actual study sessions from begin/finish datetimes, calculates studied minutes, compares planned versus studied hours, and filters the week board by subject
 - Study Plan planned blocks can now be finished from the week board by entering actual studied minutes, which saves a studied session for that subject
+- dashboard now charts weak study subjects from logged mistakes and includes a paginated due-review queue
+- mistake log now has paginated weak-subject and due-review panels in addition to the filterable detailed queue
 - mistake log captures question, user's answer, correct answer, error type, correct rule, trap word, review date, and unresolved/reviewed/mastered status
 - project lists now paginate
 - project and habit charts now use combined bars and lines for workload, completion rate, check-ins, and streak context
