@@ -46,8 +46,8 @@ Current app position:
 - weekly organizer is now personal-only again, with a restored hero and habit/task planning board
 - Study Tools now has its own sidebar group, study dashboard, and subject-based mistake log for review workflows
 - Study Plan is available as a Study Tools menu page with week-specific planned blocks and manual studied-hour registration
-- Study Plan now registers actual study sessions from begin/finish datetimes, calculates studied minutes, lets week board study entries be edited/deleted in popups, compares planned versus studied hours, and filters the week board by subject
-- Study Plan planned blocks can now be finished from the week board by entering actual studied minutes, which saves a studied session for that subject and lets it be edited later from the board
+- Study Plan now registers actual study sessions from begin/finish datetimes, calculates studied minutes, lets week board study entries and their matching question counts be edited/deleted in popups, compares planned versus studied hours, and filters the week board by subject
+- Study Plan planned blocks can now be finished from the week board by entering actual studied minutes and optional question counts, which saves a studied session for that subject and lets the session plus matching question tracker entry be edited later from the board
 - Study Plan block completion can now record aggregate total/right/wrong question counts, shows weekly question totals, and lets saved count entries be edited or deleted without changing existing mistake data
 - dashboard now charts weak study subjects from logged mistakes and includes a paginated due-review queue
 - dashboard and Study Dashboard now chart 7-day study question practice with right/wrong counts and accuracy
