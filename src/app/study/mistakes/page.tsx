@@ -426,6 +426,27 @@ export default function StudyMistakesPage() {
                       {statusLabel(status)}
                     </Button>
                   ))}
+                  {!mistake.correctionStatus ? (
+                    <Button
+                      disabled={updateMistake.isPending}
+                      onClick={() =>
+                        updateMistake.mutate({
+                          id: mistake.id,
+                          data: {
+                            correctionStatus: "pending",
+                            result: mistake.result ?? "wrong",
+                            status: "unresolved",
+                          },
+                        })
+                      }
+                      size="sm"
+                      type="button"
+                      variant="outline"
+                    >
+                      <BookOpenCheck className="h-4 w-4" />
+                      Enviar para correção
+                    </Button>
+                  ) : null}
                   {mistake.correctionStatus ? (
                     <GuidedCorrectionDialog
                       isSaving={updateMistake.isPending}

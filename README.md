@@ -20,6 +20,7 @@ The app currently supports:
 - Study Plan finish flow can also record aggregate right/wrong question totals for the study block, show weekly counts on the planner, and feed dashboard question-practice charts
 - mistake log records questions, user's answer, correct answer, error type, correct rule, trap word, review date, and unresolved/reviewed/mastered status
 - mistake log includes Guided Correction for new wrong or doubtful-hit records, requiring microtopic, error reason, charged detail, memorization phrase, corrective action, and review date before the item can be marked reviewed/mastered
+- legacy mistake records can be manually sent to Guided Correction one by one from the mistake log
 - weekly organizer focuses on personal habit/task planning only
 - task creation supports an optional scheduled hour, and the calendar shows tasks by time inside each day
 - task queues use responsive cards with pending-first sorting, status counters, and compact pagination
@@ -404,6 +405,7 @@ What is stable enough to continue from:
 - dashboard shows study mistake pressure with a weak-subject chart and paginated due-review queue
 - mistake log shows paginated weak-subject and due-review panels above the detailed review queue
 - new wrong or doubtful-hit mistake records create a Guided Correction pending state, and status changes to reviewed/mastered are blocked until the required correction fields and review date are saved
+- legacy mistake records stay unchanged until manually sent to Guided Correction from their card
 - app tracker page shows project streak targets and today's task progress from completed tasks
 - project streaks now count days where completed tasks in that project meet the project's daily target, defaulting to 1 completed task per day
 - chart colors now follow the active app theme
