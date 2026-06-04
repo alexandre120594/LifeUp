@@ -6,8 +6,10 @@ import type {
   StudyPlanBoard,
   StudyQuestionPractice,
   StudyQuestionPracticeCreateInput,
+  StudyQuestionPracticeUpdateInput,
   StudySession,
   StudySessionCreateInput,
+  StudySessionUpdateInput,
   StudySubject,
   StudySubjectInput,
 } from "@/types/BaseInterfaces";
@@ -63,6 +65,11 @@ export const StudyServices = {
       method: "POST",
       body: JSON.stringify(data),
     }),
+  updateSession: (id: string, data: StudySessionUpdateInput) =>
+    apiClient<StudySession>(`/api/study-sessions/${id}`, {
+      method: "PATCH",
+      body: JSON.stringify(data),
+    }),
   deleteSession: (id: string) =>
     apiClient<{ ok: boolean }>(`/api/study-sessions/${id}`, {
       method: "DELETE",
@@ -93,5 +100,17 @@ export const StudyServices = {
     apiClient<StudyQuestionPractice>("/api/study-question-practice", {
       method: "POST",
       body: JSON.stringify(data),
+    }),
+  updateQuestionPractice: (
+    id: string,
+    data: StudyQuestionPracticeUpdateInput
+  ) =>
+    apiClient<StudyQuestionPractice>(`/api/study-question-practice/${id}`, {
+      method: "PATCH",
+      body: JSON.stringify(data),
+    }),
+  deleteQuestionPractice: (id: string) =>
+    apiClient<{ ok: boolean }>(`/api/study-question-practice/${id}`, {
+      method: "DELETE",
     }),
 };

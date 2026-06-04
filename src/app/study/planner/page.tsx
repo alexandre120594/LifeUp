@@ -50,16 +50,20 @@ import {
   useCreateStudySession,
   useCreateStudySubject,
   useDeleteStudyPlanBlock,
+  useDeleteStudyQuestionPractice,
   useDeleteStudySession,
   useStudyPlanBoard,
   useStudyQuestionPractice,
   useStudySessions,
   useStudySubjects,
   useUpdateStudyPlanBlock,
+  useUpdateStudyQuestionPractice,
+  useUpdateStudySession,
 } from "@/hooks/useStudyMutations";
 import { getStudyQuestionSummary } from "@/lib/analytics";
 import type {
   StudyPlanBlock,
+  StudyQuestionPractice,
   StudySession,
 } from "@/types/BaseInterfaces";
 
@@ -92,6 +96,22 @@ type FinishStudyFormState = {
   wrongQuestions: string;
 };
 
+type SessionFormState = {
+  endedAt: string;
+  notes: string;
+  startedAt: string;
+  subjectId: string;
+};
+
+type QuestionPracticeFormState = {
+  correctQuestions: string;
+  notes: string;
+  practiceDate: string;
+  subjectId: string;
+  totalQuestions: string;
+  wrongQuestions: string;
+};
+
 const emptyBlockForm: BlockFormState = {
   dayIndex: "0",
   durationMinutes: "60",
@@ -105,6 +125,22 @@ const emptyFinishStudyForm: FinishStudyFormState = {
   notes: "",
   correctQuestions: "0",
   startedAt: "",
+  totalQuestions: "0",
+  wrongQuestions: "0",
+};
+
+const emptySessionForm: SessionFormState = {
+  endedAt: "",
+  notes: "",
+  startedAt: "",
+  subjectId: "",
+};
+
+const emptyQuestionPracticeForm: QuestionPracticeFormState = {
+  correctQuestions: "0",
+  notes: "",
+  practiceDate: "",
+  subjectId: "",
   totalQuestions: "0",
   wrongQuestions: "0",
 };
@@ -211,6 +247,17 @@ function getQuestionCounts(form: FinishStudyFormState) {
   };
 }
 
+function getQuestionPracticeFormCounts(form: QuestionPracticeFormState) {
+  return getQuestionCounts({
+    endedAt: "",
+    notes: form.notes,
+    correctQuestions: form.correctQuestions,
+    startedAt: "",
+    totalQuestions: form.totalQuestions,
+    wrongQuestions: form.wrongQuestions,
+  });
+}
+
 function getBlockStartDate(
   block: StudyPlanBlock,
   week: ReturnType<typeof getWeek>
@@ -221,6 +268,14 @@ function getBlockStartDate(
   date.setHours(Number(hours), Number(minutes), 0, 0);
 
   return date;
+}
+
+function toDateInputValue(value: Date | string) {
+  return toLocalDayKey(value);
+}
+
+function localDayToIso(value: string) {
+  return new Date(`${value}T12:00:00`).toISOString();
 }
 
 export default function StudyPlannerPage() {
@@ -237,13 +292,25 @@ export default function StudyPlannerPage() {
   );
   const [finishStudyForm, setFinishStudyForm] =
     useState<FinishStudyFormState>(emptyFinishStudyForm);
+  const [editingSession, setEditingSession] = useState<StudySession | null>(
+    null
+  );
+  const [sessionForm, setSessionForm] =
+    useState<SessionFormState>(emptySessionForm);
+  const [editingQuestionPractice, setEditingQuestionPractice] =
+    useState<StudyQuestionPractice | null>(null);
+  const [questionPracticeForm, setQuestionPracticeForm] =
+    useState<QuestionPracticeFormState>(emptyQuestionPracticeForm);
   const [isBlockDialogOpen, setIsBlockDialogOpen] = useState(false);
   const [isSubjectDialogOpen, setIsSubjectDialogOpen] = useState(false);
   const [newSubjectName, setNewSubjectName] = useState("");
   const [newSubjectNotes, setNewSubjectNotes] = useState("");
   const createSubject = useCreateStudySubject();
   const createSession = useCreateStudySession();
+  const updateSession = useUpdateStudySession();
   const createQuestionPractice = useCreateStudyQuestionPractice();
+  const updateQuestionPractice = useUpdateStudyQuestionPractice();
+  const deleteQuestionPractice = useDeleteStudyQuestionPractice();
   const deleteSession = useDeleteStudySession();
   const createBlock = useCreateStudyPlanBlock();
   const updateBlock = useUpdateStudyPlanBlock();
@@ -440,6 +507,84 @@ export default function StudyPlannerPage() {
     setFinishStudyForm(emptyFinishStudyForm);
   };
 
+  const openEditSessionDialog = (session: StudySession) => {
+    setEditingSession(session);
+    setSessionForm({
+      endedAt: toDateTimeInputValue(new Date(session.endedAt)),
+      notes: session.notes ?? "",
+      startedAt: toDateTimeInputValue(new Date(session.startedAt)),
+      subjectId: session.subjectId,
+    });
+  };
+
+  const handleSessionSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    if (
+      !editingSession ||
+      !sessionForm.subjectId ||
+      !getMinutesBetween(sessionForm.startedAt, sessionForm.endedAt)
+    ) {
+      return;
+    }
+
+    await updateSession.mutateAsync({
+      id: editingSession.id,
+      data: {
+        endedAt: new Date(sessionForm.endedAt).toISOString(),
+        notes: sessionForm.notes.trim() || null,
+        startedAt: new Date(sessionForm.startedAt).toISOString(),
+        subjectId: sessionForm.subjectId,
+      },
+    });
+
+    setEditingSession(null);
+    setSessionForm(emptySessionForm);
+  };
+
+  const openEditQuestionPracticeDialog = (practice: StudyQuestionPractice) => {
+    setEditingQuestionPractice(practice);
+    setQuestionPracticeForm({
+      correctQuestions: String(practice.correctQuestions),
+      notes: practice.notes ?? "",
+      practiceDate: toDateInputValue(practice.practiceDate),
+      subjectId: practice.subjectId,
+      totalQuestions: String(practice.totalQuestions),
+      wrongQuestions: String(practice.wrongQuestions),
+    });
+  };
+
+  const handleQuestionPracticeSubmit = async (
+    event: FormEvent<HTMLFormElement>
+  ) => {
+    event.preventDefault();
+
+    if (!editingQuestionPractice || !questionPracticeForm.subjectId) {
+      return;
+    }
+
+    const questionCounts = getQuestionPracticeFormCounts(questionPracticeForm);
+
+    if (!questionCounts.isValid || !questionPracticeForm.practiceDate) {
+      return;
+    }
+
+    await updateQuestionPractice.mutateAsync({
+      id: editingQuestionPractice.id,
+      data: {
+        correctQuestions: questionCounts.correctQuestions,
+        notes: questionPracticeForm.notes.trim() || null,
+        practiceDate: localDayToIso(questionPracticeForm.practiceDate),
+        subjectId: questionPracticeForm.subjectId,
+        totalQuestions: questionCounts.totalQuestions,
+        wrongQuestions: questionCounts.wrongQuestions,
+      },
+    });
+
+    setEditingQuestionPractice(null);
+    setQuestionPracticeForm(emptyQuestionPracticeForm);
+  };
+
   return (
     <div className="space-y-6 p-4 md:p-8">
       <PageHero
@@ -458,7 +603,7 @@ export default function StudyPlannerPage() {
 
       <section className="grid gap-4 rounded-lg border border-border/70 bg-card p-4 shadow-sm">
         <div className="grid gap-3 rounded-lg border border-border/70 bg-background/70 p-3">
-            <div className="grid min-w-0 gap-2 lg:grid-cols-[minmax(0,16rem)_repeat(5,auto)] lg:items-center">
+            <div className="grid min-w-0 gap-2 lg:grid-cols-[minmax(0,16rem)_repeat(6,auto)] lg:items-center">
               <Select value={subjectFilter} onValueChange={setSubjectFilter}>
                 <SelectTrigger className="w-full">
                   <SelectValue />
@@ -708,11 +853,18 @@ export default function StudyPlannerPage() {
         </div>
       </section>
 
+      {/* <QuestionPracticeTracker
+        deletePractice={(id) => deleteQuestionPractice.mutate(id)}
+        editPractice={openEditQuestionPracticeDialog}
+        practices={questionPractice}
+      /> */}
+
       <StudyWeekBoard
         blocks={filteredBlocks}
         deleteBlock={(id) => deleteBlock.mutate(id)}
         deleteSession={(id) => deleteSession.mutate(id)}
         editBlock={editBlock}
+        editSession={openEditSessionDialog}
         finishBlock={openFinishStudyDialog}
         sessions={weekSessions}
         setWeekOffset={setWeekOffset}
@@ -850,7 +1002,303 @@ export default function StudyPlannerPage() {
           </form>
         </DialogContent>
       </Dialog>
+
+      <Dialog
+        open={Boolean(editingSession)}
+        onOpenChange={(open) => {
+          if (!open) {
+            setEditingSession(null);
+            setSessionForm(emptySessionForm);
+          }
+        }}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Edit studied time</DialogTitle>
+            <DialogDescription>
+              Update the subject, start time, finish time, or notes for this
+              week board study entry.
+            </DialogDescription>
+          </DialogHeader>
+          <form className="grid gap-3" onSubmit={handleSessionSubmit}>
+            <Select
+              value={sessionForm.subjectId}
+              onValueChange={(value) =>
+                setSessionForm((current) => ({
+                  ...current,
+                  subjectId: value,
+                }))
+              }
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Subject" />
+              </SelectTrigger>
+              <SelectContent>
+                {subjects.map((subject) => (
+                  <SelectItem key={subject.id} value={subject.id}>
+                    {subject.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Input
+              onChange={(event) =>
+                setSessionForm((current) => ({
+                  ...current,
+                  startedAt: event.target.value,
+                }))
+              }
+              type="datetime-local"
+              value={sessionForm.startedAt}
+            />
+            <Input
+              onChange={(event) =>
+                setSessionForm((current) => ({
+                  ...current,
+                  endedAt: event.target.value,
+                }))
+              }
+              type="datetime-local"
+              value={sessionForm.endedAt}
+            />
+            <Input
+              onChange={(event) =>
+                setSessionForm((current) => ({
+                  ...current,
+                  notes: event.target.value,
+                }))
+              }
+              placeholder="Optional notes"
+              value={sessionForm.notes}
+            />
+            {!getMinutesBetween(sessionForm.startedAt, sessionForm.endedAt) ? (
+              <p className="rounded-md bg-secondary/35 p-3 text-sm text-muted-foreground">
+                Finish time must be after start time.
+              </p>
+            ) : null}
+            <DialogFooter>
+              <Button
+                disabled={
+                  !sessionForm.subjectId ||
+                  !getMinutesBetween(sessionForm.startedAt, sessionForm.endedAt) ||
+                  updateSession.isPending
+                }
+                type="submit"
+              >
+                <CheckCircle2 className="h-4 w-4" />
+                Update studied time
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog
+        open={Boolean(editingQuestionPractice)}
+        onOpenChange={(open) => {
+          if (!open) {
+            setEditingQuestionPractice(null);
+            setQuestionPracticeForm(emptyQuestionPracticeForm);
+          }
+        }}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Edit question practice</DialogTitle>
+            <DialogDescription>
+              Update how many questions were practiced for this entry.
+            </DialogDescription>
+          </DialogHeader>
+          <form className="grid gap-3" onSubmit={handleQuestionPracticeSubmit}>
+            <Select
+              value={questionPracticeForm.subjectId}
+              onValueChange={(value) =>
+                setQuestionPracticeForm((current) => ({
+                  ...current,
+                  subjectId: value,
+                }))
+              }
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Subject" />
+              </SelectTrigger>
+              <SelectContent>
+                {subjects.map((subject) => (
+                  <SelectItem key={subject.id} value={subject.id}>
+                    {subject.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Input
+              onChange={(event) =>
+                setQuestionPracticeForm((current) => ({
+                  ...current,
+                  practiceDate: event.target.value,
+                }))
+              }
+              type="date"
+              value={questionPracticeForm.practiceDate}
+            />
+            <div className="grid gap-3 sm:grid-cols-3">
+              <label className="grid gap-1 text-sm font-medium">
+                Total questions
+                <Input
+                  min="0"
+                  onChange={(event) =>
+                    setQuestionPracticeForm((current) => ({
+                      ...current,
+                      totalQuestions: event.target.value,
+                    }))
+                  }
+                  type="number"
+                  value={questionPracticeForm.totalQuestions}
+                />
+              </label>
+              <label className="grid gap-1 text-sm font-medium">
+                Right
+                <Input
+                  min="0"
+                  onChange={(event) =>
+                    setQuestionPracticeForm((current) => ({
+                      ...current,
+                      correctQuestions: event.target.value,
+                    }))
+                  }
+                  type="number"
+                  value={questionPracticeForm.correctQuestions}
+                />
+              </label>
+              <label className="grid gap-1 text-sm font-medium">
+                Wrong
+                <Input
+                  min="0"
+                  onChange={(event) =>
+                    setQuestionPracticeForm((current) => ({
+                      ...current,
+                      wrongQuestions: event.target.value,
+                    }))
+                  }
+                  type="number"
+                  value={questionPracticeForm.wrongQuestions}
+                />
+              </label>
+            </div>
+            <Input
+              onChange={(event) =>
+                setQuestionPracticeForm((current) => ({
+                  ...current,
+                  notes: event.target.value,
+                }))
+              }
+              placeholder="Optional notes"
+              value={questionPracticeForm.notes}
+            />
+            {!getQuestionPracticeFormCounts(questionPracticeForm).isValid ? (
+              <p className="rounded-md bg-secondary/35 p-3 text-sm text-muted-foreground">
+                Right plus wrong must equal total questions.
+              </p>
+            ) : null}
+            <DialogFooter>
+              <Button
+                disabled={
+                  !questionPracticeForm.subjectId ||
+                  !questionPracticeForm.practiceDate ||
+                  !getQuestionPracticeFormCounts(questionPracticeForm).isValid ||
+                  updateQuestionPractice.isPending
+                }
+                type="submit"
+              >
+                <CheckCircle2 className="h-4 w-4" />
+                Update questions
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
     </div>
+  );
+}
+
+function getPracticeSubjectName(practice: StudyQuestionPractice) {
+  return practice.subject?.name ?? "Subject";
+}
+
+function QuestionPracticeTracker({
+  deletePractice,
+  editPractice,
+  practices,
+}: {
+  deletePractice: (id: string) => void;
+  editPractice: (practice: StudyQuestionPractice) => void;
+  practices: StudyQuestionPractice[];
+}) {
+  return (
+    <section className="grid gap-4 rounded-lg border border-border/70 bg-card p-4 shadow-sm md:p-5">
+      <div>
+        <h2 className="text-xl font-semibold">Question tracker</h2>
+        <p className="text-sm text-muted-foreground">
+          Edit or delete saved right/wrong question counts for this week.
+        </p>
+      </div>
+      <div className="grid gap-2">
+        {practices.length ? (
+          practices.map((practice) => (
+            <div
+              className="grid gap-3 rounded-lg border border-border/70 bg-background/70 p-3 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center"
+              key={practice.id}
+            >
+              <div className="min-w-0">
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="font-semibold">
+                    {getPracticeSubjectName(practice)}
+                  </span>
+                  <Badge variant="outline">
+                    {new Date(practice.practiceDate).toLocaleDateString()}
+                  </Badge>
+                </div>
+                <div className="mt-2 flex flex-wrap gap-2 text-sm text-muted-foreground">
+                  <span>{practice.totalQuestions} questions</span>
+                  <span>{practice.correctQuestions} right</span>
+                  <span>{practice.wrongQuestions} wrong</span>
+                </div>
+                {practice.notes ? (
+                  <p className="mt-1 truncate text-sm text-muted-foreground">
+                    {practice.notes}
+                  </p>
+                ) : null}
+              </div>
+              <div className="flex items-center justify-end gap-1">
+                <Button
+                  aria-label="Edit question practice"
+                  className="h-8 w-8"
+                  onClick={() => editPractice(practice)}
+                  size="icon"
+                  type="button"
+                  variant="ghost"
+                >
+                  <Pencil className="h-4 w-4" />
+                </Button>
+                <Button
+                  aria-label="Delete question practice"
+                  className="h-8 w-8"
+                  onClick={() => deletePractice(practice.id)}
+                  size="icon"
+                  type="button"
+                  variant="ghost"
+                >
+                  <Trash className="h-4 w-4 text-destructive" />
+                </Button>
+              </div>
+            </div>
+          ))
+        ) : (
+          <div className="rounded-lg border border-border/70 bg-background/70 p-3 text-sm text-muted-foreground">
+            No question practice saved for this view.
+          </div>
+        )}
+      </div>
+    </section>
   );
 }
 
@@ -859,6 +1307,7 @@ function StudyWeekBoard({
   deleteBlock,
   deleteSession,
   editBlock,
+  editSession,
   finishBlock,
   sessions,
   setWeekOffset,
@@ -870,6 +1319,7 @@ function StudyWeekBoard({
   deleteBlock: (id: string) => void;
   deleteSession: (id: string) => void;
   editBlock: (block: StudyPlanBlock) => void;
+  editSession: (session: StudySession) => void;
   finishBlock: (block: StudyPlanBlock) => void;
   sessions: StudySession[];
   setWeekOffset: Dispatch<SetStateAction<number>>;
@@ -1058,16 +1508,28 @@ function StudyWeekBoard({
                               <span className="font-semibold">
                                 {formatStudyDuration(session.durationMinutes)}
                               </span>
-                              <Button
-                                aria-label="Delete study session"
-                                className="h-7 w-7"
-                                onClick={() => deleteSession(session.id)}
-                                size="icon"
-                                type="button"
-                                variant="ghost"
-                              >
-                                <Trash className="h-3.5 w-3.5 text-destructive" />
-                              </Button>
+                              <div className="flex items-center justify-end gap-1">
+                                <Button
+                                  aria-label="Edit study session"
+                                  className="h-7 w-7"
+                                  onClick={() => editSession(session)}
+                                  size="icon"
+                                  type="button"
+                                  variant="ghost"
+                                >
+                                  <Pencil className="h-3.5 w-3.5" />
+                                </Button>
+                                <Button
+                                  aria-label="Delete study session"
+                                  className="h-7 w-7"
+                                  onClick={() => deleteSession(session.id)}
+                                  size="icon"
+                                  type="button"
+                                  variant="ghost"
+                                >
+                                  <Trash className="h-3.5 w-3.5 text-destructive" />
+                                </Button>
+                              </div>
                             </div>
                           </div>
                         ))

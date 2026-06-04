@@ -16,8 +16,8 @@ The app currently supports:
 - study records for subjects, planned weekly hours, and repeating day/hour study blocks in the data layer
 - dedicated Study Tools workspace with a study dashboard and subject-based mistake log
 - Study Plan page for week-specific planned study blocks and manual studied-time registration
-- Study Plan registers actual study sessions from begin/finish datetimes, calculates studied duration, compares planned versus studied hours, and filters the week board by subject
-- Study Plan finish flow can also record aggregate right/wrong question totals for the study block, show weekly counts on the planner, and feed dashboard question-practice charts
+- Study Plan registers actual study sessions from begin/finish datetimes, calculates studied duration, lets week board study entries be edited/deleted in popups, compares planned versus studied hours, and filters the week board by subject
+- Study Plan finish flow can also record aggregate right/wrong question totals for the study block, show weekly counts on the planner, edit/delete saved count entries, and feed dashboard question-practice charts
 - mistake log records questions, user's answer, correct answer, error type, correct rule, trap word, review date, and unresolved/reviewed/mastered status
 - mistake log includes Guided Correction for new wrong or doubtful-hit records, requiring microtopic, error reason, charged detail, memorization phrase, corrective action, and review date before the item can be marked reviewed/mastered
 - legacy mistake records can be manually sent to Guided Correction one by one from the mistake log
@@ -198,6 +198,7 @@ There is also repeatable local seed data for testing charts and flows.
 - `src/app/api/study-sessions/route.ts`
 - `src/app/api/study-sessions/[id]/route.ts`
 - `src/app/api/study-question-practice/route.ts`
+- `src/app/api/study-question-practice/[id]/route.ts`
 - `src/app/api/study-mistakes/route.ts`
 - `src/app/api/study-mistakes/[id]/route.ts`
 - `src/app/api/pomodoro/route.ts`
@@ -400,8 +401,8 @@ What is stable enough to continue from:
 - weekly organizer builds Monday-to-Sunday habit boards from the selected week, persists them per user, supports previous/next week navigation, and schedules multiple habits into hourly cells from 00:00 through 23:00
 - weekly organizer is dedicated to personal habit/task planning; study review lives under Study Tools
 - calendar tasks can carry scheduled hours and are shown in time order inside day cells and day detail popups
-- study plan planned blocks can be finished directly from the week board, prompting for actual minutes studied and saving that time under the block's subject
-- study plan block completion can save aggregate right/wrong question totals, the planner shows week counts, and dashboards chart those question totals by day
+- study plan planned blocks can be finished directly from the week board, prompting for actual minutes studied, saving that time under the block's subject, and allowing the saved study entry to be edited later
+- study plan block completion can save aggregate right/wrong question totals, the planner can edit/delete saved count entries, and dashboards chart those question totals by day
 - dashboard shows study mistake pressure with a weak-subject chart and paginated due-review queue
 - mistake log shows paginated weak-subject and due-review panels above the detailed review queue
 - new wrong or doubtful-hit mistake records create a Guided Correction pending state, and status changes to reviewed/mastered are blocked until the required correction fields and review date are saved

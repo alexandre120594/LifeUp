@@ -209,6 +209,8 @@ export interface StudySessionCreateInput {
   subjectId: string;
 }
 
+export type StudySessionUpdateInput = StudySessionCreateInput;
+
 export interface StudyQuestionPractice {
   id: string;
   practiceDate: Date | string;
@@ -230,6 +232,8 @@ export interface StudyQuestionPracticeCreateInput {
   notes?: string | null;
   subjectId: string;
 }
+
+export type StudyQuestionPracticeUpdateInput = StudyQuestionPracticeCreateInput;
 
 export type StudyMistakeStatus = "unresolved" | "reviewed" | "mastered";
 export type StudyMistakeResult =

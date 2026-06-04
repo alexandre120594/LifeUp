@@ -3,8 +3,10 @@ import type { StudyQuestionPracticeFilters } from "@/services/StudyServices";
 import type {
   StudyPlanBlockInput,
   StudyQuestionPracticeCreateInput,
+  StudyQuestionPracticeUpdateInput,
   StudyScheduleInput,
   StudySessionCreateInput,
+  StudySessionUpdateInput,
   StudySubjectInput,
 } from "@/types/BaseInterfaces";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -172,6 +174,33 @@ export function useCreateStudySession() {
   });
 }
 
+export function useUpdateStudySession() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    meta: { successMessage: "Study session updated.", successTitle: "Updated" },
+    mutationFn: ({
+      data,
+      id,
+    }: {
+      data: StudySessionUpdateInput;
+      id: string;
+    }) => StudyServices.updateSession(id, data),
+    onSuccess: async () => {
+      await Promise.all([
+        queryClient.invalidateQueries({
+          queryKey: ["study-sessions"],
+          refetchType: "all",
+        }),
+        queryClient.invalidateQueries({
+          queryKey: ["study-subjects"],
+          refetchType: "all",
+        }),
+      ]);
+    },
+  });
+}
+
 export function useDeleteStudySession() {
   const queryClient = useQueryClient();
 
@@ -194,6 +223,60 @@ export function useCreateStudyQuestionPractice() {
     meta: { successMessage: "Question practice saved.", successTitle: "Saved" },
     mutationFn: (data: StudyQuestionPracticeCreateInput) =>
       StudyServices.createQuestionPractice(data),
+    onSuccess: async () => {
+      await Promise.all([
+        queryClient.invalidateQueries({
+          queryKey: ["study-question-practice"],
+          refetchType: "all",
+        }),
+        queryClient.invalidateQueries({
+          queryKey: ["study-subjects"],
+          refetchType: "all",
+        }),
+      ]);
+    },
+  });
+}
+
+export function useUpdateStudyQuestionPractice() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    meta: {
+      successMessage: "Question practice updated.",
+      successTitle: "Updated",
+    },
+    mutationFn: ({
+      data,
+      id,
+    }: {
+      data: StudyQuestionPracticeUpdateInput;
+      id: string;
+    }) => StudyServices.updateQuestionPractice(id, data),
+    onSuccess: async () => {
+      await Promise.all([
+        queryClient.invalidateQueries({
+          queryKey: ["study-question-practice"],
+          refetchType: "all",
+        }),
+        queryClient.invalidateQueries({
+          queryKey: ["study-subjects"],
+          refetchType: "all",
+        }),
+      ]);
+    },
+  });
+}
+
+export function useDeleteStudyQuestionPractice() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    meta: {
+      successMessage: "Question practice deleted.",
+      successTitle: "Deleted",
+    },
+    mutationFn: StudyServices.deleteQuestionPractice,
     onSuccess: async () => {
       await Promise.all([
         queryClient.invalidateQueries({

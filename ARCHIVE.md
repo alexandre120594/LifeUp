@@ -46,9 +46,9 @@ Current app position:
 - weekly organizer is now personal-only again, with a restored hero and habit/task planning board
 - Study Tools now has its own sidebar group, study dashboard, and subject-based mistake log for review workflows
 - Study Plan is available as a Study Tools menu page with week-specific planned blocks and manual studied-hour registration
-- Study Plan now registers actual study sessions from begin/finish datetimes, calculates studied minutes, compares planned versus studied hours, and filters the week board by subject
-- Study Plan planned blocks can now be finished from the week board by entering actual studied minutes, which saves a studied session for that subject
-- Study Plan block completion can now record aggregate total/right/wrong question counts and shows weekly question totals without changing existing study-session or mistake data
+- Study Plan now registers actual study sessions from begin/finish datetimes, calculates studied minutes, lets week board study entries be edited/deleted in popups, compares planned versus studied hours, and filters the week board by subject
+- Study Plan planned blocks can now be finished from the week board by entering actual studied minutes, which saves a studied session for that subject and lets it be edited later from the board
+- Study Plan block completion can now record aggregate total/right/wrong question counts, shows weekly question totals, and lets saved count entries be edited or deleted without changing existing mistake data
 - dashboard now charts weak study subjects from logged mistakes and includes a paginated due-review queue
 - dashboard and Study Dashboard now chart 7-day study question practice with right/wrong counts and accuracy
 - mistake log now has paginated weak-subject and due-review panels in addition to the filterable detailed queue
@@ -114,6 +114,7 @@ Main files:
 - `src/app/api/study-sessions/route.ts`
 - `src/app/api/study-sessions/[id]/route.ts`
 - `src/app/api/study-question-practice/route.ts`
+- `src/app/api/study-question-practice/[id]/route.ts`
 - `src/app/api/study-mistakes/route.ts`
 - `src/app/api/study-mistakes/[id]/route.ts`
 - `src/hooks/useStudyMistakeMutations.ts`
@@ -430,7 +431,7 @@ Development currently stops at:
 - Study Tools workspace available for review-first study workflows, including a dashboard and mistake log
 - Guided Correction is additive: older mistake records keep their previous status behavior, while new wrong or doubtful-hit records carry correction pending/completed state
 - sending a legacy mistake to Guided Correction changes only that selected record to pending correction and resets it to unresolved
-- Study Plan question totals are additive study data: existing sessions and mistake records are not rewritten
+- Study Plan question totals are additive study data: existing sessions and mistake records are not rewritten, and saved count entries can be corrected or removed from the planner
 - streak persistence now centers on project daily completed-task targets, with habit streaks kept as secondary check-in analytics
 - seeded local data available
 - docs updated to reflect current structure
