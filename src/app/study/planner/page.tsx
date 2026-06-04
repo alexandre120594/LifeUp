@@ -10,14 +10,12 @@ import {
   YAxis,
 } from "recharts";
 import {
-  CalendarPlus,
   CheckCircle2,
   ChevronLeft,
   ChevronRight,
   GraduationCap,
   Pencil,
   Plus,
-  Save,
   Trash,
 } from "lucide-react";
 import { PageHero } from "@/components/page-hero";
@@ -48,19 +46,21 @@ import {
 } from "@/components/ui/select";
 import {
   useCreateStudyPlanBlock,
+  useCreateStudyQuestionPractice,
   useCreateStudySession,
   useCreateStudySubject,
   useDeleteStudyPlanBlock,
   useDeleteStudySession,
   useStudyPlanBoard,
+  useStudyQuestionPractice,
   useStudySessions,
   useStudySubjects,
   useUpdateStudyPlanBlock,
 } from "@/hooks/useStudyMutations";
+import { getStudyQuestionSummary } from "@/lib/analytics";
 import type {
   StudyPlanBlock,
   StudySession,
-  StudySubject,
 } from "@/types/BaseInterfaces";
 
 const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
@@ -75,13 +75,6 @@ const chartConfig = {
   },
 } satisfies ChartConfig;
 
-type SessionFormState = {
-  endedAt: string;
-  notes: string;
-  startedAt: string;
-  subjectName: string;
-};
-
 type BlockFormState = {
   dayIndex: string;
   durationMinutes: string;
@@ -93,14 +86,10 @@ type BlockFormState = {
 type FinishStudyFormState = {
   endedAt: string;
   notes: string;
+  correctQuestions: string;
   startedAt: string;
-};
-
-const emptySessionForm: SessionFormState = {
-  endedAt: "",
-  notes: "",
-  startedAt: "",
-  subjectName: "",
+  totalQuestions: string;
+  wrongQuestions: string;
 };
 
 const emptyBlockForm: BlockFormState = {
@@ -114,7 +103,10 @@ const emptyBlockForm: BlockFormState = {
 const emptyFinishStudyForm: FinishStudyFormState = {
   endedAt: "",
   notes: "",
+  correctQuestions: "0",
   startedAt: "",
+  totalQuestions: "0",
+  wrongQuestions: "0",
 };
 
 function formatStudyDuration(minutes: number) {
@@ -199,6 +191,26 @@ function getMinutesBetween(startedAt: string, endedAt: string) {
   return Math.max(1, Math.round((end.getTime() - start.getTime()) / 60000));
 }
 
+function getQuestionCounts(form: FinishStudyFormState) {
+  const totalQuestions = Number(form.totalQuestions);
+  const correctQuestions = Number(form.correctQuestions);
+  const wrongQuestions = Number(form.wrongQuestions);
+
+  return {
+    correctQuestions: Number.isInteger(correctQuestions) ? correctQuestions : -1,
+    isValid:
+      Number.isInteger(totalQuestions) &&
+      Number.isInteger(correctQuestions) &&
+      Number.isInteger(wrongQuestions) &&
+      totalQuestions >= 0 &&
+      correctQuestions >= 0 &&
+      wrongQuestions >= 0 &&
+      correctQuestions + wrongQuestions === totalQuestions,
+    totalQuestions: Number.isInteger(totalQuestions) ? totalQuestions : -1,
+    wrongQuestions: Number.isInteger(wrongQuestions) ? wrongQuestions : -1,
+  };
+}
+
 function getBlockStartDate(
   block: StudyPlanBlock,
   week: ReturnType<typeof getWeek>
@@ -211,13 +223,6 @@ function getBlockStartDate(
   return date;
 }
 
-function findSubjectByName(subjects: StudySubject[], name: string) {
-  const normalizedName = name.trim().toLowerCase();
-  return subjects.find(
-    (subject) => subject.name.trim().toLowerCase() === normalizedName
-  );
-}
-
 export default function StudyPlannerPage() {
   "use no memo";
 
@@ -225,8 +230,6 @@ export default function StudyPlannerPage() {
   const { data: sessions = [] } = useStudySessions();
   const [subjectFilter, setSubjectFilter] = useState("all");
   const [weekOffset, setWeekOffset] = useState(0);
-  const [sessionForm, setSessionForm] =
-    useState<SessionFormState>(emptySessionForm);
   const [blockForm, setBlockForm] = useState<BlockFormState>(emptyBlockForm);
   const [editingBlockId, setEditingBlockId] = useState<string | null>(null);
   const [finishingBlock, setFinishingBlock] = useState<StudyPlanBlock | null>(
@@ -240,6 +243,7 @@ export default function StudyPlannerPage() {
   const [newSubjectNotes, setNewSubjectNotes] = useState("");
   const createSubject = useCreateStudySubject();
   const createSession = useCreateStudySession();
+  const createQuestionPractice = useCreateStudyQuestionPractice();
   const deleteSession = useDeleteStudySession();
   const createBlock = useCreateStudyPlanBlock();
   const updateBlock = useUpdateStudyPlanBlock();
@@ -254,6 +258,11 @@ export default function StudyPlannerPage() {
   const weekStartKey = week[0].key;
   const weekRange = `${week[0].dateLabel} - ${week[week.length - 1].dateLabel}`;
   const { data: board } = useStudyPlanBoard(weekStartKey);
+  const { data: questionPractice = [] } = useStudyQuestionPractice({
+    from: week[0].key,
+    subjectId: subjectFilter === "all" ? undefined : subjectFilter,
+    to: week[week.length - 1].key,
+  });
   const blocks = board?.blocks ?? [];
   const weekKeys = week.map((day) => day.key);
   const filteredBlocks =
@@ -275,14 +284,7 @@ export default function StudyPlannerPage() {
     (total, session) => total + session.durationMinutes,
     0
   );
-  const totalStudiedMinutes = sessions.reduce(
-    (total, session) => total + session.durationMinutes,
-    0
-  );
-  const sessionDurationPreview = getMinutesBetween(
-    sessionForm.startedAt,
-    sessionForm.endedAt
-  );
+  const questionSummary = getStudyQuestionSummary(questionPractice);
   const chartData = week.map((day, index) => {
     const dayBlocks = filteredBlocks.filter((block) => block.dayIndex === index);
     const daySessions = weekSessions.filter(
@@ -308,18 +310,6 @@ export default function StudyPlannerPage() {
     };
   });
 
-  const seedSessionTimes = () => {
-    const start = new Date();
-    start.setSeconds(0, 0);
-    const end = new Date(start);
-    end.setMinutes(start.getMinutes() + 60);
-    setSessionForm((current) => ({
-      ...current,
-      endedAt: toDateTimeInputValue(end),
-      startedAt: toDateTimeInputValue(start),
-    }));
-  };
-
   const handleSubjectSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
@@ -338,33 +328,6 @@ export default function StudyPlannerPage() {
     setNewSubjectName("");
     setNewSubjectNotes("");
     setIsSubjectDialogOpen(false);
-  };
-
-  const handleSessionSubmit = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-
-    const subjectName = sessionForm.subjectName.trim();
-
-    if (!subjectName || !sessionDurationPreview) {
-      return;
-    }
-
-    const subject =
-      findSubjectByName(subjects, subjectName) ??
-      (await createSubject.mutateAsync({
-        name: subjectName,
-        notes: "",
-        plannedHoursPerWeek: 1,
-      }));
-
-    await createSession.mutateAsync({
-      endedAt: new Date(sessionForm.endedAt).toISOString(),
-      notes: sessionForm.notes.trim() || null,
-      startedAt: new Date(sessionForm.startedAt).toISOString(),
-      subjectId: subject.id,
-    });
-
-    setSessionForm(emptySessionForm);
   };
 
   const resetBlockForm = () => {
@@ -431,7 +394,10 @@ export default function StudyPlannerPage() {
     setFinishStudyForm({
       endedAt: toDateTimeInputValue(endedAt),
       notes: block.notes ?? "",
+      correctQuestions: "0",
       startedAt: toDateTimeInputValue(startedAt),
+      totalQuestions: "0",
+      wrongQuestions: "0",
     });
   };
 
@@ -446,12 +412,29 @@ export default function StudyPlannerPage() {
       return;
     }
 
+    const questionCounts = getQuestionCounts(finishStudyForm);
+
+    if (!questionCounts.isValid) {
+      return;
+    }
+
     await createSession.mutateAsync({
       endedAt: new Date(finishStudyForm.endedAt).toISOString(),
       notes: finishStudyForm.notes.trim() || null,
       startedAt: new Date(finishStudyForm.startedAt).toISOString(),
       subjectId: finishingBlock.subjectId,
     });
+
+    if (questionCounts.totalQuestions > 0) {
+      await createQuestionPractice.mutateAsync({
+        correctQuestions: questionCounts.correctQuestions,
+        notes: finishStudyForm.notes.trim() || null,
+        practiceDate: new Date(finishStudyForm.startedAt).toISOString(),
+        subjectId: finishingBlock.subjectId,
+        totalQuestions: questionCounts.totalQuestions,
+        wrongQuestions: questionCounts.wrongQuestions,
+      });
+    }
 
     setFinishingBlock(null);
     setFinishStudyForm(emptyFinishStudyForm);
@@ -462,27 +445,20 @@ export default function StudyPlannerPage() {
       <PageHero
         badgeIcon={GraduationCap}
         badgeLabel="Study planning"
+        compact
         title="Study Plan"
-        description="Plan this specific week, register manual study time, and compare what was planned against what actually happened."
+        description="Plan the week, finish blocks, and track studied time plus question accuracy."
         stats={[
           { label: "Subjects", value: subjects.length },
-          { label: "Week planned", value: formatStudyDuration(plannedMinutes) },
-          { label: "Week studied", value: formatStudyDuration(studiedMinutes) },
-          { label: "All studied", value: formatStudyDuration(totalStudiedMinutes) },
+          { label: "Planned", value: formatStudyDuration(plannedMinutes) },
+          { label: "Studied", value: formatStudyDuration(studiedMinutes) },
+          { label: "Questions", value: questionSummary.totalQuestions },
         ]}
       />
 
-      <section className="grid gap-4 rounded-lg border border-border/70 bg-card p-4 shadow-sm md:p-5">
-        <div className="grid gap-4">
-          <div>
-            <h2 className="text-xl font-semibold">Register studied time</h2>
-            <p className="text-sm text-muted-foreground">
-              Type an existing or new subject, set begin and finish, and LifeUp
-              saves the calculated duration.
-            </p>
-          </div>
-          <div className="grid gap-3 rounded-lg border border-border/70 bg-background/70 p-3">
-            <div className="grid min-w-0 gap-2 sm:grid-cols-[minmax(0,16rem)_auto_auto] sm:items-center">
+      <section className="grid gap-4 rounded-lg border border-border/70 bg-card p-4 shadow-sm">
+        <div className="grid gap-3 rounded-lg border border-border/70 bg-background/70 p-3">
+            <div className="grid min-w-0 gap-2 lg:grid-cols-[minmax(0,16rem)_repeat(5,auto)] lg:items-center">
               <Select value={subjectFilter} onValueChange={setSubjectFilter}>
                 <SelectTrigger className="w-full">
                   <SelectValue />
@@ -501,6 +477,15 @@ export default function StudyPlannerPage() {
               </Badge>
               <Badge className="justify-center py-1.5" variant="outline">
                 {formatStudyDuration(studiedMinutes)} studied
+              </Badge>
+              <Badge className="justify-center py-1.5" variant="secondary">
+                {questionSummary.totalQuestions} questions
+              </Badge>
+              <Badge className="justify-center py-1.5" variant="outline">
+                {questionSummary.correctQuestions} right
+              </Badge>
+              <Badge className="justify-center py-1.5" variant="outline">
+                {questionSummary.wrongQuestions} wrong
               </Badge>
             </div>
             <div className="grid gap-2 sm:grid-cols-2 sm:justify-start">
@@ -677,93 +662,19 @@ export default function StudyPlannerPage() {
                 </DialogContent>
               </Dialog>
             </div>
-          </div>
         </div>
 
-        {/* <form
-          className="grid gap-3 rounded-lg border border-border/70 bg-background/70 p-3 lg:grid-cols-2 xl:grid-cols-[minmax(0,1fr)_minmax(0,0.8fr)_minmax(0,0.8fr)]"
-          onSubmit={handleSessionSubmit}
-        >
-          <Input
-            list="study-subjects"
-            onChange={(event) =>
-              setSessionForm((current) => ({
-                ...current,
-                subjectName: event.target.value,
-              }))
-            }
-            placeholder="Subject name"
-            value={sessionForm.subjectName}
-          />
-          <datalist id="study-subjects">
-            {subjects.map((subject) => (
-              <option key={subject.id} value={subject.name} />
-            ))}
-          </datalist>
-          <Input
-            onChange={(event) =>
-              setSessionForm((current) => ({
-                ...current,
-                startedAt: event.target.value,
-              }))
-            }
-            type="datetime-local"
-            value={sessionForm.startedAt}
-          />
-          <Input
-            onChange={(event) =>
-              setSessionForm((current) => ({
-                ...current,
-                endedAt: event.target.value,
-              }))
-            }
-            type="datetime-local"
-            value={sessionForm.endedAt}
-          />
-          <Input
-            onChange={(event) =>
-              setSessionForm((current) => ({
-                ...current,
-                notes: event.target.value,
-              }))
-            }
-            placeholder="Optional notes"
-            value={sessionForm.notes}
-          />
-          <div className="grid gap-2 sm:grid-cols-2 xl:col-span-2 xl:grid-cols-[auto_auto] xl:justify-end">
-            <Button onClick={seedSessionTimes} type="button" variant="outline">
-              <CalendarPlus className="h-4 w-4" />
-              Now
-            </Button>
-            <Button
-              disabled={
-                !sessionForm.subjectName.trim() ||
-                !sessionDurationPreview ||
-                createSubject.isPending ||
-                createSession.isPending
-              }
-              type="submit"
-            >
-              <Save className="h-4 w-4" />
-              Save studied time
-            </Button>
-          </div>
-        </form> */}
-
-        <div className="grid gap-4">
+        <div className="grid gap-3">
           <div className="min-w-0 rounded-lg border border-border/70 bg-background/70 p-4">
             <div className="mb-3 flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
               <div>
                 <h3 className="font-semibold">Planned vs studied</h3>
-                <p className="text-sm text-muted-foreground">
-                  Week totals use the active subject filter.
-                </p>
               </div>
               <Badge variant="outline">{weekRange}</Badge>
             </div>
             <ChartContainer
               config={chartConfig}
-              className="h-[240px] w-full sm:h-[280px]"
+              className="h-[230px] w-full sm:h-[260px]"
             >
               <RechartsBarChart accessibilityLayer data={chartData}>
                 <CartesianGrid vertical={false} />
@@ -861,6 +772,64 @@ export default function StudyPlannerPage() {
               placeholder="Optional notes"
               value={finishStudyForm.notes}
             />
+            <div className="grid gap-2 rounded-lg border border-border/70 bg-background/70 p-3">
+              <div>
+                <h4 className="text-sm font-semibold">Question practice</h4>
+                <p className="text-xs text-muted-foreground">
+                  Optional. Save how many questions you got right and wrong for
+                  the dashboard graph.
+                </p>
+              </div>
+              <div className="grid gap-3 sm:grid-cols-3">
+                <label className="grid gap-1 text-sm font-medium">
+                  Total questions
+                  <Input
+                    min="0"
+                    onChange={(event) =>
+                      setFinishStudyForm((current) => ({
+                        ...current,
+                        totalQuestions: event.target.value,
+                      }))
+                    }
+                    type="number"
+                    value={finishStudyForm.totalQuestions}
+                  />
+                </label>
+                <label className="grid gap-1 text-sm font-medium">
+                  Right
+                  <Input
+                    min="0"
+                    onChange={(event) =>
+                      setFinishStudyForm((current) => ({
+                        ...current,
+                        correctQuestions: event.target.value,
+                      }))
+                    }
+                    type="number"
+                    value={finishStudyForm.correctQuestions}
+                  />
+                </label>
+                <label className="grid gap-1 text-sm font-medium">
+                  Wrong
+                  <Input
+                    min="0"
+                    onChange={(event) =>
+                      setFinishStudyForm((current) => ({
+                        ...current,
+                        wrongQuestions: event.target.value,
+                      }))
+                    }
+                    type="number"
+                    value={finishStudyForm.wrongQuestions}
+                  />
+                </label>
+              </div>
+            </div>
+            {!getQuestionCounts(finishStudyForm).isValid ? (
+              <p className="rounded-md bg-secondary/35 p-3 text-sm text-muted-foreground">
+                Right plus wrong must equal total questions.
+              </p>
+            ) : null}
             <DialogFooter>
               <Button
                 disabled={
@@ -868,7 +837,9 @@ export default function StudyPlannerPage() {
                     finishStudyForm.startedAt,
                     finishStudyForm.endedAt
                   ) ||
-                  createSession.isPending
+                  !getQuestionCounts(finishStudyForm).isValid ||
+                  createSession.isPending ||
+                  createQuestionPractice.isPending
                 }
                 type="submit"
               >

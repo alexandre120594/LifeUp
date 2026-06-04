@@ -1,4 +1,10 @@
-import { Habit, Project, StudyMistake, Task } from "@/types/BaseInterfaces";
+import {
+  Habit,
+  Project,
+  StudyMistake,
+  StudyQuestionPractice,
+  Task,
+} from "@/types/BaseInterfaces";
 
 const DAY_LABELS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
@@ -187,4 +193,65 @@ export function buildWeakSubjectMistakes(mistakes: StudyMistake[] = []) {
 
     return b.due - a.due;
   });
+}
+
+export function buildStudyQuestionTrend(
+  practices: StudyQuestionPractice[] = [],
+  days = 7
+) {
+  const window = buildDaysWindow(days);
+
+  return window.map(({ key, label }) => {
+    const dayPractices = practices.filter((practice) => {
+      const practiceDate = normalizeDate(practice.practiceDate);
+      return practiceDate ? toDayKey(practiceDate) === key : false;
+    });
+    const correctQuestions = dayPractices.reduce(
+      (total, practice) => total + practice.correctQuestions,
+      0
+    );
+    const wrongQuestions = dayPractices.reduce(
+      (total, practice) => total + practice.wrongQuestions,
+      0
+    );
+    const totalQuestions = dayPractices.reduce(
+      (total, practice) => total + practice.totalQuestions,
+      0
+    );
+
+    return {
+      date: label,
+      correctQuestions,
+      totalQuestions,
+      wrongQuestions,
+    };
+  });
+}
+
+export function getStudyQuestionSummary(
+  practices: StudyQuestionPractice[] = []
+) {
+  const totalQuestions = practices.reduce(
+    (total, practice) => total + practice.totalQuestions,
+    0
+  );
+  const correctQuestions = practices.reduce(
+    (total, practice) => total + practice.correctQuestions,
+    0
+  );
+  const wrongQuestions = practices.reduce(
+    (total, practice) => total + practice.wrongQuestions,
+    0
+  );
+  const accuracyRate =
+    totalQuestions > 0
+      ? Math.round((correctQuestions / totalQuestions) * 100)
+      : 0;
+
+  return {
+    accuracyRate,
+    correctQuestions,
+    totalQuestions,
+    wrongQuestions,
+  };
 }

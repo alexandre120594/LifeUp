@@ -1,6 +1,8 @@
 import { StudyServices } from "@/services/StudyServices";
+import type { StudyQuestionPracticeFilters } from "@/services/StudyServices";
 import type {
   StudyPlanBlockInput,
+  StudyQuestionPracticeCreateInput,
   StudyScheduleInput,
   StudySessionCreateInput,
   StudySubjectInput,
@@ -25,6 +27,13 @@ export function useStudySessions() {
   return useQuery({
     queryKey: ["study-sessions"],
     queryFn: StudyServices.getSessions,
+  });
+}
+
+export function useStudyQuestionPractice(filters?: StudyQuestionPracticeFilters) {
+  return useQuery({
+    queryKey: ["study-question-practice", filters],
+    queryFn: () => StudyServices.getQuestionPractice(filters),
   });
 }
 
@@ -173,6 +182,28 @@ export function useDeleteStudySession() {
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: ["study-sessions"], refetchType: "all" }),
         queryClient.invalidateQueries({ queryKey: ["study-subjects"], refetchType: "all" }),
+      ]);
+    },
+  });
+}
+
+export function useCreateStudyQuestionPractice() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    meta: { successMessage: "Question practice saved.", successTitle: "Saved" },
+    mutationFn: (data: StudyQuestionPracticeCreateInput) =>
+      StudyServices.createQuestionPractice(data),
+    onSuccess: async () => {
+      await Promise.all([
+        queryClient.invalidateQueries({
+          queryKey: ["study-question-practice"],
+          refetchType: "all",
+        }),
+        queryClient.invalidateQueries({
+          queryKey: ["study-subjects"],
+          refetchType: "all",
+        }),
       ]);
     },
   });

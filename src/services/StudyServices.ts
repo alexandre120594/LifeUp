@@ -4,12 +4,20 @@ import type {
   StudyPlanBlock,
   StudyPlanBlockInput,
   StudyPlanBoard,
+  StudyQuestionPractice,
+  StudyQuestionPracticeCreateInput,
   StudySession,
   StudySessionCreateInput,
   StudySubject,
   StudySubjectInput,
 } from "@/types/BaseInterfaces";
 import { apiClient } from "./api-client";
+
+export type StudyQuestionPracticeFilters = {
+  from?: string;
+  subjectId?: string;
+  to?: string;
+};
 
 export const StudyServices = {
   getSubjects: () => apiClient<StudySubject[]>("/api/study-subjects"),
@@ -58,5 +66,32 @@ export const StudyServices = {
   deleteSession: (id: string) =>
     apiClient<{ ok: boolean }>(`/api/study-sessions/${id}`, {
       method: "DELETE",
+    }),
+  getQuestionPractice: (filters?: StudyQuestionPracticeFilters) => {
+    const query = new URLSearchParams();
+
+    if (filters?.from) {
+      query.set("from", filters.from);
+    }
+
+    if (filters?.to) {
+      query.set("to", filters.to);
+    }
+
+    if (filters?.subjectId) {
+      query.set("subjectId", filters.subjectId);
+    }
+
+    const queryString = query.toString();
+    const url = queryString
+      ? `/api/study-question-practice?${queryString}`
+      : "/api/study-question-practice";
+
+    return apiClient<StudyQuestionPractice[]>(url);
+  },
+  createQuestionPractice: (data: StudyQuestionPracticeCreateInput) =>
+    apiClient<StudyQuestionPractice>("/api/study-question-practice", {
+      method: "POST",
+      body: JSON.stringify(data),
     }),
 };

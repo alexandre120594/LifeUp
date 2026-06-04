@@ -17,6 +17,7 @@ The app currently supports:
 - dedicated Study Tools workspace with a study dashboard and subject-based mistake log
 - Study Plan page for week-specific planned study blocks and manual studied-time registration
 - Study Plan registers actual study sessions from begin/finish datetimes, calculates studied duration, compares planned versus studied hours, and filters the week board by subject
+- Study Plan finish flow can also record aggregate right/wrong question totals for the study block, show weekly counts on the planner, and feed dashboard question-practice charts
 - mistake log records questions, user's answer, correct answer, error type, correct rule, trap word, review date, and unresolved/reviewed/mastered status
 - weekly organizer focuses on personal habit/task planning only
 - task creation supports an optional scheduled hour, and the calendar shows tasks by time inside each day
@@ -43,6 +44,7 @@ The app currently supports:
 - dashboard analytics for:
   - overall task completion
   - 7-day activity trend
+  - 7-day study question practice with right/wrong counts and accuracy
   - project throughput
   - top-line finance income, expenses, and total cash
 - save, update, and delete actions show toast feedback and refresh affected lists/details immediately
@@ -119,7 +121,7 @@ There is also repeatable local seed data for testing charts and flows.
 - `src/app/weekly-organizer/page.tsx`
   - weekly board for personal habit/task slots with a restored planning hero
 - `src/app/study/page.tsx`
-  - study dashboard for review pressure, weak subjects, due mistakes, subjects, and scheduled study hours
+  - study dashboard for review pressure, weak subjects, due mistakes, question practice, subjects, and scheduled study hours
 - `src/app/study/mistakes/page.tsx`
   - subject-based mistake log with search, filters, review dates, status changes, and edit/delete dialogs
 - `src/app/study/planner/page.tsx`
@@ -193,6 +195,7 @@ There is also repeatable local seed data for testing charts and flows.
 - `src/app/api/study-plan/blocks/[id]/route.ts`
 - `src/app/api/study-sessions/route.ts`
 - `src/app/api/study-sessions/[id]/route.ts`
+- `src/app/api/study-question-practice/route.ts`
 - `src/app/api/study-mistakes/route.ts`
 - `src/app/api/study-mistakes/[id]/route.ts`
 - `src/app/api/pomodoro/route.ts`
@@ -257,6 +260,8 @@ There is also repeatable local seed data for testing charts and flows.
   - belongs to a study plan board and subject, and stores concrete weekday, start time, duration, and optional notes
 - `StudySession`
   - belongs to user and study subject, and stores begin time, finish time, calculated duration minutes, and optional notes
+- `StudyQuestionPractice`
+  - belongs to user and study subject, and stores aggregate daily total, right, and wrong question counts
 - `StudyMistake`
   - belongs to user and study subject, and stores question, user's answer, correct answer, error type, correct rule, trap word, review date, and review status
 - `InboxItem`
@@ -313,6 +318,8 @@ boards also require the current Prisma schema before study planning can persist
 weekly routines and concrete planned blocks.
 Study mistakes also require the current Prisma schema before the mistake log can
 persist review records.
+Study question-practice totals also require the current Prisma schema before the
+Study Plan finish flow can persist right/wrong counts for dashboard charts.
 The account spend tracker also requires the current schema because it stores
 monthly CSV/OFX imports and their paginated rows in dedicated tables outside the
 Financial Organizer records.
@@ -391,6 +398,7 @@ What is stable enough to continue from:
 - weekly organizer is dedicated to personal habit/task planning; study review lives under Study Tools
 - calendar tasks can carry scheduled hours and are shown in time order inside day cells and day detail popups
 - study plan planned blocks can be finished directly from the week board, prompting for actual minutes studied and saving that time under the block's subject
+- study plan block completion can save aggregate right/wrong question totals, the planner shows week counts, and dashboards chart those question totals by day
 - dashboard shows study mistake pressure with a weak-subject chart and paginated due-review queue
 - mistake log shows paginated weak-subject and due-review panels above the detailed review queue
 - app tracker page shows project streak targets and today's task progress from completed tasks
@@ -425,7 +433,7 @@ What is still incomplete or older:
 - login is intentionally simple and email-only; there is no password, OAuth, or production-grade session hardening yet
 - some lower-level list item components still carry older interaction patterns internally
 - the analytics layer is derived from task dates and habit history arrays, not from a dedicated historical events table
-- existing databases need `npx prisma db push` for `Project.dailyStreakTarget`, study subject tables, and repeating study schedule tables, then may need the streak backfill command run once if they contain older fake or drifted streak values
+- existing databases need `npx prisma db push` for `Project.dailyStreakTarget`, study subject tables, repeating study schedule tables, and the additive study question-practice table, then may need the streak backfill command run once if they contain older fake or drifted streak values
 - the repository still has an older global lint baseline outside the touched files
 
 ## Where To Continue

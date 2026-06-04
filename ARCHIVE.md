@@ -48,7 +48,9 @@ Current app position:
 - Study Plan is available as a Study Tools menu page with week-specific planned blocks and manual studied-hour registration
 - Study Plan now registers actual study sessions from begin/finish datetimes, calculates studied minutes, compares planned versus studied hours, and filters the week board by subject
 - Study Plan planned blocks can now be finished from the week board by entering actual studied minutes, which saves a studied session for that subject
+- Study Plan block completion can now record aggregate total/right/wrong question counts and shows weekly question totals without changing existing study-session or mistake data
 - dashboard now charts weak study subjects from logged mistakes and includes a paginated due-review queue
+- dashboard and Study Dashboard now chart 7-day study question practice with right/wrong counts and accuracy
 - mistake log now has paginated weak-subject and due-review panels in addition to the filterable detailed queue
 - mistake log captures question, user's answer, correct answer, error type, correct rule, trap word, review date, and unresolved/reviewed/mastered status
 - project lists now paginate
@@ -109,6 +111,7 @@ Main files:
 - `src/app/api/study-plan/blocks/[id]/route.ts`
 - `src/app/api/study-sessions/route.ts`
 - `src/app/api/study-sessions/[id]/route.ts`
+- `src/app/api/study-question-practice/route.ts`
 - `src/app/api/study-mistakes/route.ts`
 - `src/app/api/study-mistakes/[id]/route.ts`
 - `src/hooks/useStudyMistakeMutations.ts`
@@ -364,6 +367,7 @@ These are known unfinished areas:
 - existing environments should also run `npx prisma db push` for the account spend tracker tables before importing CSV or OFX files
 - existing environments should run `npx prisma db push` for study subject, repeating study schedule, and week-specific study plan tables before using persisted study planning data
 - existing environments should run `npx prisma db push` for the study mistake table before using the mistake log
+- existing environments should run `npx prisma db push` for the additive study question-practice table before saving right/wrong question totals
 - repo-wide lint baseline is still noisy outside recently touched files
 
 ## Recommended Next Steps
@@ -422,6 +426,7 @@ Development currently stops at:
 - weekly organizer available for planning current, previous, and next weeks through persisted hourly habit boards
 - weekly organizer is dedicated to personal habit/task scheduling; study review workflows are separate under Study Tools
 - Study Tools workspace available for review-first study workflows, including a dashboard and mistake log
+- Study Plan question totals are additive study data: existing sessions and mistake records are not rewritten
 - streak persistence now centers on project daily completed-task targets, with habit streaks kept as secondary check-in analytics
 - seeded local data available
 - docs updated to reflect current structure

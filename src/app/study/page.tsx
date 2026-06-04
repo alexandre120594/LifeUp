@@ -3,12 +3,12 @@
 import Link from "next/link";
 import {
   AlertCircle,
-  BookOpenCheck,
   CalendarClock,
   GraduationCap,
   LibraryBig,
   Target,
 } from "lucide-react";
+import { StudyQuestionsChart } from "@/components/ChartsComponent/InsightsCharts";
 import { MenuPageHeader } from "@/components/menu-page-header";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -20,7 +20,15 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { useStudyMistakes } from "@/hooks/useStudyMistakeMutations";
-import { useStudySchedule, useStudySubjects } from "@/hooks/useStudyMutations";
+import {
+  useStudyQuestionPractice,
+  useStudySchedule,
+  useStudySubjects,
+} from "@/hooks/useStudyMutations";
+import {
+  buildStudyQuestionTrend,
+  getStudyQuestionSummary,
+} from "@/lib/analytics";
 import type { StudyMistake } from "@/types/BaseInterfaces";
 
 function isDueForReview(mistake: StudyMistake) {
@@ -39,16 +47,32 @@ function formatDate(date: Date | string) {
   });
 }
 
+function toDayKey(date: Date | string) {
+  return new Date(date).toISOString().slice(0, 10);
+}
+
+function getQuestionPracticeWindow() {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const from = new Date(today);
+  from.setDate(today.getDate() - 6);
+
+  return {
+    from: toDayKey(from),
+    to: toDayKey(today),
+  };
+}
+
 export default function StudyDashboardPage() {
   const { data: mistakes = [], isLoading: isMistakesLoading } =
     useStudyMistakes();
   const { data: subjects = [] } = useStudySubjects();
   const { data: schedule = [] } = useStudySchedule();
-
-  const unresolved = mistakes.filter(
-    (mistake) => mistake.status === "unresolved"
+  const questionPracticeWindow = getQuestionPracticeWindow();
+  const { data: questionPractice = [] } = useStudyQuestionPractice(
+    questionPracticeWindow
   );
-  const reviewed = mistakes.filter((mistake) => mistake.status === "reviewed");
+
   const mastered = mistakes.filter((mistake) => mistake.status === "mastered");
   const dueMistakes = mistakes.filter(isDueForReview);
   const subjectCounts = subjects
@@ -63,16 +87,13 @@ export default function StudyDashboardPage() {
   const masteryRate = mistakes.length
     ? Math.round((mastered.length / mistakes.length) * 100)
     : 0;
+  const questionTrend = buildStudyQuestionTrend(questionPractice);
+  const questionSummary = getStudyQuestionSummary(questionPractice);
   const metrics = [
     { label: "Mistakes", value: mistakes.length, icon: AlertCircle },
     { label: "Due review", value: dueMistakes.length, icon: CalendarClock },
     { label: "Subjects", value: subjects.length, icon: LibraryBig },
     { label: "Scheduled hours", value: schedule.length, icon: Target },
-  ];
-  const reviewStats = [
-    { label: "Unresolved", value: unresolved.length, icon: AlertCircle },
-    { label: "Reviewed", value: reviewed.length, icon: BookOpenCheck },
-    { label: "Mastered", value: mastered.length, icon: GraduationCap },
   ];
 
   return (
@@ -90,21 +111,46 @@ export default function StudyDashboardPage() {
         }
       />
 
-      <section className="grid gap-4 rounded-lg border border-border/70 bg-card p-4 shadow-sm md:p-5">
-        <div className="max-w-3xl">
-          <p className="text-xs font-medium uppercase tracking-[0.16em] text-muted-foreground">
-            Overview
-          </p>
-          <h2 className="mt-2 text-2xl font-semibold tracking-tight">
-            Review what you missed, then protect the rule
-          </h2>
-          <p className="mt-2 text-sm leading-6 text-muted-foreground">
-            Your study workspace keeps mistakes, subject planning, and focus
-            time separate from personal management.
-          </p>
+      <section className="grid gap-3 rounded-lg border border-border/70 bg-card p-3 shadow-sm md:p-4">
+        <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center">
+          <div className="min-w-0">
+            <div className="flex flex-wrap items-center gap-2">
+              <Badge variant="outline">Study overview</Badge>
+              <Badge variant="secondary">
+                {questionSummary.totalQuestions} questions
+              </Badge>
+              <Badge variant="outline">{masteryRate}% mastery</Badge>
+            </div>
+            <h2 className="mt-2 text-2xl font-semibold tracking-tight">
+              Study Dashboard
+            </h2>
+            <p className="mt-2 max-w-2xl text-sm leading-5 text-muted-foreground">
+              Review mistakes, track question accuracy, and keep subjects moving.
+            </p>
+          </div>
+          <div className="grid grid-cols-3 gap-2 rounded-lg border border-border/70 bg-background/70 p-2 text-center">
+            <div className="min-w-20 px-2 py-1">
+              <div className="text-xs text-muted-foreground">Right</div>
+              <div className="text-lg font-semibold">
+                {questionSummary.correctQuestions}
+              </div>
+            </div>
+            <div className="min-w-20 px-2 py-1">
+              <div className="text-xs text-muted-foreground">Wrong</div>
+              <div className="text-lg font-semibold">
+                {questionSummary.wrongQuestions}
+              </div>
+            </div>
+            <div className="min-w-20 px-2 py-1">
+              <div className="text-xs text-muted-foreground">Accuracy</div>
+              <div className="text-lg font-semibold">
+                {questionSummary.accuracyRate}%
+              </div>
+            </div>
+          </div>
         </div>
 
-        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+        <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-4">
           {metrics.map((metric) => {
             const MetricIcon = metric.icon;
 
@@ -113,16 +159,16 @@ export default function StudyDashboardPage() {
                 className="min-w-0 border-border/70 bg-background/70 shadow-none"
                 key={metric.label}
               >
-                <CardContent className="p-4">
+                <CardContent className="p-3">
                   <div className="flex items-center justify-between gap-3">
-                    <span className="text-sm text-muted-foreground">
+                    <span className="text-xs text-muted-foreground">
                       {metric.label}
                     </span>
-                    <span className="rounded-md bg-secondary p-2 text-primary">
-                      <MetricIcon className="h-4 w-4" />
+                    <span className="rounded-md bg-secondary p-1.5 text-primary">
+                      <MetricIcon className="h-3.5 w-3.5" />
                     </span>
                   </div>
-                  <div className="mt-3 text-3xl font-semibold tracking-tight">
+                  <div className="mt-2 text-2xl font-semibold tracking-tight">
                     {metric.value}
                   </div>
                 </CardContent>
@@ -130,62 +176,18 @@ export default function StudyDashboardPage() {
             );
           })}
         </div>
-
-        <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(18rem,0.38fr)]">
-          <Card className="min-w-0 border-border/70 bg-background/70 shadow-none">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <BookOpenCheck className="h-5 w-5 text-primary" />
-                Mastery
-              </CardTitle>
-              <CardDescription>
-                {mastered.length} mastered out of {mistakes.length} logged
-                mistakes.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="h-2 overflow-hidden rounded-full bg-secondary">
-                <div
-                  className="h-full rounded-full bg-primary"
-                  style={{ width: `${Math.min(masteryRate, 100)}%` }}
-                />
-              </div>
-              <div className="mt-3 text-sm font-medium">
-                {masteryRate}% mastery
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="min-w-0 border-border/70 bg-background/70 shadow-none">
-            <CardHeader>
-              <CardTitle>Review queue</CardTitle>
-              <CardDescription>
-                Start with due and unresolved patterns.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="grid gap-2">
-              {reviewStats.map((item) => {
-                const ItemIcon = item.icon;
-
-                return (
-                  <div
-                    className="flex items-center justify-between gap-3 rounded-lg bg-secondary/35 p-3 text-sm"
-                    key={item.label}
-                  >
-                    <span className="flex min-w-0 items-center gap-2 text-muted-foreground">
-                      <ItemIcon className="h-4 w-4" />
-                      <span className="truncate">{item.label}</span>
-                    </span>
-                    <span className="font-semibold">{item.value}</span>
-                  </div>
-                );
-              })}
-            </CardContent>
-          </Card>
-        </div>
       </section>
 
       <section className="grid gap-4">
+        <div className="grid gap-4">
+          <StudyQuestionsChart
+            accuracyRate={questionSummary.accuracyRate}
+            data={questionTrend}
+            title="Question practice"
+            totalQuestions={questionSummary.totalQuestions}
+          />
+        </div>
+
         <Card className="min-w-0 border-border/70 shadow-sm">
           <CardHeader className="gap-2">
             <div className="flex flex-wrap items-center justify-between gap-2">

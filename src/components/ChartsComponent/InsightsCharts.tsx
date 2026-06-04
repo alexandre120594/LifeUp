@@ -84,6 +84,21 @@ const weakSubjectsConfig = {
   },
 } satisfies ChartConfig;
 
+const studyQuestionsConfig = {
+  correctQuestions: {
+    label: "Right",
+    color: "var(--chart-2)",
+  },
+  wrongQuestions: {
+    label: "Wrong",
+    color: "var(--chart-5)",
+  },
+  totalQuestions: {
+    label: "Total",
+    color: "var(--chart-1)",
+  },
+} satisfies ChartConfig;
+
 type ActivityDatum = {
   date: string;
   tasksCompleted: number;
@@ -116,6 +131,13 @@ type WeakSubjectDatum = {
   subjectId: string;
   total: number;
   unresolved: number;
+};
+
+type StudyQuestionDatum = {
+  correctQuestions: number;
+  date: string;
+  totalQuestions: number;
+  wrongQuestions: number;
 };
 
 function abbreviateAxisLabel(value: string) {
@@ -543,6 +565,85 @@ export function WeakSubjectsChart({
         ) : (
           <p className="rounded-lg bg-secondary/35 p-4 text-sm text-muted-foreground">
             No study mistakes logged yet.
+          </p>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
+export function StudyQuestionsChart({
+  accuracyRate,
+  data,
+  title,
+  totalQuestions,
+}: {
+  accuracyRate: number;
+  data: StudyQuestionDatum[];
+  title: string;
+  totalQuestions: number;
+}) {
+  const hasQuestions = data.some((item) => item.totalQuestions > 0);
+
+  return (
+    <Card className="min-w-0 overflow-hidden border shadow-sm">
+      <CardHeader>
+        <CardTitle>{title}</CardTitle>
+        <CardDescription>
+          {totalQuestions} questions in 7 days, {accuracyRate}% accuracy.
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        {hasQuestions ? (
+          <ChartContainer
+            config={studyQuestionsConfig}
+            className="h-[240px] w-full sm:h-[280px]"
+          >
+            <ComposedChart accessibilityLayer data={data}>
+              <CartesianGrid vertical={false} />
+              <XAxis dataKey="date" tickLine={false} axisLine={false} />
+              <YAxis allowDecimals={false} tickLine={false} axisLine={false} />
+              <ChartTooltip
+                content={
+                  <ChartTooltipContent
+                    labelFormatter={(value) => `${value} practice`}
+                    formatter={(value, name) => (
+                      <div className="flex min-w-36 items-center justify-between gap-3">
+                        <span>
+                          {name === "correctQuestions"
+                            ? "Right questions"
+                            : name === "wrongQuestions"
+                              ? "Wrong questions"
+                              : "Total questions"}
+                        </span>
+                        <span className="font-medium">{value}</span>
+                      </div>
+                    )}
+                  />
+                }
+              />
+              <Bar
+                dataKey="correctQuestions"
+                fill="var(--color-correctQuestions)"
+                radius={[6, 6, 0, 0]}
+              />
+              <Bar
+                dataKey="wrongQuestions"
+                fill="var(--color-wrongQuestions)"
+                radius={[6, 6, 0, 0]}
+              />
+              <Line
+                dataKey="totalQuestions"
+                dot={{ r: 4 }}
+                stroke="var(--color-totalQuestions)"
+                strokeWidth={3}
+                type="monotone"
+              />
+            </ComposedChart>
+          </ChartContainer>
+        ) : (
+          <p className="rounded-lg bg-secondary/35 p-4 text-sm text-muted-foreground">
+            No question practice logged yet.
           </p>
         )}
       </CardContent>

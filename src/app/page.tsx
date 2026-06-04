@@ -15,9 +15,11 @@ import { useTask } from "@/hooks/useTaskMutation";
 import { useHabit } from "@/hooks/useHabitMutations";
 import { useFinanceDashboard } from "@/hooks/useFinanceMutations";
 import { useStudyMistakes } from "@/hooks/useStudyMistakeMutations";
+import { useStudyQuestionPractice } from "@/hooks/useStudyMutations";
 import { ChartRadialText } from "@/components/ChartsComponent/RadialChart";
 import {
   ActivityTrendChart,
+  StudyQuestionsChart,
   WeakSubjectsChart,
 } from "@/components/ChartsComponent/InsightsCharts";
 import { EntityCreateDialog } from "@/components/entity-create-dialog";
@@ -36,8 +38,10 @@ import { type ChartConfig } from "@/components/ui/chart";
 import TaskList from "./tasks/components/TaskListWithPagination";
 import {
   buildActivityTrend,
+  buildStudyQuestionTrend,
   buildWeakSubjectMistakes,
   getDueStudyMistakes,
+  getStudyQuestionSummary,
   getTaskSummary,
 } from "@/lib/analytics";
 import { formatCurrency } from "@/lib/finance";
@@ -59,6 +63,18 @@ const radialChartConfig = {
 
 function toDayKey(date: Date | string) {
   return new Date(date).toISOString().slice(0, 10);
+}
+
+function getQuestionPracticeWindow() {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const from = new Date(today);
+  from.setDate(today.getDate() - 6);
+
+  return {
+    from: toDayKey(from),
+    to: toDayKey(today),
+  };
 }
 
 function DailyWeeklyTracker({
@@ -228,10 +244,16 @@ export default function DashboardPage() {
   const { data: habits } = useHabit();
   const { data: finance } = useFinanceDashboard();
   const { data: studyMistakes } = useStudyMistakes();
+  const questionPracticeWindow = getQuestionPracticeWindow();
+  const { data: questionPractice } = useStudyQuestionPractice(
+    questionPracticeWindow
+  );
 
   const taskSummary = getTaskSummary(tasks ?? []);
   const activityTrend = buildActivityTrend(tasks ?? [], habits ?? []);
   const weakSubjects = buildWeakSubjectMistakes(studyMistakes ?? []).slice(0, 8);
+  const questionTrend = buildStudyQuestionTrend(questionPractice ?? []);
+  const questionSummary = getStudyQuestionSummary(questionPractice ?? []);
   const financeSummary = finance?.summary;
   const totalCash = financeSummary?.netCashFlow ?? 0;
   const projectsOnStreak = (projects ?? []).filter(
@@ -343,6 +365,46 @@ export default function DashboardPage() {
           data={weakSubjects}
         />
         <StudyReviewQueue mistakes={studyMistakes} />
+      </section>
+
+      <section className="grid min-w-0 gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
+        <StudyQuestionsChart
+          accuracyRate={questionSummary.accuracyRate}
+          data={questionTrend}
+          title="Study Questions"
+          totalQuestions={questionSummary.totalQuestions}
+        />
+        <Card className="min-w-0 overflow-hidden border-border/70 shadow-sm">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <BookOpenCheck className="h-5 w-5 text-primary" />
+              Question accuracy
+            </CardTitle>
+            <CardDescription>
+              Right and wrong answers from finished study blocks.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="grid gap-3 sm:grid-cols-3">
+            <div className="rounded-lg border border-border/60 bg-background/70 p-3">
+              <div className="text-xs text-muted-foreground">Right</div>
+              <div className="mt-1 text-2xl font-semibold">
+                {questionSummary.correctQuestions}
+              </div>
+            </div>
+            <div className="rounded-lg border border-border/60 bg-background/70 p-3">
+              <div className="text-xs text-muted-foreground">Wrong</div>
+              <div className="mt-1 text-2xl font-semibold">
+                {questionSummary.wrongQuestions}
+              </div>
+            </div>
+            <div className="rounded-lg border border-border/60 bg-background/70 p-3">
+              <div className="text-xs text-muted-foreground">Accuracy</div>
+              <div className="mt-1 text-2xl font-semibold">
+                {questionSummary.accuracyRate}%
+              </div>
+            </div>
+          </CardContent>
+        </Card>
       </section>
 
       <section className="grid min-w-0 gap-4 xl:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]">

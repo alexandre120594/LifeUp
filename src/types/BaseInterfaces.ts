@@ -185,6 +185,7 @@ export interface StudySubject {
   planBlocks?: StudyPlanBlock[];
   mistakes?: StudyMistake[];
   sessions?: StudySession[];
+  questionPractices?: StudyQuestionPractice[];
   createdAt: Date | string;
   updatedAt: Date | string;
 }
@@ -204,6 +205,28 @@ export interface StudySession {
 export interface StudySessionCreateInput {
   startedAt: string;
   endedAt: string;
+  notes?: string | null;
+  subjectId: string;
+}
+
+export interface StudyQuestionPractice {
+  id: string;
+  practiceDate: Date | string;
+  totalQuestions: number;
+  correctQuestions: number;
+  wrongQuestions: number;
+  notes?: string | null;
+  subjectId: string;
+  subject?: StudySubject;
+  createdAt: Date | string;
+  updatedAt: Date | string;
+}
+
+export interface StudyQuestionPracticeCreateInput {
+  practiceDate: string;
+  totalQuestions: number;
+  correctQuestions: number;
+  wrongQuestions: number;
   notes?: string | null;
   subjectId: string;
 }
