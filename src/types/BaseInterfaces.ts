@@ -232,6 +232,12 @@ export interface StudyQuestionPracticeCreateInput {
 }
 
 export type StudyMistakeStatus = "unresolved" | "reviewed" | "mastered";
+export type StudyMistakeResult =
+  | "correct"
+  | "wrong"
+  | "correct_with_doubt";
+export type StudyMistakeCorrectionStatus = "pending" | "completed";
+export type StudyMistakeErrorLevel = "leve" | "medio" | "grave";
 
 export interface StudyMistake {
   id: string;
@@ -240,8 +246,22 @@ export interface StudyMistake {
   correctAnswer: string;
   errorType: string;
   correctRule: string;
+  examBoard?: string | null;
+  result?: StudyMistakeResult | null;
+  initialTopic?: string | null;
+  comment?: string | null;
+  correctionStatus?: StudyMistakeCorrectionStatus | null;
+  generalSubject?: string | null;
+  topic?: string | null;
+  microTopic?: string | null;
+  errorReason?: string | null;
+  chargedDetail?: string | null;
+  trap?: string | null;
+  memorizationPhrase?: string | null;
+  correctiveAction?: string | null;
+  errorLevel?: StudyMistakeErrorLevel | null;
   trapWord?: string | null;
-  reviewDate: Date | string;
+  reviewDate?: Date | string | null;
   status: StudyMistakeStatus;
   subjectId: string;
   subject?: StudySubject;
@@ -251,12 +271,16 @@ export interface StudyMistake {
 
 export interface StudyMistakeCreateInput {
   question: string;
-  myAnswer: string;
-  correctAnswer: string;
-  errorType: string;
-  correctRule: string;
+  myAnswer?: string;
+  correctAnswer?: string;
+  errorType?: string;
+  correctRule?: string;
+  examBoard?: string | null;
+  result?: StudyMistakeResult;
+  initialTopic?: string | null;
+  comment?: string | null;
   trapWord?: string | null;
-  reviewDate: string;
+  reviewDate?: string | null;
   status?: StudyMistakeStatus;
   subjectId: string;
 }
@@ -267,8 +291,22 @@ export interface StudyMistakeUpdateInput {
   correctAnswer?: string;
   errorType?: string;
   correctRule?: string;
+  examBoard?: string | null;
+  result?: StudyMistakeResult;
+  initialTopic?: string | null;
+  comment?: string | null;
+  correctionStatus?: StudyMistakeCorrectionStatus;
+  generalSubject?: string | null;
+  topic?: string | null;
+  microTopic?: string | null;
+  errorReason?: string | null;
+  chargedDetail?: string | null;
+  trap?: string | null;
+  memorizationPhrase?: string | null;
+  correctiveAction?: string | null;
+  errorLevel?: StudyMistakeErrorLevel | null;
   trapWord?: string | null;
-  reviewDate?: string;
+  reviewDate?: string | null;
   status?: StudyMistakeStatus;
   subjectId?: string;
 }

@@ -3,18 +3,27 @@ import prisma from "@/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
 
 const mistakeStatuses = ["unresolved", "reviewed", "mastered"] as const;
+const mistakeResults = ["correct", "wrong", "correct_with_doubt"] as const;
 
 type MistakePayload = {
+  comment?: unknown;
   correctAnswer?: unknown;
   correctRule?: unknown;
   errorType?: unknown;
+  examBoard?: unknown;
+  initialTopic?: unknown;
   myAnswer?: unknown;
   question?: unknown;
   reviewDate?: unknown;
+  result?: unknown;
   status?: unknown;
   subjectId?: unknown;
   trapWord?: unknown;
 };
+
+function normalizeOptionalString(value: unknown) {
+  return typeof value === "string" && value.trim() ? value.trim() : null;
+}
 
 function normalizeMistakePayload(body: MistakePayload) {
   const status =
@@ -22,17 +31,31 @@ function normalizeMistakePayload(body: MistakePayload) {
     mistakeStatuses.includes(body.status as (typeof mistakeStatuses)[number])
       ? body.status
       : "unresolved";
+  const result =
+    typeof body.result === "string" &&
+    mistakeResults.includes(body.result as (typeof mistakeResults)[number])
+      ? body.result
+      : "wrong";
+  const createsCorrection =
+    result === "wrong" || result === "correct_with_doubt";
 
   return {
+    comment: normalizeOptionalString(body.comment),
     correctAnswer:
       typeof body.correctAnswer === "string" ? body.correctAnswer.trim() : "",
     correctRule:
       typeof body.correctRule === "string" ? body.correctRule.trim() : "",
     errorType: typeof body.errorType === "string" ? body.errorType.trim() : "",
+    examBoard: normalizeOptionalString(body.examBoard),
+    initialTopic: normalizeOptionalString(body.initialTopic),
     myAnswer: typeof body.myAnswer === "string" ? body.myAnswer.trim() : "",
     question: typeof body.question === "string" ? body.question.trim() : "",
     reviewDate:
-      typeof body.reviewDate === "string" ? new Date(body.reviewDate) : null,
+      typeof body.reviewDate === "string" && body.reviewDate
+        ? new Date(body.reviewDate)
+        : null,
+    result,
+    correctionStatus: createsCorrection ? "pending" : null,
     status,
     subjectId: typeof body.subjectId === "string" ? body.subjectId : "",
     trapWord:
@@ -47,13 +70,8 @@ function isValidMistakePayload(
 ) {
   return (
     Boolean(payload.question) &&
-    Boolean(payload.myAnswer) &&
-    Boolean(payload.correctAnswer) &&
-    Boolean(payload.errorType) &&
-    Boolean(payload.correctRule) &&
     Boolean(payload.subjectId) &&
-    payload.reviewDate instanceof Date &&
-    !Number.isNaN(payload.reviewDate.getTime())
+    (!payload.reviewDate || !Number.isNaN(payload.reviewDate.getTime()))
   );
 }
 
@@ -98,7 +116,16 @@ export async function GET(req: NextRequest) {
               { myAnswer: { contains: q, mode: "insensitive" } },
               { correctAnswer: { contains: q, mode: "insensitive" } },
               { correctRule: { contains: q, mode: "insensitive" } },
+              { examBoard: { contains: q, mode: "insensitive" } },
+              { initialTopic: { contains: q, mode: "insensitive" } },
+              { comment: { contains: q, mode: "insensitive" } },
+              { microTopic: { contains: q, mode: "insensitive" } },
+              { errorReason: { contains: q, mode: "insensitive" } },
+              { chargedDetail: { contains: q, mode: "insensitive" } },
+              { memorizationPhrase: { contains: q, mode: "insensitive" } },
+              { correctiveAction: { contains: q, mode: "insensitive" } },
               { trapWord: { contains: q, mode: "insensitive" } },
+              { trap: { contains: q, mode: "insensitive" } },
               { errorType: { contains: q, mode: "insensitive" } },
             ],
           }
@@ -125,16 +152,7 @@ export async function POST(req: NextRequest) {
 
     if (!isValidMistakePayload(payload)) {
       return NextResponse.json(
-        { message: "Complete mistake details and review date are required." },
-        { status: 400 }
-      );
-    }
-
-    const reviewDate = payload.reviewDate;
-
-    if (!reviewDate) {
-      return NextResponse.json(
-        { message: "Valid review date is required." },
+        { message: "Question, subject, and valid review data are required." },
         { status: 400 }
       );
     }
@@ -151,7 +169,6 @@ export async function POST(req: NextRequest) {
     const mistake = await prisma.studyMistake.create({
       data: {
         ...payload,
-        reviewDate,
         userId,
       },
       include: { subject: true },

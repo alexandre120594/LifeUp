@@ -52,8 +52,12 @@ import {
   buildWeakSubjectMistakes,
   getDueStudyMistakes,
 } from "@/lib/analytics";
+import { cn } from "@/lib/utils";
 import type {
   StudyMistake,
+  StudyMistakeCorrectionStatus,
+  StudyMistakeErrorLevel,
+  StudyMistakeResult,
   StudyMistakeStatus,
 } from "@/types/BaseInterfaces";
 
@@ -64,16 +68,36 @@ const statusOptions: StudyMistakeStatus[] = [
   "reviewed",
   "mastered",
 ];
+const resultOptions: StudyMistakeResult[] = [
+  "wrong",
+  "correct_with_doubt",
+  "correct",
+];
+const errorLevelOptions: StudyMistakeErrorLevel[] = ["leve", "medio", "grave"];
+const requiredFieldClass =
+  "border-destructive focus-visible:border-destructive focus-visible:ring-destructive/30";
 
-function toDateInputValue(date: Date | string) {
+function RequiredFieldError({ show }: { show: boolean }) {
+  if (!show) {
+    return null;
+  }
+
+  return <p className="text-xs font-medium text-destructive">Campo obrigatório.</p>;
+}
+
+function toDateInputValue(date?: Date | string | null) {
+  if (!date) {
+    return "";
+  }
+
   return new Date(date).toISOString().slice(0, 10);
 }
 
-function todayInputValue() {
-  return toDateInputValue(new Date());
-}
+function formatDate(date?: Date | string | null) {
+  if (!date) {
+    return "Not scheduled";
+  }
 
-function formatDate(date: Date | string) {
   return new Date(date).toLocaleDateString(undefined, {
     day: "2-digit",
     month: "short",
@@ -83,6 +107,40 @@ function formatDate(date: Date | string) {
 
 function statusLabel(status: StudyMistakeStatus) {
   return status.charAt(0).toUpperCase() + status.slice(1);
+}
+
+function resultLabel(result?: StudyMistakeResult | null) {
+  if (result === "correct") {
+    return "Acertei";
+  }
+
+  if (result === "correct_with_doubt") {
+    return "Acertei com dúvida";
+  }
+
+  return "Errei";
+}
+
+function correctionLabel(status?: StudyMistakeCorrectionStatus | null) {
+  if (status === "completed") {
+    return "Correção concluída";
+  }
+
+  if (status === "pending") {
+    return "Correção pendente";
+  }
+
+  return "Registro legado";
+}
+
+function isStatusBlockedByCorrection(
+  mistake: StudyMistake,
+  status: StudyMistakeStatus
+) {
+  return (
+    mistake.correctionStatus === "pending" &&
+    (status === "reviewed" || status === "mastered")
+  );
 }
 
 export default function StudyMistakesPage() {
@@ -294,8 +352,20 @@ export default function StudyMistakesPage() {
                   <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
                     <Badge>{mistake.subject?.name ?? "Subject"}</Badge>
                     <Badge variant="outline">{statusLabel(mistake.status)}</Badge>
+                    <Badge
+                      variant={
+                        mistake.correctionStatus === "pending"
+                          ? "secondary"
+                          : "outline"
+                      }
+                    >
+                      {correctionLabel(mistake.correctionStatus)}
+                    </Badge>
+                    <span>{resultLabel(mistake.result)}</span>
                     <span>Review {formatDate(mistake.reviewDate)}</span>
-                    <span>{mistake.errorType}</span>
+                    {mistake.examBoard ? <span>{mistake.examBoard}</span> : null}
+                    {mistake.initialTopic ? <span>{mistake.initialTopic}</span> : null}
+                    {mistake.errorType ? <span>{mistake.errorType}</span> : null}
                   </div>
                   <h3 className="break-words text-base font-semibold [overflow-wrap:anywhere]">
                     {mistake.question}
@@ -308,9 +378,26 @@ export default function StudyMistakesPage() {
                       Correct answer: {mistake.correctAnswer}
                     </p>
                   </div>
-                  <p className="break-words text-sm [overflow-wrap:anywhere]">
-                    Rule: {mistake.correctRule}
-                  </p>
+                  {mistake.correctRule ? (
+                    <p className="break-words text-sm [overflow-wrap:anywhere]">
+                      Rule: {mistake.correctRule}
+                    </p>
+                  ) : null}
+                  {mistake.microTopic ? (
+                    <p className="break-words text-sm [overflow-wrap:anywhere]">
+                      Microtópico: {mistake.microTopic}
+                    </p>
+                  ) : null}
+                  {mistake.memorizationPhrase ? (
+                    <p className="break-words text-xs text-muted-foreground [overflow-wrap:anywhere]">
+                      Memorização: {mistake.memorizationPhrase}
+                    </p>
+                  ) : null}
+                  {mistake.comment ? (
+                    <p className="break-words text-xs text-muted-foreground [overflow-wrap:anywhere]">
+                      Comentário: {mistake.comment}
+                    </p>
+                  ) : null}
                   {mistake.trapWord ? (
                     <p className="break-words text-xs text-muted-foreground [overflow-wrap:anywhere]">
                       Trap word: {mistake.trapWord}
@@ -320,7 +407,11 @@ export default function StudyMistakesPage() {
                 <div className="flex flex-wrap items-start gap-2 lg:justify-end">
                   {statusOptions.map((status) => (
                     <Button
-                      disabled={updateMistake.isPending || mistake.status === status}
+                      disabled={
+                        updateMistake.isPending ||
+                        mistake.status === status ||
+                        isStatusBlockedByCorrection(mistake, status)
+                      }
                       key={status}
                       onClick={() =>
                         updateMistake.mutate({
@@ -335,6 +426,15 @@ export default function StudyMistakesPage() {
                       {statusLabel(status)}
                     </Button>
                   ))}
+                  {mistake.correctionStatus ? (
+                    <GuidedCorrectionDialog
+                      isSaving={updateMistake.isPending}
+                      mistake={mistake}
+                      onSave={(data) =>
+                        updateMistake.mutate({ id: mistake.id, data })
+                      }
+                    />
+                  ) : null}
                   <MistakeDialog
                     isSaving={updateMistake.isPending}
                     mistake={mistake}
@@ -567,12 +667,16 @@ function MistakeForm({
 }: {
   isSaving: boolean;
   onSubmit: (data: {
+    comment?: string | null;
     correctAnswer: string;
     correctRule: string;
+    examBoard?: string | null;
     errorType: string;
+    initialTopic?: string | null;
     myAnswer: string;
     question: string;
-    reviewDate: string;
+    result: StudyMistakeResult;
+    reviewDate?: string | null;
     status: StudyMistakeStatus;
     subjectId: string;
     trapWord?: string | null;
@@ -582,48 +686,60 @@ function MistakeForm({
   const [open, setOpen] = useState(false);
   const [correctAnswer, setCorrectAnswer] = useState("");
   const [correctRule, setCorrectRule] = useState("");
+  const [comment, setComment] = useState("");
   const [errorType, setErrorType] = useState("");
+  const [examBoard, setExamBoard] = useState("");
+  const [initialTopic, setInitialTopic] = useState("");
   const [myAnswer, setMyAnswer] = useState("");
   const [question, setQuestion] = useState("");
-  const [reviewDate, setReviewDate] = useState(todayInputValue());
+  const [reviewDate, setReviewDate] = useState("");
+  const [result, setResult] = useState<StudyMistakeResult>("wrong");
   const [status, setStatus] = useState<StudyMistakeStatus>("unresolved");
   const [subjectId, setSubjectId] = useState("");
+  const [submitAttempted, setSubmitAttempted] = useState(false);
   const [trapWord, setTrapWord] = useState("");
+  const showSubjectError = submitAttempted && !subjectId;
+  const showQuestionError = submitAttempted && !question.trim();
 
   const resetForm = () => {
     setCorrectAnswer("");
     setCorrectRule("");
+    setComment("");
     setErrorType("");
+    setExamBoard("");
+    setInitialTopic("");
     setMyAnswer("");
     setQuestion("");
-    setReviewDate(todayInputValue());
+    setReviewDate("");
+    setResult("wrong");
     setStatus("unresolved");
     setSubjectId("");
+    setSubmitAttempted(false);
     setTrapWord("");
   };
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    setSubmitAttempted(true);
 
     if (
       !subjectId ||
-      !question.trim() ||
-      !myAnswer.trim() ||
-      !correctAnswer.trim() ||
-      !errorType.trim() ||
-      !correctRule.trim() ||
-      !reviewDate
+      !question.trim()
     ) {
       return;
     }
 
     onSubmit({
+      comment: comment.trim() || null,
       correctAnswer: correctAnswer.trim(),
       correctRule: correctRule.trim(),
+      examBoard: examBoard.trim() || null,
       errorType: errorType.trim(),
+      initialTopic: initialTopic.trim() || null,
       myAnswer: myAnswer.trim(),
       question: question.trim(),
-      reviewDate,
+      result,
+      reviewDate: reviewDate || null,
       status,
       subjectId,
       trapWord: trapWord.trim() || null,
@@ -644,25 +760,55 @@ function MistakeForm({
         <DialogHeader>
           <DialogTitle>Add mistake</DialogTitle>
           <DialogDescription>
-            Capture the question, your answer, the correct answer, and the rule
-            that prevents the mistake next time.
+            Capture the question result. Wrong answers and doubtful hits create
+            a guided correction pending item.
           </DialogDescription>
         </DialogHeader>
         {subjects.length ? (
           <form className="grid gap-3" onSubmit={handleSubmit}>
-            <div className="grid gap-3 md:grid-cols-3">
-              <Select value={subjectId} onValueChange={setSubjectId}>
+            <div className="grid gap-3 md:grid-cols-4">
+              <div className="grid gap-1">
+                <Select value={subjectId} onValueChange={setSubjectId}>
+                  <SelectTrigger className={cn(showSubjectError && requiredFieldClass)}>
+                    <SelectValue placeholder="Subject" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {subjects.map((subject) => (
+                      <SelectItem key={subject.id} value={subject.id}>
+                        {subject.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <RequiredFieldError show={showSubjectError} />
+              </div>
+              <Input
+                onChange={(event) => setExamBoard(event.target.value)}
+                placeholder="Banca"
+                value={examBoard}
+              />
+              <Select
+                value={result}
+                onValueChange={(value) => setResult(value as StudyMistakeResult)}
+              >
                 <SelectTrigger>
-                  <SelectValue placeholder="Subject" />
+                  <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  {subjects.map((subject) => (
-                    <SelectItem key={subject.id} value={subject.id}>
-                      {subject.name}
+                  {resultOptions.map((currentResult) => (
+                    <SelectItem key={currentResult} value={currentResult}>
+                      {resultLabel(currentResult)}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
+              <Input
+                onChange={(event) => setInitialTopic(event.target.value)}
+                placeholder="Assunto"
+                value={initialTopic}
+              />
+            </div>
+            <div className="grid gap-3 md:grid-cols-2">
               <Input
                 onChange={(event) => setErrorType(event.target.value)}
                 placeholder="Error type"
@@ -674,35 +820,48 @@ function MistakeForm({
                 value={trapWord}
               />
             </div>
+            <div className="grid gap-1">
+              <textarea
+                className={cn(
+                  "min-h-24 rounded-md border border-input bg-transparent px-3 py-2 text-sm outline-none transition-[color,box-shadow] placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50",
+                  showQuestionError && requiredFieldClass
+                )}
+                onChange={(event) => setQuestion(event.target.value)}
+                placeholder="Question"
+                value={question}
+              />
+              <RequiredFieldError show={showQuestionError} />
+            </div>
             <textarea
-              className="min-h-24 rounded-md border border-input bg-transparent px-3 py-2 text-sm outline-none transition-[color,box-shadow] placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
-              onChange={(event) => setQuestion(event.target.value)}
-              placeholder="Question"
-              value={question}
+              className="min-h-20 rounded-md border border-input bg-transparent px-3 py-2 text-sm outline-none transition-[color,box-shadow] placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
+              onChange={(event) => setComment(event.target.value)}
+              placeholder="Comentario opcional"
+              value={comment}
             />
             <div className="grid gap-3 md:grid-cols-2">
               <textarea
                 className="min-h-24 rounded-md border border-input bg-transparent px-3 py-2 text-sm outline-none transition-[color,box-shadow] placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
                 onChange={(event) => setMyAnswer(event.target.value)}
-                placeholder="My answer"
+                placeholder="My answer (optional)"
                 value={myAnswer}
               />
               <textarea
                 className="min-h-24 rounded-md border border-input bg-transparent px-3 py-2 text-sm outline-none transition-[color,box-shadow] placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
                 onChange={(event) => setCorrectAnswer(event.target.value)}
-                placeholder="Correct answer"
+                placeholder="Correct answer (optional)"
                 value={correctAnswer}
               />
             </div>
             <textarea
               className="min-h-20 rounded-md border border-input bg-transparent px-3 py-2 text-sm outline-none transition-[color,box-shadow] placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
               onChange={(event) => setCorrectRule(event.target.value)}
-              placeholder="Correct rule"
+              placeholder="Correct rule (optional)"
               value={correctRule}
             />
             <div className="grid gap-3 md:grid-cols-[180px_180px_auto]">
               <Input
                 onChange={(event) => setReviewDate(event.target.value)}
+                placeholder="Review date"
                 type="date"
                 value={reviewDate}
               />
@@ -737,6 +896,226 @@ function MistakeForm({
   );
 }
 
+function GuidedCorrectionDialog({
+  isSaving,
+  mistake,
+  onSave,
+}: {
+  isSaving: boolean;
+  mistake: StudyMistake;
+  onSave: (data: {
+    chargedDetail: string;
+    correctionStatus: StudyMistakeCorrectionStatus;
+    correctiveAction: string;
+    errorLevel: StudyMistakeErrorLevel;
+    errorReason: string;
+    generalSubject: string;
+    memorizationPhrase: string;
+    microTopic: string;
+    reviewDate: string;
+    status: StudyMistakeStatus;
+    topic: string;
+    trap?: string | null;
+  }) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const [generalSubject, setGeneralSubject] = useState(
+    mistake.generalSubject ?? mistake.subject?.name ?? ""
+  );
+  const [topic, setTopic] = useState(mistake.topic ?? mistake.initialTopic ?? "");
+  const [microTopic, setMicroTopic] = useState(mistake.microTopic ?? "");
+  const [errorReason, setErrorReason] = useState(mistake.errorReason ?? "");
+  const [chargedDetail, setChargedDetail] = useState(mistake.chargedDetail ?? "");
+  const [trap, setTrap] = useState(mistake.trap ?? mistake.trapWord ?? "");
+  const [memorizationPhrase, setMemorizationPhrase] = useState(
+    mistake.memorizationPhrase ?? ""
+  );
+  const [correctiveAction, setCorrectiveAction] = useState(
+    mistake.correctiveAction ?? ""
+  );
+  const [errorLevel, setErrorLevel] = useState<StudyMistakeErrorLevel>(
+    mistake.errorLevel ?? "grave"
+  );
+  const [reviewDate, setReviewDate] = useState(
+    toDateInputValue(mistake.reviewDate)
+  );
+  const [submitAttempted, setSubmitAttempted] = useState(false);
+  const canSubmit =
+    microTopic.trim() &&
+    errorReason.trim() &&
+    chargedDetail.trim() &&
+    memorizationPhrase.trim() &&
+    correctiveAction.trim() &&
+    reviewDate;
+  const showMicroTopicError = submitAttempted && !microTopic.trim();
+  const showErrorReasonError = submitAttempted && !errorReason.trim();
+  const showChargedDetailError = submitAttempted && !chargedDetail.trim();
+  const showMemorizationPhraseError =
+    submitAttempted && !memorizationPhrase.trim();
+  const showCorrectiveActionError = submitAttempted && !correctiveAction.trim();
+  const showReviewDateError = submitAttempted && !reviewDate;
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <Button size="sm" type="button" variant="outline">
+          <BookOpenCheck className="h-4 w-4" />
+          Correção Guiada
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-3xl">
+        <DialogHeader>
+          <DialogTitle>Correção Guiada</DialogTitle>
+          <DialogDescription>
+            Complete the required correction pattern before marking this
+            question as reviewed.
+          </DialogDescription>
+        </DialogHeader>
+        <div className="grid gap-3">
+          <div className="grid gap-3 md:grid-cols-3">
+            <Input
+              onChange={(event) => setGeneralSubject(event.target.value)}
+              placeholder="Disciplina"
+              value={generalSubject}
+            />
+            <Input
+              onChange={(event) => setTopic(event.target.value)}
+              placeholder="Topico"
+              value={topic}
+            />
+            <Select
+              value={errorLevel}
+              onValueChange={(value) =>
+                setErrorLevel(value as StudyMistakeErrorLevel)
+              }
+            >
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {errorLevelOptions.map((level) => (
+                  <SelectItem key={level} value={level}>
+                    {level}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="grid gap-1">
+            <Input
+              className={cn(showMicroTopicError && requiredFieldClass)}
+              onChange={(event) => setMicroTopic(event.target.value)}
+              placeholder="Microtopico real cobrado"
+              value={microTopic}
+            />
+            <RequiredFieldError show={showMicroTopicError} />
+          </div>
+          <div className="grid gap-1">
+            <textarea
+              className={cn(
+                "min-h-20 rounded-md border border-input bg-transparent px-3 py-2 text-sm outline-none transition-[color,box-shadow] placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50",
+                showErrorReasonError && requiredFieldClass
+              )}
+              onChange={(event) => setErrorReason(event.target.value)}
+              placeholder="Motivo do erro"
+              value={errorReason}
+            />
+            <RequiredFieldError show={showErrorReasonError} />
+          </div>
+          <div className="grid gap-1">
+            <textarea
+              className={cn(
+                "min-h-20 rounded-md border border-input bg-transparent px-3 py-2 text-sm outline-none transition-[color,box-shadow] placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50",
+                showChargedDetailError && requiredFieldClass
+              )}
+              onChange={(event) => setChargedDetail(event.target.value)}
+              placeholder="Detalhe que tornou a questao certa ou errada"
+              value={chargedDetail}
+            />
+            <RequiredFieldError show={showChargedDetailError} />
+          </div>
+          <Input
+            onChange={(event) => setTrap(event.target.value)}
+            placeholder="Pegadinha"
+            value={trap}
+          />
+          <div className="grid gap-1">
+            <textarea
+              className={cn(
+                "min-h-20 rounded-md border border-input bg-transparent px-3 py-2 text-sm outline-none transition-[color,box-shadow] placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50",
+                showMemorizationPhraseError && requiredFieldClass
+              )}
+              onChange={(event) => setMemorizationPhrase(event.target.value)}
+              placeholder="Frase curta para memorizar"
+              value={memorizationPhrase}
+            />
+            <RequiredFieldError show={showMemorizationPhraseError} />
+          </div>
+          <div className="grid gap-1">
+            <textarea
+              className={cn(
+                "min-h-20 rounded-md border border-input bg-transparent px-3 py-2 text-sm outline-none transition-[color,box-shadow] placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50",
+                showCorrectiveActionError && requiredFieldClass
+              )}
+              onChange={(event) => setCorrectiveAction(event.target.value)}
+              placeholder="Acao corretiva"
+              value={correctiveAction}
+            />
+            <RequiredFieldError show={showCorrectiveActionError} />
+          </div>
+          <div className="grid gap-1">
+            <Input
+              className={cn(showReviewDateError && requiredFieldClass)}
+              onChange={(event) => setReviewDate(event.target.value)}
+              type="date"
+              value={reviewDate}
+            />
+            <RequiredFieldError show={showReviewDateError} />
+          </div>
+          {!canSubmit ? (
+            <p className="rounded-md bg-secondary/35 p-3 text-sm text-muted-foreground">
+              Fill microtopic, error reason, charged detail, memorization
+              phrase, corrective action, and review date to finish.
+            </p>
+          ) : null}
+        </div>
+        <DialogFooter>
+          <Button
+            disabled={isSaving}
+            onClick={() => {
+              setSubmitAttempted(true);
+
+              if (!canSubmit) {
+                return;
+              }
+
+              onSave({
+                chargedDetail: chargedDetail.trim(),
+                correctionStatus: "completed",
+                correctiveAction: correctiveAction.trim(),
+                errorLevel,
+                errorReason: errorReason.trim(),
+                generalSubject: generalSubject.trim(),
+                memorizationPhrase: memorizationPhrase.trim(),
+                microTopic: microTopic.trim(),
+                reviewDate,
+                status: "reviewed",
+                topic: topic.trim(),
+                trap: trap.trim() || null,
+              });
+              setOpen(false);
+            }}
+            type="button"
+          >
+            <CheckCircle2 className="h-4 w-4" />
+            Finalizar correção
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 function MistakeDialog({
   isSaving,
   mistake,
@@ -766,7 +1145,10 @@ function MistakeDialog({
   const [reviewDate, setReviewDate] = useState(toDateInputValue(mistake.reviewDate));
   const [status, setStatus] = useState<StudyMistakeStatus>(mistake.status);
   const [subjectId, setSubjectId] = useState(mistake.subjectId);
+  const [submitAttempted, setSubmitAttempted] = useState(false);
   const [trapWord, setTrapWord] = useState(mistake.trapWord ?? "");
+  const showSubjectError = submitAttempted && !subjectId;
+  const showQuestionError = submitAttempted && !question.trim();
 
   return (
     <Dialog>
@@ -786,18 +1168,21 @@ function MistakeDialog({
 
         <div className="grid gap-3">
           <div className="grid gap-3 md:grid-cols-3">
-            <Select value={subjectId} onValueChange={setSubjectId}>
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {subjects.map((subject) => (
-                  <SelectItem key={subject.id} value={subject.id}>
-                    {subject.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <div className="grid gap-1">
+              <Select value={subjectId} onValueChange={setSubjectId}>
+                <SelectTrigger className={cn(showSubjectError && requiredFieldClass)}>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {subjects.map((subject) => (
+                    <SelectItem key={subject.id} value={subject.id}>
+                      {subject.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <RequiredFieldError show={showSubjectError} />
+            </div>
             <Input
               onChange={(event) => setErrorType(event.target.value)}
               value={errorType}
@@ -808,11 +1193,17 @@ function MistakeDialog({
               value={trapWord}
             />
           </div>
-          <textarea
-            className="min-h-28 rounded-md border border-input bg-transparent px-3 py-2 text-sm outline-none transition-[color,box-shadow] placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
-            onChange={(event) => setQuestion(event.target.value)}
-            value={question}
-          />
+          <div className="grid gap-1">
+            <textarea
+              className={cn(
+                "min-h-28 rounded-md border border-input bg-transparent px-3 py-2 text-sm outline-none transition-[color,box-shadow] placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50",
+                showQuestionError && requiredFieldClass
+              )}
+              onChange={(event) => setQuestion(event.target.value)}
+              value={question}
+            />
+            <RequiredFieldError show={showQuestionError} />
+          </div>
           <div className="grid gap-3 md:grid-cols-2">
             <textarea
               className="min-h-28 rounded-md border border-input bg-transparent px-3 py-2 text-sm outline-none transition-[color,box-shadow] placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
@@ -857,7 +1248,13 @@ function MistakeDialog({
         <DialogFooter>
           <Button
             disabled={isSaving}
-            onClick={() =>
+            onClick={() => {
+              setSubmitAttempted(true);
+
+              if (!subjectId || !question.trim()) {
+                return;
+              }
+
               onSave({
                 correctAnswer,
                 correctRule,
@@ -869,7 +1266,7 @@ function MistakeDialog({
                 subjectId,
                 trapWord: trapWord || null,
               })
-            }
+            }}
             type="button"
           >
             Save changes

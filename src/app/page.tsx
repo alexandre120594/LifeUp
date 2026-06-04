@@ -148,7 +148,11 @@ function DailyWeeklyTracker({
   );
 }
 
-function formatReviewDate(date: Date | string) {
+function formatReviewDate(date?: Date | string | null) {
+  if (!date) {
+    return "Not scheduled";
+  }
+
   return new Date(date).toLocaleDateString(undefined, {
     day: "2-digit",
     month: "short",

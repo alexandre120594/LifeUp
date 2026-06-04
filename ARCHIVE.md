@@ -53,6 +53,7 @@ Current app position:
 - dashboard and Study Dashboard now chart 7-day study question practice with right/wrong counts and accuracy
 - mistake log now has paginated weak-subject and due-review panels in addition to the filterable detailed queue
 - mistake log captures question, user's answer, correct answer, error type, correct rule, trap word, review date, and unresolved/reviewed/mastered status
+- mistake log now supports Guided Correction for new wrong or doubtful-hit records, blocking reviewed/mastered status until microtopic, error reason, charged detail, memorization phrase, corrective action, and review date are saved
 - project lists now paginate
 - project and habit charts now use combined bars and lines for workload, completion rate, check-ins, and streak context
 - project and habit chart axes now use compact labels and horizontal overflow for crowded datasets
@@ -366,7 +367,7 @@ These are known unfinished areas:
 - existing environments should run `npx prisma db push` after schema changes such as `SavingsContribution`, planned income/expense type tracking, `PomodoroSession`, `InboxItem`, `Note`, and weekly plan tables; finance reads and add-cash stay usable before the savings migration, but true contribution edit/delete history, Pomodoro persistence, Inbox, Notes, and persisted weekly habit boards require the current schema
 - existing environments should also run `npx prisma db push` for the account spend tracker tables before importing CSV or OFX files
 - existing environments should run `npx prisma db push` for study subject, repeating study schedule, and week-specific study plan tables before using persisted study planning data
-- existing environments should run `npx prisma db push` for the study mistake table before using the mistake log
+- existing environments should run `npx prisma db push` for the study mistake table before using the mistake log and its Guided Correction fields
 - existing environments should run `npx prisma db push` for the additive study question-practice table before saving right/wrong question totals
 - repo-wide lint baseline is still noisy outside recently touched files
 
@@ -426,6 +427,7 @@ Development currently stops at:
 - weekly organizer available for planning current, previous, and next weeks through persisted hourly habit boards
 - weekly organizer is dedicated to personal habit/task scheduling; study review workflows are separate under Study Tools
 - Study Tools workspace available for review-first study workflows, including a dashboard and mistake log
+- Guided Correction is additive: older mistake records keep their previous status behavior, while new wrong or doubtful-hit records carry correction pending/completed state
 - Study Plan question totals are additive study data: existing sessions and mistake records are not rewritten
 - streak persistence now centers on project daily completed-task targets, with habit streaks kept as secondary check-in analytics
 - seeded local data available

@@ -141,10 +141,12 @@ export function getDueStudyMistakes(
         reviewDate <= endOfDay
       );
     })
-    .sort(
-      (a, b) =>
-        new Date(a.reviewDate).getTime() - new Date(b.reviewDate).getTime()
-    );
+    .sort((a, b) => {
+      const aDate = normalizeDate(a.reviewDate)?.getTime() ?? 0;
+      const bDate = normalizeDate(b.reviewDate)?.getTime() ?? 0;
+
+      return aDate - bDate;
+    });
 }
 
 export function buildWeakSubjectMistakes(mistakes: StudyMistake[] = []) {

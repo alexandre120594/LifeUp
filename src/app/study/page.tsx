@@ -32,6 +32,10 @@ import {
 import type { StudyMistake } from "@/types/BaseInterfaces";
 
 function isDueForReview(mistake: StudyMistake) {
+  if (!mistake.reviewDate) {
+    return false;
+  }
+
   const reviewDate = new Date(mistake.reviewDate);
   const today = new Date();
   today.setHours(23, 59, 59, 999);
@@ -39,7 +43,11 @@ function isDueForReview(mistake: StudyMistake) {
   return mistake.status !== "mastered" && reviewDate <= today;
 }
 
-function formatDate(date: Date | string) {
+function formatDate(date?: Date | string | null) {
+  if (!date) {
+    return "Not scheduled";
+  }
+
   return new Date(date).toLocaleDateString(undefined, {
     day: "2-digit",
     month: "short",

@@ -19,6 +19,7 @@ The app currently supports:
 - Study Plan registers actual study sessions from begin/finish datetimes, calculates studied duration, compares planned versus studied hours, and filters the week board by subject
 - Study Plan finish flow can also record aggregate right/wrong question totals for the study block, show weekly counts on the planner, and feed dashboard question-practice charts
 - mistake log records questions, user's answer, correct answer, error type, correct rule, trap word, review date, and unresolved/reviewed/mastered status
+- mistake log includes Guided Correction for new wrong or doubtful-hit records, requiring microtopic, error reason, charged detail, memorization phrase, corrective action, and review date before the item can be marked reviewed/mastered
 - weekly organizer focuses on personal habit/task planning only
 - task creation supports an optional scheduled hour, and the calendar shows tasks by time inside each day
 - task queues use responsive cards with pending-first sorting, status counters, and compact pagination
@@ -123,7 +124,7 @@ There is also repeatable local seed data for testing charts and flows.
 - `src/app/study/page.tsx`
   - study dashboard for review pressure, weak subjects, due mistakes, question practice, subjects, and scheduled study hours
 - `src/app/study/mistakes/page.tsx`
-  - subject-based mistake log with search, filters, review dates, status changes, and edit/delete dialogs
+  - subject-based mistake log with search, filters, review dates, Guided Correction, status changes, and edit/delete dialogs
 - `src/app/study/planner/page.tsx`
   - week-specific study board with planned blocks, manual studied sessions, subject filtering, and planned-vs-actual totals
 - `src/app/finance/page.tsx`
@@ -263,7 +264,7 @@ There is also repeatable local seed data for testing charts and flows.
 - `StudyQuestionPractice`
   - belongs to user and study subject, and stores aggregate daily total, right, and wrong question counts
 - `StudyMistake`
-  - belongs to user and study subject, and stores question, user's answer, correct answer, error type, correct rule, trap word, review date, and review status
+  - belongs to user and study subject, stores question/result metadata, optional legacy answer/rule details, Guided Correction fields, review date, correction status, and review status
 - `InboxItem`
   - belongs to user
   - stores temporary capture records with type, status, content, and optional project, habit, task, or note links
@@ -317,7 +318,8 @@ Study subjects, repeating study schedule blocks, and week-specific study plan
 boards also require the current Prisma schema before study planning can persist
 weekly routines and concrete planned blocks.
 Study mistakes also require the current Prisma schema before the mistake log can
-persist review records.
+persist review records. Guided Correction adds nullable fields to that table so
+existing mistake records are not rewritten into correction-pending items.
 Study question-practice totals also require the current Prisma schema before the
 Study Plan finish flow can persist right/wrong counts for dashboard charts.
 The account spend tracker also requires the current schema because it stores
@@ -401,6 +403,7 @@ What is stable enough to continue from:
 - study plan block completion can save aggregate right/wrong question totals, the planner shows week counts, and dashboards chart those question totals by day
 - dashboard shows study mistake pressure with a weak-subject chart and paginated due-review queue
 - mistake log shows paginated weak-subject and due-review panels above the detailed review queue
+- new wrong or doubtful-hit mistake records create a Guided Correction pending state, and status changes to reviewed/mastered are blocked until the required correction fields and review date are saved
 - app tracker page shows project streak targets and today's task progress from completed tasks
 - project streaks now count days where completed tasks in that project meet the project's daily target, defaulting to 1 completed task per day
 - chart colors now follow the active app theme

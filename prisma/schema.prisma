@@ -157,8 +157,22 @@ model StudyMistake {
   correctAnswer String
   errorType     String
   correctRule   String
+  examBoard     String?
+  result        String?
+  initialTopic  String?
+  comment       String?
+  correctionStatus String?
+  generalSubject String?
+  topic         String?
+  microTopic    String?
+  errorReason   String?
+  chargedDetail String?
+  trap          String?
+  memorizationPhrase String?
+  correctiveAction String?
+  errorLevel    String?
   trapWord      String?
-  reviewDate    DateTime
+  reviewDate    DateTime?
   status        String   @default("unresolved") // unresolved, reviewed, mastered
   subjectId     String
   subject       StudySubject @relation(fields: [subjectId], references: [id], onDelete: Cascade, onUpdate: Cascade)
