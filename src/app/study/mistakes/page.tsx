@@ -73,7 +73,11 @@ const resultOptions: StudyMistakeResult[] = [
   "correct_with_doubt",
   "correct",
 ];
-const errorLevelOptions: StudyMistakeErrorLevel[] = ["leve", "medio", "grave"];
+const errorLevelOptions: StudyMistakeErrorLevel[] = [
+  "minor",
+  "moderate",
+  "severe",
+];
 const requiredFieldClass =
   "border-destructive focus-visible:border-destructive focus-visible:ring-destructive/30";
 
@@ -131,6 +135,20 @@ function correctionLabel(status?: StudyMistakeCorrectionStatus | null) {
   }
 
   return "Legacy record";
+}
+
+function normalizeErrorLevel(
+  level?: StudyMistake["errorLevel"] | "leve" | "medio" | "grave"
+): StudyMistakeErrorLevel {
+  if (level === "minor" || level === "leve") {
+    return "minor";
+  }
+
+  if (level === "moderate" || level === "medio") {
+    return "moderate";
+  }
+
+  return "severe";
 }
 
 function isStatusBlockedByCorrection(
@@ -955,7 +973,7 @@ function GuidedCorrectionDialog({
     mistake.correctiveAction ?? ""
   );
   const [errorLevel, setErrorLevel] = useState<StudyMistakeErrorLevel>(
-    mistake.errorLevel ?? "grave"
+    normalizeErrorLevel(mistake.errorLevel)
   );
   const [reviewDate, setReviewDate] = useState(
     toDateInputValue(mistake.reviewDate)

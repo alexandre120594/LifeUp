@@ -237,7 +237,7 @@ export type StudyMistakeResult =
   | "wrong"
   | "correct_with_doubt";
 export type StudyMistakeCorrectionStatus = "pending" | "completed";
-export type StudyMistakeErrorLevel = "leve" | "medio" | "grave";
+export type StudyMistakeErrorLevel = "minor" | "moderate" | "severe";
 
 export interface StudyMistake {
   id: string;

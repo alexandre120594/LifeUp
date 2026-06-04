@@ -5,7 +5,7 @@ import { NextRequest, NextResponse } from "next/server";
 const mistakeStatuses = ["unresolved", "reviewed", "mastered"] as const;
 const mistakeResults = ["correct", "wrong", "correct_with_doubt"] as const;
 const correctionStatuses = ["pending", "completed"] as const;
-const errorLevels = ["leve", "medio", "grave"] as const;
+const errorLevels = ["minor", "moderate", "severe"] as const;
 
 type MistakePatchPayload = {
   chargedDetail?: unknown;
@@ -39,6 +39,22 @@ function normalizeOptionalString(value: unknown) {
 
 function normalizeNullableString(value: unknown) {
   return typeof value === "string" && value.trim() ? value.trim() : null;
+}
+
+function normalizeErrorLevel(value: unknown) {
+  if (value === "leve") {
+    return "minor";
+  }
+
+  if (value === "medio") {
+    return "moderate";
+  }
+
+  if (value === "grave") {
+    return "severe";
+  }
+
+  return typeof value === "string" ? value : null;
 }
 
 function getStringForCompletion(
@@ -153,9 +169,11 @@ export async function PATCH(
       );
     }
 
+    const errorLevel = normalizeErrorLevel(body.errorLevel);
+
     if (
       typeof body.errorLevel === "string" &&
-      !errorLevels.includes(body.errorLevel as (typeof errorLevels)[number])
+      !errorLevels.includes(errorLevel as (typeof errorLevels)[number])
     ) {
       return NextResponse.json(
         { message: "Valid error level is required." },
@@ -236,7 +254,7 @@ export async function PATCH(
           ? { correctRule: normalizeOptionalString(body.correctRule) }
           : {}),
         ...(typeof body.errorLevel === "string"
-          ? { errorLevel: body.errorLevel }
+          ? { errorLevel }
           : "errorLevel" in body
             ? { errorLevel: null }
             : {}),
