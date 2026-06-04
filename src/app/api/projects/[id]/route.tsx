@@ -76,7 +76,7 @@ export async function DELETE(req: NextRequest, { params }: RouteParams) {
         where: { id },
       }),
     ]);
-    return NextResponse.json({ message: "Projeto e dependências deletados" });
+    return NextResponse.json({ message: "Project and dependencies deleted" });
   } catch (error) {
     console.log(error);
     return NextResponse.json(

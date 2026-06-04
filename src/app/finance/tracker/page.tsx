@@ -343,7 +343,7 @@ export default function FinanceTrackerPage() {
                   <th className="px-4 py-3">
                     {sourceType === "fatura" ? "Fatura" : "Extrato"}
                   </th>
-                  <th className="px-4 py-3">Data</th>
+                  <th className="px-4 py-3">Date</th>
                   <th className="px-4 py-3">Descricao</th>
                   <th className="px-4 py-3 text-right">Valor</th>
                   <th className="px-4 py-3">Import</th>

@@ -68,7 +68,7 @@
   --a-hue: 84;
   --a-chroma: 0.145;
 
-  /* Aplicação nas variáveis Yevox que o @theme consome */
+  /* Apply values to the Yevox variables consumed by @theme */
   --background-yevox: oklch(0.976 0.009 var(--s-hue));
   --primary-yevox: oklch(0.42 calc(var(--p-chroma) * 1.08) var(--p-hue));
   --secondary-yevox: oklch(0.932 calc(var(--s-chroma) * 1.08) var(--s-hue));
@@ -160,7 +160,7 @@
   z-index: 9999;
 }
 
-/* Ajuste para o Dark Mode se você estiver usando */
+/* Dark mode adjustment */
 .dark [data-radix-popper-content-wrapper] {
   background-color: var(--popover) !important;
   border-color: var(--border) !important;

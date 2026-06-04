@@ -82,7 +82,7 @@ function RequiredFieldError({ show }: { show: boolean }) {
     return null;
   }
 
-  return <p className="text-xs font-medium text-destructive">Campo obrigatório.</p>;
+  return <p className="text-xs font-medium text-destructive">Required field.</p>;
 }
 
 function toDateInputValue(date?: Date | string | null) {
@@ -111,26 +111,26 @@ function statusLabel(status: StudyMistakeStatus) {
 
 function resultLabel(result?: StudyMistakeResult | null) {
   if (result === "correct") {
-    return "Acertei";
+    return "Correct";
   }
 
   if (result === "correct_with_doubt") {
-    return "Acertei com dúvida";
+    return "Correct with doubt";
   }
 
-  return "Errei";
+  return "Wrong";
 }
 
 function correctionLabel(status?: StudyMistakeCorrectionStatus | null) {
   if (status === "completed") {
-    return "Correção concluída";
+    return "Correction completed";
   }
 
   if (status === "pending") {
-    return "Correção pendente";
+    return "Correction pending";
   }
 
-  return "Registro legado";
+  return "Legacy record";
 }
 
 function isStatusBlockedByCorrection(
@@ -385,17 +385,17 @@ export default function StudyMistakesPage() {
                   ) : null}
                   {mistake.microTopic ? (
                     <p className="break-words text-sm [overflow-wrap:anywhere]">
-                      Microtópico: {mistake.microTopic}
+                      Microtopic: {mistake.microTopic}
                     </p>
                   ) : null}
                   {mistake.memorizationPhrase ? (
                     <p className="break-words text-xs text-muted-foreground [overflow-wrap:anywhere]">
-                      Memorização: {mistake.memorizationPhrase}
+                      Memorization: {mistake.memorizationPhrase}
                     </p>
                   ) : null}
                   {mistake.comment ? (
                     <p className="break-words text-xs text-muted-foreground [overflow-wrap:anywhere]">
-                      Comentário: {mistake.comment}
+                      Comment: {mistake.comment}
                     </p>
                   ) : null}
                   {mistake.trapWord ? (
@@ -444,7 +444,7 @@ export default function StudyMistakesPage() {
                       variant="outline"
                     >
                       <BookOpenCheck className="h-4 w-4" />
-                      Enviar para correção
+                      Send to correction
                     </Button>
                   ) : null}
                   {mistake.correctionStatus ? (
@@ -805,7 +805,7 @@ function MistakeForm({
               </div>
               <Input
                 onChange={(event) => setExamBoard(event.target.value)}
-                placeholder="Banca"
+                placeholder="Exam board"
                 value={examBoard}
               />
               <Select
@@ -825,7 +825,7 @@ function MistakeForm({
               </Select>
               <Input
                 onChange={(event) => setInitialTopic(event.target.value)}
-                placeholder="Assunto"
+                placeholder="Topic"
                 value={initialTopic}
               />
             </div>
@@ -853,12 +853,12 @@ function MistakeForm({
               />
               <RequiredFieldError show={showQuestionError} />
             </div>
-            <textarea
-              className="min-h-20 rounded-md border border-input bg-transparent px-3 py-2 text-sm outline-none transition-[color,box-shadow] placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
-              onChange={(event) => setComment(event.target.value)}
-              placeholder="Comentario opcional"
-              value={comment}
-            />
+              <textarea
+                className="min-h-20 rounded-md border border-input bg-transparent px-3 py-2 text-sm outline-none transition-[color,box-shadow] placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
+                onChange={(event) => setComment(event.target.value)}
+              placeholder="Optional comment"
+                value={comment}
+              />
             <div className="grid gap-3 md:grid-cols-2">
               <textarea
                 className="min-h-24 rounded-md border border-input bg-transparent px-3 py-2 text-sm outline-none transition-[color,box-shadow] placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
@@ -981,12 +981,12 @@ function GuidedCorrectionDialog({
       <DialogTrigger asChild>
         <Button size="sm" type="button" variant="outline">
           <BookOpenCheck className="h-4 w-4" />
-          Correção Guiada
+          Guided Correction
         </Button>
       </DialogTrigger>
       <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-3xl">
         <DialogHeader>
-          <DialogTitle>Correção Guiada</DialogTitle>
+          <DialogTitle>Guided Correction</DialogTitle>
           <DialogDescription>
             Complete the required correction pattern before marking this
             question as reviewed.
@@ -996,12 +996,12 @@ function GuidedCorrectionDialog({
           <div className="grid gap-3 md:grid-cols-3">
             <Input
               onChange={(event) => setGeneralSubject(event.target.value)}
-              placeholder="Disciplina"
+              placeholder="Subject"
               value={generalSubject}
             />
             <Input
               onChange={(event) => setTopic(event.target.value)}
-              placeholder="Topico"
+              placeholder="Topic"
               value={topic}
             />
             <Select
@@ -1026,7 +1026,7 @@ function GuidedCorrectionDialog({
             <Input
               className={cn(showMicroTopicError && requiredFieldClass)}
               onChange={(event) => setMicroTopic(event.target.value)}
-              placeholder="Microtopico real cobrado"
+              placeholder="Real microtopic tested"
               value={microTopic}
             />
             <RequiredFieldError show={showMicroTopicError} />
@@ -1038,7 +1038,7 @@ function GuidedCorrectionDialog({
                 showErrorReasonError && requiredFieldClass
               )}
               onChange={(event) => setErrorReason(event.target.value)}
-              placeholder="Motivo do erro"
+              placeholder="Error reason"
               value={errorReason}
             />
             <RequiredFieldError show={showErrorReasonError} />
@@ -1050,14 +1050,14 @@ function GuidedCorrectionDialog({
                 showChargedDetailError && requiredFieldClass
               )}
               onChange={(event) => setChargedDetail(event.target.value)}
-              placeholder="Detalhe que tornou a questao certa ou errada"
+              placeholder="Detail that made the question right or wrong"
               value={chargedDetail}
             />
             <RequiredFieldError show={showChargedDetailError} />
           </div>
           <Input
             onChange={(event) => setTrap(event.target.value)}
-            placeholder="Pegadinha"
+            placeholder="Trap"
             value={trap}
           />
           <div className="grid gap-1">
@@ -1067,7 +1067,7 @@ function GuidedCorrectionDialog({
                 showMemorizationPhraseError && requiredFieldClass
               )}
               onChange={(event) => setMemorizationPhrase(event.target.value)}
-              placeholder="Frase curta para memorizar"
+              placeholder="Short memorization phrase"
               value={memorizationPhrase}
             />
             <RequiredFieldError show={showMemorizationPhraseError} />
@@ -1079,7 +1079,7 @@ function GuidedCorrectionDialog({
                 showCorrectiveActionError && requiredFieldClass
               )}
               onChange={(event) => setCorrectiveAction(event.target.value)}
-              placeholder="Acao corretiva"
+              placeholder="Corrective action"
               value={correctiveAction}
             />
             <RequiredFieldError show={showCorrectiveActionError} />
@@ -1129,7 +1129,7 @@ function GuidedCorrectionDialog({
             type="button"
           >
             <CheckCircle2 className="h-4 w-4" />
-            Finalizar correção
+            Finish correction
           </Button>
         </DialogFooter>
       </DialogContent>
