@@ -15,8 +15,10 @@ import {
   TimerReset,
   WalletCards,
   FileSpreadsheet,
+  ListChecks,
 } from "lucide-react";
 import { useInboxItems } from "@/hooks/useInboxMutations";
+import { useLifeHabits } from "@/hooks/useLifeHabitMutations";
 import { useNotes } from "@/hooks/useNoteMutations";
 import { useProjects } from "@/hooks/useProjectMutations";
 import { useStudyMistakes } from "@/hooks/useStudyMistakeMutations";
@@ -82,6 +84,12 @@ const lifeItems: SidebarItem[] = [
 ];
 
 const planningItems: SidebarItem[] = [
+  {
+    title: "Habit Tracker",
+    url: "/life-habits",
+    icon: ListChecks,
+    description: "Good and bad habits",
+  },
   {
     title: "Calendar",
     url: "/calendar",
@@ -183,6 +191,7 @@ export function AppSidebar() {
   const { data: projects } = useProjects();
   const { data: tasks } = useTask();
   const { data: inboxItems } = useInboxItems({ status: "unprocessed" });
+  const { data: lifeHabits } = useLifeHabits();
   const { data: notes } = useNotes();
   const { data: studyMistakes } = useStudyMistakes();
   const { data: studySubjects } = useStudySubjects();
@@ -192,6 +201,7 @@ export function AppSidebar() {
     "/inbox": inboxItems?.length ?? 0,
     "/notes": notes?.length ?? 0,
     "/calendar": tasks?.length ?? 0,
+    "/life-habits": lifeHabits?.length ?? 0,
     "/weekly-organizer": tasks?.length ?? 0,
     "/pomodoro": 0,
     "/finance": 0,

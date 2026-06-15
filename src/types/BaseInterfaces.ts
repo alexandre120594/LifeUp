@@ -380,6 +380,40 @@ export interface WeeklyPlanSlotInput {
   taskIds?: string[];
 }
 
+export type LifeHabitKind = "good" | "bad";
+
+export interface LifeHabit {
+  id: string;
+  title: string;
+  kind: LifeHabitKind;
+  color?: string | null;
+  notes?: string | null;
+  checkins: string[];
+  badEvents: string[];
+  lastBadAt?: Date | string | null;
+  createdAt: Date | string;
+  updatedAt: Date | string;
+}
+
+export interface LifeHabitCreateInput {
+  title: string;
+  kind: LifeHabitKind;
+  color?: string | null;
+  notes?: string | null;
+}
+
+export interface LifeHabitUpdateInput {
+  title?: string;
+  kind?: LifeHabitKind;
+  color?: string | null;
+  notes?: string | null;
+}
+
+export interface LifeHabitActionInput {
+  action: "toggle-checkin" | "reset-bad";
+  dayKey?: string;
+}
+
 export interface Project {
   id: string;
   title: string;  

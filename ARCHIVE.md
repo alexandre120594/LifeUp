@@ -6,14 +6,14 @@ If a new agent needs to know where work stopped, start here.
 ## Current Snapshot
 
 Date of latest update:
-- 2026-06-13
+- 2026-06-15
 
 Current app position:
 - `/` is the Life Dashboard and focuses on projects, routines, tasks, planning, and finance
 - `/study` is the Study Dashboard and focuses on subjects, scheduled study hours, mistake review pressure, weak subjects, and question practice
 - dashboard top line now includes current finance income, expenses, and total cash
 - sidebar navigation is split into Life, Life Planning, and Study groups; habits and tasks are reached through project context
-- Life Planning navigation contains the task calendar and weekly plan; App Tracker still exists as a route but is no longer a primary sidebar item
+- Life Planning navigation contains the good/bad Habit Tracker, task calendar, and weekly plan; App Tracker still exists as a route but is no longer a primary sidebar item
 - all habit creation flows now ask for daily or weekly frequency
 - simple email login now gates the app and scopes projects, habits, tasks, and finance records to the logged-in user
 - dashboard greeting now resolves the current logged-in user's name from the session instead of a fixed placeholder
@@ -46,6 +46,7 @@ Current app position:
 - weekly organizer page derives Monday-to-Sunday weeks from the selected date, persists one habit board per user/week, supports previous/next week navigation, and schedules multiple habits into hourly cells from 00:00 through 23:00
 - weekly organizer slot dialog now filters by project and can assign both habits and tasks to an hour
 - weekly organizer is Life-planning only, with a restored hero and habit/task planning board
+- Life Habit Tracker is available under Life Planning for independent good habit checkouts and bad habit days-without counters
 - Study now has its own sidebar group, study dashboard, and subject-based mistake log for review workflows
 - Study Plan is available as a Study menu page with week-specific planned blocks and manual studied-hour registration
 - Study Plan now includes subject management for editing names, weekly hours, notes, and deleting subjects
@@ -66,6 +67,27 @@ Current app position:
 - mutation flows now force fresh API reads, await React Query invalidations, and show toast feedback for save, update, delete, and failed actions so edited content appears without leaving and returning to the page
 
 ## Completed Recently
+
+### Life Planning good/bad habit tracker
+
+Implemented:
+- added `/life-habits` as a Life Planning page
+- good habits have a one-tap daily checkout, streak, and total checkouts
+- bad habits automatically count days since the last bad-habit reset
+- bad habit cards include an `I did it` reset action and reset count
+- tracker is independent from project habits, tasks, and weekly plan records
+- sidebar Life Planning now includes Habit Tracker with a habit count badge
+
+Main files:
+- `prisma/schema.prisma`
+- `src/app/life-habits/page.tsx`
+- `src/app/api/life-habits/route.ts`
+- `src/app/api/life-habits/[id]/route.ts`
+- `src/hooks/useLifeHabitMutations.ts`
+- `src/services/LifeHabitServices.ts`
+- `src/components/app-sidebar.tsx`
+- `README.md`
+- `ARCHIVE.md`
 
 ### Study tools UX polish
 

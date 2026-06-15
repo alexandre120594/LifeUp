@@ -12,7 +12,7 @@ The app currently supports:
 - popup creation for projects, habits, and tasks across the main menu pages
 - Life sidebar navigation for Life Dashboard, projects, inbox, notes, finance, and account spend tracking; habits and tasks are reached through projects
 - simple email login with per-user project, habit, task, and finance data isolation
-- Life Planning tools for task calendar and weekly planning
+- Life Planning tools for good/bad habit tracking, task calendar, and weekly planning
 - study records for subjects, planned weekly hours, and repeating day/hour study blocks in the data layer
 - dedicated Study workspace with a visual command-center dashboard, subject-based mistake log, study plan, and standalone focus timer
 - Study Plan page for week-specific planned study blocks, manual studied-time registration, visual planned-vs-studied comparison, and question performance summary
@@ -22,6 +22,7 @@ The app currently supports:
 - mistake log includes Guided Correction for new wrong or doubtful-hit records, requiring microtopic, error reason, charged detail, memorization phrase, corrective action, and review date before the item can be marked reviewed/mastered
 - legacy mistake records can be manually sent to Guided Correction one by one from the mistake log
 - weekly organizer focuses on Life habit/task planning only
+- Life Habit Tracker tracks good habits with a daily checkout and bad habits with an automatic days-without counter that resets when the bad habit happens
 - task creation supports an optional scheduled hour, and the calendar shows tasks by time inside each day
 - task queues use responsive cards with pending-first sorting, status counters, and compact pagination
 - Focus Timer lives under Study and saves standalone study sessions with breaks, progress, navigation-persistent countdown state, and study focus history
@@ -115,6 +116,8 @@ There is also repeatable local seed data for testing charts and flows.
   - habit detail page with linked tasks and habit-specific charts
 - `src/app/habit-tracker/page.tsx`
   - app tracker page for project daily streak targets and today's task progress
+- `src/app/life-habits/page.tsx`
+  - Life Planning good/bad habit tracker with daily checkouts, days-without counters, reset actions, and visual summaries
 - `src/app/tasks/page.tsx`
   - task index page with the task queue prioritized above summaries and charts
 - `src/app/inbox/page.tsx`
@@ -170,6 +173,7 @@ There is also repeatable local seed data for testing charts and flows.
 - `src/hooks/useInboxMutations.ts`
 - `src/hooks/useNoteMutations.ts`
 - `src/hooks/useWeeklyPlanMutations.ts`
+- `src/hooks/useLifeHabitMutations.ts`
   - React Query hooks for fetching and mutations
 
 - `src/services/ProjectsServices.ts`
@@ -179,6 +183,7 @@ There is also repeatable local seed data for testing charts and flows.
 - `src/services/InboxServices.ts`
 - `src/services/NotesServices.ts`
 - `src/services/WeeklyPlanServices.ts`
+- `src/services/LifeHabitServices.ts`
   - API client wrappers
 
 ### API
@@ -196,6 +201,8 @@ There is also repeatable local seed data for testing charts and flows.
 - `src/app/api/weekly-plan/route.ts`
 - `src/app/api/weekly-plan/slots/route.ts`
 - `src/app/api/weekly-plan/slots/[id]/route.ts`
+- `src/app/api/life-habits/route.ts`
+- `src/app/api/life-habits/[id]/route.ts`
 - `src/app/api/study-subjects/route.ts`
 - `src/app/api/study-subjects/[id]/route.ts`
 - `src/app/api/study-schedule/route.ts`
@@ -260,6 +267,8 @@ There is also repeatable local seed data for testing charts and flows.
   - stores one `dayIndex` and `hour` cell
 - `WeeklyPlanSlotHabit`
   - joins scheduled hourly slots to one or more habits
+- `LifeHabit`
+  - belongs to user and stores independent Life Planning good/bad habits; good habits use daily checkouts, while bad habits store reset events and calculate days since the last bad occurrence
 - `StudySubject`
   - belongs to user and stores a subject name, color, notes, planned weekly study hours, and linked study timer sessions
 - `StudyScheduleBlock`

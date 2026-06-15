@@ -26,6 +26,7 @@ model User {
   inboxItems InboxItem[]
   notes Note[]
   weeklyPlanBoards WeeklyPlanBoard[]
+  lifeHabits LifeHabit[]
   notifications Notification[]
   studySubjects StudySubject[]
   studyScheduleBlocks StudyScheduleBlock[]
@@ -112,6 +113,24 @@ model WeeklyPlanSlotTask {
   createdAt DateTime @default(now())
 
   @@unique([slotId, taskId])
+}
+
+model LifeHabit {
+  id              String   @id @default(cuid())
+  title           String
+  kind            String   // good or bad
+  color           String?
+  notes           String?
+  checkins        String[] @default([])
+  badEvents       String[] @default([])
+  lastBadAt       DateTime?
+  userId          Int
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([userId, kind])
+  @@index([userId, updatedAt])
 }
 
 model StudySubject {
