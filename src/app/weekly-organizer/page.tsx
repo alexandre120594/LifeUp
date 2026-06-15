@@ -126,9 +126,9 @@ export default function WeeklyOrganizerPage() {
     <div className="space-y-6 p-4 md:p-8">
       <PageHero
         badgeIcon={CalendarRange}
-        badgeLabel="Personal planning"
+        badgeLabel="Life planning"
         title="Weekly Plan"
-        description="Plan the habits and tasks that belong to your personal week. Study scheduling now lives in the Study workspace."
+        description="Plan the habits and tasks that belong to your life routines. Study scheduling now lives in the Study workspace."
         stats={[
           { label: "Week tasks", value: weekTasks.length },
           { label: "Pending", value: pendingWeekTasks.length },

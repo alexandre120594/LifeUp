@@ -6,13 +6,14 @@ If a new agent needs to know where work stopped, start here.
 ## Current Snapshot
 
 Date of latest update:
-- 2026-05-24
+- 2026-06-13
 
 Current app position:
-- dashboard exists and is actively used as the main overview
+- `/` is the Life Dashboard and focuses on projects, routines, tasks, planning, and finance
+- `/study` is the Study Dashboard and focuses on subjects, scheduled study hours, mistake review pressure, weak subjects, and question practice
 - dashboard top line now includes current finance income, expenses, and total cash
-- essential sidebar menu now focuses on dashboard, projects, inbox, notes, finance, and planning tools; habits and tasks are reached through project context
-- secondary planning tools now contain the task calendar, weekly plan, and app tracker
+- sidebar navigation is split into Life, Life Planning, and Study groups; habits and tasks are reached through project context
+- Life Planning navigation contains the task calendar and weekly plan; App Tracker still exists as a route but is no longer a primary sidebar item
 - all habit creation flows now ask for daily or weekly frequency
 - simple email login now gates the app and scopes projects, habits, tasks, and finance records to the logged-in user
 - dashboard greeting now resolves the current logged-in user's name from the session instead of a fixed placeholder
@@ -36,21 +37,23 @@ Current app position:
 - chart colors now follow the active app theme
 - task creation supports optional scheduled hours, and the calendar displays tasks by time inside each day
 - task queues now use responsive cards with status counters, metadata chips, and compact pagination
-- Pomodoro page now saves work/study focus sessions against tasks, supports work/break cycles, keeps the countdown state while navigating away, and rolls time through projects and habits
+- Focus Timer now lives under Study, saves standalone study sessions without project/task/habit association, supports focus/break cycles, and keeps the countdown state while navigating away
+- Focus Timer now requires a study subject for new sessions and shows a subject-hours chart
 - Inbox page captures unprocessed ideas, reminders, study topics, and loose work, paginates the queue, supports popup editing with project/habit/task linking, and can convert items into notes
 - Notes page stores searchable categorized notes with pagination, popup editing, and optional project, habit, and task links
 - dashboard now shows a daily/weekly tracker snapshot instead of the project throughput graph
 - dashboard no longer shows the full project list; project records live on the Projects page
 - weekly organizer page derives Monday-to-Sunday weeks from the selected date, persists one habit board per user/week, supports previous/next week navigation, and schedules multiple habits into hourly cells from 00:00 through 23:00
 - weekly organizer slot dialog now filters by project and can assign both habits and tasks to an hour
-- weekly organizer is now personal-only again, with a restored hero and habit/task planning board
-- Study Tools now has its own sidebar group, study dashboard, and subject-based mistake log for review workflows
-- Study Plan is available as a Study Tools menu page with week-specific planned blocks and manual studied-hour registration
+- weekly organizer is Life-planning only, with a restored hero and habit/task planning board
+- Study now has its own sidebar group, study dashboard, and subject-based mistake log for review workflows
+- Study Plan is available as a Study menu page with week-specific planned blocks and manual studied-hour registration
+- Study Plan now includes subject management for editing names, weekly hours, notes, and deleting subjects
 - Study Plan now registers actual study sessions from begin/finish datetimes, calculates studied minutes, lets week board study entries and their matching question counts be edited/deleted in popups, compares planned versus studied hours, and filters the week board by subject
 - Study Plan planned blocks can now be finished from the week board by entering actual studied minutes and optional question counts, which saves a studied session for that subject and lets the session plus matching question tracker entry be edited later from the board
 - Study Plan block completion can now record aggregate total/right/wrong question counts, shows weekly question totals, and lets saved count entries be edited or deleted without changing existing mistake data
-- dashboard now charts weak study subjects from logged mistakes and includes a paginated due-review queue
-- dashboard and Study Dashboard now chart 7-day study question practice with right/wrong counts and accuracy
+- Study Dashboard charts weak study subjects from logged mistakes and includes a due-review queue
+- Study Dashboard charts 7-day study question practice with right/wrong counts and accuracy; the Life Dashboard no longer includes study widgets
 - mistake log now has paginated weak-subject and due-review panels in addition to the filterable detailed queue
 - mistake log captures question, user's answer, correct answer, error type, correct rule, trap word, review date, and unresolved/reviewed/mastered status
 - mistake log now supports Guided Correction for new wrong or doubtful-hit records, blocking reviewed/mastered status until microtopic, error reason, charged detail, memorization phrase, corrective action, and review date are saved
@@ -64,6 +67,66 @@ Current app position:
 
 ## Completed Recently
 
+### Study tools UX polish
+
+Implemented:
+- Focus Timer now saves sessions to a selected study subject and shows hours by subject
+- Focus Timer includes quick subject creation without linking to projects, tasks, or habits
+- Study Plan now has a Manage subjects popup for subject update and delete flows
+- Study Dashboard now opens with visual action tiles for Study Plan, Mistake Log, and Focus Timer
+- top-level study metrics now use compact visual cards
+- question practice has a clearer accuracy summary with right/wrong totals and a progress bar
+- due review and subject pressure are easier to scan, with subject pressure bars linked back to the mistake workflow
+- Study Plan now has a cleaner control bar, separate planned-vs-studied and question-performance panels, and a responsive card-based week board
+- Mistake Log create/edit/correction dialogs now use resilient long-text fields so pasted questions, answers, rules, and correction notes wrap and scroll without stretching the layout
+- Add Mistake and Guided Correction dialogs now use clearer step-based sections, with Guided Correction explaining classify, diagnose, and remember/schedule steps
+- Add Mistake and Guided Correction popups are wider and use shorter copy plus safer grids so fields do not overlap
+- Select controls now constrain and truncate long selected values, preventing long subject/topic text from bleeding into neighboring fields
+
+Main file:
+- `src/app/study/page.tsx`
+- `src/app/study/planner/page.tsx`
+- `src/app/study/mistakes/page.tsx`
+- `src/components/ui/select.tsx`
+- `src/app/api/pomodoro/route.ts`
+- `src/lib/pomodoro.ts`
+- `prisma/schema.prisma`
+
+### Study-only Focus Timer
+
+Implemented:
+- removed App Tracker from primary sidebar navigation
+- moved Focus Timer into the Study sidebar group only
+- changed Focus Timer into a standalone Study tool with no project, task, or habit picker
+- new saved focus sessions no longer write a task association; older task-linked sessions can still be read
+- Pomodoro session persistence now has nullable `taskId`, so existing environments need the current Prisma schema applied before saving standalone focus sessions
+
+Main files:
+- `prisma/schema.prisma`
+- `src/app/pomodoro/page.tsx`
+- `src/components/pomodoro-panel.tsx`
+- `src/app/api/pomodoro/route.ts`
+- `src/lib/pomodoro.ts`
+- `src/components/app-sidebar.tsx`
+
+### Life and Study UX split
+
+Implemented:
+- `/` now reads as the Life Dashboard and no longer loads or renders study widgets
+- `/study` remains the Study Dashboard for subjects, scheduled study hours, mistake pressure, due review, weak subjects, and question-practice accuracy
+- sidebar navigation now separates Life, Life Planning, and Study; Finance and Spend Tracker live under Life, App Tracker is removed from the sidebar, and Focus Timer lives under Study
+- Study Dashboard links to the standalone Focus Timer for study sessions without moving the timer route
+- this was a UX/navigation/dashboard split only; no Prisma schema change, data migration, deletion, hiding, or automatic classification was introduced
+
+Main files:
+- `src/app/page.tsx`
+- `src/app/study/page.tsx`
+- `src/components/app-sidebar.tsx`
+- `src/components/app-shell.tsx`
+- `src/app/weekly-organizer/page.tsx`
+- `README.md`
+- `ARCHIVE.md`
+
 ### Dashboard analytics and layout
 
 Implemented:
@@ -72,7 +135,7 @@ Implemented:
 - current finance income, expenses, and total cash in the dashboard top line
 - calendar page with a large month view, task names on each day, selected-day popup with edit/delete actions, and button-triggered future-date task creation
 - weekly organizer page for database-backed weekly habit time planning
-- study subject and repeating schedule data still exists, but study review now lives under Study Tools instead of the weekly organizer
+- study subject and repeating schedule data still exists, but study review now lives under Study instead of the weekly organizer
 - scheduled task hours on task creation/editing, with calendar day cells and day detail popups sorted by task time
 - pagination on the project list
 - richer combined charts for project throughput, habit performance, task-by-project, and activity trend sections
@@ -155,7 +218,7 @@ Implemented:
 - tasks index page with the task queue shown before analytics and creation context
 - habit detail page with linked task completion and habit activity charts
 - task detail page with parent-project activity context
-- Pomodoro page with persisted task-linked sessions, configurable work/break cycles, navigation-persistent countdown state, work/study totals, project/habit time summaries, productivity history, and task/project/habit detail focus totals
+- Focus Timer page with standalone persisted study sessions, configurable focus/break cycles, navigation-persistent countdown state, study totals, and focus history
 
 Main files:
 - `src/components/app-sidebar.tsx`
@@ -427,8 +490,8 @@ Development currently stops at:
 - dashboard daily/weekly tracker snapshot replacing the project throughput graph
 - scheduled task hours shown in the calendar daily view
 - weekly organizer available for planning current, previous, and next weeks through persisted hourly habit boards
-- weekly organizer is dedicated to personal habit/task scheduling; study review workflows are separate under Study Tools
-- Study Tools workspace available for review-first study workflows, including a dashboard and mistake log
+- weekly organizer is dedicated to Life habit/task scheduling; study review workflows are separate under Study
+- Study workspace available for review-first study workflows, including a dashboard and mistake log
 - Guided Correction is additive: older mistake records keep their previous status behavior, while new wrong or doubtful-hit records carry correction pending/completed state
 - sending a legacy mistake to Guided Correction changes only that selected record to pending correction and resets it to unresolved
 - Study Plan question totals are additive study data: existing sessions and mistake records are not rewritten, and saved count entries can be corrected or removed from the planner

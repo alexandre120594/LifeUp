@@ -10,7 +10,6 @@ import {
   GraduationCap,
   Home,
   Inbox,
-  ListChecks,
   NotebookText,
   AlertCircle,
   TimerReset,
@@ -43,12 +42,12 @@ type SidebarItem = {
   description: string;
 };
 
-const personalItems: SidebarItem[] = [
+const lifeItems: SidebarItem[] = [
   {
-    title: "Dashboard",
+    title: "Life Dashboard",
     url: "/",
     icon: Home,
-    description: "Overview and momentum",
+    description: "Projects, tasks, and money",
   },
   {
     title: "Projects",
@@ -84,12 +83,6 @@ const personalItems: SidebarItem[] = [
 
 const planningItems: SidebarItem[] = [
   {
-    title: "App Tracker",
-    url: "/habit-tracker",
-    icon: ListChecks,
-    description: "Project streak targets",
-  },
-  {
     title: "Calendar",
     url: "/calendar",
     icon: CalendarDays,
@@ -108,7 +101,7 @@ const studyItems: SidebarItem[] = [
     title: "Study Dashboard",
     url: "/study",
     icon: GraduationCap,
-    description: "Review and weak spots",
+    description: "Subjects and reviews",
   },
   {
     title: "Mistake Log",
@@ -126,7 +119,7 @@ const studyItems: SidebarItem[] = [
     title: "Focus Timer",
     url: "/pomodoro",
     icon: TimerReset,
-    description: "Study focus cycles",
+    description: "Standalone study focus",
   },
 ];
 
@@ -196,7 +189,6 @@ export function AppSidebar() {
 
   const badges: Record<string, number> = {
     "/projects": projects?.length ?? 0,
-    "/habit-tracker": projects?.length ?? 0,
     "/inbox": inboxItems?.length ?? 0,
     "/notes": notes?.length ?? 0,
     "/calendar": tasks?.length ?? 0,
@@ -232,13 +224,13 @@ export function AppSidebar() {
           </div>
 
           <SidebarGroupContent>
-            <SidebarLinkList badges={badges} items={personalItems} />
+            <SidebarLinkList badges={badges} items={lifeItems} />
           </SidebarGroupContent>
         </SidebarGroup>
 
         <SidebarGroup className="mt-2">
           <SidebarGroupLabel className="mb-2 text-sidebar-foreground/60">
-            Personal planning
+            Life planning
           </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarLinkList badges={badges} items={planningItems} />
@@ -257,7 +249,7 @@ export function AppSidebar() {
         <SidebarFooter className="mt-auto rounded-3xl border border-white/10 bg-white/8 p-4 text-sm text-sidebar-foreground/80">
           <p className="font-medium">Current focus</p>
           <p className="mt-1 text-xs text-sidebar-foreground/70">
-            Use Personal for life management and Study for review, planning, and focus.
+            Use Life for projects, routines, planning, and money. Use Study for subjects, reviews, question practice, and focus.
           </p>
         </SidebarFooter>
       </SidebarContent>

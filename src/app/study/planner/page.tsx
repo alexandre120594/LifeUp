@@ -10,6 +10,7 @@ import {
   YAxis,
 } from "recharts";
 import {
+  BookOpenCheck,
   CheckCircle2,
   ChevronLeft,
   ChevronRight,
@@ -49,6 +50,7 @@ import {
   useCreateStudyQuestionPractice,
   useCreateStudySession,
   useCreateStudySubject,
+  useDeleteStudySubject,
   useDeleteStudyPlanBlock,
   useDeleteStudyQuestionPractice,
   useDeleteStudySession,
@@ -59,12 +61,14 @@ import {
   useUpdateStudyPlanBlock,
   useUpdateStudyQuestionPractice,
   useUpdateStudySession,
+  useUpdateStudySubject,
 } from "@/hooks/useStudyMutations";
 import { getStudyQuestionSummary } from "@/lib/analytics";
 import type {
   StudyPlanBlock,
   StudyQuestionPractice,
   StudySession,
+  StudySubject,
 } from "@/types/BaseInterfaces";
 
 const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
@@ -107,6 +111,12 @@ type SessionFormState = {
   wrongQuestions: string;
 };
 
+type SubjectFormState = {
+  name: string;
+  notes: string;
+  plannedHoursPerWeek: string;
+};
+
 const emptyBlockForm: BlockFormState = {
   dayIndex: "0",
   durationMinutes: "60",
@@ -133,6 +143,12 @@ const emptySessionForm: SessionFormState = {
   subjectId: "",
   totalQuestions: "0",
   wrongQuestions: "0",
+};
+
+const emptySubjectForm: SubjectFormState = {
+  name: "",
+  notes: "",
+  plannedHoursPerWeek: "1",
 };
 
 function formatStudyDuration(minutes: number) {
@@ -279,6 +295,69 @@ function findQuestionPracticeForSession(
   );
 }
 
+function QuestionPerformancePanel({
+  accuracyRate,
+  correctQuestions,
+  totalQuestions,
+  wrongQuestions,
+}: {
+  accuracyRate: number;
+  correctQuestions: number;
+  totalQuestions: number;
+  wrongQuestions: number;
+}) {
+  return (
+    <div className="grid min-w-0 gap-4 rounded-lg border border-border/70 bg-card p-4 shadow-sm">
+      <div className="flex min-w-0 items-start justify-between gap-3">
+        <div className="min-w-0">
+          <h2 className="flex items-center gap-2 text-base font-semibold">
+            <BookOpenCheck className="h-5 w-5 text-primary" />
+            Question performance
+          </h2>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Right, wrong, and accuracy for the selected week and subject.
+          </p>
+        </div>
+        <Badge className="shrink-0" variant="secondary">
+          {accuracyRate}% accuracy
+        </Badge>
+      </div>
+
+      <div className="grid gap-2 sm:grid-cols-3">
+        <div className="rounded-lg border border-border/70 bg-background/75 p-3">
+          <div className="text-xs text-muted-foreground">Questions</div>
+          <div className="mt-1 text-2xl font-semibold">{totalQuestions}</div>
+        </div>
+        <div className="rounded-lg border border-border/70 bg-background/75 p-3">
+          <div className="text-xs text-muted-foreground">Right</div>
+          <div className="mt-1 text-2xl font-semibold text-emerald-600">
+            {correctQuestions}
+          </div>
+        </div>
+        <div className="rounded-lg border border-border/70 bg-background/75 p-3">
+          <div className="text-xs text-muted-foreground">Wrong</div>
+          <div className="mt-1 text-2xl font-semibold text-red-600">
+            {wrongQuestions}
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div className="mb-2 flex items-center justify-between gap-3 text-sm">
+          <span className="text-muted-foreground">Accuracy</span>
+          <span className="font-semibold">{accuracyRate}%</span>
+        </div>
+        <div className="h-3 overflow-hidden rounded-full bg-secondary">
+          <div
+            className="h-full rounded-full bg-primary"
+            style={{ width: `${Math.min(Math.max(accuracyRate, 0), 100)}%` }}
+          />
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function StudyPlannerPage() {
   "use no memo";
 
@@ -300,9 +379,15 @@ export default function StudyPlannerPage() {
     useState<SessionFormState>(emptySessionForm);
   const [isBlockDialogOpen, setIsBlockDialogOpen] = useState(false);
   const [isSubjectDialogOpen, setIsSubjectDialogOpen] = useState(false);
+  const [isSubjectManagerOpen, setIsSubjectManagerOpen] = useState(false);
+  const [managedSubjectId, setManagedSubjectId] = useState("");
+  const [subjectForm, setSubjectForm] =
+    useState<SubjectFormState>(emptySubjectForm);
   const [newSubjectName, setNewSubjectName] = useState("");
   const [newSubjectNotes, setNewSubjectNotes] = useState("");
   const createSubject = useCreateStudySubject();
+  const updateSubject = useUpdateStudySubject();
+  const deleteSubject = useDeleteStudySubject();
   const createSession = useCreateStudySession();
   const updateSession = useUpdateStudySession();
   const createQuestionPractice = useCreateStudyQuestionPractice();
@@ -392,6 +477,76 @@ export default function StudyPlannerPage() {
     setNewSubjectName("");
     setNewSubjectNotes("");
     setIsSubjectDialogOpen(false);
+  };
+
+  const selectManagedSubject = (subject: StudySubject | undefined) => {
+    setManagedSubjectId(subject?.id ?? "");
+    setSubjectForm(
+      subject
+        ? {
+            name: subject.name,
+            notes: subject.notes ?? "",
+            plannedHoursPerWeek: String(subject.plannedHoursPerWeek ?? 1),
+          }
+        : emptySubjectForm
+    );
+  };
+
+  const openSubjectManager = () => {
+    const subject =
+      subjects.find((item) => item.id === subjectFilter) ?? subjects[0];
+
+    selectManagedSubject(subject);
+    setIsSubjectManagerOpen(true);
+  };
+
+  const handleSubjectUpdate = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    if (!managedSubjectId || !subjectForm.name.trim()) {
+      return;
+    }
+
+    await updateSubject.mutateAsync({
+      id: managedSubjectId,
+      data: {
+        name: subjectForm.name.trim(),
+        notes: subjectForm.notes.trim() || null,
+        plannedHoursPerWeek: Math.max(
+          1,
+          Math.floor(Number(subjectForm.plannedHoursPerWeek) || 1)
+        ),
+      },
+    });
+  };
+
+  const handleSubjectDelete = async () => {
+    const subject = subjects.find((item) => item.id === managedSubjectId);
+
+    if (!subject) {
+      return;
+    }
+
+    const confirmed = window.confirm(
+      `Delete ${subject.name}? This also deletes its plans, sessions, mistakes, and question logs.`
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    await deleteSubject.mutateAsync(subject.id);
+
+    if (subjectFilter === subject.id) {
+      setSubjectFilter("all");
+    }
+
+    const nextSubject = subjects.find((item) => item.id !== subject.id);
+    selectManagedSubject(nextSubject);
+
+    if (!nextSubject) {
+      setIsSubjectManagerOpen(false);
+    }
   };
 
   const resetBlockForm = () => {
@@ -585,223 +740,308 @@ export default function StudyPlannerPage() {
           { label: "Subjects", value: subjects.length },
           { label: "Planned", value: formatStudyDuration(plannedMinutes) },
           { label: "Studied", value: formatStudyDuration(studiedMinutes) },
-          { label: "Questions", value: questionSummary.totalQuestions },
         ]}
       />
 
-      <section className="grid gap-4 rounded-lg border border-border/70 bg-card p-4 shadow-sm">
-        <div className="grid gap-3 rounded-lg border border-border/70 bg-background/70 p-3">
-            <div className="grid min-w-0 gap-2 lg:grid-cols-[minmax(0,16rem)_repeat(6,auto)] lg:items-center">
-              <Select value={subjectFilter} onValueChange={setSubjectFilter}>
-                <SelectTrigger className="w-full">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All subjects</SelectItem>
-                  {subjects.map((subject) => (
-                    <SelectItem key={subject.id} value={subject.id}>
-                      {subject.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <Badge className="justify-center py-1.5" variant="outline">
-                {formatStudyDuration(plannedMinutes)} planned
-              </Badge>
-              <Badge className="justify-center py-1.5" variant="outline">
-                {formatStudyDuration(studiedMinutes)} studied
-              </Badge>
-              <Badge className="justify-center py-1.5" variant="secondary">
-                {questionSummary.totalQuestions} questions
-              </Badge>
-              <Badge className="justify-center py-1.5" variant="outline">
-                {questionSummary.correctQuestions} right
-              </Badge>
-              <Badge className="justify-center py-1.5" variant="outline">
-                {questionSummary.wrongQuestions} wrong
-              </Badge>
-            </div>
-            <div className="grid gap-2 sm:grid-cols-2 sm:justify-start">
-              <Dialog
-                open={isSubjectDialogOpen}
-                onOpenChange={setIsSubjectDialogOpen}
+      <section className="grid gap-4">
+        <div className="grid gap-3 rounded-lg border border-border/70 bg-card p-4 shadow-sm lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center">
+          <div className="grid min-w-0 gap-2 sm:grid-cols-[minmax(0,18rem)_auto_auto] sm:items-center">
+            <Select value={subjectFilter} onValueChange={setSubjectFilter}>
+              <SelectTrigger className="w-full">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All subjects</SelectItem>
+                {subjects.map((subject) => (
+                  <SelectItem key={subject.id} value={subject.id}>
+                    {subject.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Badge className="justify-center py-1.5" variant="outline">
+              {formatStudyDuration(plannedMinutes)} planned
+            </Badge>
+            <Badge className="justify-center py-1.5" variant="outline">
+              {formatStudyDuration(studiedMinutes)} studied
+            </Badge>
+          </div>
+          <div className="flex flex-wrap gap-2 lg:justify-end">
+            <Dialog
+              open={isSubjectDialogOpen}
+              onOpenChange={setIsSubjectDialogOpen}
+            >
+              <DialogTrigger asChild>
+                <Button type="button" variant="secondary">
+                  <Plus className="h-4 w-4" />
+                  Add subject
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Add subject</DialogTitle>
+                  <DialogDescription>
+                    Create a subject with optional notes.
+                  </DialogDescription>
+                </DialogHeader>
+                <form className="grid gap-3" onSubmit={handleSubjectSubmit}>
+                  <Input
+                    onChange={(event) => setNewSubjectName(event.target.value)}
+                    placeholder="Subject name"
+                    value={newSubjectName}
+                  />
+                  <Input
+                    onChange={(event) => setNewSubjectNotes(event.target.value)}
+                    placeholder="Optional notes"
+                    value={newSubjectNotes}
+                  />
+                  <DialogFooter>
+                    <Button
+                      disabled={!newSubjectName.trim() || createSubject.isPending}
+                      type="submit"
+                    >
+                      <Plus className="h-4 w-4" />
+                      Add subject
+                    </Button>
+                  </DialogFooter>
+                </form>
+              </DialogContent>
+            </Dialog>
+            <Dialog
+              open={isSubjectManagerOpen}
+              onOpenChange={setIsSubjectManagerOpen}
+            >
+              <Button
+                disabled={!subjects.length}
+                onClick={openSubjectManager}
+                type="button"
+                variant="outline"
               >
-                <DialogTrigger asChild>
-                  <Button type="button" variant="secondary">
-                    <Plus className="h-4 w-4" />
-                    Add subject
-                  </Button>
-                </DialogTrigger>
-                <DialogContent>
-                  <DialogHeader>
-                    <DialogTitle>Add subject</DialogTitle>
-                    <DialogDescription>
-                      Create a subject with optional notes.
-                    </DialogDescription>
-                  </DialogHeader>
-                  <form className="grid gap-3" onSubmit={handleSubjectSubmit}>
-                    <Input
-                      onChange={(event) =>
-                        setNewSubjectName(event.target.value)
-                      }
-                      placeholder="Subject name"
-                      value={newSubjectName}
-                    />
-                    <Input
-                      onChange={(event) =>
-                        setNewSubjectNotes(event.target.value)
-                      }
-                      placeholder="Optional notes"
-                      value={newSubjectNotes}
-                    />
-                    <DialogFooter>
+                <Pencil className="h-4 w-4" />
+                Manage subjects
+              </Button>
+              <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-3xl">
+                <DialogHeader>
+                  <DialogTitle>Manage subjects</DialogTitle>
+                </DialogHeader>
+                <div className="grid min-w-0 gap-4 md:grid-cols-[minmax(0,16rem)_minmax(0,1fr)]">
+                  <div className="grid max-h-[22rem] min-w-0 content-start gap-2 overflow-y-auto rounded-lg border border-border/70 bg-secondary/20 p-2">
+                    {subjects.map((subject) => (
                       <Button
-                        disabled={
-                          !newSubjectName.trim() || createSubject.isPending
+                        className="h-auto min-w-0 justify-start px-3 py-2 text-left"
+                        key={subject.id}
+                        onClick={() => selectManagedSubject(subject)}
+                        type="button"
+                        variant={
+                          managedSubjectId === subject.id
+                            ? "secondary"
+                            : "ghost"
                         }
-                        type="submit"
                       >
-                        <Plus className="h-4 w-4" />
-                        Add subject
+                        <span className="min-w-0 truncate">{subject.name}</span>
                       </Button>
-                    </DialogFooter>
-                  </form>
-                </DialogContent>
-              </Dialog>
-              <Dialog
-                open={isBlockDialogOpen}
-                onOpenChange={(open) => {
-                  setIsBlockDialogOpen(open);
-                  if (!open) {
-                    setEditingBlockId(null);
-                  }
-                }}
-              >
-                <DialogTrigger asChild>
-                  <Button onClick={openNewBlockDialog} type="button">
-                    <Plus className="h-4 w-4" />
-                    Add planned block
-                  </Button>
-                </DialogTrigger>
-                <DialogContent>
-                  <DialogHeader>
-                    <DialogTitle>
-                      {editingBlockId
-                        ? "Edit planned block"
-                        : "Add planned block"}
-                    </DialogTitle>
-                    <DialogDescription>
-                      Planned blocks belong only to {weekRange}.
-                    </DialogDescription>
-                  </DialogHeader>
-                  <form className="grid gap-3" onSubmit={handleBlockSubmit}>
-                    <Select
-                      value={blockForm.subjectId}
-                      onValueChange={(value) =>
-                        setBlockForm((current) => ({
+                    ))}
+                  </div>
+                  <form
+                    className="grid min-w-0 content-start gap-3"
+                    onSubmit={handleSubjectUpdate}
+                  >
+                    <Input
+                      className="min-w-0"
+                      onChange={(event) =>
+                        setSubjectForm((current) => ({
                           ...current,
-                          subjectId: value,
+                          name: event.target.value,
                         }))
                       }
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Subject" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {subjects.map((subject) => (
-                          <SelectItem key={subject.id} value={subject.id}>
-                            {subject.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <div className="grid gap-3 sm:grid-cols-3">
-                      <Select
-                        value={blockForm.dayIndex}
-                        onValueChange={(value) =>
-                          setBlockForm((current) => ({
-                            ...current,
-                            dayIndex: value,
-                          }))
-                        }
-                      >
-                        <SelectTrigger>
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {DAYS.map((day, index) => (
-                            <SelectItem key={day} value={String(index)}>
-                              {day}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <Input
-                        onChange={(event) =>
-                          setBlockForm((current) => ({
-                            ...current,
-                            startTime: event.target.value,
-                          }))
-                        }
-                        type="time"
-                        value={blockForm.startTime}
-                      />
-                      <Input
-                        min="1"
-                        onChange={(event) =>
-                          setBlockForm((current) => ({
-                            ...current,
-                            durationMinutes: event.target.value,
-                          }))
-                        }
-                        placeholder="Minutes"
-                        type="number"
-                        value={blockForm.durationMinutes}
-                      />
-                    </div>
+                      placeholder="Subject name"
+                      value={subjectForm.name}
+                    />
                     <Input
+                      className="min-w-0"
+                      min="1"
                       onChange={(event) =>
-                        setBlockForm((current) => ({
+                        setSubjectForm((current) => ({
+                          ...current,
+                          plannedHoursPerWeek: event.target.value,
+                        }))
+                      }
+                      placeholder="Hours per week"
+                      type="number"
+                      value={subjectForm.plannedHoursPerWeek}
+                    />
+                    <Input
+                      className="min-w-0"
+                      onChange={(event) =>
+                        setSubjectForm((current) => ({
                           ...current,
                           notes: event.target.value,
                         }))
                       }
-                      placeholder="Optional notes"
-                      value={blockForm.notes}
+                      placeholder="Notes"
+                      value={subjectForm.notes}
                     />
-                    {!subjects.length ? (
-                      <p className="rounded-md bg-secondary/35 p-3 text-sm text-muted-foreground">
-                        Add a subject before planning a block.
-                      </p>
-                    ) : null}
-                    <DialogFooter>
+                    <DialogFooter className="gap-2 sm:justify-between">
+                      <Button
+                        disabled={!managedSubjectId || deleteSubject.isPending}
+                        onClick={handleSubjectDelete}
+                        type="button"
+                        variant="destructive"
+                      >
+                        <Trash className="h-4 w-4" />
+                        Delete
+                      </Button>
                       <Button
                         disabled={
-                          !blockForm.subjectId ||
-                          createBlock.isPending ||
-                          updateBlock.isPending
+                          !managedSubjectId ||
+                          !subjectForm.name.trim() ||
+                          updateSubject.isPending
                         }
                         type="submit"
                       >
-                        {editingBlockId ? (
-                          <CheckCircle2 className="h-4 w-4" />
-                        ) : (
-                          <Plus className="h-4 w-4" />
-                        )}
-                        {editingBlockId ? "Update block" : "Add block"}
+                        <CheckCircle2 className="h-4 w-4" />
+                        Update
                       </Button>
                     </DialogFooter>
                   </form>
-                </DialogContent>
-              </Dialog>
-            </div>
+                </div>
+              </DialogContent>
+            </Dialog>
+            <Dialog
+              open={isBlockDialogOpen}
+              onOpenChange={(open) => {
+                setIsBlockDialogOpen(open);
+                if (!open) {
+                  setEditingBlockId(null);
+                }
+              }}
+            >
+              <DialogTrigger asChild>
+                <Button onClick={openNewBlockDialog} type="button">
+                  <Plus className="h-4 w-4" />
+                  Add planned block
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>
+                    {editingBlockId ? "Edit planned block" : "Add planned block"}
+                  </DialogTitle>
+                  <DialogDescription>
+                    Planned blocks belong only to {weekRange}.
+                  </DialogDescription>
+                </DialogHeader>
+                <form className="grid gap-3" onSubmit={handleBlockSubmit}>
+                  <Select
+                    value={blockForm.subjectId}
+                    onValueChange={(value) =>
+                      setBlockForm((current) => ({
+                        ...current,
+                        subjectId: value,
+                      }))
+                    }
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Subject" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {subjects.map((subject) => (
+                        <SelectItem key={subject.id} value={subject.id}>
+                          {subject.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <div className="grid gap-3 sm:grid-cols-3">
+                    <Select
+                      value={blockForm.dayIndex}
+                      onValueChange={(value) =>
+                        setBlockForm((current) => ({
+                          ...current,
+                          dayIndex: value,
+                        }))
+                      }
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {DAYS.map((day, index) => (
+                          <SelectItem key={day} value={String(index)}>
+                            {day}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <Input
+                      onChange={(event) =>
+                        setBlockForm((current) => ({
+                          ...current,
+                          startTime: event.target.value,
+                        }))
+                      }
+                      type="time"
+                      value={blockForm.startTime}
+                    />
+                    <Input
+                      min="1"
+                      onChange={(event) =>
+                        setBlockForm((current) => ({
+                          ...current,
+                          durationMinutes: event.target.value,
+                        }))
+                      }
+                      placeholder="Minutes"
+                      type="number"
+                      value={blockForm.durationMinutes}
+                    />
+                  </div>
+                  <Input
+                    onChange={(event) =>
+                      setBlockForm((current) => ({
+                        ...current,
+                        notes: event.target.value,
+                      }))
+                    }
+                    placeholder="Optional notes"
+                    value={blockForm.notes}
+                  />
+                  {!subjects.length ? (
+                    <p className="rounded-md bg-secondary/35 p-3 text-sm text-muted-foreground">
+                      Add a subject before planning a block.
+                    </p>
+                  ) : null}
+                  <DialogFooter>
+                    <Button
+                      disabled={
+                        !blockForm.subjectId ||
+                        createBlock.isPending ||
+                        updateBlock.isPending
+                      }
+                      type="submit"
+                    >
+                      {editingBlockId ? (
+                        <CheckCircle2 className="h-4 w-4" />
+                      ) : (
+                        <Plus className="h-4 w-4" />
+                      )}
+                      {editingBlockId ? "Update block" : "Add block"}
+                    </Button>
+                  </DialogFooter>
+                </form>
+              </DialogContent>
+            </Dialog>
+          </div>
         </div>
 
-        <div className="grid gap-3">
-          <div className="min-w-0 rounded-lg border border-border/70 bg-background/70 p-4">
+        <div className="grid min-w-0 gap-4 xl:grid-cols-[minmax(0,1.25fr)_minmax(320px,0.75fr)]">
+          <div className="min-w-0 rounded-lg border border-border/70 bg-card p-4 shadow-sm">
             <div className="mb-3 flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
               <div>
                 <h3 className="font-semibold">Planned vs studied</h3>
+                <p className="text-sm text-muted-foreground">
+                  Compare planned hours against recorded study sessions.
+                </p>
               </div>
               <Badge variant="outline">{weekRange}</Badge>
             </div>
@@ -838,6 +1078,13 @@ export default function StudyPlannerPage() {
               </RechartsBarChart>
             </ChartContainer>
           </div>
+
+          <QuestionPerformancePanel
+            accuracyRate={questionSummary.accuracyRate}
+            correctQuestions={questionSummary.correctQuestions}
+            totalQuestions={questionSummary.totalQuestions}
+            wrongQuestions={questionSummary.wrongQuestions}
+          />
         </div>
       </section>
 
@@ -1224,8 +1471,8 @@ function StudyWeekBoard({
         <div className="border-b border-border/70 px-3 py-2 text-sm font-medium">
           {weekRange}
         </div>
-        <div className="overflow-x-auto">
-          <div className="grid min-w-[72rem] grid-cols-7">
+        <div className="p-3">
+          <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-7">
             {week.map((day, index) => {
               const dayBlocks = blocksByDay[index];
               const daySessions = sessionsByDay[index];
@@ -1240,7 +1487,7 @@ function StudyWeekBoard({
 
               return (
                 <div
-                  className="min-w-0 border-b border-border/70 p-3 lg:border-b-0 lg:border-r last:lg:border-r-0"
+                  className="min-w-0 rounded-lg border border-border/70 bg-card p-3"
                   key={day.key}
                 >
                 <div className="mb-3 flex items-center justify-between gap-2">

@@ -57,6 +57,7 @@ export function useCreateStudySubject() {
         queryClient.invalidateQueries({ queryKey: ["study-subjects"], refetchType: "all" }),
         queryClient.invalidateQueries({ queryKey: ["study-schedule"], refetchType: "all" }),
         queryClient.invalidateQueries({ queryKey: ["study-plan"], refetchType: "all" }),
+        queryClient.invalidateQueries({ queryKey: ["pomodoro"], refetchType: "all" }),
       ]);
     },
   });
@@ -73,6 +74,8 @@ export function useUpdateStudySubject() {
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: ["study-subjects"], refetchType: "all" }),
         queryClient.invalidateQueries({ queryKey: ["study-schedule"], refetchType: "all" }),
+        queryClient.invalidateQueries({ queryKey: ["study-plan"], refetchType: "all" }),
+        queryClient.invalidateQueries({ queryKey: ["pomodoro"], refetchType: "all" }),
       ]);
     },
   });
@@ -88,6 +91,8 @@ export function useDeleteStudySubject() {
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: ["study-subjects"], refetchType: "all" }),
         queryClient.invalidateQueries({ queryKey: ["study-schedule"], refetchType: "all" }),
+        queryClient.invalidateQueries({ queryKey: ["study-plan"], refetchType: "all" }),
+        queryClient.invalidateQueries({ queryKey: ["pomodoro"], refetchType: "all" }),
       ]);
     },
   });

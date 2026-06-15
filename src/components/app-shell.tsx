@@ -16,6 +16,11 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     return children;
   }
 
+  const shellTitle =
+    pathname === "/pomodoro" || pathname.startsWith("/study")
+      ? "Study Dashboard"
+      : "Life Dashboard";
+
   const logout = async () => {
     await fetch("/api/auth/logout", { method: "POST" });
     router.replace("/login");
@@ -30,7 +35,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           <div className="flex min-w-0 items-center gap-2">
             <SidebarTrigger />
             <h1 className="hidden truncate text-sm font-semibold sm:block">
-              Dashboard
+              {shellTitle}
             </h1>
           </div>
           <div className="flex shrink-0 items-center gap-2">

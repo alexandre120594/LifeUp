@@ -1,6 +1,6 @@
 # LifeUp
 
-LifeUp is a Next.js productivity app for managing projects, habits, tasks, and personal finance basics, with dashboard analytics layered on top of the current operational data.
+LifeUp is a Next.js productivity app split into Life and Study workspaces. Life covers projects, habits, tasks, inbox capture, notes, planning, and finance basics; Study covers subjects, planned study blocks, mistake review, and question-practice analytics.
 
 ## What Exists Now
 
@@ -10,21 +10,21 @@ The app currently supports:
 - task creation, completion, and listing
 - pagination for project lists and task queues
 - popup creation for projects, habits, and tasks across the main menu pages
-- essential sidebar navigation for dashboard, projects, inbox, notes, and finance; habits and tasks are reached through projects
+- Life sidebar navigation for Life Dashboard, projects, inbox, notes, finance, and account spend tracking; habits and tasks are reached through projects
 - simple email login with per-user project, habit, task, and finance data isolation
-- secondary planning tools for app streak tracking, task calendar, and weekly planning
+- Life Planning tools for task calendar and weekly planning
 - study records for subjects, planned weekly hours, and repeating day/hour study blocks in the data layer
-- dedicated Study Tools workspace with a study dashboard and subject-based mistake log
-- Study Plan page for week-specific planned study blocks and manual studied-time registration
+- dedicated Study workspace with a visual command-center dashboard, subject-based mistake log, study plan, and standalone focus timer
+- Study Plan page for week-specific planned study blocks, manual studied-time registration, visual planned-vs-studied comparison, and question performance summary
 - Study Plan registers actual study sessions from begin/finish datetimes, calculates studied duration, lets week board study entries and their matching question counts be edited/deleted in popups, compares planned versus studied hours, and filters the week board by subject
 - Study Plan finish flow can also record aggregate right/wrong question totals for the study block, show weekly counts on the planner, edit/delete saved count entries, and feed dashboard question-practice charts
-- mistake log records questions, user's answer, correct answer, error type, correct rule, trap word, review date, and unresolved/reviewed/mastered status
+- mistake log records questions, user's answer, correct answer, error type, correct rule, trap word, review date, and unresolved/reviewed/mastered status, with long-text fields built to handle large pasted question content
 - mistake log includes Guided Correction for new wrong or doubtful-hit records, requiring microtopic, error reason, charged detail, memorization phrase, corrective action, and review date before the item can be marked reviewed/mastered
 - legacy mistake records can be manually sent to Guided Correction one by one from the mistake log
-- weekly organizer focuses on personal habit/task planning only
+- weekly organizer focuses on Life habit/task planning only
 - task creation supports an optional scheduled hour, and the calendar shows tasks by time inside each day
 - task queues use responsive cards with pending-first sorting, status counters, and compact pagination
-- Pomodoro page organizes work/study focus cycles with breaks, task association, progress, navigation-persistent countdown state, and productivity history by project and habit
+- Focus Timer lives under Study and saves standalone study sessions with breaks, progress, navigation-persistent countdown state, and study focus history
 - Inbox page captures temporary ideas, reminders, study topics, and loose work, paginates the queue, and uses a popup to view/edit links to projects, habits, tasks, or converted notes
 - Notes page stores searchable long-term notes with pagination, view/edit popups, categories, and optional project, habit, and task context
 - habit creation flows include daily/weekly frequency, reminder time, and secondary habit statistics
@@ -43,12 +43,19 @@ The app currently supports:
 - separate Account Spend Tracker for importing and deleting bank CSV or OFX files as `Extrato` or `Fatura`, saving rows outside the Financial Organizer, reviewing month-paginated signed account movement, and visualizing credit/debit totals
 - dedicated detail pages for habits and tasks
 - persisted project streaks derive from daily completed-task targets, while habit streaks remain secondary check-in analytics
-- dashboard analytics for:
+- Life dashboard analytics for:
   - overall task completion
   - 7-day activity trend
-  - 7-day study question practice with right/wrong counts and accuracy
-  - project throughput
+  - project counts and project streaks
+  - daily/weekly tracker snapshot
+  - task queue
   - top-line finance income, expenses, and total cash
+- Study dashboard analytics for:
+  - subjects
+  - scheduled study hours
+  - due mistake review pressure
+  - weak subjects
+  - 7-day study question practice with right/wrong counts and accuracy
 - save, update, and delete actions show toast feedback and refresh affected lists/details immediately
 - calendar page for reviewing tasks by day and scheduling future tasks
 - weekly organizer for creating database-backed Monday-to-Sunday habit boards with previous/next navigation and hourly scheduling from 00:00 through 23:00
@@ -95,7 +102,7 @@ There is also repeatable local seed data for testing charts and flows.
 ### Pages
 
 - `src/app/page.tsx`
-  - main dashboard
+  - Life Dashboard for projects, routines, tasks, activity, planning, and finance
 - `src/app/login/page.tsx`
   - simple email login page
 - `src/app/projects/[id]/page.tsx`
@@ -115,19 +122,19 @@ There is also repeatable local seed data for testing charts and flows.
 - `src/app/notes/page.tsx`
   - searchable paginated notes library with categories, popup editing, and optional project, habit, and task links
 - `src/app/pomodoro/page.tsx`
-  - Pomodoro focus page with work/study cycles, break planning, task association, progress, navigation-persistent countdown state, and productivity history
+  - Study Focus Timer page with subject selection, focus/break cycles, progress, navigation-persistent countdown state, subject-hours chart, and study focus history
 - `src/app/tasks/[id]/page.tsx`
   - task detail page with parent project context
 - `src/app/calendar/page.tsx`
   - task calendar page for day-level planning, scheduled task hours, and future task creation
 - `src/app/weekly-organizer/page.tsx`
-  - weekly board for personal habit/task slots with a restored planning hero
+  - weekly board for Life habit/task slots with a restored planning hero
 - `src/app/study/page.tsx`
-  - study dashboard for review pressure, weak subjects, due mistakes, question practice, subjects, and scheduled study hours
+  - visual Study Dashboard with action tiles for Study Plan, Mistake Log, and Focus Timer, plus review pressure, subject pressure, question practice, subjects, and scheduled study hours
 - `src/app/study/mistakes/page.tsx`
   - subject-based mistake log with search, filters, review dates, Guided Correction, status changes, and edit/delete dialogs
 - `src/app/study/planner/page.tsx`
-  - week-specific study board with planned blocks, manual studied sessions, subject filtering, and planned-vs-actual totals
+  - week-specific study board with planned blocks, manual studied sessions, subject create/edit/delete controls, subject filtering, and planned-vs-actual totals
 - `src/app/finance/page.tsx`
   - Personal Financial Organizer MVP with summary, one-popup creation, visual totals, recent transactions, plans, and insights
 - `src/app/finance/tracker/page.tsx`
@@ -254,7 +261,7 @@ There is also repeatable local seed data for testing charts and flows.
 - `WeeklyPlanSlotHabit`
   - joins scheduled hourly slots to one or more habits
 - `StudySubject`
-  - belongs to user and stores a subject name, color, notes, and planned weekly study hours
+  - belongs to user and stores a subject name, color, notes, planned weekly study hours, and linked study timer sessions
 - `StudyScheduleBlock`
   - belongs to user and study subject, and stores repeating weekly day/hour study blocks
 - `StudyPlanBoard`
@@ -274,8 +281,8 @@ There is also repeatable local seed data for testing charts and flows.
   - belongs to user
   - stores searchable long-term content with optional category and project, habit, or task links
 - `PomodoroSession`
-  - belongs to user and task
-  - stores completed work or study focus blocks so task time rolls up through project and habit context
+  - belongs to user and can retain an optional legacy task link from older saved sessions
+  - new Focus Timer sessions attach to a study subject and do not attach to projects, tasks, or habits
 - `FinancialCategory`
   - belongs to user
   - organizes income and expense records
@@ -324,6 +331,9 @@ persist review records. Guided Correction adds nullable fields to that table so
 existing mistake records are not rewritten into correction-pending items.
 Study question-practice totals also require the current Prisma schema before the
 Study Plan finish flow can persist right/wrong counts for dashboard charts.
+The Focus Timer also requires the current schema because new standalone study
+sessions save without a task association; older task-linked sessions can still
+be read as optional legacy context.
 The account spend tracker also requires the current schema because it stores
 monthly CSV/OFX imports and their paginated rows in dedicated tables outside the
 Financial Organizer records.
@@ -399,11 +409,11 @@ What is stable enough to continue from:
 - the dashboard greeting shows the logged-in user name or email prefix instead of a fixed placeholder
 - calendar page shows task names in a large month view, opens selected-day tasks in a popup, supports task edit/delete, and creates multiple future-dated tasks from an Add task button
 - weekly organizer builds Monday-to-Sunday habit boards from the selected week, persists them per user, supports previous/next week navigation, and schedules multiple habits into hourly cells from 00:00 through 23:00
-- weekly organizer is dedicated to personal habit/task planning; study review lives under Study Tools
+- weekly organizer is dedicated to Life habit/task planning; study review lives under Study
 - calendar tasks can carry scheduled hours and are shown in time order inside day cells and day detail popups
 - study plan planned blocks can be finished directly from the week board, prompting for actual minutes studied and optional question counts, saving that time under the block's subject, and allowing the saved study entry plus matching question tracker entry to be edited later
 - study plan block completion can save aggregate right/wrong question totals, the planner can edit/delete saved count entries, and dashboards chart those question totals by day
-- dashboard shows study mistake pressure with a weak-subject chart and paginated due-review queue
+- Study Dashboard shows study action tiles, study mistake pressure, subject pressure bars, due-review sections, and question accuracy visuals
 - mistake log shows paginated weak-subject and due-review panels above the detailed review queue
 - new wrong or doubtful-hit mistake records create a Guided Correction pending state, and status changes to reviewed/mastered are blocked until the required correction fields and review date are saved
 - legacy mistake records stay unchanged until manually sent to Guided Correction from their card
@@ -428,7 +438,7 @@ What is stable enough to continue from:
 - section pages for projects, habits, and tasks now follow the newer dashboard structure
 - Habit and task section pages still exist, but primary navigation now routes users through Projects before managing habits and tasks
 - Inbox and Notes pages are available from the sidebar and connect captured information back to projects, habits, and tasks
-- Pomodoro page includes task association, work/break cycles, study/work tracking, and productivity history by project and habit
+- Focus Timer is a Study-only tool with standalone focus/break cycles, study-time tracking, and focus history
 - project detail analytics are present and usable
 - habit and task detail pages are present and usable
 - project streak persistence now derives from stored completed task dates and each project's daily target

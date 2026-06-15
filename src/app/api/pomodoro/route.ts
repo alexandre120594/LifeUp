@@ -10,6 +10,16 @@ function normalizeSession(session: {
   id: string;
   notes: string | null;
   startedAt: Date;
+  subject: {
+    color: string | null;
+    createdAt: Date;
+    id: string;
+    name: string;
+    notes: string | null;
+    plannedHoursPerWeek: number;
+    updatedAt: Date;
+  } | null;
+  subjectId: string | null;
   task: {
     habit: {
       frequency: string;
@@ -24,23 +34,27 @@ function normalizeSession(session: {
     project: { id: string; title: string; color: string | null; userId: number; createdAt: Date };
     projectId: string;
     title: string;
-  };
-  taskId: string;
+  } | null;
+  taskId: string | null;
 }) {
   return {
     durationMinutes: session.durationMinutes,
     endedAt: session.endedAt,
-    focusType: session.focusType as "work" | "study",
+    focusType: "study" as const,
     id: session.id,
     notes: session.notes,
     startedAt: session.startedAt,
-    task: {
-      habit: session.task.habit,
-      id: session.task.id,
-      project: session.task.project,
-      projectId: session.task.projectId,
-      title: session.task.title,
-    },
+    subject: session.subject,
+    subjectId: session.subjectId,
+    task: session.task
+      ? {
+          habit: session.task.habit,
+          id: session.task.id,
+          project: session.task.project,
+          projectId: session.task.projectId,
+          title: session.task.title,
+        }
+      : null,
     taskId: session.taskId,
   };
 }
@@ -55,6 +69,7 @@ export async function GET() {
   const sessions = await prisma.pomodoroSession.findMany({
     where: { userId },
     include: {
+      subject: true,
       task: {
         include: {
           habit: true,
@@ -78,48 +93,52 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const { durationMinutes, endedAt, focusType = "work", notes, startedAt, taskId } =
+    const { durationMinutes, endedAt, notes, startedAt, subjectId } =
       await req.json();
     const parsedDuration = Number(durationMinutes);
     const parsedStartedAt = new Date(startedAt);
     const parsedEndedAt = new Date(endedAt);
+    const parsedSubjectId = typeof subjectId === "string" ? subjectId.trim() : "";
 
     if (
-      !taskId ||
       !Number.isInteger(parsedDuration) ||
       parsedDuration <= 0 ||
       parsedDuration > 24 * 60 ||
-      !["work", "study"].includes(focusType) ||
+      !parsedSubjectId ||
       Number.isNaN(parsedStartedAt.getTime()) ||
       Number.isNaN(parsedEndedAt.getTime()) ||
       parsedEndedAt < parsedStartedAt
     ) {
       return NextResponse.json(
-        { error: "Valid task, duration, start, and end times are required." },
+        { error: "Valid subject, duration, start, and end times are required." },
         { status: 400 }
       );
     }
 
-    const task = await prisma.task.findFirst({
-      where: { id: taskId, project: { userId } },
+    const subject = await prisma.studySubject.findFirst({
+      where: { id: parsedSubjectId, userId },
       select: { id: true },
     });
 
-    if (!task) {
-      return NextResponse.json({ error: "Task not found." }, { status: 404 });
+    if (!subject) {
+      return NextResponse.json(
+        { error: "Study subject not found." },
+        { status: 404 }
+      );
     }
 
     const session = await prisma.pomodoroSession.create({
       data: {
         durationMinutes: parsedDuration,
         endedAt: parsedEndedAt,
-        focusType,
+        focusType: "study",
         notes: typeof notes === "string" && notes.trim() ? notes.trim() : null,
         startedAt: parsedStartedAt,
-        taskId,
+        subjectId: parsedSubjectId,
         userId,
       },
       include: {
+        subject: true,
         task: {
           include: {
             habit: true,

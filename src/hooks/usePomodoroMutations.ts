@@ -16,10 +16,14 @@ export function useCreatePomodoroSession() {
     mutationFn: PomodoroServices.createSession,
     onSuccess: async () => {
       await Promise.all([
-        queryClient.invalidateQueries({ queryKey: ["pomodoro"], refetchType: "all" }),
-        queryClient.invalidateQueries({ queryKey: ["task"], refetchType: "all" }),
-        queryClient.invalidateQueries({ queryKey: ["projects"], refetchType: "all" }),
-        queryClient.invalidateQueries({ queryKey: ["habits"], refetchType: "all" }),
+        queryClient.invalidateQueries({
+          queryKey: ["pomodoro"],
+          refetchType: "all",
+        }),
+        queryClient.invalidateQueries({
+          queryKey: ["study-subjects"],
+          refetchType: "all",
+        }),
       ]);
     },
   });

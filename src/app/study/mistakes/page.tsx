@@ -1,6 +1,7 @@
 "use client";
 
-import { FormEvent, useMemo, useState } from "react";
+import type { FormEvent, ReactNode } from "react";
+import { useMemo, useState } from "react";
 import Link from "next/link";
 import {
   AlertCircle,
@@ -80,6 +81,10 @@ const errorLevelOptions: StudyMistakeErrorLevel[] = [
 ];
 const requiredFieldClass =
   "border-destructive focus-visible:border-destructive focus-visible:ring-destructive/30";
+const longTextFieldClass =
+  "w-full max-w-full resize-y overflow-y-auto break-words rounded-md border border-input bg-transparent px-3 py-2 text-sm outline-none transition-[color,box-shadow] [overflow-wrap:anywhere] placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50";
+const tallTextFieldClass = `${longTextFieldClass} min-h-32 max-h-72`;
+const mediumTextFieldClass = `${longTextFieldClass} min-h-24 max-h-56`;
 
 function RequiredFieldError({ show }: { show: boolean }) {
   if (!show) {
@@ -87,6 +92,43 @@ function RequiredFieldError({ show }: { show: boolean }) {
   }
 
   return <p className="text-xs font-medium text-destructive">Required field.</p>;
+}
+
+function FormSection({
+  children,
+  description,
+  title,
+}: {
+  children: ReactNode;
+  description?: string;
+  title: string;
+}) {
+  return (
+    <section className="grid min-w-0 gap-3 rounded-lg border border-border/70 bg-background/70 p-3">
+      <div className="min-w-0">
+        <h3 className="text-sm font-semibold">{title}</h3>
+        {description ? (
+          <p className="mt-1 text-xs text-muted-foreground">{description}</p>
+        ) : null}
+      </div>
+      {children}
+    </section>
+  );
+}
+
+function FieldLabel({
+  children,
+  label,
+}: {
+  children: ReactNode;
+  label: string;
+}) {
+  return (
+    <label className="grid min-w-0 gap-1 text-sm font-medium">
+      {label}
+      {children}
+    </label>
+  );
 }
 
 function toDateInputValue(date?: Date | string | null) {
@@ -632,10 +674,10 @@ function DueReviewPanel({
                 <Badge variant="outline">{statusLabel(mistake.status)}</Badge>
                 <span>Review {formatDate(mistake.reviewDate)}</span>
               </div>
-              <div className="line-clamp-2 text-sm font-medium">
+              <div className="line-clamp-2 break-words text-sm font-medium [overflow-wrap:anywhere]">
                 {mistake.question}
               </div>
-              <div className="text-xs text-muted-foreground">
+              <div className="break-words text-xs text-muted-foreground [overflow-wrap:anywhere]">
                 {mistake.errorType}
               </div>
             </div>
@@ -795,135 +837,156 @@ function MistakeForm({
           Add mistake
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-3xl">
+      <DialogContent className="max-h-[90vh] w-[calc(100vw-2rem)] max-w-5xl overflow-y-auto sm:max-w-5xl">
         <DialogHeader>
           <DialogTitle>Add mistake</DialogTitle>
-          <DialogDescription>
-            Capture the question result. Wrong answers and doubtful hits create
-            a guided correction pending item.
-          </DialogDescription>
+          <DialogDescription>Log the question and review target.</DialogDescription>
         </DialogHeader>
         {subjects.length ? (
           <form className="grid gap-3" onSubmit={handleSubmit}>
-            <div className="grid gap-3 md:grid-cols-4">
-              <div className="grid gap-1">
-                <Select value={subjectId} onValueChange={setSubjectId}>
-                  <SelectTrigger className={cn(showSubjectError && requiredFieldClass)}>
-                    <SelectValue placeholder="Subject" />
+            <FormSection title="Context">
+              <div className="grid min-w-0 gap-3 sm:grid-cols-2">
+                <div className="grid gap-1">
+                  <Select value={subjectId} onValueChange={setSubjectId}>
+                    <SelectTrigger className={cn(showSubjectError && requiredFieldClass)}>
+                      <SelectValue placeholder="Subject" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {subjects.map((subject) => (
+                        <SelectItem key={subject.id} value={subject.id}>
+                          {subject.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <RequiredFieldError show={showSubjectError} />
+                </div>
+                <Input
+                  onChange={(event) => setExamBoard(event.target.value)}
+                  placeholder="Exam board"
+                  value={examBoard}
+                />
+                <Select
+                  value={result}
+                  onValueChange={(value) => setResult(value as StudyMistakeResult)}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    {subjects.map((subject) => (
-                      <SelectItem key={subject.id} value={subject.id}>
-                        {subject.name}
+                    {resultOptions.map((currentResult) => (
+                      <SelectItem key={currentResult} value={currentResult}>
+                        {resultLabel(currentResult)}
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
-                <RequiredFieldError show={showSubjectError} />
+                <Input
+                  onChange={(event) => setInitialTopic(event.target.value)}
+                  placeholder="Topic"
+                  value={initialTopic}
+                />
               </div>
-              <Input
-                onChange={(event) => setExamBoard(event.target.value)}
-                placeholder="Exam board"
-                value={examBoard}
-              />
-              <Select
-                value={result}
-                onValueChange={(value) => setResult(value as StudyMistakeResult)}
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {resultOptions.map((currentResult) => (
-                    <SelectItem key={currentResult} value={currentResult}>
-                      {resultLabel(currentResult)}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <Input
-                onChange={(event) => setInitialTopic(event.target.value)}
-                placeholder="Topic"
-                value={initialTopic}
-              />
-            </div>
-            <div className="grid gap-3 md:grid-cols-2">
-              <Input
-                onChange={(event) => setErrorType(event.target.value)}
-                placeholder="Error type"
-                value={errorType}
-              />
-              <Input
-                onChange={(event) => setTrapWord(event.target.value)}
-                placeholder="Trap word"
-                value={trapWord}
-              />
-            </div>
-            <div className="grid gap-1">
-              <textarea
-                className={cn(
-                  "min-h-24 rounded-md border border-input bg-transparent px-3 py-2 text-sm outline-none transition-[color,box-shadow] placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50",
-                  showQuestionError && requiredFieldClass
-                )}
-                onChange={(event) => setQuestion(event.target.value)}
-                placeholder="Question"
-                value={question}
-              />
-              <RequiredFieldError show={showQuestionError} />
-            </div>
-              <textarea
-                className="min-h-20 rounded-md border border-input bg-transparent px-3 py-2 text-sm outline-none transition-[color,box-shadow] placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
-                onChange={(event) => setComment(event.target.value)}
-              placeholder="Optional comment"
-                value={comment}
-              />
-            <div className="grid gap-3 md:grid-cols-2">
-              <textarea
-                className="min-h-24 rounded-md border border-input bg-transparent px-3 py-2 text-sm outline-none transition-[color,box-shadow] placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
-                onChange={(event) => setMyAnswer(event.target.value)}
-                placeholder="My answer (optional)"
-                value={myAnswer}
-              />
-              <textarea
-                className="min-h-24 rounded-md border border-input bg-transparent px-3 py-2 text-sm outline-none transition-[color,box-shadow] placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
-                onChange={(event) => setCorrectAnswer(event.target.value)}
-                placeholder="Correct answer (optional)"
-                value={correctAnswer}
-              />
-            </div>
-            <textarea
-              className="min-h-20 rounded-md border border-input bg-transparent px-3 py-2 text-sm outline-none transition-[color,box-shadow] placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
-              onChange={(event) => setCorrectRule(event.target.value)}
-              placeholder="Correct rule (optional)"
-              value={correctRule}
-            />
-            <div className="grid gap-3 md:grid-cols-[180px_180px_auto]">
-              <Input
-                onChange={(event) => setReviewDate(event.target.value)}
-                placeholder="Review date"
-                type="date"
-                value={reviewDate}
-              />
-              <Select
-                value={status}
-                onValueChange={(value) => setStatus(value as StudyMistakeStatus)}
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {statusOptions.map((currentStatus) => (
-                    <SelectItem key={currentStatus} value={currentStatus}>
-                      {statusLabel(currentStatus)}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <Button disabled={isSaving} type="submit">
-                <Plus className="h-4 w-4" />
-                Save mistake
-              </Button>
-            </div>
+              {result !== "correct" ? (
+                <div className="rounded-md border border-primary/25 bg-primary/5 p-2 text-xs text-muted-foreground">
+                  Creates a pending Guided Correction after saving.
+                </div>
+              ) : null}
+            </FormSection>
+
+            <FormSection title="Question">
+              <FieldLabel label="Question">
+                <textarea
+                  className={cn(
+                    tallTextFieldClass,
+                    showQuestionError && requiredFieldClass
+                  )}
+                  onChange={(event) => setQuestion(event.target.value)}
+                  placeholder="Paste question"
+                  value={question}
+                />
+                <RequiredFieldError show={showQuestionError} />
+              </FieldLabel>
+              <FieldLabel label="Comment">
+                <textarea
+                  className={mediumTextFieldClass}
+                  onChange={(event) => setComment(event.target.value)}
+                  placeholder="Optional"
+                  value={comment}
+                />
+              </FieldLabel>
+            </FormSection>
+
+            <FormSection title="Answer and rule">
+              <div className="grid gap-3 md:grid-cols-2">
+                <FieldLabel label="My answer">
+                  <textarea
+                    className={mediumTextFieldClass}
+                    onChange={(event) => setMyAnswer(event.target.value)}
+                    placeholder="Your answer"
+                    value={myAnswer}
+                  />
+                </FieldLabel>
+                <FieldLabel label="Correct answer">
+                  <textarea
+                    className={mediumTextFieldClass}
+                    onChange={(event) => setCorrectAnswer(event.target.value)}
+                    placeholder="Correct answer"
+                    value={correctAnswer}
+                  />
+                </FieldLabel>
+              </div>
+              <FieldLabel label="Correct rule">
+                <textarea
+                  className={mediumTextFieldClass}
+                  onChange={(event) => setCorrectRule(event.target.value)}
+                  placeholder="Rule or explanation"
+                  value={correctRule}
+                />
+              </FieldLabel>
+            </FormSection>
+
+            <FormSection title="Review">
+              <div className="grid gap-3 md:grid-cols-2">
+                <Input
+                  onChange={(event) => setErrorType(event.target.value)}
+                  placeholder="Error type"
+                  value={errorType}
+                />
+                <Input
+                  onChange={(event) => setTrapWord(event.target.value)}
+                  placeholder="Trap word"
+                  value={trapWord}
+                />
+              </div>
+              <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto]">
+                <Input
+                  onChange={(event) => setReviewDate(event.target.value)}
+                  placeholder="Review date"
+                  type="date"
+                  value={reviewDate}
+                />
+                <Select
+                  value={status}
+                  onValueChange={(value) => setStatus(value as StudyMistakeStatus)}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {statusOptions.map((currentStatus) => (
+                      <SelectItem key={currentStatus} value={currentStatus}>
+                        {statusLabel(currentStatus)}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <Button className="w-full lg:w-auto" disabled={isSaving} type="submit">
+                  <Plus className="h-4 w-4" />
+                  Save mistake
+                </Button>
+              </div>
+            </FormSection>
           </form>
         ) : (
           <p className="rounded-lg bg-secondary/35 p-4 text-sm text-muted-foreground">
@@ -1002,119 +1065,123 @@ function GuidedCorrectionDialog({
           Guided Correction
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-3xl">
+      <DialogContent className="max-h-[90vh] w-[calc(100vw-2rem)] max-w-5xl overflow-y-auto sm:max-w-5xl">
         <DialogHeader>
           <DialogTitle>Guided Correction</DialogTitle>
-          <DialogDescription>
-            Complete the required correction pattern before marking this
-            question as reviewed.
-          </DialogDescription>
+          <DialogDescription>Complete the correction.</DialogDescription>
         </DialogHeader>
         <div className="grid gap-3">
-          <div className="grid gap-3 md:grid-cols-3">
+          <FormSection title="Classify">
+            <div className="grid min-w-0 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              <Input
+                onChange={(event) => setGeneralSubject(event.target.value)}
+                placeholder="Subject"
+                value={generalSubject}
+              />
+              <Input
+                onChange={(event) => setTopic(event.target.value)}
+                placeholder="Topic"
+                value={topic}
+              />
+              <Select
+                value={errorLevel}
+                onValueChange={(value) =>
+                  setErrorLevel(value as StudyMistakeErrorLevel)
+                }
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {errorLevelOptions.map((level) => (
+                    <SelectItem key={level} value={level}>
+                      {level}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="grid gap-1">
+              <Input
+                className={cn(showMicroTopicError && requiredFieldClass)}
+                onChange={(event) => setMicroTopic(event.target.value)}
+                placeholder="Real microtopic tested"
+                value={microTopic}
+              />
+              <RequiredFieldError show={showMicroTopicError} />
+            </div>
+          </FormSection>
+
+          <FormSection title="Diagnose">
+            <FieldLabel label="Error reason">
+              <textarea
+                className={cn(
+                  mediumTextFieldClass,
+                  showErrorReasonError && requiredFieldClass
+                )}
+                onChange={(event) => setErrorReason(event.target.value)}
+                placeholder="Why it went wrong"
+                value={errorReason}
+              />
+              <RequiredFieldError show={showErrorReasonError} />
+            </FieldLabel>
+            <FieldLabel label="Charged detail">
+              <textarea
+                className={cn(
+                  mediumTextFieldClass,
+                  showChargedDetailError && requiredFieldClass
+                )}
+                onChange={(event) => setChargedDetail(event.target.value)}
+                placeholder="Tested detail"
+                value={chargedDetail}
+              />
+              <RequiredFieldError show={showChargedDetailError} />
+            </FieldLabel>
             <Input
-              onChange={(event) => setGeneralSubject(event.target.value)}
-              placeholder="Subject"
-              value={generalSubject}
+              onChange={(event) => setTrap(event.target.value)}
+              placeholder="Trap"
+              value={trap}
             />
-            <Input
-              onChange={(event) => setTopic(event.target.value)}
-              placeholder="Topic"
-              value={topic}
-            />
-            <Select
-              value={errorLevel}
-              onValueChange={(value) =>
-                setErrorLevel(value as StudyMistakeErrorLevel)
-              }
-            >
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {errorLevelOptions.map((level) => (
-                  <SelectItem key={level} value={level}>
-                    {level}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-          <div className="grid gap-1">
-            <Input
-              className={cn(showMicroTopicError && requiredFieldClass)}
-              onChange={(event) => setMicroTopic(event.target.value)}
-              placeholder="Real microtopic tested"
-              value={microTopic}
-            />
-            <RequiredFieldError show={showMicroTopicError} />
-          </div>
-          <div className="grid gap-1">
-            <textarea
-              className={cn(
-                "min-h-20 rounded-md border border-input bg-transparent px-3 py-2 text-sm outline-none transition-[color,box-shadow] placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50",
-                showErrorReasonError && requiredFieldClass
-              )}
-              onChange={(event) => setErrorReason(event.target.value)}
-              placeholder="Error reason"
-              value={errorReason}
-            />
-            <RequiredFieldError show={showErrorReasonError} />
-          </div>
-          <div className="grid gap-1">
-            <textarea
-              className={cn(
-                "min-h-20 rounded-md border border-input bg-transparent px-3 py-2 text-sm outline-none transition-[color,box-shadow] placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50",
-                showChargedDetailError && requiredFieldClass
-              )}
-              onChange={(event) => setChargedDetail(event.target.value)}
-              placeholder="Detail that made the question right or wrong"
-              value={chargedDetail}
-            />
-            <RequiredFieldError show={showChargedDetailError} />
-          </div>
-          <Input
-            onChange={(event) => setTrap(event.target.value)}
-            placeholder="Trap"
-            value={trap}
-          />
-          <div className="grid gap-1">
-            <textarea
-              className={cn(
-                "min-h-20 rounded-md border border-input bg-transparent px-3 py-2 text-sm outline-none transition-[color,box-shadow] placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50",
-                showMemorizationPhraseError && requiredFieldClass
-              )}
-              onChange={(event) => setMemorizationPhrase(event.target.value)}
-              placeholder="Short memorization phrase"
-              value={memorizationPhrase}
-            />
-            <RequiredFieldError show={showMemorizationPhraseError} />
-          </div>
-          <div className="grid gap-1">
-            <textarea
-              className={cn(
-                "min-h-20 rounded-md border border-input bg-transparent px-3 py-2 text-sm outline-none transition-[color,box-shadow] placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50",
-                showCorrectiveActionError && requiredFieldClass
-              )}
-              onChange={(event) => setCorrectiveAction(event.target.value)}
-              placeholder="Corrective action"
-              value={correctiveAction}
-            />
-            <RequiredFieldError show={showCorrectiveActionError} />
-          </div>
-          <div className="grid gap-1">
-            <Input
-              className={cn(showReviewDateError && requiredFieldClass)}
-              onChange={(event) => setReviewDate(event.target.value)}
-              type="date"
-              value={reviewDate}
-            />
-            <RequiredFieldError show={showReviewDateError} />
-          </div>
+          </FormSection>
+
+          <FormSection title="Remember">
+            <FieldLabel label="Memorization phrase">
+              <textarea
+                className={cn(
+                  mediumTextFieldClass,
+                  showMemorizationPhraseError && requiredFieldClass
+                )}
+                onChange={(event) => setMemorizationPhrase(event.target.value)}
+                placeholder="Memory phrase"
+                value={memorizationPhrase}
+              />
+              <RequiredFieldError show={showMemorizationPhraseError} />
+            </FieldLabel>
+            <FieldLabel label="Corrective action">
+              <textarea
+                className={cn(
+                  mediumTextFieldClass,
+                  showCorrectiveActionError && requiredFieldClass
+                )}
+                onChange={(event) => setCorrectiveAction(event.target.value)}
+                placeholder="Next action"
+                value={correctiveAction}
+              />
+              <RequiredFieldError show={showCorrectiveActionError} />
+            </FieldLabel>
+            <div className="grid gap-1">
+              <Input
+                className={cn(showReviewDateError && requiredFieldClass)}
+                onChange={(event) => setReviewDate(event.target.value)}
+                type="date"
+                value={reviewDate}
+              />
+              <RequiredFieldError show={showReviewDateError} />
+            </div>
+          </FormSection>
           {!canSubmit ? (
-            <p className="rounded-md bg-secondary/35 p-3 text-sm text-muted-foreground">
-              Fill microtopic, error reason, charged detail, memorization
-              phrase, corrective action, and review date to finish.
+            <p className="rounded-md bg-secondary/35 p-2 text-xs text-muted-foreground">
+              Required fields are highlighted.
             </p>
           ) : null}
         </div>
@@ -1197,7 +1264,7 @@ function MistakeDialog({
           Edit
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-3xl">
+      <DialogContent className="max-h-[90vh] w-[calc(100vw-2rem)] max-w-5xl overflow-y-auto sm:max-w-5xl">
         <DialogHeader>
           <DialogTitle>Study mistake</DialogTitle>
           <DialogDescription>
@@ -1206,7 +1273,7 @@ function MistakeDialog({
         </DialogHeader>
 
         <div className="grid gap-3">
-          <div className="grid gap-3 md:grid-cols-3">
+          <div className="grid min-w-0 gap-3 sm:grid-cols-2 lg:grid-cols-3">
             <div className="grid gap-1">
               <Select value={subjectId} onValueChange={setSubjectId}>
                 <SelectTrigger className={cn(showSubjectError && requiredFieldClass)}>
@@ -1232,34 +1299,48 @@ function MistakeDialog({
               value={trapWord}
             />
           </div>
-          <div className="grid gap-1">
+          <label className="grid min-w-0 gap-1 text-sm font-medium">
+            Question
             <textarea
               className={cn(
-                "min-h-28 rounded-md border border-input bg-transparent px-3 py-2 text-sm outline-none transition-[color,box-shadow] placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50",
+                tallTextFieldClass,
                 showQuestionError && requiredFieldClass
               )}
               onChange={(event) => setQuestion(event.target.value)}
+              placeholder="Question"
               value={question}
             />
             <RequiredFieldError show={showQuestionError} />
-          </div>
+          </label>
           <div className="grid gap-3 md:grid-cols-2">
-            <textarea
-              className="min-h-28 rounded-md border border-input bg-transparent px-3 py-2 text-sm outline-none transition-[color,box-shadow] placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
-              onChange={(event) => setMyAnswer(event.target.value)}
-              value={myAnswer}
-            />
-            <textarea
-              className="min-h-28 rounded-md border border-input bg-transparent px-3 py-2 text-sm outline-none transition-[color,box-shadow] placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
-              onChange={(event) => setCorrectAnswer(event.target.value)}
-              value={correctAnswer}
-            />
+            <label className="grid min-w-0 gap-1 text-sm font-medium">
+              My answer
+              <textarea
+                className={mediumTextFieldClass}
+                onChange={(event) => setMyAnswer(event.target.value)}
+                placeholder="What you answered"
+                value={myAnswer}
+              />
+            </label>
+            <label className="grid min-w-0 gap-1 text-sm font-medium">
+              Correct answer
+              <textarea
+                className={mediumTextFieldClass}
+                onChange={(event) => setCorrectAnswer(event.target.value)}
+                placeholder="Expected answer"
+                value={correctAnswer}
+              />
+            </label>
           </div>
+          <label className="grid min-w-0 gap-1 text-sm font-medium">
+            Correct rule
           <textarea
-            className="min-h-24 rounded-md border border-input bg-transparent px-3 py-2 text-sm outline-none transition-[color,box-shadow] placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
+            className={mediumTextFieldClass}
             onChange={(event) => setCorrectRule(event.target.value)}
+            placeholder="Rule, formula, concept, or explanation"
             value={correctRule}
           />
+          </label>
           <div className="grid gap-3 md:grid-cols-2">
             <Input
               onChange={(event) => setReviewDate(event.target.value)}

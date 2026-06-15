@@ -101,20 +101,22 @@ export interface NoteUpdateInput {
 export interface PomodoroSession {
   id: string;
   durationMinutes: number;
-  focusType: "work" | "study";
+  focusType: "study";
   startedAt: Date | string;
   endedAt: Date | string;
   notes?: string | null;
-  taskId: string;
-  task?: Task;
+  subjectId?: string | null;
+  subject?: StudySubject | null;
+  taskId?: string | null;
+  task?: Task | null;
 }
 
 export interface PomodoroSessionCreateInput {
   durationMinutes: number;
-  focusType: "work" | "study";
+  focusType?: "study";
   startedAt: string;
   endedAt: string;
-  taskId: string;
+  subjectId: string;
   notes?: string;
 }
 
@@ -122,15 +124,14 @@ export interface PomodoroSummaryItem {
   id: string;
   title: string;
   minutes: number;
+  color?: string | null;
 }
 
 export interface PomodoroDashboardResponse {
   sessions: PomodoroSession[];
   totalMinutes: number;
-  workMinutes: number;
   studyMinutes: number;
-  byProject: PomodoroSummaryItem[];
-  byHabit: PomodoroSummaryItem[];
+  bySubject: PomodoroSummaryItem[];
 }
 
 export interface Habit {
