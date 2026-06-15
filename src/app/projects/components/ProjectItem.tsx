@@ -8,13 +8,31 @@ import {
   Edit,
   Flame,
   FolderKanban,
-  ListChecks,
   Repeat,
+  Target,
   Trash,
   X,
 } from "lucide-react";
 import { Project, ProjectCreateInput } from "@/types/BaseInterfaces";
 import { useDeleteProject, useUpdateProject } from "@/hooks/useProjectMutations";
+import { Button } from "@/components/ui/button";
+
+function formatShortDate(value?: Date | string | null) {
+  if (!value) {
+    return "No activity";
+  }
+
+  const date = new Date(value);
+
+  if (Number.isNaN(date.getTime())) {
+    return "No activity";
+  }
+
+  return date.toLocaleDateString([], {
+    day: "2-digit",
+    month: "short",
+  });
+}
 
 export default function ProjectItem({ project }: { project: Project }) {
   const [isEditing, setIsEditing] = useState(false);
@@ -34,12 +52,26 @@ export default function ProjectItem({ project }: { project: Project }) {
   const habitCount = project.habits?.length ?? 0;
   const completedTasks =
     project.tasks?.filter((task) => task.completed).length ?? 0;
+  const pendingTasks = taskCount - completedTasks;
+  const completionRate =
+    taskCount > 0 ? Math.round((completedTasks / taskCount) * 100) : 0;
+  const lastActivity = project.lastActivityDate ?? project.createdAt;
 
   const onUpdate = (data: ProjectCreateInput) => {
     updateProject(
       { id: project.id, data },
       { onSuccess: () => setIsEditing(false) }
     );
+  };
+
+  const handleDelete = () => {
+    const confirmed = window.confirm(
+      `Delete ${project.title}? This also removes its habits and tasks.`
+    );
+
+    if (confirmed) {
+      deleteProject(project.id);
+    }
   };
 
   if (isEditing) {
@@ -79,22 +111,21 @@ export default function ProjectItem({ project }: { project: Project }) {
           </div>
 
           <div className="flex flex-wrap justify-end gap-2">
-            <button
+            <Button
               type="button"
               onClick={() => setIsEditing(false)}
-              className="inline-flex h-9 items-center gap-2 rounded-lg border px-3 text-sm text-muted-foreground transition hover:bg-muted"
+              variant="outline"
             >
               <X size={16} />
               Cancel
-            </button>
-            <button
+            </Button>
+            <Button
               type="submit"
               disabled={isUpdating}
-              className="inline-flex h-9 items-center gap-2 rounded-lg bg-yevox-primary px-3 text-sm text-white transition hover:opacity-90 disabled:opacity-60"
             >
               <Check size={16} />
               {isUpdating ? "Saving..." : "Save"}
-            </button>
+            </Button>
           </div>
         </form>
       </div>
@@ -102,37 +133,39 @@ export default function ProjectItem({ project }: { project: Project }) {
   }
 
   return (
-    <div
-      className="group min-w-0 overflow-hidden rounded-lg border border-border/70 bg-card p-4 shadow-sm transition hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-md"
+    <article
+      className="group min-w-0 overflow-hidden rounded-lg border border-border/70 bg-card p-4 shadow-sm transition hover:border-primary/30 hover:shadow-md"
       style={{
         backgroundImage:
           "linear-gradient(135deg, color-mix(in oklab, var(--card) 84%, white 16%), var(--card))",
         boxShadow: `inset 4px 0 0 ${project.color || "#94a3b8"}`,
       }}
     >
-      <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-        <div className="min-w-0 flex-1 space-y-3">
-          <div className="flex flex-wrap items-start gap-2.5">
+      <div className="grid min-w-0 gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(220px,0.36fr)] lg:items-stretch">
+        <div className="min-w-0 space-y-4">
+          <div className="flex flex-wrap items-start gap-3">
             <div
               className="mt-1 h-2.5 w-2.5 rounded-full ring-4 ring-background/60"
               style={{ backgroundColor: project.color || "#94a3b8" }}
             />
             <div className="min-w-0 flex-1">
-              <div className="flex flex-wrap items-center gap-2">
-                <h3 className="truncate text-base font-semibold tracking-tight">
+              <div className="flex min-w-0 flex-wrap items-center gap-2">
+                <h3 className="min-w-0 break-words text-base font-semibold tracking-tight [overflow-wrap:anywhere]">
                   {project.title}
                 </h3>
                 <span className="rounded-full bg-secondary px-2 py-0.5 text-[11px] font-medium text-secondary-foreground">
-                  Project
+                  {pendingTasks ? `${pendingTasks} open` : "Clear"}
                 </span>
               </div>
-              <p className="mt-1 text-xs text-muted-foreground sm:text-sm">
-                Open habits and tasks together for this project.
-              </p>
+              <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
+                <span>Last activity {formatShortDate(lastActivity)}</span>
+                <span>{completedTasks}/{taskCount} tasks done</span>
+                <span>{habitCount} habits</span>
+              </div>
             </div>
           </div>
 
-          <div className="grid gap-2 sm:grid-cols-3 lg:flex lg:flex-wrap">
+          <div className="grid min-w-0 gap-2 sm:grid-cols-3">
             <div className="min-w-0 rounded-lg border border-border/70 bg-background/80 px-3 py-2">
               <div className="flex items-center gap-1.5 text-[10px] uppercase tracking-[0.12em] text-muted-foreground">
                 <Repeat size={14} />
@@ -142,10 +175,12 @@ export default function ProjectItem({ project }: { project: Project }) {
             </div>
             <div className="min-w-0 rounded-lg border border-border/70 bg-background/80 px-3 py-2">
               <div className="flex items-center gap-1.5 text-[10px] uppercase tracking-[0.12em] text-muted-foreground">
-                <ListChecks size={14} />
-                Tasks
+                <Target size={14} />
+                Target
               </div>
-              <div className="mt-1 text-lg font-semibold">{taskCount}</div>
+              <div className="mt-1 text-lg font-semibold">
+                {project.dailyStreakTarget ?? 1}/day
+              </div>
             </div>
             <div className="min-w-0 rounded-lg border border-border/70 bg-background/80 px-3 py-2">
               <div className="flex items-center gap-1.5 text-[10px] uppercase tracking-[0.12em] text-muted-foreground">
@@ -155,49 +190,61 @@ export default function ProjectItem({ project }: { project: Project }) {
               <div className="mt-1 text-lg font-semibold">
                 {project.streakGlobal ?? 0}
               </div>
-              <p className="mt-1 text-[11px] text-muted-foreground">
-                target {project.dailyStreakTarget ?? 1}/day
-              </p>
             </div>
           </div>
         </div>
 
-        <div className="flex w-full min-w-0 flex-col gap-2 lg:w-[190px]">
-          <div className="rounded-lg border border-border/70 bg-background/80 p-3">
-            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+        <div className="grid min-w-0 gap-3 rounded-lg border border-border/70 bg-background/80 p-3">
+          <div className="min-w-0">
+            <div className="flex min-w-0 items-center justify-between gap-3 text-xs text-muted-foreground">
+              <div className="flex min-w-0 items-center gap-2">
               <FolderKanban size={16} />
-              Delivery progress
+                <span className="truncate">Progress</span>
+              </div>
+              <span className="shrink-0 font-semibold text-foreground">
+                {completionRate}%
+              </span>
             </div>
-            <div className="mt-2 text-2xl font-semibold">{completedTasks}</div>
-            <p className="mt-1 text-xs text-muted-foreground">
-              completed of {taskCount} tasks
-            </p>
+            <div className="mt-3 h-2 overflow-hidden rounded-full bg-secondary">
+              <div
+                className="h-full rounded-full bg-primary"
+                style={{ width: `${completionRate}%` }}
+              />
+            </div>
+            <div className="mt-2 flex justify-between gap-3 text-xs text-muted-foreground">
+              <span>{completedTasks} done</span>
+              <span>{pendingTasks} open</span>
+            </div>
           </div>
 
-          <div className="flex flex-wrap gap-2">
-            <button
+          <div className="grid grid-cols-[1fr_auto_auto] gap-2">
+            <Button
               onClick={() => router.push(`/projects/${project.id}`)}
-              className="inline-flex h-9 min-w-24 flex-1 items-center justify-center rounded-lg bg-yevox-primary px-3 text-sm font-medium text-white transition hover:opacity-90"
+              type="button"
             >
               View
-            </button>
-            <button
-              onClick={() => setIsEditing(true)}
-              className="inline-flex h-9 w-9 items-center justify-center rounded-lg border text-muted-foreground transition hover:border-primary/30 hover:text-primary"
+            </Button>
+            <Button
               aria-label={`Edit ${project.title}`}
+              onClick={() => setIsEditing(true)}
+              size="icon"
+              type="button"
+              variant="outline"
             >
               <Edit size={16} />
-            </button>
-            <button
-              onClick={() => deleteProject(project.id)}
-              className="inline-flex h-9 w-9 items-center justify-center rounded-lg border text-muted-foreground transition hover:border-red-300 hover:text-red-600"
+            </Button>
+            <Button
               aria-label={`Delete ${project.title}`}
+              onClick={handleDelete}
+              size="icon"
+              type="button"
+              variant="outline"
             >
               <Trash size={16} />
-            </button>
+            </Button>
           </div>
         </div>
       </div>
-    </div>
+    </article>
   );
 }

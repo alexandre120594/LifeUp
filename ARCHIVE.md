@@ -39,6 +39,7 @@ Current app position:
 - task queues now use responsive cards with status counters, metadata chips, and compact pagination
 - Focus Timer now lives under Study, saves standalone study sessions without project/task/habit association, supports focus/break cycles, and keeps the countdown state while navigating away
 - Focus Timer now requires a study subject for new sessions and shows a subject-hours chart
+- Focus Timer history now filters by subject and supports deleting saved Pomodoro sessions, with subject-hour totals refreshing after deletion
 - Inbox page captures unprocessed ideas, reminders, study topics, and loose work, paginates the queue, supports popup editing with project/habit/task linking, and can convert items into notes
 - Notes page stores searchable categorized notes with pagination, popup editing, and optional project, habit, and task links
 - dashboard now shows a daily/weekly tracker snapshot instead of the project throughput graph
@@ -60,6 +61,7 @@ Current app position:
 - mistake log now supports Guided Correction for new wrong or doubtful-hit records, blocking reviewed/mastered status until microtopic, error reason, charged detail, memorization phrase, corrective action, and review date are saved
 - legacy mistake records can now be manually sent to Guided Correction one by one without a bulk migration
 - project lists now paginate
+- project lists now include search, active/done filters, recent/progress/name sorting, progress bars, clearer project cards, and delete confirmation
 - project and habit charts now use combined bars and lines for workload, completion rate, check-ins, and streak context
 - project and habit chart axes now use compact labels and horizontal overflow for crowded datasets
 - habit listing now filters by project, and task listing now filters by project and habit with summaries/charts scoped to those selections

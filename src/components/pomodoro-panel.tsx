@@ -13,6 +13,7 @@ import {
   RotateCcw,
   Save,
   TimerReset,
+  Trash2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -34,6 +35,7 @@ import {
 } from "@/components/ui/select";
 import {
   useCreatePomodoroSession,
+  useDeletePomodoroSession,
   usePomodoroDashboard,
 } from "@/hooks/usePomodoroMutations";
 import {
@@ -665,7 +667,10 @@ export function PomodoroPanel() {
           </div>
 
           <SubjectHoursChart subjects={pomodoro?.bySubject ?? []} />
-          <FocusHistory sessions={pomodoro?.sessions ?? []} />
+          <FocusHistory
+            sessions={pomodoro?.sessions ?? []}
+            subjectSummaries={pomodoro?.bySubject ?? []}
+          />
         </section>
       </CardContent>
     </Card>
@@ -694,7 +699,7 @@ function SubjectHoursChart({ subjects }: { subjects: PomodoroSummaryItem[] }) {
         </div>
       </div>
       {subjects.length ? (
-        <div className="grid min-w-0 gap-3">
+        <div className="grid min-w-0 gap-2">
           {subjects.map((subject, index) => {
             const share = totalMinutes
               ? Math.round((subject.minutes / totalMinutes) * 100)
@@ -703,7 +708,7 @@ function SubjectHoursChart({ subjects }: { subjects: PomodoroSummaryItem[] }) {
 
             return (
               <div
-                className="grid min-w-0 gap-2 rounded-lg border border-border/50 bg-secondary/20 p-3"
+                className="grid min-w-0 gap-2 rounded-lg border border-border/50 bg-secondary/20 p-3 transition hover:border-primary/30 hover:bg-secondary/30"
                 key={subject.id}
               >
                 <div className="flex min-w-0 items-center justify-between gap-3">
@@ -719,8 +724,8 @@ function SubjectHoursChart({ subjects }: { subjects: PomodoroSummaryItem[] }) {
                     {formatFocusDuration(subject.minutes)}
                   </div>
                 </div>
-                <div className="grid min-w-0 gap-1">
-                  <div className="h-3 overflow-hidden rounded-full bg-background">
+                <div className="grid min-w-0 gap-1.5">
+                  <div className="h-2.5 overflow-hidden rounded-full bg-background">
                     <div
                       className="h-full rounded-full bg-primary"
                       style={{
@@ -729,8 +734,9 @@ function SubjectHoursChart({ subjects }: { subjects: PomodoroSummaryItem[] }) {
                       }}
                     />
                   </div>
-                  <div className="text-right text-xs text-muted-foreground">
-                    {share}%
+                  <div className="flex items-center justify-between text-xs text-muted-foreground">
+                    <span>{share}% of saved focus</span>
+                    <span>{Math.round(subject.minutes / 60 * 10) / 10}h</span>
                   </div>
                 </div>
               </div>
@@ -793,14 +799,44 @@ function FocusMetric({
   );
 }
 
-function FocusHistory({ sessions }: { sessions: PomodoroSession[] }) {
+function FocusHistory({
+  sessions,
+  subjectSummaries,
+}: {
+  sessions: PomodoroSession[];
+  subjectSummaries: PomodoroSummaryItem[];
+}) {
   const [page, setPage] = useState(1);
-  const totalPages = Math.max(Math.ceil(sessions.length / focusHistoryPageSize), 1);
+  const [selectedSubjectId, setSelectedSubjectId] = useState("all");
+  const { mutate: deleteSession, isPending: isDeleting } =
+    useDeletePomodoroSession();
+  const filteredSessions =
+    selectedSubjectId === "all"
+      ? sessions
+      : sessions.filter(
+          (session) => (session.subjectId ?? "unknown") === selectedSubjectId
+        );
+  const totalPages = Math.max(
+    Math.ceil(filteredSessions.length / focusHistoryPageSize),
+    1
+  );
   const currentPage = Math.min(page, totalPages);
-  const visibleSessions = sessions.slice(
+  const visibleSessions = filteredSessions.slice(
     (currentPage - 1) * focusHistoryPageSize,
     currentPage * focusHistoryPageSize
   );
+
+  const handleDeleteSession = (session: PomodoroSession) => {
+    const confirmed = window.confirm(
+      `Delete ${formatFocusDuration(session.durationMinutes)} from ${
+        session.subject?.name ?? "No subject"
+      }?`
+    );
+
+    if (confirmed) {
+      deleteSession(session.id);
+    }
+  };
 
   return (
     <div className="min-w-0 overflow-hidden rounded-lg border border-border/70 bg-background/70">
@@ -811,12 +847,12 @@ function FocusHistory({ sessions }: { sessions: PomodoroSession[] }) {
             <span className="truncate">Study focus history</span>
           </div>
           <div className="mt-1 text-xs text-muted-foreground">
-            {sessions.length
-              ? `${sessions.length} saved sessions`
+            {filteredSessions.length
+              ? `${filteredSessions.length} saved sessions`
               : "No saved sessions yet"}
           </div>
         </div>
-        {sessions.length ? (
+        {filteredSessions.length ? (
           <div className="flex shrink-0 items-center gap-2 text-xs text-muted-foreground">
             <span>
               Page {currentPage} of {totalPages}
@@ -848,11 +884,44 @@ function FocusHistory({ sessions }: { sessions: PomodoroSession[] }) {
           </div>
         ) : null}
       </div>
+      {subjectSummaries.length > 1 ? (
+        <div className="flex min-w-0 gap-2 overflow-x-auto border-b border-border/70 p-3">
+          <Button
+            className="h-8 shrink-0"
+            onClick={() => {
+              setSelectedSubjectId("all");
+              setPage(1);
+            }}
+            type="button"
+            variant={selectedSubjectId === "all" ? "default" : "outline"}
+          >
+            All
+          </Button>
+          {subjectSummaries.map((subject) => (
+            <Button
+              className="h-8 shrink-0"
+              key={subject.id}
+              onClick={() => {
+                setSelectedSubjectId(subject.id);
+                setPage(1);
+              }}
+              type="button"
+              variant={selectedSubjectId === subject.id ? "default" : "outline"}
+            >
+              <span
+                className="h-2 w-2 rounded-full"
+                style={{ backgroundColor: subject.color ?? undefined }}
+              />
+              {subject.title}
+            </Button>
+          ))}
+        </div>
+      ) : null}
       <div className="grid min-w-0 gap-2 p-3">
-        {sessions.length ? (
+        {filteredSessions.length ? (
           visibleSessions.map((session) => (
             <div
-              className="grid min-w-0 gap-3 rounded-lg border border-border/50 bg-secondary/30 px-3 py-3 text-sm sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center"
+              className="grid min-w-0 gap-3 rounded-lg border border-border/50 bg-secondary/30 px-3 py-3 text-sm sm:grid-cols-[minmax(0,1fr)_auto_auto] sm:items-center"
               key={session.id}
             >
               <div className="min-w-0">
@@ -861,11 +930,15 @@ function FocusHistory({ sessions }: { sessions: PomodoroSession[] }) {
                     {session.subject?.name ?? "No subject"}
                   </span>
                   <span className="rounded-md bg-background/75 px-2 py-0.5 text-xs font-medium text-muted-foreground">
-                    Study
+                    {formatFocusDuration(session.durationMinutes)}
                   </span>
                 </div>
                 <div className="mt-1 min-w-0 truncate text-xs text-muted-foreground">
-                  {new Date(session.endedAt).toLocaleString()}
+                  {new Date(session.startedAt).toLocaleString()} -{" "}
+                  {new Date(session.endedAt).toLocaleTimeString([], {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })}
                 </div>
                 {session.notes ? (
                   <div className="mt-1 line-clamp-2 text-xs text-muted-foreground">
@@ -873,9 +946,22 @@ function FocusHistory({ sessions }: { sessions: PomodoroSession[] }) {
                   </div>
                 ) : null}
               </div>
-              <div className="rounded-md bg-background/75 px-3 py-2 text-right font-semibold">
+              <div className="rounded-md bg-background/75 px-3 py-2 text-right font-semibold tabular-nums">
                 {formatFocusDuration(session.durationMinutes)}
               </div>
+              <Button
+                aria-label={`Delete focus session from ${
+                  session.subject?.name ?? "No subject"
+                }`}
+                className="h-9 w-full sm:w-9"
+                disabled={isDeleting}
+                onClick={() => handleDeleteSession(session)}
+                size="icon"
+                type="button"
+                variant="outline"
+              >
+                <Trash2 className="h-4 w-4" />
+              </Button>
             </div>
           ))
         ) : (

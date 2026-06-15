@@ -26,6 +26,7 @@ The app currently supports:
 - task creation supports an optional scheduled hour, and the calendar shows tasks by time inside each day
 - task queues use responsive cards with pending-first sorting, status counters, and compact pagination
 - Focus Timer lives under Study and saves standalone study sessions with breaks, progress, navigation-persistent countdown state, and study focus history
+- Focus Timer study history can be filtered by subject and saved Pomodoro sessions can be deleted, immediately updating subject-hour totals
 - Inbox page captures temporary ideas, reminders, study topics, and loose work, paginates the queue, and uses a popup to view/edit links to projects, habits, tasks, or converted notes
 - Notes page stores searchable long-term notes with pagination, view/edit popups, categories, and optional project, habit, and task context
 - habit creation flows include daily/weekly frequency, reminder time, and secondary habit statistics
@@ -125,7 +126,7 @@ There is also repeatable local seed data for testing charts and flows.
 - `src/app/notes/page.tsx`
   - searchable paginated notes library with categories, popup editing, and optional project, habit, and task links
 - `src/app/pomodoro/page.tsx`
-  - Study Focus Timer page with subject selection, focus/break cycles, progress, navigation-persistent countdown state, subject-hours chart, and study focus history
+  - Study Focus Timer page with subject selection, focus/break cycles, progress, navigation-persistent countdown state, subject-hours chart, filterable study focus history, and session deletion
 - `src/app/tasks/[id]/page.tsx`
   - task detail page with parent project context
 - `src/app/calendar/page.tsx`
@@ -216,6 +217,7 @@ There is also repeatable local seed data for testing charts and flows.
 - `src/app/api/study-mistakes/route.ts`
 - `src/app/api/study-mistakes/[id]/route.ts`
 - `src/app/api/pomodoro/route.ts`
+- `src/app/api/pomodoro/[id]/route.ts`
 - `src/app/api/auth/login/route.ts`
 - `src/app/api/auth/logout/route.ts`
 - `src/app/api/auth/me/route.ts`

@@ -11,5 +11,9 @@ export const PomodoroServices = {
       method: "POST",
       body: JSON.stringify(data),
     }),
+  deleteSession: (id: string) =>
+    apiClient<PomodoroSession>(`/api/pomodoro/${id}`, {
+      method: "DELETE",
+    }),
   getDashboard: () => apiClient<PomodoroDashboardResponse>("/api/pomodoro"),
 };
