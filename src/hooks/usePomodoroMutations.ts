@@ -49,3 +49,32 @@ export function useDeletePomodoroSession() {
     },
   });
 }
+
+export function useUpdatePomodoroSession() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    meta: { successMessage: "Focus session updated.", successTitle: "Updated" },
+    mutationFn: ({
+      id,
+      subjectId,
+      title,
+    }: {
+      id: string;
+      subjectId: string;
+      title: string;
+    }) => PomodoroServices.updateSession(id, { subjectId, title }),
+    onSuccess: async () => {
+      await Promise.all([
+        queryClient.invalidateQueries({
+          queryKey: ["pomodoro"],
+          refetchType: "all",
+        }),
+        queryClient.invalidateQueries({
+          queryKey: ["study-subjects"],
+          refetchType: "all",
+        }),
+      ]);
+    },
+  });
+}

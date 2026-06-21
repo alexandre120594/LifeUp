@@ -8,6 +8,8 @@ import {
 
 const DAY_LABELS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
+export type StudyQuestionPeriod = "day" | "week" | "month" | "year";
+
 function normalizeDate(value?: Date | string | null) {
   if (!value) {
     return null;
@@ -19,6 +21,14 @@ function normalizeDate(value?: Date | string | null) {
 
 function toDayKey(date: Date) {
   return date.toISOString().slice(0, 10);
+}
+
+function toLocalDayKey(date: Date) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+
+  return `${year}-${month}-${day}`;
 }
 
 function buildDaysWindow(days: number) {
@@ -256,4 +266,76 @@ export function getStudyQuestionSummary(
     totalQuestions,
     wrongQuestions,
   };
+}
+
+export function getStudyQuestionPeriodRange(
+  period: StudyQuestionPeriod,
+  referenceDate = new Date()
+) {
+  const from = new Date(referenceDate);
+  const to = new Date(referenceDate);
+
+  from.setHours(0, 0, 0, 0);
+  to.setHours(0, 0, 0, 0);
+
+  if (period === "week") {
+    const daysSinceMonday = (from.getDay() + 6) % 7;
+    from.setDate(from.getDate() - daysSinceMonday);
+    to.setTime(from.getTime());
+    to.setDate(from.getDate() + 6);
+  } else if (period === "month") {
+    from.setDate(1);
+    to.setFullYear(from.getFullYear(), from.getMonth() + 1, 0);
+  } else if (period === "year") {
+    from.setFullYear(from.getFullYear(), 0, 1);
+    to.setFullYear(from.getFullYear(), 11, 31);
+  }
+
+  return {
+    from: toLocalDayKey(from),
+    to: toLocalDayKey(to),
+  };
+}
+
+export function buildStudyQuestionsBySubject(
+  practices: StudyQuestionPractice[] = []
+) {
+  const subjects = new Map<
+    string,
+    {
+      accuracyRate: number;
+      correctQuestions: number;
+      name: string;
+      subjectId: string;
+      totalQuestions: number;
+      wrongQuestions: number;
+    }
+  >();
+
+  practices.forEach((practice) => {
+    const current = subjects.get(practice.subjectId) ?? {
+      accuracyRate: 0,
+      correctQuestions: 0,
+      name: practice.subject?.name ?? "Subject",
+      subjectId: practice.subjectId,
+      totalQuestions: 0,
+      wrongQuestions: 0,
+    };
+
+    current.correctQuestions += practice.correctQuestions;
+    current.wrongQuestions += practice.wrongQuestions;
+    current.totalQuestions =
+      current.correctQuestions + current.wrongQuestions;
+    current.accuracyRate =
+      current.totalQuestions > 0
+        ? Math.round(
+            (current.correctQuestions / current.totalQuestions) * 100
+          )
+        : 0;
+    subjects.set(practice.subjectId, current);
+  });
+
+  return Array.from(subjects.values()).sort(
+    (a, b) => b.totalQuestions - a.totalQuestions || a.name.localeCompare(b.name)
+  );
 }

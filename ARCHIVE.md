@@ -37,9 +37,10 @@ Current app position:
 - chart colors now follow the active app theme
 - task creation supports optional scheduled hours, and the calendar displays tasks by time inside each day
 - task queues now use responsive cards with status counters, metadata chips, and compact pagination
-- Focus Timer now lives under Study, saves standalone study sessions without project/task/habit association, supports focus/break cycles, and keeps the countdown state while navigating away
-- Focus Timer now requires a study subject for new sessions and shows a subject-hours chart
-- Focus Timer history now filters by subject and supports deleting saved Pomodoro sessions, with subject-hour totals refreshing after deletion
+- Focus Timer now lives under Study, saves named standalone study sessions without project/task/habit association, supports focus/break cycles, and keeps the countdown state while navigating away
+- Focus Timer now asks for name, subject, focus/break duration, cycles, and notes when starting; its side panel only summarizes time by subject
+- Focus Timer history now filters by subject, supports editing saved session names and subjects, and supports deleting sessions with subject-hour totals refreshing after changes
+- Study Dashboard now includes a Focus Timer graph grouped by subject
 - Inbox page captures unprocessed ideas, reminders, study topics, and loose work, paginates the queue, supports popup editing with project/habit/task linking, and can convert items into notes
 - Notes page stores searchable categorized notes with pagination, popup editing, and optional project, habit, and task links
 - dashboard now shows a daily/weekly tracker snapshot instead of the project throughput graph
@@ -56,6 +57,7 @@ Current app position:
 - Study Plan block completion can now record aggregate total/right/wrong question counts, shows weekly question totals, and lets saved count entries be edited or deleted without changing existing mistake data
 - Study Dashboard charts weak study subjects from logged mistakes and includes a due-review queue
 - Study Dashboard charts 7-day study question practice with right/wrong counts and accuracy; the Life Dashboard no longer includes study widgets
+- Study Dashboard also charts registered right/wrong question totals by subject with current day, Monday-Sunday week, calendar month, calendar year, and single-subject filters, without changing saved practice records
 - mistake log now has paginated weak-subject and due-review panels in addition to the filterable detailed queue
 - mistake log captures question, user's answer, correct answer, error type, correct rule, trap word, review date, and unresolved/reviewed/mastered status
 - mistake log now supports Guided Correction for new wrong or doubtful-hit records, blocking reviewed/mastered status until microtopic, error reason, charged detail, memorization phrase, corrective action, and review date are saved
@@ -100,6 +102,11 @@ Implemented:
 - Study Dashboard now opens with visual action tiles for Study Plan, Mistake Log, and Focus Timer
 - top-level study metrics now use compact visual cards
 - question practice has a clearer accuracy summary with right/wrong totals and a progress bar
+- question analytics now include a right/wrong radar comparison by subject with total and accuracy tooltips plus an empty state for periods or subjects without registrations
+- Study Dashboard UX now groups actions and analytics into named sections, keeps filters beside their context, and uses ranked horizontal focus bars with totals, subject count, leader summary, and per-subject share tooltips
+- subject question and focus charts now share a compact responsive two-column row on large screens, with matched heights and mobile stacking
+- focus-by-subject uses thinner horizontal bars and five-subject pagination while totals and the leader summary continue to cover every subject
+- Study Dashboard hero now surfaces today’s questions, seven-day accuracy, due reviews, total saved focus time, contextual next-action guidance, and direct planning/review/focus actions
 - due review and subject pressure are easier to scan, with subject pressure bars linked back to the mistake workflow
 - Study Plan now has a cleaner control bar, separate planned-vs-studied and question-performance panels, and a responsive card-based week board
 - Mistake Log create/edit/correction dialogs now use resilient long-text fields so pasted questions, answers, rules, and correction notes wrap and scroll without stretching the layout
@@ -394,6 +401,7 @@ Main files:
 Implemented:
 - repeatable seed script
 - test projects/habits/tasks for graphs and dashboard states
+- repeatable Study Dashboard demo data for every existing local user, with three subjects, seven days of question practice, and at least 120 current-day questions per subject
 
 Main files:
 - `prisma/seed.ts`

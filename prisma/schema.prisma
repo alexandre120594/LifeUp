@@ -323,6 +323,7 @@ model Note {
 
 model PomodoroSession {
   id              String   @id @default(cuid())
+  title           String?
   durationMinutes Int
   focusType       String   @default("study") // study focus sessions
   startedAt       DateTime

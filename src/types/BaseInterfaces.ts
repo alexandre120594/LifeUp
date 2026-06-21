@@ -100,6 +100,7 @@ export interface NoteUpdateInput {
 
 export interface PomodoroSession {
   id: string;
+  title?: string | null;
   durationMinutes: number;
   focusType: "study";
   startedAt: Date | string;
@@ -112,12 +113,18 @@ export interface PomodoroSession {
 }
 
 export interface PomodoroSessionCreateInput {
+  title: string;
   durationMinutes: number;
   focusType?: "study";
   startedAt: string;
   endedAt: string;
   subjectId: string;
   notes?: string;
+}
+
+export interface PomodoroSessionUpdateInput {
+  subjectId: string;
+  title: string;
 }
 
 export interface PomodoroSummaryItem {

@@ -1,17 +1,27 @@
 "use client";
 
-import type { CSSProperties } from "react";
+import { useState, type CSSProperties } from "react";
 import {
   Bar,
+  BarChart,
   CartesianGrid,
+  Cell,
   ComposedChart,
+  LabelList,
   Line,
   LineChart,
+  PolarAngleAxis,
+  PolarGrid,
+  PolarRadiusAxis,
+  Radar,
+  RadarChart,
   XAxis,
   YAxis,
 } from "recharts";
 import {
   ChartContainer,
+  ChartLegend,
+  ChartLegendContent,
   ChartTooltip,
   ChartTooltipContent,
   type ChartConfig,
@@ -23,6 +33,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 
 const activityConfig = {
   tasksCompleted: {
@@ -99,6 +110,24 @@ const studyQuestionsConfig = {
   },
 } satisfies ChartConfig;
 
+const studyFocusConfig = {
+  minutes: {
+    label: "Focus minutes",
+    color: "var(--chart-4)",
+  },
+} satisfies ChartConfig;
+
+const studyQuestionsBySubjectConfig = {
+  correctQuestions: {
+    label: "Right",
+    color: "var(--chart-2)",
+  },
+  wrongQuestions: {
+    label: "Wrong",
+    color: "var(--chart-5)",
+  },
+} satisfies ChartConfig;
+
 type ActivityDatum = {
   date: string;
   tasksCompleted: number;
@@ -140,6 +169,22 @@ type StudyQuestionDatum = {
   wrongQuestions: number;
 };
 
+type StudyFocusSubjectDatum = {
+  color?: string | null;
+  id: string;
+  minutes: number;
+  title: string;
+};
+
+type StudyQuestionSubjectDatum = {
+  accuracyRate: number;
+  correctQuestions: number;
+  name: string;
+  subjectId: string;
+  totalQuestions: number;
+  wrongQuestions: number;
+};
+
 function abbreviateAxisLabel(value: string) {
   const words = value.trim().split(/\s+/).filter(Boolean);
 
@@ -155,6 +200,19 @@ function abbreviateAxisLabel(value: string) {
 
 function getChartMinWidth(itemCount: number) {
   return Math.max(520, itemCount * 92);
+}
+
+function formatFocusMinutes(minutes: number) {
+  if (minutes < 60) {
+    return `${minutes}m`;
+  }
+
+  const hours = Math.floor(minutes / 60);
+  const remainingMinutes = minutes % 60;
+
+  return remainingMinutes > 0
+    ? `${hours}h ${remainingMinutes}m`
+    : `${hours}h`;
 }
 
 export function ActivityTrendChart({
@@ -646,6 +704,277 @@ export function StudyQuestionsChart({
             No question practice logged yet.
           </p>
         )}
+      </CardContent>
+    </Card>
+  );
+}
+
+export function StudyQuestionsBySubjectChart({
+  data,
+}: {
+  data: StudyQuestionSubjectDatum[];
+}) {
+  return (
+    <Card className="h-full min-w-0 overflow-hidden border shadow-sm">
+      <CardHeader className="pb-2">
+        <CardTitle>Questions by subject</CardTitle>
+        <CardDescription>
+          Registered right and wrong question totals for the selected period.
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        {data.length ? (
+          <ChartContainer
+            config={studyQuestionsBySubjectConfig}
+            className="mx-auto h-[310px] w-full sm:h-[360px]"
+          >
+            <RadarChart accessibilityLayer data={data} outerRadius="65%">
+              <PolarGrid gridType="polygon" />
+              <PolarAngleAxis
+                dataKey="name"
+                tickFormatter={abbreviateAxisLabel}
+              />
+              <PolarRadiusAxis
+                allowDecimals={false}
+                angle={90}
+                axisLine={false}
+                tickCount={5}
+                tickLine={false}
+              />
+              <ChartTooltip
+                content={
+                  <ChartTooltipContent
+                    labelFormatter={(_, payload) => {
+                      const subject = payload[0]?.payload as
+                        | StudyQuestionSubjectDatum
+                        | undefined;
+
+                      return subject ? (
+                        <div className="grid gap-1">
+                          <span>{subject.name}</span>
+                          <span className="text-[11px] font-normal text-muted-foreground">
+                            {subject.totalQuestions} total,{" "}
+                            {subject.accuracyRate}% accuracy
+                          </span>
+                        </div>
+                      ) : (
+                        "Subject"
+                      );
+                    }}
+                    formatter={(value, name) => (
+                      <div className="flex min-w-36 items-center justify-between gap-3">
+                        <span>
+                          {name === "correctQuestions"
+                            ? "Right questions"
+                            : "Wrong questions"}
+                        </span>
+                        <span className="font-medium">{value}</span>
+                      </div>
+                    )}
+                  />
+                }
+              />
+              <Radar
+                dataKey="correctQuestions"
+                fill="var(--color-correctQuestions)"
+                fillOpacity={0.28}
+                stroke="var(--color-correctQuestions)"
+                strokeWidth={3}
+              />
+              <Radar
+                dataKey="wrongQuestions"
+                fill="var(--color-wrongQuestions)"
+                fillOpacity={0.2}
+                stroke="var(--color-wrongQuestions)"
+                strokeWidth={3}
+              />
+              <ChartLegend content={<ChartLegendContent />} />
+            </RadarChart>
+          </ChartContainer>
+        ) : (
+          <p className="rounded-lg bg-secondary/35 p-4 text-sm text-muted-foreground">
+            No question registrations for this period and subject.
+          </p>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
+export function StudyFocusBySubjectChart({
+  data,
+}: {
+  data: StudyFocusSubjectDatum[];
+}) {
+  const pageSize = 5;
+  const [page, setPage] = useState(0);
+  const sortedData = [...data].sort((a, b) => b.minutes - a.minutes);
+  const totalPages = Math.max(1, Math.ceil(sortedData.length / pageSize));
+  const currentPage = Math.min(page, totalPages - 1);
+  const visibleData = sortedData.slice(
+    currentPage * pageSize,
+    (currentPage + 1) * pageSize
+  );
+  const totalMinutes = data.reduce((total, item) => total + item.minutes, 0);
+  const topSubject = sortedData[0];
+  const maxMinutes = Math.max(...sortedData.map((item) => item.minutes), 0);
+  const useHoursScale = maxMinutes >= 120;
+
+  return (
+    <Card className="h-full min-w-0 overflow-hidden border shadow-sm">
+      <CardHeader className="gap-2 pb-2">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+          <div className="space-y-1">
+            <CardTitle>Focus time by subject</CardTitle>
+            <CardDescription>
+              Compare saved Focus Timer minutes across study subjects.
+            </CardDescription>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            <span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
+              {formatFocusMinutes(totalMinutes)} total
+            </span>
+            <span className="rounded-full bg-secondary px-3 py-1 text-xs font-semibold text-secondary-foreground">
+              {sortedData.length} subjects
+            </span>
+          </div>
+        </div>
+        <CardDescription>
+          {topSubject
+            ? `${topSubject.title} leads with ${formatFocusMinutes(topSubject.minutes)}.`
+            : "Complete a focus session to build this comparison."}
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        {visibleData.length ? (
+          <ChartContainer
+            config={studyFocusConfig}
+            className="h-[260px] w-full sm:h-[300px]"
+          >
+            <BarChart
+              accessibilityLayer
+              data={visibleData}
+              layout="vertical"
+              margin={{ left: 0, right: 54 }}
+            >
+              <CartesianGrid horizontal={false} />
+              <XAxis
+                allowDecimals={false}
+                axisLine={false}
+                tickFormatter={(value) =>
+                  useHoursScale
+                    ? `${Math.round((Number(value) / 60) * 10) / 10}h`
+                    : `${value}m`
+                }
+                tickLine={false}
+                type="number"
+              />
+              <YAxis
+                axisLine={false}
+                dataKey="title"
+                tickFormatter={(value) =>
+                  value.length > 14 ? `${value.slice(0, 14)}…` : value
+                }
+                tickLine={false}
+                type="category"
+                width={104}
+              />
+              <ChartTooltip
+                content={
+                  <ChartTooltipContent
+                    labelFormatter={(_, payload) => {
+                      const subject = payload[0]?.payload as
+                        | StudyFocusSubjectDatum
+                        | undefined;
+
+                      return subject?.title ?? "Subject";
+                    }}
+                    formatter={(value) => {
+                      const minutes = Number(value);
+                      const share =
+                        totalMinutes > 0
+                          ? Math.round((minutes / totalMinutes) * 100)
+                          : 0;
+
+                      return (
+                        <div className="grid min-w-40 gap-1">
+                          <div className="flex items-center justify-between gap-3">
+                            <span>Focused time</span>
+                            <span className="font-medium">
+                              {formatFocusMinutes(minutes)}
+                            </span>
+                          </div>
+                          <div className="flex items-center justify-between gap-3 text-muted-foreground">
+                            <span>Share of total</span>
+                            <span>{share}%</span>
+                          </div>
+                        </div>
+                      );
+                    }}
+                  />
+                }
+              />
+              <Bar
+                background={{ fill: "var(--secondary)", radius: 7 }}
+                barSize={12}
+                dataKey="minutes"
+                fill="var(--color-minutes)"
+                radius={[0, 7, 7, 0]}
+              >
+                {visibleData.map((subject) => (
+                  <Cell
+                    fill={subject.color ?? "var(--color-minutes)"}
+                    key={subject.id}
+                  />
+                ))}
+                <LabelList
+                  className="fill-foreground font-semibold"
+                  dataKey="minutes"
+                  formatter={(value: number) => formatFocusMinutes(value)}
+                  position="right"
+                />
+              </Bar>
+            </BarChart>
+          </ChartContainer>
+        ) : (
+          <p className="rounded-lg bg-secondary/35 p-4 text-sm text-muted-foreground">
+            Complete a focus session to compare time by subject.
+          </p>
+        )}
+        {sortedData.length > pageSize ? (
+          <div className="mt-3 flex items-center justify-between gap-3 border-t border-border/60 pt-3">
+            <span className="text-xs text-muted-foreground">
+              {currentPage * pageSize + 1}–
+              {Math.min((currentPage + 1) * pageSize, sortedData.length)} of{" "}
+              {sortedData.length}
+            </span>
+            <div className="flex items-center gap-2">
+              <Button
+                disabled={currentPage === 0}
+                onClick={() => setPage((current) => Math.max(0, current - 1))}
+                size="sm"
+                type="button"
+                variant="outline"
+              >
+                Previous
+              </Button>
+              <span className="min-w-14 text-center text-xs font-medium">
+                {currentPage + 1} / {totalPages}
+              </span>
+              <Button
+                disabled={currentPage >= totalPages - 1}
+                onClick={() =>
+                  setPage((current) => Math.min(totalPages - 1, current + 1))
+                }
+                size="sm"
+                type="button"
+                variant="outline"
+              >
+                Next
+              </Button>
+            </div>
+          </div>
+        ) : null}
       </CardContent>
     </Card>
   );

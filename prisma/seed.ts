@@ -19,6 +19,8 @@ function isoDay(daysAgo: number) {
   return dayOffset(daysAgo).toISOString().slice(0, 10);
 }
 
+const STUDY_QUESTION_SEED_NOTE = "LifeUp demo question analytics";
+
 async function main() {
   const devUser =
     (await prisma.user.findUnique({
@@ -218,6 +220,104 @@ async function main() {
     ],
   });
 
+  const studySubjectSeeds = [
+    {
+      color: "#3b82f6",
+      name: "Demo - Constitutional Law",
+      plannedHoursPerWeek: 5,
+    },
+    {
+      color: "#22c55e",
+      name: "Demo - Portuguese",
+      plannedHoursPerWeek: 4,
+    },
+    {
+      color: "#f97316",
+      name: "Demo - Administrative Law",
+      plannedHoursPerWeek: 4,
+    },
+  ];
+  const dailyQuestionTotals = [
+    [
+      { correctQuestions: 92, wrongQuestions: 28 },
+      { correctQuestions: 24, wrongQuestions: 6 },
+      { correctQuestions: 18, wrongQuestions: 7 },
+      { correctQuestions: 22, wrongQuestions: 8 },
+      { correctQuestions: 16, wrongQuestions: 9 },
+      { correctQuestions: 20, wrongQuestions: 10 },
+      { correctQuestions: 14, wrongQuestions: 6 },
+    ],
+    [
+      { correctQuestions: 84, wrongQuestions: 36 },
+      { correctQuestions: 20, wrongQuestions: 10 },
+      { correctQuestions: 17, wrongQuestions: 8 },
+      { correctQuestions: 19, wrongQuestions: 11 },
+      { correctQuestions: 15, wrongQuestions: 10 },
+      { correctQuestions: 18, wrongQuestions: 12 },
+      { correctQuestions: 13, wrongQuestions: 7 },
+    ],
+    [
+      { correctQuestions: 78, wrongQuestions: 42 },
+      { correctQuestions: 18, wrongQuestions: 12 },
+      { correctQuestions: 16, wrongQuestions: 9 },
+      { correctQuestions: 17, wrongQuestions: 13 },
+      { correctQuestions: 14, wrongQuestions: 11 },
+      { correctQuestions: 16, wrongQuestions: 14 },
+      { correctQuestions: 12, wrongQuestions: 8 },
+    ],
+  ];
+
+  const seedUsers = await prisma.user.findMany({
+    select: { email: true, id: true },
+    orderBy: { id: "asc" },
+  });
+
+  for (const seedUser of seedUsers) {
+    const studySubjects = await Promise.all(
+      studySubjectSeeds.map((subject) =>
+        prisma.studySubject.upsert({
+          where: {
+            userId_name: {
+              name: subject.name,
+              userId: seedUser.id,
+            },
+          },
+          create: {
+            ...subject,
+            notes: "Demo subject for Study Dashboard analytics.",
+            userId: seedUser.id,
+          },
+          update: {
+            color: subject.color,
+            notes: "Demo subject for Study Dashboard analytics.",
+            plannedHoursPerWeek: subject.plannedHoursPerWeek,
+          },
+        })
+      )
+    );
+
+    await prisma.studyQuestionPractice.deleteMany({
+      where: {
+        notes: STUDY_QUESTION_SEED_NOTE,
+        userId: seedUser.id,
+      },
+    });
+
+    await prisma.studyQuestionPractice.createMany({
+      data: studySubjects.flatMap((subject, subjectIndex) =>
+        dailyQuestionTotals[subjectIndex].map((questions, daysAgo) => ({
+          ...questions,
+          notes: STUDY_QUESTION_SEED_NOTE,
+          practiceDate: dayOffset(daysAgo, 12),
+          subjectId: subject.id,
+          totalQuestions:
+            questions.correctQuestions + questions.wrongQuestions,
+          userId: seedUser.id,
+        }))
+      ),
+    });
+  }
+
   const summary = await prisma.project.findMany({
     where: { userId: devUser.id, title: { in: seededTitles } },
     include: {
@@ -235,6 +335,26 @@ async function main() {
         tasks: project.tasks.length,
         completedTasks: project.tasks.filter((task) => task.completed).length,
       })),
+      null,
+      2
+    )
+  );
+
+  console.log(
+    JSON.stringify(
+      {
+        seededQuestionPracticesPerUser:
+          studySubjectSeeds.length * dailyQuestionTotals[0].length,
+        seededUsers: seedUsers.map((user) => user.email),
+        subjects: studySubjectSeeds.map((subject) => subject.name),
+        todayQuestionsPerUser: dailyQuestionTotals.reduce(
+          (total, subjectDays) =>
+            total +
+            subjectDays[0].correctQuestions +
+            subjectDays[0].wrongQuestions,
+          0
+        ),
+      },
       null,
       2
     )

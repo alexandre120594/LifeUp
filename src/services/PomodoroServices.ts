@@ -3,6 +3,7 @@ import type {
   PomodoroDashboardResponse,
   PomodoroSession,
   PomodoroSessionCreateInput,
+  PomodoroSessionUpdateInput,
 } from "@/types/BaseInterfaces";
 
 export const PomodoroServices = {
@@ -16,4 +17,9 @@ export const PomodoroServices = {
       method: "DELETE",
     }),
   getDashboard: () => apiClient<PomodoroDashboardResponse>("/api/pomodoro"),
+  updateSession: (id: string, data: PomodoroSessionUpdateInput) =>
+    apiClient<PomodoroSession>(`/api/pomodoro/${id}`, {
+      method: "PATCH",
+      body: JSON.stringify(data),
+    }),
 };

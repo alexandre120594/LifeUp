@@ -25,8 +25,8 @@ The app currently supports:
 - Life Habit Tracker tracks good habits with a daily checkout and bad habits with an automatic days-without counter that resets when the bad habit happens
 - task creation supports an optional scheduled hour, and the calendar shows tasks by time inside each day
 - task queues use responsive cards with pending-first sorting, status counters, and compact pagination
-- Focus Timer lives under Study and saves standalone study sessions with breaks, progress, navigation-persistent countdown state, and study focus history
-- Focus Timer study history can be filtered by subject and saved Pomodoro sessions can be deleted, immediately updating subject-hour totals
+- Focus Timer lives under Study and saves named standalone study sessions with breaks, progress, navigation-persistent countdown state, and study focus history
+- Focus Timer asks for session setup when starting, keeps the timer side panel focused on time by subject, and lets saved history names and subjects be edited or sessions deleted
 - Inbox page captures temporary ideas, reminders, study topics, and loose work, paginates the queue, and uses a popup to view/edit links to projects, habits, tasks, or converted notes
 - Notes page stores searchable long-term notes with pagination, view/edit popups, categories, and optional project, habit, and task context
 - habit creation flows include daily/weekly frequency, reminder time, and secondary habit statistics
@@ -55,9 +55,11 @@ The app currently supports:
 - Study dashboard analytics for:
   - subjects
   - scheduled study hours
+  - Focus Timer time grouped by subject
   - due mistake review pressure
   - weak subjects
   - 7-day study question practice with right/wrong counts and accuracy
+  - right/wrong question totals grouped by subject with current day, Monday-Sunday week, calendar month, calendar year, and subject filters
 - save, update, and delete actions show toast feedback and refresh affected lists/details immediately
 - calendar page for reviewing tasks by day and scheduling future tasks
 - weekly organizer for creating database-backed Monday-to-Sunday habit boards with previous/next navigation and hourly scheduling from 00:00 through 23:00
@@ -126,7 +128,7 @@ There is also repeatable local seed data for testing charts and flows.
 - `src/app/notes/page.tsx`
   - searchable paginated notes library with categories, popup editing, and optional project, habit, and task links
 - `src/app/pomodoro/page.tsx`
-  - Study Focus Timer page with subject selection, focus/break cycles, progress, navigation-persistent countdown state, subject-hours chart, filterable study focus history, and session deletion
+  - Study Focus Timer page with start-time session setup, focus/break cycles, progress, navigation-persistent countdown state, subject-hours summary, and editable filterable history
 - `src/app/tasks/[id]/page.tsx`
   - task detail page with parent project context
 - `src/app/calendar/page.tsx`
@@ -134,7 +136,7 @@ There is also repeatable local seed data for testing charts and flows.
 - `src/app/weekly-organizer/page.tsx`
   - weekly board for Life habit/task slots with a restored planning hero
 - `src/app/study/page.tsx`
-  - visual Study Dashboard with action tiles for Study Plan, Mistake Log, and Focus Timer, plus review pressure, subject pressure, question practice, subjects, and scheduled study hours
+  - sectioned Study Dashboard with an operational hero, dynamic next-action guidance, action tiles, compact metrics, question performance, focus distribution, and review-priority areas
 - `src/app/study/mistakes/page.tsx`
   - subject-based mistake log with search, filters, review dates, Guided Correction, status changes, and edit/delete dialogs
 - `src/app/study/planner/page.tsx`
@@ -293,7 +295,7 @@ There is also repeatable local seed data for testing charts and flows.
   - stores searchable long-term content with optional category and project, habit, or task links
 - `PomodoroSession`
   - belongs to user and can retain an optional legacy task link from older saved sessions
-  - new Focus Timer sessions attach to a study subject and do not attach to projects, tasks, or habits
+  - new Focus Timer sessions store an editable name, attach to a study subject, and do not attach to projects, tasks, or habits
 - `FinancialCategory`
   - belongs to user
   - organizes income and expense records
@@ -343,8 +345,8 @@ existing mistake records are not rewritten into correction-pending items.
 Study question-practice totals also require the current Prisma schema before the
 Study Plan finish flow can persist right/wrong counts for dashboard charts.
 The Focus Timer also requires the current schema because new standalone study
-sessions save without a task association; older task-linked sessions can still
-be read as optional legacy context.
+sessions save without a task association and persist an editable session name;
+older task-linked sessions can still be read as optional legacy context.
 The account spend tracker also requires the current schema because it stores
 monthly CSV/OFX imports and their paginated rows in dedicated tables outside the
 Financial Organizer records.
@@ -403,6 +405,8 @@ The current seed creates test data for the dev user `id = 1`:
 - 3 projects
 - 5 habits
 - 9 tasks
+- 3 demo study subjects per existing local user
+- 21 question-practice registrations per existing local user, including 120 questions per subject on the current day
 
 Seeded project names:
 - `Health Reset`
@@ -424,7 +428,7 @@ What is stable enough to continue from:
 - calendar tasks can carry scheduled hours and are shown in time order inside day cells and day detail popups
 - study plan planned blocks can be finished directly from the week board, prompting for actual minutes studied and optional question counts, saving that time under the block's subject, and allowing the saved study entry plus matching question tracker entry to be edited later
 - study plan block completion can save aggregate right/wrong question totals, the planner can edit/delete saved count entries, and dashboards chart those question totals by day
-- Study Dashboard shows study action tiles, study mistake pressure, subject pressure bars, due-review sections, and question accuracy visuals
+- Study Dashboard uses clear workspace, question performance, and review-priority sections; the compact subject radar and ranked horizontal focus chart sit side by side on large screens, with thin focus bars and pagination when more subjects exist
 - mistake log shows paginated weak-subject and due-review panels above the detailed review queue
 - new wrong or doubtful-hit mistake records create a Guided Correction pending state, and status changes to reviewed/mastered are blocked until the required correction fields and review date are saved
 - legacy mistake records stay unchanged until manually sent to Guided Correction from their card

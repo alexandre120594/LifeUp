@@ -10,6 +10,7 @@ function normalizeSession(session: {
   id: string;
   notes: string | null;
   startedAt: Date;
+  title: string | null;
   subject: {
     color: string | null;
     createdAt: Date;
@@ -44,6 +45,7 @@ function normalizeSession(session: {
     id: session.id,
     notes: session.notes,
     startedAt: session.startedAt,
+    title: session.title,
     subject: session.subject,
     subjectId: session.subjectId,
     task: session.task
@@ -93,24 +95,27 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const { durationMinutes, endedAt, notes, startedAt, subjectId } =
+    const { durationMinutes, endedAt, notes, startedAt, subjectId, title } =
       await req.json();
     const parsedDuration = Number(durationMinutes);
     const parsedStartedAt = new Date(startedAt);
     const parsedEndedAt = new Date(endedAt);
     const parsedSubjectId = typeof subjectId === "string" ? subjectId.trim() : "";
+    const parsedTitle = typeof title === "string" ? title.trim() : "";
 
     if (
       !Number.isInteger(parsedDuration) ||
       parsedDuration <= 0 ||
       parsedDuration > 24 * 60 ||
+      !parsedTitle ||
+      parsedTitle.length > 120 ||
       !parsedSubjectId ||
       Number.isNaN(parsedStartedAt.getTime()) ||
       Number.isNaN(parsedEndedAt.getTime()) ||
       parsedEndedAt < parsedStartedAt
     ) {
       return NextResponse.json(
-        { error: "Valid subject, duration, start, and end times are required." },
+        { error: "Valid session name, subject, duration, start, and end times are required." },
         { status: 400 }
       );
     }
@@ -135,6 +140,7 @@ export async function POST(req: NextRequest) {
         notes: typeof notes === "string" && notes.trim() ? notes.trim() : null,
         startedAt: parsedStartedAt,
         subjectId: parsedSubjectId,
+        title: parsedTitle,
         userId,
       },
       include: {
