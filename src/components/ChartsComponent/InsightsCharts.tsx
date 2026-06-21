@@ -633,22 +633,26 @@ export function WeakSubjectsChart({
 export function StudyQuestionsChart({
   accuracyRate,
   data,
+  period,
   title,
   totalQuestions,
 }: {
   accuracyRate: number;
   data: StudyQuestionDatum[];
+  period: "day" | "week" | "month" | "year";
   title: string;
   totalQuestions: number;
 }) {
   const hasQuestions = data.some((item) => item.totalQuestions > 0);
+  const periodLabel =
+    period === "day" ? "today" : `in the current calendar ${period}`;
 
   return (
     <Card className="min-w-0 overflow-hidden border shadow-sm">
       <CardHeader>
         <CardTitle>{title}</CardTitle>
         <CardDescription>
-          {totalQuestions} questions in 7 days, {accuracyRate}% accuracy.
+          {totalQuestions} questions {periodLabel}, {accuracyRate}% accuracy.
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -714,15 +718,6 @@ export function StudyQuestionsBySubjectChart({
 }: {
   data: StudyQuestionSubjectDatum[];
 }) {
-  const pageSize = 6;
-  const [page, setPage] = useState(0);
-  const totalPages = Math.max(1, Math.ceil(data.length / pageSize));
-  const currentPage = Math.min(page, totalPages - 1);
-  const visibleData = data.slice(
-    currentPage * pageSize,
-    (currentPage + 1) * pageSize
-  );
-
   return (
     <Card className="h-full min-w-0 overflow-hidden border shadow-sm">
       <CardHeader className="pb-2">
@@ -732,14 +727,14 @@ export function StudyQuestionsBySubjectChart({
         </CardDescription>
       </CardHeader>
       <CardContent>
-        {visibleData.length ? (
+        {data.length ? (
           <ChartContainer
             config={studyQuestionsBySubjectConfig}
             className="mx-auto h-[310px] w-full sm:h-[360px]"
           >
             <RadarChart
               accessibilityLayer
-              data={visibleData}
+              data={data}
               outerRadius="65%"
             >
               <PolarGrid gridType="polygon" />
@@ -809,40 +804,6 @@ export function StudyQuestionsBySubjectChart({
             No question registrations for this period and subject.
           </p>
         )}
-        {data.length > pageSize ? (
-          <div className="mt-3 flex items-center justify-between gap-3 border-t border-border/60 pt-3">
-            <span className="text-xs text-muted-foreground">
-              {currentPage * pageSize + 1}–
-              {Math.min((currentPage + 1) * pageSize, data.length)} of{" "}
-              {data.length} subjects
-            </span>
-            <div className="flex items-center gap-2">
-              <Button
-                disabled={currentPage === 0}
-                onClick={() => setPage((current) => Math.max(0, current - 1))}
-                size="sm"
-                type="button"
-                variant="outline"
-              >
-                Previous
-              </Button>
-              <span className="min-w-14 text-center text-xs font-medium">
-                {currentPage + 1} / {totalPages}
-              </span>
-              <Button
-                disabled={currentPage >= totalPages - 1}
-                onClick={() =>
-                  setPage((current) => Math.min(totalPages - 1, current + 1))
-                }
-                size="sm"
-                type="button"
-                variant="outline"
-              >
-                Next
-              </Button>
-            </div>
-          </div>
-        ) : null}
       </CardContent>
     </Card>
   );
@@ -887,7 +848,9 @@ export function StudyFocusBySubjectChart({
           </div>
         </div>
         <CardDescription>
-          {topSubject
+          {totalMinutes === 0 && sortedData.length
+            ? "No studied time is registered for these subjects yet."
+            : topSubject
             ? `${topSubject.title} leads with ${formatFocusMinutes(topSubject.minutes)}.`
             : "Register studied time in Study Plan to build this comparison."}
         </CardDescription>

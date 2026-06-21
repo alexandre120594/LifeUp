@@ -6,7 +6,7 @@ If a new agent needs to know where work stopped, start here.
 ## Current Snapshot
 
 Date of latest update:
-- 2026-06-15
+- 2026-06-21
 
 Current app position:
 - `/` is the Life Dashboard and focuses on projects, routines, tasks, planning, and finance
@@ -56,8 +56,11 @@ Current app position:
 - Study Plan planned blocks can now be finished from the week board by entering actual studied minutes and optional question counts, which saves a studied session for that subject and lets the session plus matching question tracker entry be edited later from the board
 - Study Plan block completion can now record aggregate total/right/wrong question counts, shows weekly question totals, and lets saved count entries be edited or deleted without changing existing mistake data
 - Study Dashboard charts weak study subjects from logged mistakes and includes a due-review queue
-- Study Dashboard charts 7-day study question practice with right/wrong counts and accuracy; the Life Dashboard no longer includes study widgets
+- Study Dashboard charts day/week/month/year study question practice with right/wrong counts and accuracy; the Life Dashboard no longer includes study widgets
 - Study Dashboard also charts registered right/wrong question totals by subject with current day, Monday-Sunday week, calendar month, calendar year, and single-subject filters, without changing saved practice records
+- Questions by subject now renders every matching subject in one radar without pagination
+- Question practice and Question accuracy now share the same day/week/month/year calendar filter
+- Studied time by subject now includes configured subjects with zero registered study time
 - mistake log now has paginated weak-subject and due-review panels in addition to the filterable detailed queue
 - mistake log captures question, user's answer, correct answer, error type, correct rule, trap word, review date, and unresolved/reviewed/mastered status
 - mistake log now supports Guided Correction for new wrong or doubtful-hit records, blocking reviewed/mastered status until microtopic, error reason, charged detail, memorization phrase, corrective action, and review date are saved
@@ -109,8 +112,8 @@ Implemented:
 - Study Dashboard hero metrics prioritize questions today, seven-day accuracy, Study Plan time for the current week, due reviews, mastery, and active subjects in a responsive six-metric grid, alongside contextual next-action guidance and direct actions
 - Study Dashboard subject-time analytics now derive from actual `StudySession` records created through Study Plan instead of Focus Timer sessions
 - Focus Timer Hours by subject remains timer-specific and paginates three compact subject rows at a time
-- Question accuracy now has independent day/week/month/year calendar filtering while the seven-day trend remains unchanged
-- Study Dashboard long collections now use compact in-card pagination for question subjects, studied-time subjects, due reviews, and subject pressure
+- Question practice and accuracy now share day/week/month/year calendar filtering
+- Study Dashboard keeps all question subjects in one radar while studied-time subjects, due reviews, and subject pressure use compact in-card pagination
 - due review and subject pressure are easier to scan, with subject pressure bars linked back to the mistake workflow
 - Study Plan now has a cleaner control bar, separate planned-vs-studied and question-performance panels, and a responsive card-based week board
 - Mistake Log create/edit/correction dialogs now use resilient long-text fields so pasted questions, answers, rules, and correction notes wrap and scroll without stretching the layout

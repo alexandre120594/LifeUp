@@ -4,6 +4,7 @@ import {
   StudyMistake,
   StudyQuestionPractice,
   StudySession,
+  StudySubject,
   Task,
 } from "@/types/BaseInterfaces";
 
@@ -210,9 +211,62 @@ export function buildWeakSubjectMistakes(mistakes: StudyMistake[] = []) {
 
 export function buildStudyQuestionTrend(
   practices: StudyQuestionPractice[] = [],
-  days = 7
+  period: StudyQuestionPeriod = "week",
+  referenceDate = new Date()
 ) {
-  const window = buildDaysWindow(days);
+  const range = getStudyQuestionPeriodRange(period, referenceDate);
+  const from = new Date(`${range.from}T00:00:00`);
+  const to = new Date(`${range.to}T00:00:00`);
+
+  if (period === "year") {
+    return Array.from({ length: 12 }, (_, monthIndex) => {
+      const monthPractices = practices.filter((practice) => {
+        const practiceDate = normalizeDate(practice.practiceDate);
+
+        return (
+          practiceDate?.getFullYear() === from.getFullYear() &&
+          practiceDate.getMonth() === monthIndex
+        );
+      });
+      const correctQuestions = monthPractices.reduce(
+        (total, practice) => total + practice.correctQuestions,
+        0
+      );
+      const wrongQuestions = monthPractices.reduce(
+        (total, practice) => total + practice.wrongQuestions,
+        0
+      );
+
+      return {
+        date: new Date(from.getFullYear(), monthIndex, 1).toLocaleDateString(
+          undefined,
+          { month: "short" }
+        ),
+        correctQuestions,
+        totalQuestions: correctQuestions + wrongQuestions,
+        wrongQuestions,
+      };
+    });
+  }
+
+  const window: Array<{ key: string; label: string }> = [];
+  const cursor = new Date(from);
+
+  while (cursor <= to) {
+    window.push({
+      key: toLocalDayKey(cursor),
+      label:
+        period === "day"
+          ? cursor.toLocaleDateString(undefined, {
+              day: "2-digit",
+              month: "short",
+            })
+          : period === "month"
+            ? String(cursor.getDate())
+            : cursor.toLocaleDateString(undefined, { weekday: "short" }),
+    });
+    cursor.setDate(cursor.getDate() + 1);
+  }
 
   return window.map(({ key, label }) => {
     const dayPractices = practices.filter((practice) => {
@@ -341,7 +395,10 @@ export function buildStudyQuestionsBySubject(
   );
 }
 
-export function buildStudiedTimeBySubject(sessions: StudySession[] = []) {
+export function buildStudiedTimeBySubject(
+  sessions: StudySession[] = [],
+  studySubjects: StudySubject[] = []
+) {
   const subjects = new Map<
     string,
     {
@@ -351,6 +408,15 @@ export function buildStudiedTimeBySubject(sessions: StudySession[] = []) {
       title: string;
     }
   >();
+
+  studySubjects.forEach((subject) => {
+    subjects.set(subject.id, {
+      color: subject.color,
+      id: subject.id,
+      minutes: 0,
+      title: subject.name,
+    });
+  });
 
   sessions.forEach((session) => {
     const current = subjects.get(session.subjectId) ?? {

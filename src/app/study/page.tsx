@@ -175,7 +175,7 @@ function AccuracyPanel({
             value={period}
           >
             <SelectTrigger
-              aria-label="Question accuracy period"
+              aria-label="Question performance period"
               className="h-9 w-36"
             >
               <SelectValue />
@@ -189,7 +189,8 @@ function AccuracyPanel({
           </Select>
         </div>
         <CardDescription>
-          Right and wrong answers from the current calendar {period}.
+          Right and wrong answers from the current calendar {period}. This
+          filter also updates Question practice.
         </CardDescription>
       </CardHeader>
       <CardContent className="grid gap-4">
@@ -433,7 +434,7 @@ function ReviewQueuePanel({
 export default function StudyDashboardPage() {
   const [questionPeriod, setQuestionPeriod] =
     useState<StudyQuestionPeriod>("week");
-  const [accuracyPeriod, setAccuracyPeriod] =
+  const [questionPerformancePeriod, setQuestionPerformancePeriod] =
     useState<StudyQuestionPeriod>("week");
   const [questionSubjectId, setQuestionSubjectId] = useState("all");
   const { data: mistakes = [], isLoading: isMistakesLoading } =
@@ -456,12 +457,12 @@ export default function StudyDashboardPage() {
   const { data: subjectQuestionPractice = [] } = useStudyQuestionPractice(
     subjectQuestionFilters
   );
-  const accuracyFilters = useMemo(
-    () => getStudyQuestionPeriodRange(accuracyPeriod),
-    [accuracyPeriod]
+  const questionPerformanceFilters = useMemo(
+    () => getStudyQuestionPeriodRange(questionPerformancePeriod),
+    [questionPerformancePeriod]
   );
-  const { data: accuracyQuestionPractice = [] } = useStudyQuestionPractice(
-    accuracyFilters
+  const { data: questionPerformancePractice = [] } = useStudyQuestionPractice(
+    questionPerformanceFilters
   );
 
   const mastered = mistakes.filter((mistake) => mistake.status === "mastered");
@@ -478,9 +479,14 @@ export default function StudyDashboardPage() {
   const masteryRate = mistakes.length
     ? Math.round((mastered.length / mistakes.length) * 100)
     : 0;
-  const questionTrend = buildStudyQuestionTrend(questionPractice);
+  const questionTrend = buildStudyQuestionTrend(
+    questionPerformancePractice,
+    questionPerformancePeriod
+  );
   const questionSummary = getStudyQuestionSummary(questionPractice);
-  const accuracySummary = getStudyQuestionSummary(accuracyQuestionPractice);
+  const questionPerformanceSummary = getStudyQuestionSummary(
+    questionPerformancePractice
+  );
   const todayQuestionSummary = getStudyQuestionSummary(
     questionPractice.filter(
       (practice) => toDayKey(practice.practiceDate) === toDayKey(new Date())
@@ -489,7 +495,10 @@ export default function StudyDashboardPage() {
   const questionsBySubject = buildStudyQuestionsBySubject(
     subjectQuestionPractice
   );
-  const studiedTimeBySubject = buildStudiedTimeBySubject(studySessions);
+  const studiedTimeBySubject = buildStudiedTimeBySubject(
+    studySessions,
+    subjects
+  );
   const currentWeek = getStudyQuestionPeriodRange("week");
   const studiedThisWeekMinutes = studySessions
     .filter((session) => {
@@ -601,18 +610,19 @@ export default function StudyDashboardPage() {
         />
         <div className="grid min-w-0 gap-4 xl:grid-cols-[minmax(0,1.35fr)_minmax(0,0.65fr)]">
           <StudyQuestionsChart
-            accuracyRate={questionSummary.accuracyRate}
+            accuracyRate={questionPerformanceSummary.accuracyRate}
             data={questionTrend}
+            period={questionPerformancePeriod}
             title="Question practice"
-            totalQuestions={questionSummary.totalQuestions}
+            totalQuestions={questionPerformanceSummary.totalQuestions}
           />
           <AccuracyPanel
-            correct={accuracySummary.correctQuestions}
-            onPeriodChange={setAccuracyPeriod}
-            period={accuracyPeriod}
-            rate={accuracySummary.accuracyRate}
-            total={accuracySummary.totalQuestions}
-            wrong={accuracySummary.wrongQuestions}
+            correct={questionPerformanceSummary.correctQuestions}
+            onPeriodChange={setQuestionPerformancePeriod}
+            period={questionPerformancePeriod}
+            rate={questionPerformanceSummary.accuracyRate}
+            total={questionPerformanceSummary.totalQuestions}
+            wrong={questionPerformanceSummary.wrongQuestions}
           />
         </div>
         <div className="grid min-w-0 gap-3">

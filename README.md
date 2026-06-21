@@ -430,8 +430,9 @@ What is stable enough to continue from:
 - study plan block completion can save aggregate right/wrong question totals, the planner can edit/delete saved count entries, and dashboards chart those question totals by day
 - Study Dashboard uses clear workspace, question performance, and review-priority sections; the compact subject radar sits beside a paginated studied-time chart derived from Study Plan `StudySession` records
 - Focus Timer “Hours by subject” remains based only on timer sessions and paginates three subjects at a time to fit beside the timer
-- Study Dashboard question accuracy can switch between the current day, Monday-Sunday week, calendar month, and calendar year
-- dashboard subject comparison, studied-time subjects, due-review queue, and subject-pressure lists paginate when their result sets exceed the compact page size
+- Study Dashboard question practice and accuracy share a filter for the current day, Monday-Sunday week, calendar month, or calendar year
+- Study Dashboard studied-time comparison includes configured subjects with zero registered study time
+- dashboard question subject comparison renders every matching subject in one radar; studied-time subjects, due-review queue, and subject-pressure lists paginate when their result sets exceed the compact page size
 - mistake log shows paginated weak-subject and due-review panels above the detailed review queue
 - new wrong or doubtful-hit mistake records create a Guided Correction pending state, and status changes to reviewed/mastered are blocked until the required correction fields and review date are saved
 - legacy mistake records stay unchanged until manually sent to Guided Correction from their card
