@@ -714,6 +714,15 @@ export function StudyQuestionsBySubjectChart({
 }: {
   data: StudyQuestionSubjectDatum[];
 }) {
+  const pageSize = 6;
+  const [page, setPage] = useState(0);
+  const totalPages = Math.max(1, Math.ceil(data.length / pageSize));
+  const currentPage = Math.min(page, totalPages - 1);
+  const visibleData = data.slice(
+    currentPage * pageSize,
+    (currentPage + 1) * pageSize
+  );
+
   return (
     <Card className="h-full min-w-0 overflow-hidden border shadow-sm">
       <CardHeader className="pb-2">
@@ -723,12 +732,16 @@ export function StudyQuestionsBySubjectChart({
         </CardDescription>
       </CardHeader>
       <CardContent>
-        {data.length ? (
+        {visibleData.length ? (
           <ChartContainer
             config={studyQuestionsBySubjectConfig}
             className="mx-auto h-[310px] w-full sm:h-[360px]"
           >
-            <RadarChart accessibilityLayer data={data} outerRadius="65%">
+            <RadarChart
+              accessibilityLayer
+              data={visibleData}
+              outerRadius="65%"
+            >
               <PolarGrid gridType="polygon" />
               <PolarAngleAxis
                 dataKey="name"
@@ -796,6 +809,40 @@ export function StudyQuestionsBySubjectChart({
             No question registrations for this period and subject.
           </p>
         )}
+        {data.length > pageSize ? (
+          <div className="mt-3 flex items-center justify-between gap-3 border-t border-border/60 pt-3">
+            <span className="text-xs text-muted-foreground">
+              {currentPage * pageSize + 1}–
+              {Math.min((currentPage + 1) * pageSize, data.length)} of{" "}
+              {data.length} subjects
+            </span>
+            <div className="flex items-center gap-2">
+              <Button
+                disabled={currentPage === 0}
+                onClick={() => setPage((current) => Math.max(0, current - 1))}
+                size="sm"
+                type="button"
+                variant="outline"
+              >
+                Previous
+              </Button>
+              <span className="min-w-14 text-center text-xs font-medium">
+                {currentPage + 1} / {totalPages}
+              </span>
+              <Button
+                disabled={currentPage >= totalPages - 1}
+                onClick={() =>
+                  setPage((current) => Math.min(totalPages - 1, current + 1))
+                }
+                size="sm"
+                type="button"
+                variant="outline"
+              >
+                Next
+              </Button>
+            </div>
+          </div>
+        ) : null}
       </CardContent>
     </Card>
   );
@@ -825,9 +872,9 @@ export function StudyFocusBySubjectChart({
       <CardHeader className="gap-2 pb-2">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
           <div className="space-y-1">
-            <CardTitle>Focus time by subject</CardTitle>
+            <CardTitle>Studied time by subject</CardTitle>
             <CardDescription>
-              Compare saved Focus Timer minutes across study subjects.
+              Actual study time registered through Study Plan.
             </CardDescription>
           </div>
           <div className="flex flex-wrap gap-2">
@@ -842,7 +889,7 @@ export function StudyFocusBySubjectChart({
         <CardDescription>
           {topSubject
             ? `${topSubject.title} leads with ${formatFocusMinutes(topSubject.minutes)}.`
-            : "Complete a focus session to build this comparison."}
+            : "Register studied time in Study Plan to build this comparison."}
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -938,7 +985,7 @@ export function StudyFocusBySubjectChart({
           </ChartContainer>
         ) : (
           <p className="rounded-lg bg-secondary/35 p-4 text-sm text-muted-foreground">
-            Complete a focus session to compare time by subject.
+            Register studied time in Study Plan to compare subjects.
           </p>
         )}
         {sortedData.length > pageSize ? (

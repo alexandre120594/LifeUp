@@ -4,10 +4,7 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 import {
   AlertCircle,
-  ArrowRight,
-  CalendarClock,
   GraduationCap,
-  LibraryBig,
   ListChecks,
   Percent,
   Sparkles,
@@ -36,13 +33,13 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useStudyMistakes } from "@/hooks/useStudyMistakeMutations";
-import { usePomodoroDashboard } from "@/hooks/usePomodoroMutations";
 import {
   useStudyQuestionPractice,
-  useStudySchedule,
+  useStudySessions,
   useStudySubjects,
 } from "@/hooks/useStudyMutations";
 import {
+  buildStudiedTimeBySubject,
   buildStudyQuestionsBySubject,
   buildStudyQuestionTrend,
   getStudyQuestionPeriodRange,
@@ -80,6 +77,15 @@ function toDayKey(date: Date | string) {
   return new Date(date).toISOString().slice(0, 10);
 }
 
+function toLocalDayKey(date: Date | string) {
+  const parsed = new Date(date);
+  const year = parsed.getFullYear();
+  const month = String(parsed.getMonth() + 1).padStart(2, "0");
+  const day = String(parsed.getDate()).padStart(2, "0");
+
+  return `${year}-${month}-${day}`;
+}
+
 function formatMinutes(minutes: number) {
   if (minutes < 60) {
     return `${minutes}m`;
@@ -115,43 +121,6 @@ function getPressureTone(total: number) {
   return "bg-muted-foreground";
 }
 
-function StudyActionCard({
-  description,
-  href,
-  icon: Icon,
-  label,
-  meta,
-}: {
-  description: string;
-  href: string;
-  icon: typeof GraduationCap;
-  label: string;
-  meta: string;
-}) {
-  return (
-    <Link
-      className="group grid min-h-44 min-w-0 gap-3 rounded-xl border border-border/70 bg-card p-5 shadow-sm transition hover:-translate-y-0.5 hover:border-primary/50 hover:shadow-md"
-      href={href}
-    >
-      <div className="flex min-w-0 items-start justify-between gap-3">
-        <span className="rounded-lg bg-primary/10 p-2 text-primary">
-          <Icon className="h-5 w-5" />
-        </span>
-        <ArrowRight className="h-4 w-4 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5 group-hover:text-primary" />
-      </div>
-      <div className="min-w-0">
-        <div className="truncate text-base font-semibold">{label}</div>
-        <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">
-          {description}
-        </p>
-      </div>
-      <Badge className="w-fit" variant="outline">
-        {meta}
-      </Badge>
-    </Link>
-  );
-}
-
 function DashboardSectionHeader({
   description,
   icon: Icon,
@@ -176,52 +145,51 @@ function DashboardSectionHeader({
   );
 }
 
-function StudyMetricCard({
-  icon: Icon,
-  label,
-  value,
-}: {
-  icon: typeof GraduationCap;
-  label: string;
-  value: number | string;
-}) {
-  return (
-    <div className="min-w-0 rounded-lg border border-border/70 bg-card p-4 shadow-sm">
-      <div className="flex min-w-0 items-center justify-between gap-3">
-        <span className="truncate text-sm font-medium text-muted-foreground">
-          {label}
-        </span>
-        <span className="rounded-md bg-secondary p-1.5 text-primary">
-          <Icon className="h-4 w-4" />
-        </span>
-      </div>
-      <div className="mt-3 break-words text-3xl font-semibold tracking-tight">
-        {value}
-      </div>
-    </div>
-  );
-}
-
 function AccuracyPanel({
   correct,
+  onPeriodChange,
+  period,
   rate,
   total,
   wrong,
 }: {
   correct: number;
+  onPeriodChange: (period: StudyQuestionPeriod) => void;
+  period: StudyQuestionPeriod;
   rate: number;
   total: number;
   wrong: number;
 }) {
   return (
     <Card className="min-w-0 border-border/70 shadow-sm">
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Percent className="h-5 w-5 text-primary" />
-          Question accuracy
-        </CardTitle>
+      <CardHeader className="gap-3">
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <CardTitle className="flex items-center gap-2">
+            <Percent className="h-5 w-5 text-primary" />
+            Question accuracy
+          </CardTitle>
+          <Select
+            onValueChange={(value) =>
+              onPeriodChange(value as StudyQuestionPeriod)
+            }
+            value={period}
+          >
+            <SelectTrigger
+              aria-label="Question accuracy period"
+              className="h-9 w-36"
+            >
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="day">Day</SelectItem>
+              <SelectItem value="week">Week</SelectItem>
+              <SelectItem value="month">Month</SelectItem>
+              <SelectItem value="year">Year</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
         <CardDescription>
-          Right and wrong answers from the current seven-day window.
+          Right and wrong answers from the current calendar {period}.
         </CardDescription>
       </CardHeader>
       <CardContent className="grid gap-4">
@@ -256,6 +224,59 @@ function AccuracyPanel({
   );
 }
 
+function CompactPagination({
+  itemLabel,
+  onPageChange,
+  page,
+  pageSize,
+  totalItems,
+}: {
+  itemLabel: string;
+  onPageChange: (page: number) => void;
+  page: number;
+  pageSize: number;
+  totalItems: number;
+}) {
+  const totalPages = Math.max(1, Math.ceil(totalItems / pageSize));
+
+  if (totalItems <= pageSize) {
+    return null;
+  }
+
+  return (
+    <div className="flex flex-wrap items-center justify-between gap-2 border-t border-border/60 pt-3">
+      <span className="text-xs text-muted-foreground">
+        {page * pageSize + 1}–
+        {Math.min((page + 1) * pageSize, totalItems)} of {totalItems}{" "}
+        {itemLabel}
+      </span>
+      <div className="flex items-center gap-2">
+        <Button
+          disabled={page === 0}
+          onClick={() => onPageChange(Math.max(0, page - 1))}
+          size="sm"
+          type="button"
+          variant="outline"
+        >
+          Previous
+        </Button>
+        <span className="min-w-14 text-center text-xs font-medium">
+          {page + 1} / {totalPages}
+        </span>
+        <Button
+          disabled={page >= totalPages - 1}
+          onClick={() => onPageChange(Math.min(totalPages - 1, page + 1))}
+          size="sm"
+          type="button"
+          variant="outline"
+        >
+          Next
+        </Button>
+      </div>
+    </div>
+  );
+}
+
 function SubjectPressurePanel({
   subjects,
 }: {
@@ -266,8 +287,19 @@ function SubjectPressurePanel({
     total: number;
   }>;
 }) {
-  const maxTotal = Math.max(...subjects.map((subject) => subject.total), 1);
-  const visibleSubjects = subjects.filter((subject) => subject.total > 0).slice(0, 8);
+  const pageSize = 5;
+  const [page, setPage] = useState(0);
+  const pressureSubjects = subjects.filter((subject) => subject.total > 0);
+  const totalPages = Math.max(1, Math.ceil(pressureSubjects.length / pageSize));
+  const currentPage = Math.min(page, totalPages - 1);
+  const visibleSubjects = pressureSubjects.slice(
+    currentPage * pageSize,
+    (currentPage + 1) * pageSize
+  );
+  const maxTotal = Math.max(
+    ...pressureSubjects.map((subject) => subject.total),
+    1
+  );
 
   return (
     <Card className="min-w-0 border-border/70 shadow-sm">
@@ -315,6 +347,13 @@ function SubjectPressurePanel({
             No subject pressure yet.
           </p>
         )}
+        <CompactPagination
+          itemLabel="subjects"
+          onPageChange={setPage}
+          page={currentPage}
+          pageSize={pageSize}
+          totalItems={pressureSubjects.length}
+        />
       </CardContent>
     </Card>
   );
@@ -327,6 +366,15 @@ function ReviewQueuePanel({
   isLoading: boolean;
   mistakes: StudyMistake[];
 }) {
+  const pageSize = 5;
+  const [page, setPage] = useState(0);
+  const totalPages = Math.max(1, Math.ceil(mistakes.length / pageSize));
+  const currentPage = Math.min(page, totalPages - 1);
+  const visibleMistakes = mistakes.slice(
+    currentPage * pageSize,
+    (currentPage + 1) * pageSize
+  );
+
   return (
     <Card className="min-w-0 border-border/70 shadow-sm">
       <CardHeader className="gap-2">
@@ -345,8 +393,8 @@ function ReviewQueuePanel({
           <p className="rounded-lg bg-secondary/35 p-4 text-sm text-muted-foreground">
             Loading study review queue...
           </p>
-        ) : mistakes.length ? (
-          mistakes.slice(0, 5).map((mistake) => (
+        ) : visibleMistakes.length ? (
+          visibleMistakes.map((mistake) => (
             <Link
               className="grid min-w-0 gap-2 rounded-lg border border-border/70 bg-background/75 p-4 transition-colors hover:bg-secondary/35"
               href="/study/mistakes"
@@ -370,6 +418,13 @@ function ReviewQueuePanel({
             No due mistakes.
           </p>
         )}
+        <CompactPagination
+          itemLabel="reviews"
+          onPageChange={setPage}
+          page={currentPage}
+          pageSize={pageSize}
+          totalItems={mistakes.length}
+        />
       </CardContent>
     </Card>
   );
@@ -378,12 +433,13 @@ function ReviewQueuePanel({
 export default function StudyDashboardPage() {
   const [questionPeriod, setQuestionPeriod] =
     useState<StudyQuestionPeriod>("week");
+  const [accuracyPeriod, setAccuracyPeriod] =
+    useState<StudyQuestionPeriod>("week");
   const [questionSubjectId, setQuestionSubjectId] = useState("all");
   const { data: mistakes = [], isLoading: isMistakesLoading } =
     useStudyMistakes();
   const { data: subjects = [] } = useStudySubjects();
-  const { data: schedule = [] } = useStudySchedule();
-  const { data: pomodoro } = usePomodoroDashboard();
+  const { data: studySessions = [] } = useStudySessions();
   const questionPracticeWindow = getQuestionPracticeWindow();
   const { data: questionPractice = [] } = useStudyQuestionPractice(
     questionPracticeWindow
@@ -399,6 +455,13 @@ export default function StudyDashboardPage() {
   );
   const { data: subjectQuestionPractice = [] } = useStudyQuestionPractice(
     subjectQuestionFilters
+  );
+  const accuracyFilters = useMemo(
+    () => getStudyQuestionPeriodRange(accuracyPeriod),
+    [accuracyPeriod]
+  );
+  const { data: accuracyQuestionPractice = [] } = useStudyQuestionPractice(
+    accuracyFilters
   );
 
   const mastered = mistakes.filter((mistake) => mistake.status === "mastered");
@@ -417,6 +480,7 @@ export default function StudyDashboardPage() {
     : 0;
   const questionTrend = buildStudyQuestionTrend(questionPractice);
   const questionSummary = getStudyQuestionSummary(questionPractice);
+  const accuracySummary = getStudyQuestionSummary(accuracyQuestionPractice);
   const todayQuestionSummary = getStudyQuestionSummary(
     questionPractice.filter(
       (practice) => toDayKey(practice.practiceDate) === toDayKey(new Date())
@@ -425,7 +489,22 @@ export default function StudyDashboardPage() {
   const questionsBySubject = buildStudyQuestionsBySubject(
     subjectQuestionPractice
   );
-  const totalFocusMinutes = pomodoro?.totalMinutes ?? 0;
+  const studiedTimeBySubject = buildStudiedTimeBySubject(studySessions);
+  const currentWeek = getStudyQuestionPeriodRange("week");
+  const studiedThisWeekMinutes = studySessions
+    .filter((session) => {
+      const sessionDay = toLocalDayKey(session.startedAt);
+      return sessionDay >= currentWeek.from && sessionDay <= currentWeek.to;
+    })
+    .reduce((total, session) => total + session.durationMinutes, 0);
+  const activeSubjectCount = new Set(
+    studySessions
+      .filter((session) => {
+        const sessionDay = toLocalDayKey(session.startedAt);
+        return sessionDay >= currentWeek.from && sessionDay <= currentWeek.to;
+      })
+      .map((session) => session.subjectId)
+  ).size;
   const heroRecommendation =
     dueMistakes.length > 0
       ? `Start with ${dueMistakes.length} due review${dueMistakes.length === 1 ? "" : "s"} before opening a new study block.`
@@ -449,7 +528,7 @@ export default function StudyDashboardPage() {
               {heroRecommendation}
             </p>
 
-            <div className="mt-5 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="mt-5 grid gap-2 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-6">
               {[
                 {
                   label: "Questions today",
@@ -460,22 +539,32 @@ export default function StudyDashboardPage() {
                   value: `${questionSummary.accuracyRate}%`,
                 },
                 {
+                  label: "Studied this week",
+                  value: formatMinutes(studiedThisWeekMinutes),
+                },
+                {
                   label: "Due reviews",
                   value: dueMistakes.length,
                 },
                 {
-                  label: "Focus saved",
-                  value: formatMinutes(totalFocusMinutes),
+                  label: "Mastery",
+                  value: `${masteryRate}%`,
+                },
+                {
+                  label: "Active subjects",
+                  value: `${activeSubjectCount}/${subjects.length}`,
                 },
               ].map((item) => (
                 <div
-                  className="rounded-lg border border-border/60 bg-background/65 px-3 py-2.5 backdrop-blur-sm"
+                  className="min-w-0 rounded-lg border border-border/60 bg-background/65 px-3 py-2.5 backdrop-blur-sm"
                   key={item.label}
                 >
-                  <div className="text-xs text-muted-foreground">
+                  <div className="truncate text-xs text-muted-foreground">
                     {item.label}
                   </div>
-                  <div className="mt-1 text-lg font-semibold">{item.value}</div>
+                  <div className="mt-1 truncate text-lg font-semibold tabular-nums">
+                    {item.value}
+                  </div>
                 </div>
               ))}
             </div>
@@ -506,52 +595,6 @@ export default function StudyDashboardPage() {
 
       <section className="space-y-4">
         <DashboardSectionHeader
-          description="Jump directly into planning, correction, or focused study."
-          icon={GraduationCap}
-          title="Study workspace"
-        />
-        <div className="grid gap-3 md:grid-cols-3">
-          <StudyActionCard
-            description="Build the week board and register studied time."
-            href="/study/planner"
-            icon={ListChecks}
-            label="Study Plan"
-            meta={`${schedule.length} scheduled`}
-          />
-          <StudyActionCard
-            description="Work through due questions and correction patterns."
-            href="/study/mistakes"
-            icon={AlertCircle}
-            label="Mistake Log"
-            meta={`${dueMistakes.length} due`}
-          />
-          <StudyActionCard
-            description="Start a standalone study focus session."
-            href="/pomodoro"
-            icon={TimerReset}
-            label="Focus Timer"
-            meta={`${questionSummary.accuracyRate}% accuracy`}
-          />
-        </div>
-      </section>
-
-      <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-        <StudyMetricCard icon={AlertCircle} label="Mistakes" value={mistakes.length} />
-        <StudyMetricCard
-          icon={CalendarClock}
-          label="Due review"
-          value={dueMistakes.length}
-        />
-        <StudyMetricCard icon={LibraryBig} label="Subjects" value={subjects.length} />
-        <StudyMetricCard
-          icon={Target}
-          label="Mastery"
-          value={`${masteryRate}%`}
-        />
-      </section>
-
-      <section className="space-y-4">
-        <DashboardSectionHeader
           description="Track recent volume, accuracy, and subject-level performance."
           icon={Target}
           title="Question performance"
@@ -564,10 +607,12 @@ export default function StudyDashboardPage() {
             totalQuestions={questionSummary.totalQuestions}
           />
           <AccuracyPanel
-            correct={questionSummary.correctQuestions}
-            rate={questionSummary.accuracyRate}
-            total={questionSummary.totalQuestions}
-            wrong={questionSummary.wrongQuestions}
+            correct={accuracySummary.correctQuestions}
+            onPeriodChange={setAccuracyPeriod}
+            period={accuracyPeriod}
+            rate={accuracySummary.accuracyRate}
+            total={accuracySummary.totalQuestions}
+            wrong={accuracySummary.wrongQuestions}
           />
         </div>
         <div className="grid min-w-0 gap-3">
@@ -621,7 +666,7 @@ export default function StudyDashboardPage() {
           </div>
           <div className="grid min-w-0 items-stretch gap-4 lg:grid-cols-2">
             <StudyQuestionsBySubjectChart data={questionsBySubject} />
-            <StudyFocusBySubjectChart data={pomodoro?.bySubject ?? []} />
+            <StudyFocusBySubjectChart data={studiedTimeBySubject} />
           </div>
         </div>
       </section>

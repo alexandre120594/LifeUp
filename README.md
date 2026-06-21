@@ -136,7 +136,7 @@ There is also repeatable local seed data for testing charts and flows.
 - `src/app/weekly-organizer/page.tsx`
   - weekly board for Life habit/task slots with a restored planning hero
 - `src/app/study/page.tsx`
-  - sectioned Study Dashboard with an operational hero, dynamic next-action guidance, action tiles, compact metrics, question performance, focus distribution, and review-priority areas
+  - sectioned Study Dashboard with an operational hero showing questions today, recent accuracy, weekly studied time, due reviews, mastery, active subjects, dynamic next-action guidance, and direct actions
 - `src/app/study/mistakes/page.tsx`
   - subject-based mistake log with search, filters, review dates, Guided Correction, status changes, and edit/delete dialogs
 - `src/app/study/planner/page.tsx`
@@ -428,7 +428,10 @@ What is stable enough to continue from:
 - calendar tasks can carry scheduled hours and are shown in time order inside day cells and day detail popups
 - study plan planned blocks can be finished directly from the week board, prompting for actual minutes studied and optional question counts, saving that time under the block's subject, and allowing the saved study entry plus matching question tracker entry to be edited later
 - study plan block completion can save aggregate right/wrong question totals, the planner can edit/delete saved count entries, and dashboards chart those question totals by day
-- Study Dashboard uses clear workspace, question performance, and review-priority sections; the compact subject radar and ranked horizontal focus chart sit side by side on large screens, with thin focus bars and pagination when more subjects exist
+- Study Dashboard uses clear workspace, question performance, and review-priority sections; the compact subject radar sits beside a paginated studied-time chart derived from Study Plan `StudySession` records
+- Focus Timer “Hours by subject” remains based only on timer sessions and paginates three subjects at a time to fit beside the timer
+- Study Dashboard question accuracy can switch between the current day, Monday-Sunday week, calendar month, and calendar year
+- dashboard subject comparison, studied-time subjects, due-review queue, and subject-pressure lists paginate when their result sets exceed the compact page size
 - mistake log shows paginated weak-subject and due-review panels above the detailed review queue
 - new wrong or doubtful-hit mistake records create a Guided Correction pending state, and status changes to reviewed/mastered are blocked until the required correction fields and review date are saved
 - legacy mistake records stay unchanged until manually sent to Guided Correction from their card

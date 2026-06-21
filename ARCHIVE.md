@@ -106,7 +106,11 @@ Implemented:
 - Study Dashboard UX now groups actions and analytics into named sections, keeps filters beside their context, and uses ranked horizontal focus bars with totals, subject count, leader summary, and per-subject share tooltips
 - subject question and focus charts now share a compact responsive two-column row on large screens, with matched heights and mobile stacking
 - focus-by-subject uses thinner horizontal bars and five-subject pagination while totals and the leader summary continue to cover every subject
-- Study Dashboard hero now surfaces today’s questions, seven-day accuracy, due reviews, total saved focus time, contextual next-action guidance, and direct planning/review/focus actions
+- Study Dashboard hero metrics prioritize questions today, seven-day accuracy, Study Plan time for the current week, due reviews, mastery, and active subjects in a responsive six-metric grid, alongside contextual next-action guidance and direct actions
+- Study Dashboard subject-time analytics now derive from actual `StudySession` records created through Study Plan instead of Focus Timer sessions
+- Focus Timer Hours by subject remains timer-specific and paginates three compact subject rows at a time
+- Question accuracy now has independent day/week/month/year calendar filtering while the seven-day trend remains unchanged
+- Study Dashboard long collections now use compact in-card pagination for question subjects, studied-time subjects, due reviews, and subject pressure
 - due review and subject pressure are easier to scan, with subject pressure bars linked back to the mistake workflow
 - Study Plan now has a cleaner control bar, separate planned-vs-studied and question-performance panels, and a responsive card-based week board
 - Mistake Log create/edit/correction dialogs now use resilient long-text fields so pasted questions, answers, rules, and correction notes wrap and scroll without stretching the layout

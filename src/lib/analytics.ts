@@ -3,6 +3,7 @@ import {
   Project,
   StudyMistake,
   StudyQuestionPractice,
+  StudySession,
   Task,
 } from "@/types/BaseInterfaces";
 
@@ -337,5 +338,33 @@ export function buildStudyQuestionsBySubject(
 
   return Array.from(subjects.values()).sort(
     (a, b) => b.totalQuestions - a.totalQuestions || a.name.localeCompare(b.name)
+  );
+}
+
+export function buildStudiedTimeBySubject(sessions: StudySession[] = []) {
+  const subjects = new Map<
+    string,
+    {
+      color?: string | null;
+      id: string;
+      minutes: number;
+      title: string;
+    }
+  >();
+
+  sessions.forEach((session) => {
+    const current = subjects.get(session.subjectId) ?? {
+      color: session.subject?.color,
+      id: session.subjectId,
+      minutes: 0,
+      title: session.subject?.name ?? "Subject",
+    };
+
+    current.minutes += session.durationMinutes;
+    subjects.set(session.subjectId, current);
+  });
+
+  return Array.from(subjects.values()).sort(
+    (a, b) => b.minutes - a.minutes || a.title.localeCompare(b.title)
   );
 }

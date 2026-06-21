@@ -59,6 +59,7 @@ const defaultTargetCycles = 4;
 const focusTimerStorageKey = "lifeup:study-focus-timer";
 const legacyPomodoroStorageKey = "lifeup:pomodoro-timer";
 const focusHistoryPageSize = 6;
+const subjectHoursPageSize = 3;
 
 type PersistedFocusTimer = {
   breakMinutes: number;
@@ -727,12 +728,23 @@ export function PomodoroPanel() {
 }
 
 function SubjectHoursChart({ subjects }: { subjects: PomodoroSummaryItem[] }) {
-  const totalMinutes = subjects.reduce(
+  const [page, setPage] = useState(0);
+  const sortedSubjects = [...subjects].sort((a, b) => b.minutes - a.minutes);
+  const totalPages = Math.max(
+    1,
+    Math.ceil(sortedSubjects.length / subjectHoursPageSize)
+  );
+  const currentPage = Math.min(page, totalPages - 1);
+  const visibleSubjects = sortedSubjects.slice(
+    currentPage * subjectHoursPageSize,
+    (currentPage + 1) * subjectHoursPageSize
+  );
+  const totalMinutes = sortedSubjects.reduce(
     (total, subject) => total + subject.minutes,
     0
   );
   const maxMinutes = Math.max(
-    ...subjects.map((subject) => subject.minutes),
+    ...sortedSubjects.map((subject) => subject.minutes),
     1
   );
 
@@ -747,9 +759,9 @@ function SubjectHoursChart({ subjects }: { subjects: PomodoroSummaryItem[] }) {
           {formatFocusDuration(totalMinutes)} total
         </div>
       </div>
-      {subjects.length ? (
+      {sortedSubjects.length ? (
         <div className="grid min-w-0 gap-2">
-          {subjects.map((subject, index) => {
+          {visibleSubjects.map((subject, index) => {
             const share = totalMinutes
               ? Math.round((subject.minutes / totalMinutes) * 100)
               : 0;
@@ -757,13 +769,13 @@ function SubjectHoursChart({ subjects }: { subjects: PomodoroSummaryItem[] }) {
 
             return (
               <div
-                className="grid min-w-0 gap-2 rounded-lg border border-border/50 bg-secondary/20 p-3 transition hover:border-primary/30 hover:bg-secondary/30"
+                className="grid min-w-0 gap-1.5 rounded-lg border border-border/50 bg-secondary/20 p-2.5 transition hover:border-primary/30 hover:bg-secondary/30"
                 key={subject.id}
               >
                 <div className="flex min-w-0 items-center justify-between gap-3">
                   <div className="flex min-w-0 items-center gap-2">
                     <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-background text-xs font-semibold text-muted-foreground">
-                      {index + 1}
+                      {currentPage * subjectHoursPageSize + index + 1}
                     </span>
                     <span className="min-w-0 truncate text-sm font-medium">
                       {subject.title}
@@ -774,7 +786,7 @@ function SubjectHoursChart({ subjects }: { subjects: PomodoroSummaryItem[] }) {
                   </div>
                 </div>
                 <div className="grid min-w-0 gap-1.5">
-                  <div className="h-2.5 overflow-hidden rounded-full bg-background">
+                  <div className="h-1.5 overflow-hidden rounded-full bg-background">
                     <div
                       className="h-full rounded-full bg-primary"
                       style={{
@@ -791,6 +803,51 @@ function SubjectHoursChart({ subjects }: { subjects: PomodoroSummaryItem[] }) {
               </div>
             );
           })}
+          {sortedSubjects.length > subjectHoursPageSize ? (
+            <div className="mt-1 flex items-center justify-between gap-2 border-t border-border/60 pt-2">
+              <span className="text-xs text-muted-foreground">
+                {currentPage * subjectHoursPageSize + 1}–
+                {Math.min(
+                  (currentPage + 1) * subjectHoursPageSize,
+                  sortedSubjects.length
+                )}{" "}
+                of {sortedSubjects.length}
+              </span>
+              <div className="flex items-center gap-1">
+                <Button
+                  aria-label="Previous subject hours page"
+                  className="h-8 w-8"
+                  disabled={currentPage === 0}
+                  onClick={() =>
+                    setPage((current) => Math.max(0, current - 1))
+                  }
+                  size="icon"
+                  type="button"
+                  variant="outline"
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                </Button>
+                <span className="min-w-12 text-center text-xs font-medium">
+                  {currentPage + 1}/{totalPages}
+                </span>
+                <Button
+                  aria-label="Next subject hours page"
+                  className="h-8 w-8"
+                  disabled={currentPage >= totalPages - 1}
+                  onClick={() =>
+                    setPage((current) =>
+                      Math.min(totalPages - 1, current + 1)
+                    )
+                  }
+                  size="icon"
+                  type="button"
+                  variant="outline"
+                >
+                  <ChevronRight className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+          ) : null}
         </div>
       ) : (
         <div className="rounded-lg bg-secondary/35 p-3 text-sm text-muted-foreground">
