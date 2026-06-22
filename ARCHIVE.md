@@ -6,7 +6,7 @@ If a new agent needs to know where work stopped, start here.
 ## Current Snapshot
 
 Date of latest update:
-- 2026-06-21
+- 2026-06-22
 
 Current app position:
 - `/` is the Life Dashboard and focuses on projects, routines, tasks, planning, and finance
@@ -41,6 +41,8 @@ Current app position:
 - Focus Timer now asks for name, subject, focus/break duration, cycles, and notes when starting; its side panel only summarizes time by subject
 - Focus Timer history now filters by subject, supports editing saved session names and subjects, and supports deleting sessions with subject-hour totals refreshing after changes
 - Study Dashboard now includes a Focus Timer graph grouped by subject
+- Study Dashboard now has one current week, month, or year filter controlling question performance, studied time, active subjects, mastery, review pressure, and subject pressure across the page
+- Study tools now includes a native TRT TI Plan page generated from `plano-trt-ti-completo-ajustado.html`, preserving all 19 weeks and 114 days with search, category filters, subject coverage, references, and local completion tracking
 - Inbox page captures unprocessed ideas, reminders, study topics, and loose work, paginates the queue, supports popup editing with project/habit/task linking, and can convert items into notes
 - Notes page stores searchable categorized notes with pagination, popup editing, and optional project, habit, and task links
 - dashboard now shows a daily/weekly tracker snapshot instead of the project throughput graph

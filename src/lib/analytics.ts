@@ -352,6 +352,70 @@ export function getStudyQuestionPeriodRange(
   };
 }
 
+export function isDateInStudyPeriod(
+  value: Date | string | null | undefined,
+  period: StudyQuestionPeriod,
+  referenceDate = new Date()
+) {
+  const date = normalizeDate(value);
+
+  if (!date) {
+    return false;
+  }
+
+  const range = getStudyQuestionPeriodRange(period, referenceDate);
+  const dayKey = toLocalDayKey(date);
+
+  return dayKey >= range.from && dayKey <= range.to;
+}
+
+export function filterStudySessionsByPeriod(
+  sessions: StudySession[] = [],
+  period: StudyQuestionPeriod,
+  referenceDate = new Date()
+) {
+  return sessions.filter((session) =>
+    isDateInStudyPeriod(session.startedAt, period, referenceDate)
+  );
+}
+
+export function filterStudyMistakesByPeriod(
+  mistakes: StudyMistake[] = [],
+  period: StudyQuestionPeriod,
+  referenceDate = new Date()
+) {
+  return mistakes.filter((mistake) =>
+    isDateInStudyPeriod(mistake.createdAt, period, referenceDate)
+  );
+}
+
+export function getStudyReviewsForPeriod(
+  mistakes: StudyMistake[] = [],
+  period: StudyQuestionPeriod,
+  referenceDate = new Date()
+) {
+  const endOfToday = new Date(referenceDate);
+  endOfToday.setHours(23, 59, 59, 999);
+
+  return mistakes
+    .filter((mistake) => {
+      const reviewDate = normalizeDate(mistake.reviewDate);
+
+      return (
+        mistake.status !== "mastered" &&
+        reviewDate !== null &&
+        reviewDate <= endOfToday &&
+        isDateInStudyPeriod(reviewDate, period, referenceDate)
+      );
+    })
+    .sort((a, b) => {
+      const aDate = normalizeDate(a.reviewDate)?.getTime() ?? 0;
+      const bDate = normalizeDate(b.reviewDate)?.getTime() ?? 0;
+
+      return aDate - bDate;
+    });
+}
+
 export function buildStudyQuestionsBySubject(
   practices: StudyQuestionPractice[] = []
 ) {

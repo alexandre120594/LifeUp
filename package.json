@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "eslint",
     "db:seed": "tsx prisma/seed.ts",
-    "db:backfill-streaks": "tsx prisma/backfill-streaks.ts"
+    "db:backfill-streaks": "tsx prisma/backfill-streaks.ts",
+    "study:import-trt-plan": "node scripts/import-trt-study-plan.mjs"
   },
   "dependencies": {
     "@prisma/adapter-pg": "^7.2.0",

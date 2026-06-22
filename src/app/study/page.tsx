@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 import {
   AlertCircle,
+  BookOpenCheck,
   GraduationCap,
   ListChecks,
   Percent,
@@ -42,24 +43,15 @@ import {
   buildStudiedTimeBySubject,
   buildStudyQuestionsBySubject,
   buildStudyQuestionTrend,
+  filterStudyMistakesByPeriod,
+  filterStudySessionsByPeriod,
   getStudyQuestionPeriodRange,
   getStudyQuestionSummary,
+  getStudyReviewsForPeriod,
   type StudyQuestionPeriod,
 } from "@/lib/analytics";
 import type { StudyMistake } from "@/types/BaseInterfaces";
 import { cn } from "@/lib/utils";
-
-function isDueForReview(mistake: StudyMistake) {
-  if (!mistake.reviewDate) {
-    return false;
-  }
-
-  const reviewDate = new Date(mistake.reviewDate);
-  const today = new Date();
-  today.setHours(23, 59, 59, 999);
-
-  return mistake.status !== "mastered" && reviewDate <= today;
-}
 
 function formatDate(date?: Date | string | null) {
   if (!date) {
@@ -73,19 +65,6 @@ function formatDate(date?: Date | string | null) {
   });
 }
 
-function toDayKey(date: Date | string) {
-  return new Date(date).toISOString().slice(0, 10);
-}
-
-function toLocalDayKey(date: Date | string) {
-  const parsed = new Date(date);
-  const year = parsed.getFullYear();
-  const month = String(parsed.getMonth() + 1).padStart(2, "0");
-  const day = String(parsed.getDate()).padStart(2, "0");
-
-  return `${year}-${month}-${day}`;
-}
-
 function formatMinutes(minutes: number) {
   if (minutes < 60) {
     return `${minutes}m`;
@@ -95,18 +74,6 @@ function formatMinutes(minutes: number) {
   const remainingMinutes = minutes % 60;
 
   return remainingMinutes ? `${hours}h ${remainingMinutes}m` : `${hours}h`;
-}
-
-function getQuestionPracticeWindow() {
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  const from = new Date(today);
-  from.setDate(today.getDate() - 6);
-
-  return {
-    from: toDayKey(from),
-    to: toDayKey(today),
-  };
 }
 
 function getPressureTone(total: number) {
@@ -147,14 +114,12 @@ function DashboardSectionHeader({
 
 function AccuracyPanel({
   correct,
-  onPeriodChange,
   period,
   rate,
   total,
   wrong,
 }: {
   correct: number;
-  onPeriodChange: (period: StudyQuestionPeriod) => void;
   period: StudyQuestionPeriod;
   rate: number;
   total: number;
@@ -163,34 +128,12 @@ function AccuracyPanel({
   return (
     <Card className="min-w-0 border-border/70 shadow-sm">
       <CardHeader className="gap-3">
-        <div className="flex flex-wrap items-start justify-between gap-3">
-          <CardTitle className="flex items-center gap-2">
-            <Percent className="h-5 w-5 text-primary" />
-            Question accuracy
-          </CardTitle>
-          <Select
-            onValueChange={(value) =>
-              onPeriodChange(value as StudyQuestionPeriod)
-            }
-            value={period}
-          >
-            <SelectTrigger
-              aria-label="Question performance period"
-              className="h-9 w-36"
-            >
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="day">Day</SelectItem>
-              <SelectItem value="week">Week</SelectItem>
-              <SelectItem value="month">Month</SelectItem>
-              <SelectItem value="year">Year</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
+        <CardTitle className="flex items-center gap-2">
+          <Percent className="h-5 w-5 text-primary" />
+          Question accuracy
+        </CardTitle>
         <CardDescription>
-          Right and wrong answers from the current calendar {period}. This
-          filter also updates Question practice.
+          Right and wrong answers from the selected calendar {period}.
         </CardDescription>
       </CardHeader>
       <CardContent className="grid gap-4">
@@ -363,9 +306,11 @@ function SubjectPressurePanel({
 function ReviewQueuePanel({
   isLoading,
   mistakes,
+  period,
 }: {
   isLoading: boolean;
   mistakes: StudyMistake[];
+  period: StudyQuestionPeriod;
 }) {
   const pageSize = 5;
   const [page, setPage] = useState(0);
@@ -383,7 +328,7 @@ function ReviewQueuePanel({
           <div>
             <CardTitle>Due for review</CardTitle>
             <CardDescription>
-              Mistakes with a review date up to today and not mastered.
+              Non-mastered reviews due in the current calendar {period}.
             </CardDescription>
           </div>
           <Badge variant="outline">{mistakes.length} due</Badge>
@@ -432,93 +377,88 @@ function ReviewQueuePanel({
 }
 
 export default function StudyDashboardPage() {
-  const [questionPeriod, setQuestionPeriod] =
-    useState<StudyQuestionPeriod>("week");
-  const [questionPerformancePeriod, setQuestionPerformancePeriod] =
+  const [dashboardPeriod, setDashboardPeriod] =
     useState<StudyQuestionPeriod>("week");
   const [questionSubjectId, setQuestionSubjectId] = useState("all");
   const { data: mistakes = [], isLoading: isMistakesLoading } =
     useStudyMistakes();
   const { data: subjects = [] } = useStudySubjects();
   const { data: studySessions = [] } = useStudySessions();
-  const questionPracticeWindow = getQuestionPracticeWindow();
-  const { data: questionPractice = [] } = useStudyQuestionPractice(
-    questionPracticeWindow
-  );
-  const subjectQuestionFilters = useMemo(
+  const dashboardQuestionFilters = useMemo(
     () => ({
-      ...getStudyQuestionPeriodRange(questionPeriod),
+      ...getStudyQuestionPeriodRange(dashboardPeriod),
       ...(questionSubjectId === "all"
         ? {}
         : { subjectId: questionSubjectId }),
     }),
-    [questionPeriod, questionSubjectId]
+    [dashboardPeriod, questionSubjectId]
   );
-  const { data: subjectQuestionPractice = [] } = useStudyQuestionPractice(
-    subjectQuestionFilters
+  const { data: filteredQuestionPractice = [] } = useStudyQuestionPractice(
+    dashboardQuestionFilters
   );
-  const questionPerformanceFilters = useMemo(
-    () => getStudyQuestionPeriodRange(questionPerformancePeriod),
-    [questionPerformancePeriod]
+  const allSubjectQuestionFilters = useMemo(
+    () => getStudyQuestionPeriodRange(dashboardPeriod),
+    [dashboardPeriod]
   );
-  const { data: questionPerformancePractice = [] } = useStudyQuestionPractice(
-    questionPerformanceFilters
+  const { data: allSubjectQuestionPractice = [] } = useStudyQuestionPractice(
+    allSubjectQuestionFilters
   );
 
-  const mastered = mistakes.filter((mistake) => mistake.status === "mastered");
-  const dueMistakes = mistakes.filter(isDueForReview);
+  const periodMistakes = filterStudyMistakesByPeriod(
+    mistakes,
+    dashboardPeriod
+  );
+  const periodSessions = filterStudySessionsByPeriod(
+    studySessions,
+    dashboardPeriod
+  );
+  const mastered = periodMistakes.filter(
+    (mistake) => mistake.status === "mastered"
+  );
+  const dueMistakes = getStudyReviewsForPeriod(mistakes, dashboardPeriod);
   const subjectCounts = subjects
     .map((subject) => ({
       color: subject.color,
       id: subject.id,
       name: subject.name,
-      total: mistakes.filter((mistake) => mistake.subjectId === subject.id)
-        .length,
+      total: periodMistakes.filter(
+        (mistake) => mistake.subjectId === subject.id
+      ).length,
     }))
     .sort((a, b) => b.total - a.total);
-  const masteryRate = mistakes.length
-    ? Math.round((mastered.length / mistakes.length) * 100)
+  const masteryRate = periodMistakes.length
+    ? Math.round((mastered.length / periodMistakes.length) * 100)
     : 0;
   const questionTrend = buildStudyQuestionTrend(
-    questionPerformancePractice,
-    questionPerformancePeriod
+    allSubjectQuestionPractice,
+    dashboardPeriod
   );
-  const questionSummary = getStudyQuestionSummary(questionPractice);
   const questionPerformanceSummary = getStudyQuestionSummary(
-    questionPerformancePractice
-  );
-  const todayQuestionSummary = getStudyQuestionSummary(
-    questionPractice.filter(
-      (practice) => toDayKey(practice.practiceDate) === toDayKey(new Date())
-    )
+    allSubjectQuestionPractice
   );
   const questionsBySubject = buildStudyQuestionsBySubject(
-    subjectQuestionPractice
+    filteredQuestionPractice
   );
   const studiedTimeBySubject = buildStudiedTimeBySubject(
-    studySessions,
+    periodSessions,
     subjects
   );
-  const currentWeek = getStudyQuestionPeriodRange("week");
-  const studiedThisWeekMinutes = studySessions
-    .filter((session) => {
-      const sessionDay = toLocalDayKey(session.startedAt);
-      return sessionDay >= currentWeek.from && sessionDay <= currentWeek.to;
-    })
+  const studiedMinutes = periodSessions
     .reduce((total, session) => total + session.durationMinutes, 0);
   const activeSubjectCount = new Set(
-    studySessions
-      .filter((session) => {
-        const sessionDay = toLocalDayKey(session.startedAt);
-        return sessionDay >= currentWeek.from && sessionDay <= currentWeek.to;
-      })
-      .map((session) => session.subjectId)
+    periodSessions.map((session) => session.subjectId)
   ).size;
+  const periodLabel =
+    dashboardPeriod === "week"
+      ? "This week"
+      : dashboardPeriod === "month"
+        ? "This month"
+        : "This year";
   const heroRecommendation =
     dueMistakes.length > 0
       ? `Start with ${dueMistakes.length} due review${dueMistakes.length === 1 ? "" : "s"} before opening a new study block.`
-      : todayQuestionSummary.totalQuestions === 0
-        ? "Register a question session today to keep your study history current."
+      : questionPerformanceSummary.totalQuestions === 0
+        ? `Register a question session for this ${dashboardPeriod} to keep your study history current.`
         : "Your review queue is clear. Continue with the next planned study block.";
 
   return (
@@ -526,9 +466,29 @@ export default function StudyDashboardPage() {
       <Card className="overflow-hidden border-primary/20 bg-gradient-to-br from-primary/12 via-card to-accent/20 shadow-sm">
         <CardContent className="grid gap-6 p-5 sm:p-6 xl:grid-cols-[minmax(0,1fr)_auto] xl:items-center">
           <div className="min-w-0">
-            <div className="flex items-center gap-2 text-sm font-semibold text-primary">
-              <Sparkles className="h-4 w-4" />
-              Study command center
+            <div className="flex flex-wrap items-center gap-3">
+              <div className="flex items-center gap-2 text-sm font-semibold text-primary">
+                <Sparkles className="h-4 w-4" />
+                Study command center
+              </div>
+              <Select
+                onValueChange={(value) =>
+                  setDashboardPeriod(value as StudyQuestionPeriod)
+                }
+                value={dashboardPeriod}
+              >
+                <SelectTrigger
+                  aria-label="Study dashboard period"
+                  className="h-9 w-36 bg-background/75"
+                >
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="week">This week</SelectItem>
+                  <SelectItem value="month">This month</SelectItem>
+                  <SelectItem value="year">This year</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
             <h1 className="mt-2 text-2xl font-semibold tracking-tight sm:text-3xl md:text-4xl">
               Study Dashboard
@@ -540,16 +500,16 @@ export default function StudyDashboardPage() {
             <div className="mt-5 grid gap-2 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-6">
               {[
                 {
-                  label: "Questions today",
-                  value: todayQuestionSummary.totalQuestions,
+                  label: `${periodLabel} questions`,
+                  value: questionPerformanceSummary.totalQuestions,
                 },
                 {
-                  label: "7-day accuracy",
-                  value: `${questionSummary.accuracyRate}%`,
+                  label: `${periodLabel} accuracy`,
+                  value: `${questionPerformanceSummary.accuracyRate}%`,
                 },
                 {
-                  label: "Studied this week",
-                  value: formatMinutes(studiedThisWeekMinutes),
+                  label: `${periodLabel} studied`,
+                  value: formatMinutes(studiedMinutes),
                 },
                 {
                   label: "Due reviews",
@@ -598,6 +558,12 @@ export default function StudyDashboardPage() {
                 Start focus
               </Link>
             </Button>
+            <Button asChild className="flex-1 xl:w-full" variant="outline">
+              <Link href="/study/trt-plan">
+                <BookOpenCheck className="h-4 w-4" />
+                TRT TI plan
+              </Link>
+            </Button>
           </div>
         </CardContent>
       </Card>
@@ -612,14 +578,13 @@ export default function StudyDashboardPage() {
           <StudyQuestionsChart
             accuracyRate={questionPerformanceSummary.accuracyRate}
             data={questionTrend}
-            period={questionPerformancePeriod}
+            period={dashboardPeriod}
             title="Question practice"
             totalQuestions={questionPerformanceSummary.totalQuestions}
           />
           <AccuracyPanel
             correct={questionPerformanceSummary.correctQuestions}
-            onPeriodChange={setQuestionPerformancePeriod}
-            period={questionPerformancePeriod}
+            period={dashboardPeriod}
             rate={questionPerformanceSummary.accuracyRate}
             total={questionPerformanceSummary.totalQuestions}
             wrong={questionPerformanceSummary.wrongQuestions}
@@ -630,29 +595,10 @@ export default function StudyDashboardPage() {
             <div>
               <div className="font-semibold">Compare subjects</div>
               <p className="mt-1 text-sm text-muted-foreground">
-                Narrow the radar to the calendar period and subject you need.
+                Narrow the subject comparison inside the selected dashboard period.
               </p>
             </div>
-            <div className="grid gap-3 sm:grid-cols-2">
-              <label className="grid gap-1.5 text-sm font-medium">
-                Period
-                <Select
-                  value={questionPeriod}
-                  onValueChange={(value) =>
-                    setQuestionPeriod(value as StudyQuestionPeriod)
-                  }
-                >
-                  <SelectTrigger className="sm:w-44">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="day">Current day</SelectItem>
-                    <SelectItem value="week">Current week</SelectItem>
-                    <SelectItem value="month">Current month</SelectItem>
-                    <SelectItem value="year">Current year</SelectItem>
-                  </SelectContent>
-                </Select>
-              </label>
+            <div className="grid gap-3">
               <label className="grid gap-1.5 text-sm font-medium">
                 Subject
                 <Select
@@ -691,6 +637,7 @@ export default function StudyDashboardPage() {
           <ReviewQueuePanel
             isLoading={isMistakesLoading}
             mistakes={dueMistakes}
+            period={dashboardPeriod}
           />
           <SubjectPressurePanel subjects={subjectCounts} />
         </div>

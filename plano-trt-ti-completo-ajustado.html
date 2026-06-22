@@ -1,0 +1,2648 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Plano de Estudos TRT — TI Judicial Completo</title>
+<style>
+:root{--bg:#0f1117;--surface:#181c27;--surface2:#1e2333;--border:rgba(255,255,255,.08);--border2:rgba(255,255,255,.14);--text:#e8eaf0;--muted:#9aa1b4;--accent:#6c63ff;--accent2:#a78bfa;--teal:#2dd4bf;--coral:#f87171;--amber:#fbbf24;--green:#4ade80;--blue:#60a5fa;--pink:#f472b6;--font-display:Georgia,serif;--font-body:'Segoe UI',system-ui,-apple-system,sans-serif;--radius:10px;--radius-lg:16px}*{box-sizing:border-box;margin:0;padding:0}html{scroll-behavior:smooth}body{background:var(--bg);color:var(--text);font-family:var(--font-body);font-size:15px;line-height:1.65;min-height:100vh}header{background:linear-gradient(135deg,#0f1117 0%,#1a1040 50%,#0f1117 100%);border-bottom:1px solid var(--border2);padding:3.5rem 1.5rem 3rem;text-align:center;position:relative;overflow:hidden}header:before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 60% 60% at 50% 0%,rgba(108,99,255,.18) 0%,transparent 70%);pointer-events:none}.header-eyebrow{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--accent2);margin-bottom:.75rem;font-weight:500}header h1{font-family:var(--font-display);font-size:clamp(2rem,5vw,3.2rem);font-weight:700;color:#fff;line-height:1.15;margin-bottom:1rem;position:relative}header h1 span{color:var(--accent2)}header p{color:var(--muted);font-size:1rem;max-width:760px;margin:0 auto 1.75rem;position:relative}.header-stats{display:flex;gap:1.5rem;justify-content:center;flex-wrap:wrap;position:relative}.hstat{background:rgba(255,255,255,.05);border:1px solid var(--border2);border-radius:var(--radius);padding:.65rem 1.25rem;text-align:center;min-width:105px}.hstat-num{font-size:1.45rem;font-weight:700;color:var(--accent2);display:block}.hstat-label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}nav{position:sticky;top:0;z-index:100;background:rgba(15,17,23,.94);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:.6rem 1.5rem;display:flex;gap:.4rem;flex-wrap:wrap;justify-content:center}nav a{color:var(--muted);text-decoration:none;font-size:12px;font-weight:500;padding:.35rem .8rem;border-radius:20px;border:1px solid transparent;transition:all .2s;letter-spacing:.02em}nav a:hover{color:var(--text);border-color:var(--border2);background:var(--surface)}nav a.active{color:#fff;background:var(--accent);border-color:var(--accent)}main{max-width:1160px;margin:0 auto;padding:2.5rem 1.25rem 4rem}.notice{background:linear-gradient(135deg,rgba(108,99,255,.14),rgba(45,212,191,.08));border:1px solid var(--border2);border-radius:var(--radius-lg);padding:1rem 1.25rem;margin-bottom:1.5rem}.notice h2{font-size:1rem;color:#fff;margin-bottom:.35rem}.notice p{color:var(--muted);font-size:13px}.legend{display:flex;flex-wrap:wrap;gap:.6rem;margin-bottom:1.5rem;padding:1rem 1.25rem;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius)}.legend-item{display:flex;align-items:center;gap:.4rem;font-size:12px;color:var(--muted)}.legend-dot{width:8px;height:8px;border-radius:2px;flex-shrink:0}.sec-header{margin:3rem 0 1.5rem;display:flex;align-items:center;gap:1rem;flex-wrap:wrap}.sec-header h2{font-family:var(--font-display);font-size:1.45rem;font-weight:700;color:#fff}.sec-badge{font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;padding:3px 10px;border-radius:20px}.week{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);margin-bottom:1.75rem;overflow:hidden}.week-header{display:flex;align-items:center;gap:1rem;padding:1rem 1.5rem;border-bottom:1px solid var(--border);cursor:pointer;user-select:none;transition:background .15s}.week-header:hover{background:rgba(255,255,255,.03)}.week-num{width:38px;height:38px;border-radius:8px;background:var(--accent);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;color:#fff;flex-shrink:0}.week-title{font-weight:600;font-size:1rem;color:#fff}.week-subtitle{font-size:12px;color:var(--muted);margin-top:2px}.week-meta{margin-left:auto;display:flex;gap:.6rem;align-items:center}.week-tag{font-size:10px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;padding:3px 10px;border-radius:20px}.chevron{color:var(--muted);font-size:18px;transition:transform .25s;flex-shrink:0}.week.open .chevron{transform:rotate(180deg)}.week-body{display:none;padding:1.25rem 1.5rem}.week.open .week-body{display:block}.days-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:1rem}.day-card{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:1rem 1.1rem;transition:border-color .2s}.day-card:hover{border-color:var(--border2)}.day-card.done{opacity:.52}.day-card.done .day-title{text-decoration:line-through}.day-header{display:flex;align-items:flex-start;justify-content:space-between;gap:.5rem;margin-bottom:.6rem}.day-label{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:2px 8px;border-radius:12px;margin-bottom:5px;display:inline-block}.day-title{font-weight:600;font-size:.93rem;color:#fff;line-height:1.35}.day-hours{font-size:11px;color:var(--muted);margin-top:2px}.day-check{width:22px;height:22px;border-radius:50%;border:1.5px solid var(--border2);background:transparent;cursor:pointer;flex-shrink:0;transition:all .2s;display:flex;align-items:center;justify-content:center;color:transparent;font-size:12px}.day-check:hover{border-color:var(--accent)}.day-check.checked{background:var(--accent);border-color:var(--accent);color:#fff}.day-topics{margin-top:.65rem}.day-topics li{font-size:12px;color:var(--muted);line-height:1.5;padding-left:.9rem;position:relative;margin-bottom:3px;list-style:none}.day-topics li:before{content:'›';position:absolute;left:0;color:var(--accent2);font-size:14px;line-height:1.4}.t-geral{background:rgba(45,212,191,.12);color:var(--teal)}.t-ti{background:rgba(108,99,255,.15);color:var(--accent2)}.t-dir{background:rgba(248,113,113,.12);color:var(--coral)}.t-rev{background:rgba(251,191,36,.12);color:var(--amber)}.t-plus{background:rgba(96,165,250,.12);color:var(--blue)}.t-sim{background:rgba(244,114,182,.12);color:var(--pink)}.wt-basico{background:rgba(45,212,191,.12);color:var(--teal)}.wt-seguranca{background:rgba(248,113,113,.12);color:var(--coral)}.wt-dev{background:rgba(96,165,250,.12);color:var(--blue)}.wt-gov{background:rgba(251,191,36,.12);color:var(--amber)}.wt-cloud{background:rgba(108,99,255,.15);color:var(--accent2)}.wt-adm{background:rgba(74,222,128,.12);color:var(--green)}.wt-final{background:rgba(244,114,182,.12);color:var(--pink)}.progress-bar-wrap{background:rgba(255,255,255,.06);border-radius:4px;height:4px;margin-top:.5rem;overflow:hidden}.progress-bar{height:100%;background:var(--accent);border-radius:4px;transition:width .3s}.week-progress-label{font-size:11px;color:var(--muted);margin-top:.3rem}.mat-section{margin-bottom:2rem}.mat-section h3{font-size:.95rem;font-weight:600;color:var(--accent2);margin-bottom:.75rem;padding-bottom:.4rem;border-bottom:1px solid var(--border)}.mat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:.5rem}.mat-item{background:var(--surface2);border-radius:var(--radius);padding:.7rem .9rem;font-size:12.5px;color:var(--muted);border-left:3px solid var(--accent2);line-height:1.5}.mat-item strong{color:var(--text);font-weight:600;display:block;font-size:12px}.source-list{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1rem 1.25rem;color:var(--muted);font-size:12.5px}.source-list ul{margin-left:1.1rem}.source-list li{margin:.25rem 0}#global-progress{position:fixed;bottom:1.5rem;right:1.5rem;z-index:200;background:var(--surface);border:1px solid var(--border2);border-radius:var(--radius-lg);padding:.9rem 1.2rem;min-width:190px;box-shadow:0 8px 32px rgba(0,0,0,.4)}#global-progress h4{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:.5rem}#gp-val{font-size:1.6rem;font-weight:700;color:var(--accent2)}#gp-label{font-size:11px;color:var(--muted)}footer{text-align:center;padding:2rem;border-top:1px solid var(--border);color:var(--muted);font-size:12px}@media(max-width:650px){.days-grid{grid-template-columns:1fr}.header-stats{gap:.75rem}#global-progress{display:none}.week-meta{display:none}nav{justify-content:flex-start;overflow:auto;max-height:86px}.week-header{padding:1rem}.week-body{padding:1rem}}
+</style>
+</head>
+<body>
+<header>
+  <div class="header-eyebrow">Concurso Público • Poder Judiciário • TI</div>
+  <h1>Plano de Estudos<br><span>TRT — TI Judicial Completo</span></h1>
+  <p>Plano reestruturado para Analista e Técnico de Tecnologia da Informação, com conhecimentos gerais, direito, infraestrutura, redes, segurança, desenvolvimento, dados, governança, CNJ, IA e revisão espaçada.</p>
+  <div class="header-stats">
+    <div class="hstat"><span class="hstat-num">19</span><span class="hstat-label">Semanas</span></div>
+    <div class="hstat"><span class="hstat-num">114</span><span class="hstat-label">Dias de estudo</span></div>
+    <div class="hstat"><span class="hstat-num">342h</span><span class="hstat-label">Carga total</span></div>
+    <div class="hstat"><span class="hstat-num">3h</span><span class="hstat-label">Por dia</span></div>
+    <div class="hstat"><span class="hstat-num">Dom</span><span class="hstat-label">Livre/opcional</span></div>
+  </div>
+</header>
+<nav id="main-nav">
+  <a href="#semanas" class="active">Semanas</a> <a href="#s1">Sem 1</a> <a href="#s2">Sem 2</a> <a href="#s3">Sem 3</a> <a href="#s4">Sem 4</a> <a href="#s5">Sem 5</a> <a href="#s6">Sem 6</a> <a href="#s7">Sem 7</a> <a href="#s8">Sem 8</a> <a href="#s9">Sem 9</a> <a href="#s10">Sem 10</a> <a href="#s11">Sem 11</a> <a href="#s12">Sem 12</a> <a href="#s13">Sem 13</a> <a href="#s14">Sem 14</a> <a href="#s15">Sem 15</a> <a href="#s16">Sem 16</a> <a href="#s17">Sem 17</a> <a href="#s18">Sem 18</a> <a href="#s19">Sem 19</a> <a href="#materias">Matérias</a> <a href="#fontes">Fontes</a>
+</nav>
+<main>
+<div class="notice">
+  <h2>Estrutura de uso</h2>
+  <p>Cada dia foi pensado para 3h: 1h40 a 2h de teoria, 40 a 60 minutos de questões e 20 minutos de revisão ativa. O sábado consolida a semana. O domingo fica livre ou para revisão leve dos erros críticos. A revisão espaçada foi embutida nos sábados e nas semanas 17 e 18.</p>
+</div>
+<div class="legend">
+  <div class="legend-item"><div class="legend-dot" style="background:#2dd4bf"></div>Conhecimentos Gerais</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#a78bfa"></div>TI</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#f87171"></div>Direito / Legislação</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#fbbf24"></div>Revisão / Questões</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#60a5fa"></div>Analista+</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#f472b6"></div>Simulado</div>
+</div>
+<div id="semanas"></div>
+
+<div class="week open" id="s1">
+  <div class="week-header" onclick="toggleWeek(this)">
+    <div class="week-num">1</div>
+    <div>
+      <div class="week-title">Língua Portuguesa · Inglês Técnico · Raciocínio Lógico</div>
+      <div class="week-subtitle">Base de leitura, interpretação e resolução lógica</div>
+    </div>
+    <div class="week-meta"><span class="week-tag wt-basico">Base</span><span class="chevron">▾</span></div>
+  </div>
+  <div class="week-body">
+    <div class="progress-bar-wrap"><div class="progress-bar" id="prog-s1" style="width:0%"></div></div>
+    <div class="week-progress-label" id="prog-label-s1">0 / 6 dias concluídos</div><br>
+    <div class="days-grid">
+
+      <div class="day-card" id="s1d1">
+        <div class="day-header">
+          <div>
+            <span class="day-label t-geral">Geral</span>
+            <div class="day-title">Português — Ortografia, Acentuação e Crase</div>
+            <div class="day-hours">3h • Segunda da Semana 1</div>
+          </div>
+          <button class="day-check" onclick="toggleDay('s1d1')">✓</button>
+        </div>
+        <ul class="day-topics">
+          <li>Ortografia oficial: emprego de letras, hífen, maiúsculas e minúsculas</li>
+          <li>Acentuação gráfica: oxítonas, paroxítonas, proparoxítonas, hiatos e ditongos</li>
+          <li>Emprego do sinal indicativo de crase: regra geral, casos proibidos e facultativos</li>
+          <li>Classes de palavras: substantivo, adjetivo, artigo, numeral, pronome, verbo, advérbio, preposição, conjunção, interjeição</li>
+          <li>Flexão nominal e verbal; formação de palavras por derivação e composição</li>
+          <li>Questões FCC/FGV/Cebraspe com foco em eliminação de alternativas</li>
+        </ul>
+      </div>
+
+      <div class="day-card" id="s1d2">
+        <div class="day-header">
+          <div>
+            <span class="day-label t-geral">Geral</span>
+            <div class="day-title">Português — Sintaxe, Pontuação e Concordância</div>
+            <div class="day-hours">3h • Terça da Semana 1</div>
+          </div>
+          <button class="day-check" onclick="toggleDay('s1d2')">✓</button>
+        </div>
+        <ul class="day-topics">
+          <li>Termos da oração: sujeito, predicado, complementos, adjuntos, agente da passiva</li>
+          <li>Período composto: coordenação e subordinação; valores semânticos dos conectivos</li>
+          <li>Concordância nominal e verbal; casos especiais recorrentes em prova</li>
+          <li>Regência nominal e verbal; colocação pronominal; vozes verbais</li>
+          <li>Pontuação: vírgula, ponto e vírgula, dois-pontos, travessão e parênteses</li>
+          <li>Correlação de tempos e modos verbais</li>
+        </ul>
+      </div>
+
+      <div class="day-card" id="s1d3">
+        <div class="day-header">
+          <div>
+            <span class="day-label t-geral">Geral</span>
+            <div class="day-title">Português — Interpretação, Coesão e Redação Oficial</div>
+            <div class="day-hours">3h • Quarta da Semana 1</div>
+          </div>
+          <button class="day-check" onclick="toggleDay('s1d3')">✓</button>
+        </div>
+        <ul class="day-topics">
+          <li>Compreensão e interpretação de textos: tese, inferência, pressupostos e subentendidos</li>
+          <li>Coesão referencial e sequencial; coerência textual; reescritura de frases</li>
+          <li>Denotação, conotação, figuras de linguagem e intertextualidade</li>
+          <li>Discurso direto, indireto e indireto livre</li>
+          <li>Redação oficial: clareza, concisão, impessoalidade, formalidade e padrão culto</li>
+          <li>Adequação da linguagem ao tipo de documento institucional</li>
+        </ul>
+      </div>
+
+      <div class="day-card" id="s1d4">
+        <div class="day-header">
+          <div>
+            <span class="day-label t-geral">Geral</span>
+            <div class="day-title">Inglês Técnico para TI</div>
+            <div class="day-hours">3h • Quinta da Semana 1</div>
+          </div>
+          <button class="day-check" onclick="toggleDay('s1d4')">✓</button>
+        </div>
+        <ul class="day-topics">
+          <li>Leitura instrumental: scanning, skimming, cognatos, falsos cognatos e inferência contextual</li>
+          <li>Vocabulário de redes: routing, switching, packet, subnet, gateway, firewall, protocol</li>
+          <li>Vocabulário de desenvolvimento: framework, deployment, build, branch, commit, issue, runtime</li>
+          <li>Vocabulário de segurança: breach, threat, vulnerability, encryption, authentication, backup</li>
+          <li>Mensagens de erro, documentação técnica, logs e trechos de manuais</li>
+          <li>Questões com tradução técnica sem decorar palavra por palavra</li>
+        </ul>
+      </div>
+
+      <div class="day-card" id="s1d5">
+        <div class="day-header">
+          <div>
+            <span class="day-label t-geral">Geral</span>
+            <div class="day-title">Raciocínio Lógico-Matemático I</div>
+            <div class="day-hours">3h • Sexta da Semana 1</div>
+          </div>
+          <button class="day-check" onclick="toggleDay('s1d5')">✓</button>
+        </div>
+        <ul class="day-topics">
+          <li>Proposições simples e compostas; conectivos lógicos</li>
+          <li>Tabelas-verdade, tautologia, contradição e contingência</li>
+          <li>Equivalências lógicas: De Morgan, contraposição, condicional e bicondicional</li>
+          <li>Negação de proposições compostas e de quantificadores</li>
+          <li>Argumentos válidos, silogismos e diagramas lógicos</li>
+          <li>Problemas de contagem simples, porcentagem e proporcionalidade</li>
+        </ul>
+      </div>
+
+      <div class="day-card" id="s1d6">
+        <div class="day-header">
+          <div>
+            <span class="day-label t-rev">Revisão</span>
+            <div class="day-title">Revisão D+1/D+7 + Questões da Semana 1</div>
+            <div class="day-hours">3h • Sábado da Semana 1</div>
+          </div>
+          <button class="day-check" onclick="toggleDay('s1d6')">✓</button>
+        </div>
+        <ul class="day-topics">
+          <li>20 questões de Português: interpretação, sintaxe e pontuação</li>
+          <li>15 questões de Raciocínio Lógico</li>
+          <li>10 questões de Inglês Técnico com textos curtos de TI</li>
+          <li>Revisar erros em caderno: regra, motivo do erro e gatilho da banca</li>
+          <li>Flashcards: crase, conectivos, equivalências lógicas e falsos cognatos</li>
+          <li>Meta mínima: 70% por bloco; abaixo disso, repetir teoria no domingo opcional</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="week" id="s2">
+  <div class="week-header" onclick="toggleWeek(this)">
+    <div class="week-num">2</div>
+    <div>
+      <div class="week-title">Direito Constitucional · Administrativo · TRT Institucional</div>
+      <div class="week-subtitle">Núcleo jurídico e institucional comum aos cargos de TRT</div>
+    </div>
+    <div class="week-meta"><span class="week-tag wt-adm">Direito</span><span class="chevron">▾</span></div>
+  </div>
+  <div class="week-body">
+    <div class="progress-bar-wrap"><div class="progress-bar" id="prog-s2" style="width:0%"></div></div>
+    <div class="week-progress-label" id="prog-label-s2">0 / 6 dias concluídos</div><br>
+    <div class="days-grid">
+
+      <div class="day-card" id="s2d1">
+        <div class="day-header">
+          <div>
+            <span class="day-label t-dir">Direito</span>
+            <div class="day-title">Direito Constitucional — CF/88 e Poder Judiciário</div>
+            <div class="day-hours">3h • Segunda da Semana 2</div>
+          </div>
+          <button class="day-check" onclick="toggleDay('s2d1')">✓</button>
+        </div>
+        <ul class="day-topics">
+          <li>Princípios fundamentais e objetivos da República</li>
+          <li>Direitos e garantias fundamentais: arts. 5º a 17 da CF/88</li>
+          <li>Organização do Estado: União, Estados, DF e Municípios</li>
+          <li>Poderes da República: Legislativo, Executivo e Judiciário</li>
+          <li>Poder Judiciário: STF, STJ, TST, TRTs, juízes do trabalho e competências</li>
+          <li>Funções essenciais à Justiça: Ministério Público, Advocacia Pública, Defensoria</li>
+        </ul>
+      </div>
+
+      <div class="day-card" id="s2d2">
+        <div class="day-header">
+          <div>
+            <span class="day-label t-dir">Direito</span>
+            <div class="day-title">Direito Administrativo — Organização e Atos</div>
+            <div class="day-hours">3h • Terça da Semana 2</div>
+          </div>
+          <button class="day-check" onclick="toggleDay('s2d2')">✓</button>
+        </div>
+        <ul class="day-topics">
+          <li>Princípios expressos e implícitos: legalidade, impessoalidade, moralidade, publicidade, eficiência</li>
+          <li>Administração direta e indireta; autarquias, fundações, empresas públicas e sociedades de economia mista</li>
+          <li>Centralização, descentralização, desconcentração, delegação e avocação</li>
+          <li>Atos administrativos: conceito, requisitos, atributos, classificação e espécies</li>
+          <li>Anulação, revogação, convalidação e cassação de atos administrativos</li>
+          <li>Poderes administrativos: vinculado, discricionário, hierárquico, disciplinar, regulamentar e polícia</li>
+        </ul>
+      </div>
+
+      <div class="day-card" id="s2d3">
+        <div class="day-header">
+          <div>
+            <span class="day-label t-dir">Direito</span>
+            <div class="day-title">Lei 8.112/1990 e Responsabilidade do Servidor</div>
+            <div class="day-hours">3h • Quarta da Semana 2</div>
+          </div>
+          <button class="day-check" onclick="toggleDay('s2d3')">✓</button>
+        </div>
+        <ul class="day-topics">
+          <li>Cargo, emprego e função pública; provimento, posse, exercício, estabilidade</li>
+          <li>Vacância, remoção, redistribuição e substituição</li>
+          <li>Direitos e vantagens: vencimento, remuneração, adicionais, licenças e afastamentos</li>
+          <li>Deveres, proibições e acumulação de cargos</li>
+          <li>Responsabilidades civil, penal e administrativa</li>
+          <li>Processo administrativo disciplinar: sindicância, PAD, penalidades e prescrição</li>
+        </ul>
+      </div>
+
+      <div class="day-card" id="s2d4">
+        <div class="day-header">
+          <div>
+            <span class="day-label t-dir">Direito</span>
+            <div class="day-title">Licitações, Contratos e Controle da Administração</div>
+            <div class="day-hours">3h • Quinta da Semana 2</div>
+          </div>
+          <button class="day-check" onclick="toggleDay('s2d4')">✓</button>
+        </div>
+        <ul class="day-topics">
+          <li>Lei 14.133/2021: princípios, modalidades, critérios de julgamento e fases</li>
+          <li>Contratação direta: dispensa e inexigibilidade</li>
+          <li>Contratos administrativos: cláusulas necessárias, garantias, alteração e extinção</li>
+          <li>Gestão e fiscalização contratual; sanções administrativas</li>
+          <li>Controle interno, externo e judicial; papel do TCU e controle social</li>
+          <li>Improbidade administrativa em visão geral e atualizações centrais</li>
+        </ul>
+      </div>
+
+      <div class="day-card" id="s2d5">
+        <div class="day-header">
+          <div>
+            <span class="day-label t-dir">Direito</span>
+            <div class="day-title">Direito do Trabalho, Processo do Trabalho e Regimento</div>
+            <div class="day-hours">3h • Sexta da Semana 2</div>
+          </div>
+          <button class="day-check" onclick="toggleDay('s2d5')">✓</button>
+        </div>
+        <ul class="day-topics">
+          <li>Noções de CLT: contrato de trabalho, jornada, férias, salário e rescisão</li>
+          <li>Organização da Justiça do Trabalho: Varas do Trabalho, TRTs e TST</li>
+          <li>Processo do Trabalho: reclamação, audiência, sentença, recursos e execução</li>
+          <li>Regimento Interno do TRT-alvo: estrutura, órgãos, competências e sessões</li>
+          <li>Ética no serviço público, atendimento ao cidadão e dever de urbanidade</li>
+          <li>Estatuto da Pessoa com Deficiência: acessibilidade, inclusão e atendimento prioritário</li>
+        </ul>
+      </div>
+
+      <div class="day-card" id="s2d6">
+        <div class="day-header">
+          <div>
+            <span class="day-label t-rev">Revisão</span>
+            <div class="day-title">Revisão Jurídica + Questões da Semana 2</div>
+            <div class="day-hours">3h • Sábado da Semana 2</div>
+          </div>
+          <button class="day-check" onclick="toggleDay('s2d6')">✓</button>
+        </div>
+        <ul class="day-topics">
+          <li>20 questões de Constitucional focadas em Poder Judiciário</li>
+          <li>20 questões de Administrativo e Lei 8.112</li>
+          <li>10 questões de Licitações e Contratos</li>
+          <li>10 questões de Direito do Trabalho/Processo do Trabalho/Regimento</li>
+          <li>Mapa mental: estrutura do Judiciário Trabalhista</li>
+          <li>Revisão D+7 dos erros de Português e Raciocínio</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="week" id="s3">
+  <div class="week-header" onclick="toggleWeek(this)">
+    <div class="week-num">3</div>
+    <div>
+      <div class="week-title">Arquitetura de Computadores · Sistemas Operacionais · Virtualização</div>
+      <div class="week-subtitle">Base de infraestrutura local e administração de servidores</div>
+    </div>
+    <div class="week-meta"><span class="week-tag wt-basico">Infra</span><span class="chevron">▾</span></div>
+  </div>
+  <div class="week-body">
+    <div class="progress-bar-wrap"><div class="progress-bar" id="prog-s3" style="width:0%"></div></div>
+    <div class="week-progress-label" id="prog-label-s3">0 / 6 dias concluídos</div><br>
+    <div class="days-grid">
+
+      <div class="day-card" id="s3d1">
+        <div class="day-header">
+          <div>
+            <span class="day-label t-ti">TI</span>
+            <div class="day-title">Arquitetura de Computadores e Hardware</div>
+            <div class="day-hours">3h • Segunda da Semana 3</div>
+          </div>
+          <button class="day-check" onclick="toggleDay('s3d1')">✓</button>
+        </div>
+        <ul class="day-topics">
+          <li>CPU, ULA, unidade de controle, registradores, barramentos e ciclo de instrução</li>
+          <li>Memória: cache L1/L2/L3, RAM, ROM, secundária e memória virtual</li>
+          <li>Pipeline, paralelismo, interrupções, DMA e dispositivos de entrada/saída</li>
+          <li>Arquiteturas CISC/RISC; 32 bits vs 64 bits; endianess em noções</li>
+          <li>BIOS/UEFI, boot, particionamento MBR/GPT e sistemas de arquivos</li>
+          <li>Noções de desempenho: throughput, latência, IOPS, gargalos de CPU/memória/disco</li>
+        </ul>
+      </div>
+
+      <div class="day-card" id="s3d2">
+        <div class="day-header">
+          <div>
+            <span class="day-label t-ti">TI</span>
+            <div class="day-title">Sistemas Operacionais — Conceitos Internos</div>
+            <div class="day-hours">3h • Terça da Semana 3</div>
+          </div>
+          <button class="day-check" onclick="toggleDay('s3d2')">✓</button>
+        </div>
+        <ul class="day-topics">
+          <li>Processos, threads, escalonamento, estados de processo e troca de contexto</li>
+          <li>Gerenciamento de memória: paginação, segmentação, swapping, TLB, page fault e thrashing</li>
+          <li>Sincronização: semáforos, mutex, monitores, condição de corrida e região crítica</li>
+          <li>Deadlock: exclusão mútua, posse e espera, não preempção, espera circular; prevenção e detecção</li>
+          <li>Sistemas de arquivos, journaling, permissões e metadados</li>
+          <li>Virtualização de memória, drivers, chamadas de sistema e kernel</li>
+        </ul>
+      </div>
+
+      <div class="day-card" id="s3d3">
+        <div class="day-header">
+          <div>
+            <span class="day-label t-ti">TI</span>
+            <div class="day-title">Linux — Administração, Shell e Serviços</div>
+            <div class="day-hours">3h • Quarta da Semana 3</div>
+          </div>
+          <button class="day-check" onclick="toggleDay('s3d3')">✓</button>
+        </div>
+        <ul class="day-topics">
+          <li>FHS: /etc, /var, /home, /bin, /sbin, /usr, /tmp, /proc e /dev</li>
+          <li>Usuários, grupos, sudoers, chmod, chown, umask, SUID, SGID e sticky bit</li>
+          <li>Processos e serviços: ps, top, kill, nice, systemctl, journalctl e crontab</li>
+          <li>Gerência de pacotes: apt, yum, dnf, rpm, dpkg; logs em /var/log</li>
+          <li>Shell script: variáveis, condicionais, loops, funções, pipes, grep, awk, sed</li>
+          <li>Redes e firewall: ip, ss/netstat, ping, traceroute, iptables, nftables, firewalld</li>
+        </ul>
+      </div>
+
+      <div class="day-card" id="s3d4">
+        <div class="day-header">
+          <div>
+            <span class="day-label t-ti">TI</span>
+            <div class="day-title">Windows, Active Directory e PowerShell</div>
+            <div class="day-hours">3h • Quinta da Semana 3</div>
+          </div>
+          <button class="day-check" onclick="toggleDay('s3d4')">✓</button>
+        </div>
+        <ul class="day-topics">
+          <li>Windows 10/11 e Windows Server 2019/2022: papéis, recursos e administração</li>
+          <li>Active Directory: domínios, florestas, árvores, OUs, usuários, grupos e GPOs</li>
+          <li>DNS e DHCP no Windows Server; File Server, permissões NTFS e compartilhamento</li>
+          <li>IIS, Remote Desktop Services, WSUS, logs de eventos e monitoramento básico</li>
+          <li>PowerShell: Get-Command, Get-Service, Get-Process, pipeline, scripts e administração remota</li>
+          <li>Noções de backup, restauração, failover e clustering em ambiente Windows</li>
+        </ul>
+      </div>
+
+      <div class="day-card" id="s3d5">
+        <div class="day-header">
+          <div>
+            <span class="day-label t-ti">TI</span>
+            <div class="day-title">Virtualização, Contêineres e Armazenamento Local</div>
+            <div class="day-hours">3h • Sexta da Semana 3</div>
+          </div>
+          <button class="day-check" onclick="toggleDay('s3d5')">✓</button>
+        </div>
+        <ul class="day-topics">
+          <li>Hipervisor tipo 1 e tipo 2: VMware ESXi, Hyper-V, KVM e VirtualBox</li>
+          <li>VM vs contêiner: isolamento, kernel compartilhado, imagens e camadas</li>
+          <li>Docker: imagem, container, Dockerfile, volumes, redes, registry e Compose</li>
+          <li>Kubernetes básico: pod, deployment, service, namespace, configmap, secret e ingress</li>
+          <li>Discos e volumes: LVM, pvcreate, vgcreate, lvcreate, resize e snapshots</li>
+          <li>RAID 0, 1, 5, 6, 10: striping, mirroring, paridade, desempenho e tolerância</li>
+        </ul>
+      </div>
+
+      <div class="day-card" id="s3d6">
+        <div class="day-header">
+          <div>
+            <span class="day-label t-rev">Revisão</span>
+            <div class="day-title">Questões de SO, Linux, Windows e Virtualização</div>
+            <div class="day-hours">3h • Sábado da Semana 3</div>
+          </div>
+          <button class="day-check" onclick="toggleDay('s3d6')">✓</button>
+        </div>
+        <ul class="day-topics">
+          <li>20 questões de Sistemas Operacionais internos</li>
+          <li>20 questões de Linux e comandos</li>
+          <li>10 questões de Windows/AD/PowerShell</li>
+          <li>10 questões de Docker/Kubernetes/virtualização</li>
+          <li>Prática: montar tabela com comandos Linux e equivalentes Windows</li>
+          <li>Revisão D+7 do núcleo jurídico</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="week" id="s4">
+  <div class="week-header" onclick="toggleWeek(this)">
+    <div class="week-num">4</div>
+    <div>
+      <div class="week-title">Redes I · TCP/IP · Protocolos · Endereçamento</div>
+      <div class="week-subtitle">Fundamentos de comunicação, serviços e protocolos</div>
+    </div>
+    <div class="week-meta"><span class="week-tag wt-basico">Redes</span><span class="chevron">▾</span></div>
+  </div>
+  <div class="week-body">
+    <div class="progress-bar-wrap"><div class="progress-bar" id="prog-s4" style="width:0%"></div></div>
+    <div class="week-progress-label" id="prog-label-s4">0 / 6 dias concluídos</div><br>
+    <div class="days-grid">
+
+      <div class="day-card" id="s4d1">
+        <div class="day-header">
+          <div>
+            <span class="day-label t-ti">TI</span>
+            <div class="day-title">Modelos OSI e TCP/IP</div>
+            <div class="day-hours">3h • Segunda da Semana 4</div>
+          </div>
+          <button class="day-check" onclick="toggleDay('s4d1')">✓</button>
+        </div>
+        <ul class="day-topics">
+          <li>Modelo OSI: 7 camadas, funções, equipamentos e PDUs</li>
+          <li>Modelo TCP/IP: enlace, internet, transporte e aplicação</li>
+          <li>Encapsulamento, desencapsulamento, MTU, MSS e fragmentação</li>
+          <li>Topologias: estrela, barramento, anel, malha e híbrida</li>
+          <li>Tipos de rede: LAN, MAN, WAN, PAN, SAN, WLAN e VPN</li>
+          <li>Equipamentos: hub, switch, roteador, bridge, gateway, firewall, access point</li>
+        </ul>
+      </div>
+
+      <div class="day-card" id="s4d2">
+        <div class="day-header">
+          <div>
+            <span class="day-label t-ti">TI</span>
+            <div class="day-title">IPv4, IPv6 e Subnetting</div>
+            <div class="day-hours">3h • Terça da Semana 4</div>
+          </div>
+          <button class="day-check" onclick="toggleDay('s4d2')">✓</button>
+        </div>
+        <ul class="day-topics">
+          <li>IPv4: classes históricas, máscara, CIDR, rede, broadcast e host válido</li>
+          <li>Subnetting na prática: /24 a /30, VLSM e cálculo de sub-redes</li>
+          <li>IPv6: notação, abreviação, prefixo, tipos de endereço e autoconfiguração</li>
+          <li>Unicast, multicast, anycast; link-local, global unicast e loopback</li>
+          <li>NAT, PAT, NAT64, DNS64 e mecanismos de transição IPv4/IPv6</li>
+          <li>ICMP e ICMPv6: echo, erros, neighbor discovery e SLAAC</li>
+        </ul>
+      </div>
+
+      <div class="day-card" id="s4d3">
+        <div class="day-header">
+          <div>
+            <span class="day-label t-ti">TI</span>
+            <div class="day-title">Camada de Transporte e Aplicação</div>
+            <div class="day-hours">3h • Quarta da Semana 4</div>
+          </div>
+          <button class="day-check" onclick="toggleDay('s4d3')">✓</button>
+        </div>
+        <ul class="day-topics">
+          <li>TCP: handshake, controle de fluxo, controle de congestionamento e encerramento</li>
+          <li>UDP: características, usos e diferenças em relação ao TCP</li>
+          <li>Portas padrão: HTTP, HTTPS, DNS, SMTP, IMAP, POP3, SSH, FTP, DHCP, SNMP, LDAP</li>
+          <li>DNS: registros A, AAAA, MX, CNAME, PTR, TXT, NS e funcionamento recursivo/autoritativo</li>
+          <li>DHCP: Discover, Offer, Request, ACK; lease, reserva e escopo</li>
+          <li>HTTP/HTTPS: métodos, códigos de status, cookies, sessões, TLS e certificados</li>
+        </ul>
+      </div>
+
+      <div class="day-card" id="s4d4">
+        <div class="day-header">
+          <div>
+            <span class="day-label t-ti">TI</span>
+            <div class="day-title">Serviços de Rede, Diretórios e Gerência</div>
+            <div class="day-hours">3h • Quinta da Semana 4</div>
+          </div>
+          <button class="day-check" onclick="toggleDay('s4d4')">✓</button>
+        </div>
+        <ul class="day-topics">
+          <li>LDAP e Active Directory em visão de protocolo; Kerberos em noções</li>
+          <li>SNMP: manager, agent, MIB, OID, versões v1/v2c/v3 e traps</li>
+          <li>Syslog, NTP, RADIUS, TACACS+, proxy e cache web</li>
+          <li>FTP, SFTP, FTPS, SMB/CIFS, NFS e compartilhamento de arquivos</li>
+          <li>Ferramentas: ping, traceroute/tracert, nslookup, dig, tcpdump, Wireshark, netcat</li>
+          <li>RMON, MRTG, Zabbix, Prometheus e Grafana em visão de monitoramento</li>
+        </ul>
+      </div>
+
+      <div class="day-card" id="s4d5">
+        <div class="day-header">
+          <div>
+            <span class="day-label t-ti">TI</span>
+            <div class="day-title">Redes Sem Fio e Segurança Básica de Rede</div>
+            <div class="day-hours">3h • Sexta da Semana 4</div>
+          </div>
+          <button class="day-check" onclick="toggleDay('s4d5')">✓</button>
+        </div>
+        <ul class="day-topics">
+          <li>Padrões IEEE 802.11 a/b/g/n/ac/ax; frequências 2,4 GHz e 5 GHz</li>
+          <li>SSID, BSSID, canais, interferência, roaming e controladoras WLAN</li>
+          <li>WEP, WPA, WPA2, WPA3; PSK, Enterprise, SAE e OWE</li>
+          <li>EAP-TLS, PEAP, EAP-TTLS e autenticação 802.1X com RADIUS</li>
+          <li>Firewall, DMZ, ACLs, NAT, proxy, IDS/IPS e segmentação de rede</li>
+          <li>Noções de Zero Trust aplicadas à rede</li>
+        </ul>
+      </div>
+
+      <div class="day-card" id="s4d6">
+        <div class="day-header">
+          <div>
+            <span class="day-label t-rev">Revisão</span>
+            <div class="day-title">Questões de Redes I + Subnetting</div>
+            <div class="day-hours">3h • Sábado da Semana 4</div>
+          </div>
+          <button class="day-check" onclick="toggleDay('s4d6')">✓</button>
+        </div>
+        <ul class="day-topics">
+          <li>30 questões de redes básicas e protocolos</li>
+          <li>15 exercícios de subnetting IPv4</li>
+          <li>10 questões de IPv6 e transição</li>
+          <li>10 questões de DNS, DHCP, TCP/UDP e portas</li>
+          <li>Criar tabela de portas e protocolos com camada OSI/TCP-IP</li>
+          <li>Revisão D+21 de Português e Raciocínio</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="week" id="s5">
+  <div class="week-header" onclick="toggleWeek(this)">
+    <div class="week-num">5</div>
+    <div>
+      <div class="week-title">Redes II · Switching · Roteamento · Cabeamento · VoIP</div>
+      <div class="week-subtitle">Infraestrutura avançada de rede e serviços multimídia</div>
+    </div>
+    <div class="week-meta"><span class="week-tag wt-basico">Redes+</span><span class="chevron">▾</span></div>
+  </div>
+  <div class="week-body">
+    <div class="progress-bar-wrap"><div class="progress-bar" id="prog-s5" style="width:0%"></div></div>
+    <div class="week-progress-label" id="prog-label-s5">0 / 6 dias concluídos</div><br>
+    <div class="days-grid">
+
+      <div class="day-card" id="s5d1">
+        <div class="day-header">
+          <div>
+            <span class="day-label t-ti">TI</span>
+            <div class="day-title">Switching, VLAN e Spanning Tree</div>
+            <div class="day-hours">3h • Segunda da Semana 5</div>
+          </div>
+          <button class="day-check" onclick="toggleDay('s5d1')">✓</button>
+        </div>
+        <ul class="day-topics">
+          <li>Switching: tabela MAC, flooding, learning, aging, collision domain e broadcast domain</li>
+          <li>VLAN: IEEE 802.1Q, porta access, porta trunk, native VLAN e inter-VLAN routing</li>
+          <li>STP, RSTP e MSTP: bridge ID, root bridge, estados e papéis de portas</li>
+          <li>Link aggregation: LACP IEEE 802.3ad e EtherChannel</li>
+          <li>Port security, BPDU Guard, Root Guard e proteção contra loops</li>
+          <li>Questões típicas sobre segmentação, broadcast e convergência</li>
+        </ul>
+      </div>
+
+      <div class="day-card" id="s5d2">
+        <div class="day-header">
+          <div>
+            <span class="day-label t-ti">TI</span>
+            <div class="day-title">Roteamento e Protocolos Dinâmicos</div>
+            <div class="day-hours">3h • Terça da Semana 5</div>
+          </div>
+          <button class="day-check" onclick="toggleDay('s5d2')">✓</button>
+        </div>
+        <ul class="day-topics">
+          <li>Roteamento estático, rota padrão, distância administrativa e métrica</li>
+          <li>RIP/RIPv2: vetor de distância, hop count, limitações e convergência</li>
+          <li>OSPF: link-state, áreas, custo, LSDB, DR/BDR em noções</li>
+          <li>BGP: AS, eBGP, iBGP, path vector e uso na Internet</li>
+          <li>EIGRP em noções; redistribution e sumarização em visão conceitual</li>
+          <li>NAT estático, dinâmico, PAT e troubleshooting básico</li>
+        </ul>
+      </div>
+
+      <div class="day-card" id="s5d3">
+        <div class="day-header">
+          <div>
+            <span class="day-label t-ti">TI</span>
+            <div class="day-title">Cabeamento Estruturado e Infraestrutura Física</div>
+            <div class="day-hours">3h • Quarta da Semana 5</div>
+          </div>
+          <button class="day-check" onclick="toggleDay('s5d3')">✓</button>
+        </div>
+        <ul class="day-topics">
+          <li>ABNT NBR 14565: conceitos, escopo e subsistemas de cabeamento estruturado</li>
+          <li>Cabeamento horizontal, backbone, área de trabalho, sala de telecomunicações e entrada de facilidades</li>
+          <li>Cabo par trançado: UTP, FTP/STP, Cat5e, Cat6, Cat6A, Cat7 e Cat8</li>
+          <li>Fibra óptica: monomodo, multimodo, conectores, transceptores e distâncias</li>
+          <li>Racks, patch panels, keystone, patch cords, organização e identificação</li>
+          <li>Testes: certificação, NEXT, atenuação, perda de retorno e diafonia</li>
+        </ul>
+      </div>
+
+      <div class="day-card" id="s5d4">
+        <div class="day-header">
+          <div>
+            <span class="day-label t-ti">TI</span>
+            <div class="day-title">QoS, Multicast, VoIP e Videoconferência</div>
+            <div class="day-hours">3h • Quinta da Semana 5</div>
+          </div>
+          <button class="day-check" onclick="toggleDay('s5d4')">✓</button>
+        </div>
+        <ul class="day-topics">
+          <li>QoS: latência, jitter, perda, largura de banda e priorização</li>
+          <li>IntServ, DiffServ, DSCP, CoS e filas de prioridade</li>
+          <li>Multicast: IGMP, PIM, grupos multicast e aplicações</li>
+          <li>VoIP: SIP, H.323, RTP, RTCP e codecs G.711, G.729, Opus</li>
+          <li>Videoconferência: MCU, gateway, endpoint, WebRTC e requisitos de rede</li>
+          <li>Troubleshooting: perda de pacotes, jitter e MOS em noções</li>
+        </ul>
+      </div>
+
+      <div class="day-card" id="s5d5">
+        <div class="day-header">
+          <div>
+            <span class="day-label t-plus">Analista+</span>
+            <div class="day-title">SDN, SD-WAN, VXLAN e Redes Modernas</div>
+            <div class="day-hours">3h • Sexta da Semana 5</div>
+          </div>
+          <button class="day-check" onclick="toggleDay('s5d5')">✓</button>
+        </div>
+        <ul class="day-topics">
+          <li>SDN: separação plano de controle/plano de dados e controlador</li>
+          <li>OpenFlow e programabilidade de rede em noções</li>
+          <li>SD-WAN: overlay, escolha dinâmica de caminho, segurança e orquestração</li>
+          <li>VXLAN: VNI, VTEP, overlay L2 sobre L3 e data center fabric</li>
+          <li>Microsegmentação, NSX-T, distributed firewall e políticas por workload</li>
+          <li>SASE, CASB e integração entre rede e segurança em visão conceitual</li>
+        </ul>
+      </div>
+
+      <div class="day-card" id="s5d6">
+        <div class="day-header">
+          <div>
+            <span class="day-label t-rev">Revisão</span>
+            <div class="day-title">Questões de Redes II</div>
+            <div class="day-hours">3h • Sábado da Semana 5</div>
+          </div>
+          <button class="day-check" onclick="toggleDay('s5d6')">✓</button>
+        </div>
+        <ul class="day-topics">
+          <li>25 questões de switching, VLAN, STP e roteamento</li>
+          <li>15 questões de cabeamento estruturado</li>
+          <li>10 questões de QoS, VoIP e multicast</li>
+          <li>10 questões de SDN/SD-WAN/VXLAN</li>
+          <li>Laboratório mental: desenhar rede com VLAN, roteador, firewall e servidor</li>
+          <li>Revisão D+7 de Redes I</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="week" id="s6">
+  <div class="week-header" onclick="toggleWeek(this)">
+    <div class="week-num">6</div>
+    <div>
+      <div class="week-title">Segurança da Informação I · Normas · Riscos · Criptografia</div>
+      <div class="week-subtitle">Fundamentos normativos e técnicos de segurança</div>
+    </div>
+    <div class="week-meta"><span class="week-tag wt-seguranca">Segurança</span><span class="chevron">▾</span></div>
+  </div>
+  <div class="week-body">
+    <div class="progress-bar-wrap"><div class="progress-bar" id="prog-s6" style="width:0%"></div></div>
+    <div class="week-progress-label" id="prog-label-s6">0 / 6 dias concluídos</div><br>
+    <div class="days-grid">
+
+      <div class="day-card" id="s6d1">
+        <div class="day-header">
+          <div>
+            <span class="day-label t-ti">TI</span>
+            <div class="day-title">Conceitos de Segurança e ISO 27001/27002</div>
+            <div class="day-hours">3h • Segunda da Semana 6</div>
+          </div>
+          <button class="day-check" onclick="toggleDay('s6d1')">✓</button>
+        </div>
+        <ul class="day-topics">
+          <li>CID: confidencialidade, integridade e disponibilidade</li>
+          <li>Autenticidade, não repúdio, privacidade, accountability e rastreabilidade</li>
+          <li>ISO/IEC 27001:2022: SGSI, contexto, liderança, planejamento, suporte, operação, avaliação e melhoria</li>
+          <li>ISO/IEC 27002:2022: controles organizacionais, de pessoas, físicos e tecnológicos</li>
+          <li>Política de segurança, classificação da informação e conscientização</li>
+          <li>Controles preventivos, detectivos, corretivos, dissuasórios e compensatórios</li>
+        </ul>
+      </div>
+
+      <div class="day-card" id="s6d2">
+        <div class="day-header">
+          <div>
+            <span class="day-label t-ti">TI</span>
+            <div class="day-title">Gestão de Riscos e Continuidade</div>
+            <div class="day-hours">3h • Terça da Semana 6</div>
+          </div>
+          <button class="day-check" onclick="toggleDay('s6d2')">✓</button>
+        </div>
+        <ul class="day-topics">
+          <li>ISO/IEC 27005: identificação, análise, avaliação e tratamento de riscos</li>
+          <li>Ameaça, vulnerabilidade, impacto, probabilidade, risco inerente e risco residual</li>
+          <li>Apetite, tolerância, aceitação, mitigação, transferência e evitação de risco</li>
+          <li>BIA, PCN/BCP, PRD/DRP, plano de resposta a incidentes</li>
+          <li>RTO, RPO, MTD, hot site, warm site, cold site e estratégias de recuperação</li>
+          <li>Backup completo, incremental, diferencial, sintético, retenção e teste de restauração</li>
+        </ul>
+      </div>
+
+      <div class="day-card" id="s6d3">
+        <div class="day-header">
+          <div>
+            <span class="day-label t-ti">TI</span>
+            <div class="day-title">Criptografia, Hash, Assinatura Digital e PKI</div>
+            <div class="day-hours">3h • Quarta da Semana 6</div>
+          </div>
+          <button class="day-check" onclick="toggleDay('s6d3')">✓</button>
+        </div>
+        <ul class="day-topics">
+          <li>Criptografia simétrica: DES, 3DES, AES e modos de operação em noções</li>
+          <li>Criptografia assimétrica: RSA, ECC, Diffie-Hellman e troca de chaves</li>
+          <li>Hash: MD5, SHA-1, SHA-2, SHA-3, salt, HMAC e integridade</li>
+          <li>Assinatura digital: hash + chave privada; verificação com chave pública</li>
+          <li>Certificados X.509, AC, AC Raiz, cadeia de confiança, revogação, CRL e OCSP</li>
+          <li>ICP-Brasil, carimbo de tempo e validade jurídica em noções</li>
+        </ul>
+      </div>
+
+      <div class="day-card" id="s6d4">
+        <div class="day-header">
+          <div>
+            <span class="day-label t-ti">TI</span>
+            <div class="day-title">Controle de Acesso, IAM e Autenticação</div>
+            <div class="day-hours">3h • Quinta da Semana 6</div>
+          </div>
+          <button class="day-check" onclick="toggleDay('s6d4')">✓</button>
+        </div>
+        <ul class="day-topics">
+          <li>Identificação, autenticação, autorização, auditoria e accounting</li>
+          <li>MFA: senha, token, TOTP, push, biometria, FIDO2/WebAuthn</li>
+          <li>DAC, MAC, RBAC, ABAC e princípio do menor privilégio</li>
+          <li>SSO, federação, SAML, OAuth 2.0, OpenID Connect e JWT</li>
+          <li>Kerberos, LDAP, RADIUS, TACACS+ e 802.1X</li>
+          <li>Gestão de identidades privilegiadas, ciclo de vida de contas e segregação de funções</li>
+        </ul>
+      </div>
+
+      <div class="day-card" id="s6d5">
+        <div class="day-header">
+          <div>
+            <span class="day-label t-ti">TI</span>
+            <div class="day-title">Segurança de Perímetro, Endpoints e Rede</div>
+            <div class="day-hours">3h • Sexta da Semana 6</div>
+          </div>
+          <button class="day-check" onclick="toggleDay('s6d5')">✓</button>
+        </div>
+        <ul class="day-topics">
+          <li>Firewall packet filter, stateful, proxy firewall e NGFW</li>
+          <li>IDS/IPS: assinatura, anomalia, inline, passivo e posicionamento</li>
+          <li>WAF, UTM, NAC, DLP, antispam, EDR, XDR e antivírus</li>
+          <li>VPN: IPSec AH/ESP/IKE, SSL/TLS VPN, OpenVPN e WireGuard</li>
+          <li>Hardening, gestão de patches, baseline seguro e CIS Benchmarks em noções</li>
+          <li>Segmentação, DMZ, bastion host, jump server e Zero Trust</li>
+        </ul>
+      </div>
+
+      <div class="day-card" id="s6d6">
+        <div class="day-header">
+          <div>
+            <span class="day-label t-rev">Revisão</span>
+            <div class="day-title">Questões de Segurança I</div>
+            <div class="day-hours">3h • Sábado da Semana 6</div>
+          </div>
+          <button class="day-check" onclick="toggleDay('s6d6')">✓</button>
+        </div>
+        <ul class="day-topics">
+          <li>30 questões de ISO 27001/27002/27005 e gestão de riscos</li>
+          <li>15 questões de criptografia, hash, certificado e assinatura</li>
+          <li>15 questões de IAM, controle de acesso e autenticação</li>
+          <li>Mapa mental: risco, ameaça, vulnerabilidade, impacto e controle</li>
+          <li>Tabela comparativa: AES/RSA/hash/assinatura/certificado</li>
+          <li>Revisão D+21 de Direito e D+7 de Redes II</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="week" id="s7">
+  <div class="week-header" onclick="toggleWeek(this)">
+    <div class="week-num">7</div>
+    <div>
+      <div class="week-title">Segurança II · Ataques · OWASP · LGPD · Forense</div>
+      <div class="week-subtitle">Ameaças, resposta a incidentes e proteção de dados</div>
+    </div>
+    <div class="week-meta"><span class="week-tag wt-seguranca">Segurança+</span><span class="chevron">▾</span></div>
+  </div>
+  <div class="week-body">
+    <div class="progress-bar-wrap"><div class="progress-bar" id="prog-s7" style="width:0%"></div></div>
+    <div class="week-progress-label" id="prog-label-s7">0 / 6 dias concluídos</div><br>
+    <div class="days-grid">
+
+      <div class="day-card" id="s7d1">
+        <div class="day-header">
+          <div>
+            <span class="day-label t-ti">TI</span>
+            <div class="day-title">Malwares, Ataques e Engenharia Social</div>
+            <div class="day-hours">3h • Segunda da Semana 7</div>
+          </div>
+          <button class="day-check" onclick="toggleDay('s7d1')">✓</button>
+        </div>
+        <ul class="day-topics">
+          <li>Vírus, worm, trojan, spyware, adware, keylogger, rootkit, backdoor e botnet</li>
+          <li>Ransomware, scareware, fileless malware e ataques à cadeia de suprimentos</li>
+          <li>DoS, DDoS, spoofing, sniffing, MITM, replay, session hijacking e brute force</li>
+          <li>Phishing, spear phishing, whaling, smishing, vishing, baiting, pretexting e tailgating</li>
+          <li>ARP spoofing, DNS poisoning, evil twin, rogue AP e ataques Wi-Fi</li>
+          <li>Indicadores de comprometimento e noções de MITRE ATT&amp;CK</li>
+        </ul>
+      </div>
+
+      <div class="day-card" id="s7d2">
+        <div class="day-header">
+          <div>
+            <span class="day-label t-ti">TI</span>
+            <div class="day-title">Segurança de Aplicações e OWASP</div>
+            <div class="day-hours">3h • Terça da Semana 7</div>
+          </div>
+          <button class="day-check" onclick="toggleDay('s7d2')">✓</button>
+        </div>
+        <ul class="day-topics">
+          <li>OWASP Top 10: broken access control, cryptographic failures, injection e demais riscos</li>
+          <li>SQL Injection, XSS refletido/armazenado/DOM, CSRF, SSRF e command injection</li>
+          <li>Validação de entrada, parametrização de consultas, escape e output encoding</li>
+          <li>Gerenciamento de sessão, cookies HttpOnly, Secure, SameSite e proteção contra fixação de sessão</li>
+          <li>OWASP ASVS: níveis, controles e finalidade em auditoria de aplicação</li>
+          <li>SAST, DAST, SCA, secrets scanning e DevSecOps</li>
+        </ul>
+      </div>
+
+      <div class="day-card" id="s7d3">
+        <div class="day-header">
+          <div>
+            <span class="day-label t-dir">Direito</span>
+            <div class="day-title">LGPD, Privacidade e Segurança de Dados</div>
+            <div class="day-hours">3h • Quarta da Semana 7</div>
+          </div>
+          <button class="day-check" onclick="toggleDay('s7d3')">✓</button>
+        </div>
+        <ul class="day-topics">
+          <li>Lei 13.709/2018: dado pessoal, dado sensível, titular, controlador, operador e encarregado</li>
+          <li>Princípios do art. 6º e bases legais do art. 7º</li>
+          <li>Direitos dos titulares e tratamento pelo poder público</li>
+          <li>Relatório de impacto, privacy by design, privacy by default e anonimização/pseudonimização</li>
+          <li>ANPD: fiscalização, sanções e comunicação de incidentes</li>
+          <li>ISO 27701, governança de privacidade e relação com ISO 27001</li>
+        </ul>
+      </div>
+
+      <div class="day-card" id="s7d4">
+        <div class="day-header">
+          <div>
+            <span class="day-label t-plus">Analista+</span>
+            <div class="day-title">Forense Computacional e Resposta a Incidentes</div>
+            <div class="day-hours">3h • Quinta da Semana 7</div>
+          </div>
+          <button class="day-check" onclick="toggleDay('s7d4')">✓</button>
+        </div>
+        <ul class="day-topics">
+          <li>Ciclo de resposta a incidentes: preparação, identificação, contenção, erradicação, recuperação e lições aprendidas</li>
+          <li>Cadeia de custódia, coleta, preservação, análise e documentação de evidências</li>
+          <li>Volatilidade da evidência, imagem forense, hash de evidência e timeline</li>
+          <li>Logs de sistema, rede, aplicação, autenticação e correlação de eventos</li>
+          <li>SIEM, SOAR, regras de correlação, falso positivo e falso negativo</li>
+          <li>Noções de malware analysis e threat intelligence</li>
+        </ul>
+      </div>
+
+      <div class="day-card" id="s7d5">
+        <div class="day-header">
+          <div>
+            <span class="day-label t-ti">TI</span>
+            <div class="day-title">Segurança no Judiciário e Normas Correlatas</div>
+            <div class="day-hours">3h • Sexta da Semana 7</div>
+          </div>
+          <button class="day-check" onclick="toggleDay('s7d5')">✓</button>
+        </div>
+        <ul class="day-topics">
+          <li>Política de segurança da informação no setor público e governança de segurança</li>
+          <li>ENSEC-PJ em noções: estratégia nacional de segurança cibernética do Poder Judiciário</li>
+          <li>PGCRC-PJ: gestão de riscos cibernéticos e continuidade no Judiciário em noções</li>
+          <li>Gestão de vulnerabilidades, inventário de ativos e priorização por risco</li>
+          <li>Controle de acesso em sistemas judiciais e trilhas de auditoria</li>
+          <li>Preparação para questões que misturam CNJ, segurança, LGPD e governança</li>
+        </ul>
+      </div>
+
+      <div class="day-card" id="s7d6">
+        <div class="day-header">
+          <div>
+            <span class="day-label t-rev">Revisão</span>
+            <div class="day-title">Questões de Segurança II</div>
+            <div class="day-hours">3h • Sábado da Semana 7</div>
+          </div>
+          <button class="day-check" onclick="toggleDay('s7d6')">✓</button>
+        </div>
+        <ul class="day-topics">
+          <li>25 questões de ataques, malware e engenharia social</li>
+          <li>20 questões de OWASP e segurança de aplicações</li>
+          <li>15 questões de LGPD e privacidade</li>
+          <li>10 questões de forense, SIEM e resposta a incidentes</li>
+          <li>Atualizar caderno de erros de Segurança com vocabulário literal</li>
+          <li>Revisão D+7 de Segurança I</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="week" id="s8">
+  <div class="week-header" onclick="toggleWeek(this)">
+    <div class="week-num">8</div>
+    <div>
+      <div class="week-title">Banco de Dados I · Modelagem · SQL · Transações</div>
+      <div class="week-subtitle">Banco relacional do conceitual ao SQL prático</div>
+    </div>
+    <div class="week-meta"><span class="week-tag wt-dev">BD</span><span class="chevron">▾</span></div>
+  </div>
+  <div class="week-body">
+    <div class="progress-bar-wrap"><div class="progress-bar" id="prog-s8" style="width:0%"></div></div>
+    <div class="week-progress-label" id="prog-label-s8">0 / 6 dias concluídos</div><br>
+    <div class="days-grid">
+
+      <div class="day-card" id="s8d1">
+        <div class="day-header">
+          <div>
+            <span class="day-label t-ti">TI</span>
+            <div class="day-title">Modelagem Conceitual, Lógica e Física</div>
+            <div class="day-hours">3h • Segunda da Semana 8</div>
+          </div>
+          <button class="day-check" onclick="toggleDay('s8d1')">✓</button>
+        </div>
+        <ul class="day-topics">
+          <li>Modelo entidade-relacionamento: entidade, atributo, relacionamento e cardinalidade</li>
+          <li>Entidade fraca, atributo composto, multivalorado, derivado e identificador</li>
+          <li>Modelo relacional: relação, tupla, atributo, domínio e esquema</li>
+          <li>Chaves: primária, estrangeira, candidata, alternativa, composta e surrogate key</li>
+          <li>Integridade de entidade, referencial e de domínio</li>
+          <li>Notações Chen e Crow&#x27;s Foot; transformação MER → modelo relacional</li>
+        </ul>
+      </div>
+
+      <div class="day-card" id="s8d2">
+        <div class="day-header">
+          <div>
+            <span class="day-label t-ti">TI</span>
+            <div class="day-title">Normalização e Dependências</div>
+            <div class="day-hours">3h • Terça da Semana 8</div>
+          </div>
+          <button class="day-check" onclick="toggleDay('s8d2')">✓</button>
+        </div>
+        <ul class="day-topics">
+          <li>Dependência funcional, dependência parcial e dependência transitiva</li>
+          <li>1FN: atomicidade e eliminação de grupos repetidos</li>
+          <li>2FN: eliminação de dependência parcial em chave composta</li>
+          <li>3FN: eliminação de dependência transitiva</li>
+          <li>BCNF, 4FN e 5FN em noções para Analista</li>
+          <li>Desnormalização controlada, redundância e anomalias de inserção/atualização/exclusão</li>
+        </ul>
+      </div>
+
+      <div class="day-card" id="s8d3">
+        <div class="day-header">
+          <div>
+            <span class="day-label t-ti">TI</span>
+            <div class="day-title">SQL Essencial — DDL, DML, DQL</div>
+            <div class="day-hours">3h • Quarta da Semana 8</div>
+          </div>
+          <button class="day-check" onclick="toggleDay('s8d3')">✓</button>
+        </div>
+        <ul class="day-topics">
+          <li>DDL: CREATE, ALTER, DROP, TRUNCATE; tabelas, constraints, views e índices</li>
+          <li>DML: INSERT, UPDATE, DELETE e MERGE em noções</li>
+          <li>DQL: SELECT, WHERE, ORDER BY, DISTINCT, LIMIT/OFFSET e aliases</li>
+          <li>JOINs: INNER, LEFT, RIGHT, FULL, CROSS e SELF JOIN</li>
+          <li>GROUP BY, HAVING e funções agregadas: COUNT, SUM, AVG, MIN, MAX</li>
+          <li>Subconsultas correlacionadas e não correlacionadas; EXISTS, IN, ANY, ALL</li>
+        </ul>
+      </div>
+
+      <div class="day-card" id="s8d4">
+        <div class="day-header">
+          <div>
+            <span class="day-label t-ti">TI</span>
+            <div class="day-title">SQL Avançado, Transações e Concorrência</div>
+            <div class="day-hours">3h • Quinta da Semana 8</div>
+          </div>
+          <button class="day-check" onclick="toggleDay('s8d4')">✓</button>
+        </div>
+        <ul class="day-topics">
+          <li>DCL: GRANT, REVOKE; usuários, roles, privilégios e perfis</li>
+          <li>TCL: COMMIT, ROLLBACK e SAVEPOINT</li>
+          <li>ACID: atomicidade, consistência, isolamento e durabilidade</li>
+          <li>Níveis de isolamento: Read Uncommitted, Read Committed, Repeatable Read e Serializable</li>
+          <li>Problemas de concorrência: dirty read, non-repeatable read, phantom read e lost update</li>
+          <li>Triggers, stored procedures, functions, cursores e views materializadas</li>
+        </ul>
+      </div>
+
+      <div class="day-card" id="s8d5">
+        <div class="day-header">
+          <div>
+            <span class="day-label t-plus">Analista+</span>
+            <div class="day-title">SGBDs, Índices e Otimização</div>
+            <div class="day-hours">3h • Sexta da Semana 8</div>
+          </div>
+          <button class="day-check" onclick="toggleDay('s8d5')">✓</button>
+        </div>
+        <ul class="day-topics">
+          <li>Índices B-tree, hash, bitmap, clustered e non-clustered</li>
+          <li>Plano de execução, seletividade, cardinalidade, estatísticas e custo</li>
+          <li>Particionamento, sharding, replicação, backup e restore</li>
+          <li>Oracle, PostgreSQL, SQL Server, MySQL/MariaDB e H2: diferenças em noções</li>
+          <li>Controle de privilégios e auditoria em banco de dados</li>
+          <li>Álgebra relacional: seleção, projeção, junção, união, diferença e produto cartesiano</li>
+        </ul>
+      </div>
+
+      <div class="day-card" id="s8d6">
+        <div class="day-header">
+          <div>
+            <span class="day-label t-rev">Revisão</span>
+            <div class="day-title">Questões de Banco Relacional</div>
+            <div class="day-hours">3h • Sábado da Semana 8</div>
+          </div>
+          <button class="day-check" onclick="toggleDay('s8d6')">✓</button>
+        </div>
+        <ul class="day-topics">
+          <li>30 questões SQL com JOIN, GROUP BY, HAVING e subquery</li>
+          <li>15 questões de normalização e modelagem</li>
+          <li>10 questões de transações, ACID e isolamento</li>
+          <li>10 questões de índices, álgebra relacional e privilégios</li>
+          <li>Prática: resolver consultas sem olhar gabarito por pelo menos 25 minutos</li>
+          <li>Revisão D+21 de Redes I</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="week" id="s9">
+  <div class="week-header" onclick="toggleWeek(this)">
+    <div class="week-num">9</div>
+    <div>
+      <div class="week-title">Banco de Dados II · NoSQL · BI · Dados</div>
+      <div class="week-subtitle">Dados modernos, análise e governança da informação</div>
+    </div>
+    <div class="week-meta"><span class="week-tag wt-cloud">Dados</span><span class="chevron">▾</span></div>
+  </div>
+  <div class="week-body">
+    <div class="progress-bar-wrap"><div class="progress-bar" id="prog-s9" style="width:0%"></div></div>
+    <div class="week-progress-label" id="prog-label-s9">0 / 6 dias concluídos</div><br>
+    <div class="days-grid">
+
+      <div class="day-card" id="s9d1">
+        <div class="day-header">
+          <div>
+            <span class="day-label t-ti">TI</span>
+            <div class="day-title">NoSQL e Bancos Distribuídos</div>
+            <div class="day-hours">3h • Segunda da Semana 9</div>
+          </div>
+          <button class="day-check" onclick="toggleDay('s9d1')">✓</button>
+        </div>
+        <ul class="day-topics">
+          <li>NoSQL: chave-valor, documento, coluna larga e grafos</li>
+          <li>MongoDB, Redis, Cassandra, HBase e Neo4j em visão comparativa</li>
+          <li>CAP theorem: consistência, disponibilidade e tolerância a partição</li>
+          <li>BASE vs ACID; consistência eventual e replicação</li>
+          <li>Modelagem orientada a consulta; agregados e documentos</li>
+          <li>Casos de uso e limitações de NoSQL em prova</li>
+        </ul>
+      </div>
+
+      <div class="day-card" id="s9d2">
+        <div class="day-header">
+          <div>
+            <span class="day-label t-ti">TI</span>
+            <div class="day-title">Data Warehouse, ETL/ELT e Modelagem Dimensional</div>
+            <div class="day-hours">3h • Terça da Semana 9</div>
+          </div>
+          <button class="day-check" onclick="toggleDay('s9d2')">✓</button>
+        </div>
+        <ul class="day-topics">
+          <li>Data warehouse, data mart, ODS, data lake e lakehouse</li>
+          <li>ETL vs ELT: extração, transformação, carga e qualidade de dados</li>
+          <li>Modelagem dimensional: fatos, dimensões, medidas, granularidade e hierarquias</li>
+          <li>Esquema estrela, floco de neve e constelação de fatos</li>
+          <li>SCD: dimensões lentamente mutáveis tipos 1, 2 e 3 em noções</li>
+          <li>Metadados, linhagem, catálogo de dados e data quality</li>
+        </ul>
+      </div>
+
+      <div class="day-card" id="s9d3">
+        <div class="day-header">
+          <div>
+            <span class="day-label t-ti">TI</span>
+            <div class="day-title">Business Intelligence e Visualização</div>
+            <div class="day-hours">3h • Quarta da Semana 9</div>
+          </div>
+          <button class="day-check" onclick="toggleDay('s9d3')">✓</button>
+        </div>
+        <ul class="day-topics">
+          <li>BI: indicadores, KPIs, dashboards, relatórios e análise ad hoc</li>
+          <li>OLTP vs OLAP; cubos, drill-down, roll-up, slice, dice e pivot</li>
+          <li>Power BI, Tableau, Qlik e Metabase em noções</li>
+          <li>DAX e linguagem de medidas em visão conceitual</li>
+          <li>Boas práticas de visualização: escala, comparação, tendência e proporção</li>
+          <li>Erros comuns em gráficos e interpretação de indicadores</li>
+        </ul>
+      </div>
+
+      <div class="day-card" id="s9d4">
+        <div class="day-header">
+          <div>
+            <span class="day-label t-plus">Analista+</span>
+            <div class="day-title">Big Data e Processamento Distribuído</div>
+            <div class="day-hours">3h • Quinta da Semana 9</div>
+          </div>
+          <button class="day-check" onclick="toggleDay('s9d4')">✓</button>
+        </div>
+        <ul class="day-topics">
+          <li>Volume, velocidade, variedade, veracidade e valor dos dados</li>
+          <li>Hadoop, HDFS, MapReduce, Spark e processamento em memória</li>
+          <li>Streaming: Kafka, filas, tópicos, consumidores, particionamento e offsets</li>
+          <li>Batch vs streaming; lambda architecture e kappa architecture em noções</li>
+          <li>Governança de dados: DAMA-DMBOK, papéis, políticas, qualidade e segurança</li>
+          <li>DataOps e automação de pipelines de dados</li>
+        </ul>
+      </div>
+
+      <div class="day-card" id="s9d5">
+        <div class="day-header">
+          <div>
+            <span class="day-label t-plus">Analista+</span>
+            <div class="day-title">Python para Dados</div>
+            <div class="day-hours">3h • Sexta da Semana 9</div>
+          </div>
+          <button class="day-check" onclick="toggleDay('s9d5')">✓</button>
+        </div>
+        <ul class="day-topics">
+          <li>Python básico para análise: tipos, listas, dicionários, funções e módulos</li>
+          <li>NumPy: arrays, vetorização e operações numéricas</li>
+          <li>pandas: DataFrame, Series, leitura de arquivos, filtros, groupby e merge</li>
+          <li>matplotlib: gráficos básicos e interpretação de visualizações</li>
+          <li>scikit-learn: treino, teste, métricas e pipeline em noções</li>
+          <li>Cuidados: overfitting, vazamento de dados e reprodutibilidade</li>
+        </ul>
+      </div>
+
+      <div class="day-card" id="s9d6">
+        <div class="day-header">
+          <div>
+            <span class="day-label t-rev">Revisão</span>
+            <div class="day-title">Questões de Dados, BI e NoSQL</div>
+            <div class="day-hours">3h • Sábado da Semana 9</div>
+          </div>
+          <button class="day-check" onclick="toggleDay('s9d6')">✓</button>
+        </div>
+        <ul class="day-topics">
+          <li>20 questões de NoSQL e bancos distribuídos</li>
+          <li>20 questões de DW, ETL, modelagem dimensional e OLAP</li>
+          <li>10 questões de BI, visualização e indicadores</li>
+          <li>10 questões de Big Data, Spark/Kafka e governança de dados</li>
+          <li>10 questões de Python/pandas/scikit-learn quando houver no edital</li>
+          <li>Revisão D+7 de Banco Relacional</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="week" id="s10">
+  <div class="week-header" onclick="toggleWeek(this)">
+    <div class="week-num">10</div>
+    <div>
+      <div class="week-title">Engenharia de Software · Requisitos · UML · Testes</div>
+      <div class="week-subtitle">Processo de desenvolvimento e qualidade de software</div>
+    </div>
+    <div class="week-meta"><span class="week-tag wt-dev">Eng. Software</span><span class="chevron">▾</span></div>
+  </div>
+  <div class="week-body">
+    <div class="progress-bar-wrap"><div class="progress-bar" id="prog-s10" style="width:0%"></div></div>
+    <div class="week-progress-label" id="prog-label-s10">0 / 6 dias concluídos</div><br>
+    <div class="days-grid">
+
+      <div class="day-card" id="s10d1">
+        <div class="day-header">
+          <div>
+            <span class="day-label t-plus">Analista+</span>
+            <div class="day-title">Processos de Software e Ciclo de Vida</div>
+            <div class="day-hours">3h • Segunda da Semana 10</div>
+          </div>
+          <button class="day-check" onclick="toggleDay('s10d1')">✓</button>
+        </div>
+        <ul class="day-topics">
+          <li>Modelos cascata, incremental, iterativo, espiral, prototipação e modelo V</li>
+          <li>RUP: iniciação, elaboração, construção e transição; disciplinas e melhores práticas</li>
+          <li>ISO/IEC/IEEE 12207: processos do ciclo de vida de software</li>
+          <li>CMMI-DEV: níveis de maturidade e áreas de capacidade em noções</li>
+          <li>MR-MPS-SW/MPS.BR: níveis G a A e conceitos centrais</li>
+          <li>Trade-offs entre previsibilidade, flexibilidade, custo e risco</li>
+        </ul>
+      </div>
+
+      <div class="day-card" id="s10d2">
+        <div class="day-header">
+          <div>
+            <span class="day-label t-plus">Analista+</span>
+            <div class="day-title">Engenharia de Requisitos</div>
+            <div class="day-hours">3h • Terça da Semana 10</div>
+          </div>
+          <button class="day-check" onclick="toggleDay('s10d2')">✓</button>
+        </div>
+        <ul class="day-topics">
+          <li>Elicitação, análise, especificação, validação e gerenciamento de requisitos</li>
+          <li>Requisitos funcionais, não funcionais, regras de negócio e restrições</li>
+          <li>Técnicas: entrevista, questionário, workshop, observação, prototipação e brainstorming</li>
+          <li>Casos de uso, histórias de usuário, critérios de aceitação e rastreabilidade</li>
+          <li>Baseline, controle de mudanças, matriz de rastreabilidade e priorização</li>
+          <li>Pegadinhas: requisito vs solução; requisito funcional vs não funcional</li>
+        </ul>
+      </div>
+
+      <div class="day-card" id="s10d3">
+        <div class="day-header">
+          <div>
+            <span class="day-label t-plus">Analista+</span>
+            <div class="day-title">UML 2.5 — Diagramas e Metamodelo</div>
+            <div class="day-hours">3h • Quarta da Semana 10</div>
+          </div>
+          <button class="day-check" onclick="toggleDay('s10d3')">✓</button>
+        </div>
+        <ul class="day-topics">
+          <li>Diagramas estruturais: classes, objetos, componentes, pacotes, implantação e estrutura composta</li>
+          <li>Diagramas comportamentais: casos de uso, atividades, estados e máquina de estados</li>
+          <li>Diagramas de interação: sequência, comunicação, tempo e visão geral de interação</li>
+          <li>Relacionamentos: associação, agregação, composição, generalização, realização e dependência</li>
+          <li>Diagrama de classes: atributos, operações, visibilidade, multiplicidade e navegabilidade</li>
+          <li>Property em UML: atributo de classe ou extremidade de associação</li>
+        </ul>
+      </div>
+
+      <div class="day-card" id="s10d4">
+        <div class="day-header">
+          <div>
+            <span class="day-label t-plus">Analista+</span>
+            <div class="day-title">Testes, Qualidade e Métricas</div>
+            <div class="day-hours">3h • Quinta da Semana 10</div>
+          </div>
+          <button class="day-check" onclick="toggleDay('s10d4')">✓</button>
+        </div>
+        <ul class="day-topics">
+          <li>Testes unitário, integração, sistema, aceitação, regressão, fumaça, sanidade, carga, stress e desempenho</li>
+          <li>Caixa preta, caixa branca e caixa cinza; particionamento de equivalência e valor limite</li>
+          <li>TDD, BDD, Gherkin, Given-When-Then e automação de testes</li>
+          <li>ISO/IEC 25010: características de qualidade do produto de software</li>
+          <li>ISO 9126 como referência histórica; qualidade interna, externa e em uso</li>
+          <li>Métricas: cobertura, complexidade ciclomática, defeitos, APF e produtividade</li>
+        </ul>
+      </div>
+
+      <div class="day-card" id="s10d5">
+        <div class="day-header">
+          <div>
+            <span class="day-label t-plus">Analista+</span>
+            <div class="day-title">Métodos Ágeis e Gestão do Produto</div>
+            <div class="day-hours">3h • Sexta da Semana 10</div>
+          </div>
+          <button class="day-check" onclick="toggleDay('s10d5')">✓</button>
+        </div>
+        <ul class="day-topics">
+          <li>Manifesto Ágil: 4 valores e 12 princípios</li>
+          <li>Scrum: papéis, eventos, artefatos, backlog, incremento, DoD e DoR</li>
+          <li>Kanban: fluxo, WIP, lead time, cycle time, throughput e classes de serviço</li>
+          <li>XP: TDD, pair programming, refatoração, integração contínua e pequenas releases</li>
+          <li>SAFe, LeSS e Nexus em visão de escalonamento ágil</li>
+          <li>Métricas ágeis: velocity, burn-down, burn-up e cumulative flow diagram</li>
+        </ul>
+      </div>
+
+      <div class="day-card" id="s10d6">
+        <div class="day-header">
+          <div>
+            <span class="day-label t-rev">Revisão</span>
+            <div class="day-title">Questões de Engenharia de Software</div>
+            <div class="day-hours">3h • Sábado da Semana 10</div>
+          </div>
+          <button class="day-check" onclick="toggleDay('s10d6')">✓</button>
+        </div>
+        <ul class="day-topics">
+          <li>20 questões de processos, RUP, 12207, CMMI e MPS.BR</li>
+          <li>15 questões de requisitos</li>
+          <li>20 questões de UML</li>
+          <li>15 questões de testes, qualidade e métodos ágeis</li>
+          <li>Desenhar um diagrama de classes e um de casos de uso com notação correta</li>
+          <li>Revisão D+21 de Segurança I</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="week" id="s11">
+  <div class="week-header" onclick="toggleWeek(this)">
+    <div class="week-num">11</div>
+    <div>
+      <div class="week-title">Programação · Web · APIs · Frameworks</div>
+      <div class="week-subtitle">Desenvolvimento cobrado literalmente em editais de TI</div>
+    </div>
+    <div class="week-meta"><span class="week-tag wt-dev">Dev</span><span class="chevron">▾</span></div>
+  </div>
+  <div class="week-body">
+    <div class="progress-bar-wrap"><div class="progress-bar" id="prog-s11" style="width:0%"></div></div>
+    <div class="week-progress-label" id="prog-label-s11">0 / 6 dias concluídos</div><br>
+    <div class="days-grid">
+
+      <div class="day-card" id="s11d1">
+        <div class="day-header">
+          <div>
+            <span class="day-label t-ti">TI</span>
+            <div class="day-title">Lógica de Programação, POO e Estruturas</div>
+            <div class="day-hours">3h • Segunda da Semana 11</div>
+          </div>
+          <button class="day-check" onclick="toggleDay('s11d1')">✓</button>
+        </div>
+        <ul class="day-topics">
+          <li>Algoritmos, variáveis, tipos, operadores, condicionais, laços e funções</li>
+          <li>Estruturas de dados: arrays, listas, pilhas, filas, mapas, árvores e grafos em noções</li>
+          <li>Complexidade básica: O(1), O(log n), O(n), O(n log n), O(n²)</li>
+          <li>POO: classe, objeto, atributo, método, encapsulamento, herança, polimorfismo e abstração</li>
+          <li>Interfaces, classes abstratas, composição vs herança e SOLID em noções</li>
+          <li>Tratamento de exceções, coleções e generics em visão de linguagem</li>
+        </ul>
+      </div>
+
+      <div class="day-card" id="s11d2">
+        <div class="day-header">
+          <div>
+            <span class="day-label t-plus">Analista+</span>
+            <div class="day-title">Java, Jakarta EE, JPA/Hibernate e Spring</div>
+            <div class="day-hours">3h • Terça da Semana 11</div>
+          </div>
+          <button class="day-check" onclick="toggleDay('s11d2')">✓</button>
+        </div>
+        <ul class="day-topics">
+          <li>Java: sintaxe, classes, interfaces, exceções, coleções, streams e anotações em noções</li>
+          <li>Jakarta EE: servlets, CDI, JAX-RS, EJB e arquitetura corporativa em visão geral</li>
+          <li>JPA/Hibernate: entidades, relacionamentos, EntityManager, HQL/JPQL e lazy/eager loading</li>
+          <li>Hibernate Envers, auditoria e versionamento de entidades em noções</li>
+          <li>Spring Boot: configuração, controllers, services, repositories e injeção de dependência</li>
+          <li>Spring Security, Spring Cloud, Eureka, Zuul/Gateway, Config Server e Actuator</li>
+        </ul>
+      </div>
+
+      <div class="day-card" id="s11d3">
+        <div class="day-header">
+          <div>
+            <span class="day-label t-ti">TI</span>
+            <div class="day-title">Web Front-end: HTML, CSS, JavaScript e TypeScript</div>
+            <div class="day-hours">3h • Quarta da Semana 11</div>
+          </div>
+          <button class="day-check" onclick="toggleDay('s11d3')">✓</button>
+        </div>
+        <ul class="day-topics">
+          <li>HTML5: estrutura, semântica, formulários, tabelas, mídia e atributos ARIA em noções</li>
+          <li>CSS3: seletores, box model, flexbox, grid, responsividade e especificidade</li>
+          <li>JavaScript: tipos, escopo, funções, objetos, arrays, promises, async/await e módulos</li>
+          <li>TypeScript: tipagem estática, interfaces, types, generics e classes</li>
+          <li>DOM, eventos, fetch, JSON e manipulação de formulários</li>
+          <li>Bootstrap, Angular Material e noções de jQuery em manutenção de legado</li>
+        </ul>
+      </div>
+
+      <div class="day-card" id="s11d4">
+        <div class="day-header">
+          <div>
+            <span class="day-label t-plus">Analista+</span>
+            <div class="day-title">Angular, Node.js, C# e Ecossistema Web</div>
+            <div class="day-hours">3h • Quinta da Semana 11</div>
+          </div>
+          <button class="day-check" onclick="toggleDay('s11d4')">✓</button>
+        </div>
+        <ul class="day-topics">
+          <li>Angular: componentes, módulos, services, dependency injection, routing e forms</li>
+          <li>RxJS: Observable, subscribe, pipe, map, switchMap e tratamento assíncrono em noções</li>
+          <li>Node.js: event loop, npm, módulos, Express/NestJS em visão geral</li>
+          <li>C#: tipos, classes, LINQ, async/await e ASP.NET Core em noções</li>
+          <li>XML, XSD, JSON, YAML e serialização/deserialização</li>
+          <li>MapStruct, DTOs, mapeamento objeto-objeto e validação de dados</li>
+        </ul>
+      </div>
+
+      <div class="day-card" id="s11d5">
+        <div class="day-header">
+          <div>
+            <span class="day-label t-plus">Analista+</span>
+            <div class="day-title">APIs, Integração e Arquitetura de Serviços</div>
+            <div class="day-hours">3h • Sexta da Semana 11</div>
+          </div>
+          <button class="day-check" onclick="toggleDay('s11d5')">✓</button>
+        </div>
+        <ul class="day-topics">
+          <li>REST: recursos, verbos HTTP, status codes, stateless, idempotência e HATEOAS</li>
+          <li>SOAP, WSDL, XML Schema, UDDI em noções e comparação com REST</li>
+          <li>OpenAPI/Swagger, versionamento de APIs, paginação, filtros e contratos</li>
+          <li>Autenticação em APIs: API key, Basic, Bearer, JWT, OAuth2 e OIDC</li>
+          <li>Mensageria: RabbitMQ, Kafka, filas, tópicos, pub/sub e DLQ</li>
+          <li>Padrões: MVC, DAO, DTO, Repository, Factory, Strategy, Observer, Proxy, Circuit Breaker e Saga</li>
+        </ul>
+      </div>
+
+      <div class="day-card" id="s11d6">
+        <div class="day-header">
+          <div>
+            <span class="day-label t-rev">Revisão</span>
+            <div class="day-title">Questões de Programação e Web</div>
+            <div class="day-hours">3h • Sábado da Semana 11</div>
+          </div>
+          <button class="day-check" onclick="toggleDay('s11d6')">✓</button>
+        </div>
+        <ul class="day-topics">
+          <li>20 questões de POO, algoritmos e estruturas de dados</li>
+          <li>15 questões de Java/JPA/Hibernate/Spring</li>
+          <li>15 questões de HTML/CSS/JS/TS/Angular</li>
+          <li>10 questões de APIs REST/SOAP/OpenAPI/mensageria</li>
+          <li>Criar mapa de padrões de projeto com finalidade e pegadinha típica</li>
+          <li>Revisão D+7 de Engenharia de Software</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="week" id="s12">
+  <div class="week-header" onclick="toggleWeek(this)">
+    <div class="week-num">12</div>
+    <div>
+      <div class="week-title">Arquitetura · DevOps · Containers · Cloud Native</div>
+      <div class="week-subtitle">Entrega, operação, automação e arquitetura moderna</div>
+    </div>
+    <div class="week-meta"><span class="week-tag wt-cloud">DevOps</span><span class="chevron">▾</span></div>
+  </div>
+  <div class="week-body">
+    <div class="progress-bar-wrap"><div class="progress-bar" id="prog-s12" style="width:0%"></div></div>
+    <div class="week-progress-label" id="prog-label-s12">0 / 6 dias concluídos</div><br>
+    <div class="days-grid">
+
+      <div class="day-card" id="s12d1">
+        <div class="day-header">
+          <div>
+            <span class="day-label t-plus">Analista+</span>
+            <div class="day-title">Arquitetura de Sistemas e Integração</div>
+            <div class="day-hours">3h • Segunda da Semana 12</div>
+          </div>
+          <button class="day-check" onclick="toggleDay('s12d1')">✓</button>
+        </div>
+        <ul class="day-topics">
+          <li>Monólito, camadas, hexagonal, limpa, orientada a serviços e microsserviços</li>
+          <li>SOA, ESB, barramento de serviços, orquestração e coreografia</li>
+          <li>API Gateway, service discovery, config server e load balancing</li>
+          <li>Padrões distribuídos: Circuit Breaker, Retry, Timeout, Bulkhead, Saga e Outbox</li>
+          <li>Consistência eventual, transações distribuídas, idempotência e compensação</li>
+          <li>Trade-offs: acoplamento, coesão, latência, observabilidade e complexidade operacional</li>
+        </ul>
+      </div>
+
+      <div class="day-card" id="s12d2">
+        <div class="day-header">
+          <div>
+            <span class="day-label t-ti">TI</span>
+            <div class="day-title">Git, Build, CI/CD e Qualidade de Código</div>
+            <div class="day-hours">3h • Terça da Semana 12</div>
+          </div>
+          <button class="day-check" onclick="toggleDay('s12d2')">✓</button>
+        </div>
+        <ul class="day-topics">
+          <li>Git: commit, branch, merge, rebase, tag, conflito e pull request</li>
+          <li>CI: build automático, testes, análise estática e artefatos</li>
+          <li>CD: delivery vs deployment; stages de pipeline e aprovações</li>
+          <li>Jenkins, GitLab CI, GitHub Actions e Azure DevOps em noções</li>
+          <li>Estratégias de deploy: blue-green, canary, rolling update e feature flags</li>
+          <li>Code review, lint, SonarQube, cobertura, qualidade e débito técnico</li>
+        </ul>
+      </div>
+
+      <div class="day-card" id="s12d3">
+        <div class="day-header">
+          <div>
+            <span class="day-label t-ti">TI</span>
+            <div class="day-title">Docker, Kubernetes e Orquestração</div>
+            <div class="day-hours">3h • Quarta da Semana 12</div>
+          </div>
+          <button class="day-check" onclick="toggleDay('s12d3')">✓</button>
+        </div>
+        <ul class="day-topics">
+          <li>Dockerfile: FROM, RUN, COPY, ADD, CMD, ENTRYPOINT, EXPOSE, ENV e WORKDIR</li>
+          <li>Imagens, camadas, registry, volumes, bind mounts e redes Docker</li>
+          <li>Kubernetes: pod, replica set, deployment, service, ingress, namespace, configmap e secret</li>
+          <li>Liveness/readiness/startup probes, requests/limits e escalabilidade</li>
+          <li>Helm, manifests YAML, rolling update e rollback</li>
+          <li>Segurança em containers: least privilege, image scanning, secrets e runtime security</li>
+        </ul>
+      </div>
+
+      <div class="day-card" id="s12d4">
+        <div class="day-header">
+          <div>
+            <span class="day-label t-plus">Analista+</span>
+            <div class="day-title">Infrastructure as Code e Automação</div>
+            <div class="day-hours">3h • Quinta da Semana 12</div>
+          </div>
+          <button class="day-check" onclick="toggleDay('s12d4')">✓</button>
+        </div>
+        <ul class="day-topics">
+          <li>IaC: conceito, benefícios, idempotência e controle de versão</li>
+          <li>Terraform: providers, resources, state, plan, apply e destroy em noções</li>
+          <li>Ansible: playbooks, inventory, modules e automação de configuração</li>
+          <li>Puppet/Chef em noções históricas e comparação</li>
+          <li>Ambientes dev/homolog/prod, configuração externa e gestão de segredos</li>
+          <li>Automação operacional: scripts, runbooks, ChatOps e pipelines</li>
+        </ul>
+      </div>
+
+      <div class="day-card" id="s12d5">
+        <div class="day-header">
+          <div>
+            <span class="day-label t-plus">Analista+</span>
+            <div class="day-title">Observabilidade, SRE e Operação</div>
+            <div class="day-hours">3h • Sexta da Semana 12</div>
+          </div>
+          <button class="day-check" onclick="toggleDay('s12d5')">✓</button>
+        </div>
+        <ul class="day-topics">
+          <li>Logs, métricas e traces: três pilares da observabilidade</li>
+          <li>Prometheus, Grafana, Alertmanager, exporters e PromQL básico</li>
+          <li>ELK/OpenSearch: Elasticsearch, Logstash/Fluentd/Fluent Bit e Kibana</li>
+          <li>SRE: SLI, SLO, SLA, error budget, toil e postmortem sem culpa</li>
+          <li>Monitoramento sintético, APM, tracing distribuído e OpenTelemetry em noções</li>
+          <li>Gestão de incidentes, severidade, comunicação e lições aprendidas</li>
+        </ul>
+      </div>
+
+      <div class="day-card" id="s12d6">
+        <div class="day-header">
+          <div>
+            <span class="day-label t-rev">Revisão</span>
+            <div class="day-title">Questões de Arquitetura e DevOps</div>
+            <div class="day-hours">3h • Sábado da Semana 12</div>
+          </div>
+          <button class="day-check" onclick="toggleDay('s12d6')">✓</button>
+        </div>
+        <ul class="day-topics">
+          <li>20 questões de arquitetura, SOA, microsserviços e padrões</li>
+          <li>15 questões de Git, CI/CD e deploy</li>
+          <li>20 questões de Docker/Kubernetes/IaC</li>
+          <li>10 questões de observabilidade, SRE e monitoramento</li>
+          <li>Atualizar caderno de siglas: SLI, SLO, SLA, SRE, IaC, CI, CD</li>
+          <li>Revisão D+21 de Banco Relacional</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="week" id="s13">
+  <div class="week-header" onclick="toggleWeek(this)">
+    <div class="week-num">13</div>
+    <div>
+      <div class="week-title">Cloud Computing · Storage · Alta Disponibilidade</div>
+      <div class="week-subtitle">Nuvem, armazenamento corporativo e resiliência</div>
+    </div>
+    <div class="week-meta"><span class="week-tag wt-cloud">Cloud</span><span class="chevron">▾</span></div>
+  </div>
+  <div class="week-body">
+    <div class="progress-bar-wrap"><div class="progress-bar" id="prog-s13" style="width:0%"></div></div>
+    <div class="week-progress-label" id="prog-label-s13">0 / 6 dias concluídos</div><br>
+    <div class="days-grid">
+
+      <div class="day-card" id="s13d1">
+        <div class="day-header">
+          <div>
+            <span class="day-label t-ti">TI</span>
+            <div class="day-title">Cloud Computing — NIST SP 800-145</div>
+            <div class="day-hours">3h • Segunda da Semana 13</div>
+          </div>
+          <button class="day-check" onclick="toggleDay('s13d1')">✓</button>
+        </div>
+        <ul class="day-topics">
+          <li>Cinco características essenciais: on-demand self-service, broad network access, resource pooling, rapid elasticity e measured service</li>
+          <li>Modelos de serviço: IaaS, PaaS, SaaS, FaaS, BaaS e DBaaS</li>
+          <li>Modelos de implantação: pública, privada, híbrida e comunitária</li>
+          <li>Responsabilidade compartilhada: provedor vs cliente</li>
+          <li>Regiões, zonas de disponibilidade, edge, CDN e latência</li>
+          <li>Custos em nuvem: pay-as-you-go, rightsizing, reservas e FinOps em noções</li>
+        </ul>
+      </div>
+
+      <div class="day-card" id="s13d2">
+        <div class="day-header">
+          <div>
+            <span class="day-label t-ti">TI</span>
+            <div class="day-title">AWS, Azure e GCP — Serviços Essenciais</div>
+            <div class="day-hours">3h • Terça da Semana 13</div>
+          </div>
+          <button class="day-check" onclick="toggleDay('s13d2')">✓</button>
+        </div>
+        <ul class="day-topics">
+          <li>AWS: EC2, S3, RDS, Lambda, IAM, VPC, CloudWatch e CloudFormation em noções</li>
+          <li>Azure: VM, Blob Storage, Azure SQL, Functions, Entra ID/Azure AD, VNet e Monitor</li>
+          <li>GCP: Compute Engine, Cloud Storage, BigQuery, Cloud Functions, IAM e VPC</li>
+          <li>Compute, storage, network, database, IAM e observability nos três provedores</li>
+          <li>Serverless: cold start, stateless, eventos, limites e escalabilidade</li>
+          <li>Containers gerenciados: EKS, AKS, GKE e registries</li>
+        </ul>
+      </div>
+
+      <div class="day-card" id="s13d3">
+        <div class="day-header">
+          <div>
+            <span class="day-label t-ti">TI</span>
+            <div class="day-title">Armazenamento Corporativo</div>
+            <div class="day-hours">3h • Quarta da Semana 13</div>
+          </div>
+          <button class="day-check" onclick="toggleDay('s13d3')">✓</button>
+        </div>
+        <ul class="day-topics">
+          <li>DAS, NAS, SAN e armazenamento definido por software</li>
+          <li>SAN: Fibre Channel, iSCSI e FCoE; zoning e LUN em noções</li>
+          <li>NAS: SMB/CIFS e NFS; permissões, compartilhamento e casos de uso</li>
+          <li>Objeto, bloco e arquivo em nuvem: S3, EBS, EFS e equivalentes</li>
+          <li>Deduplicação, compressão, thin provisioning e snapshots</li>
+          <li>Backup, retenção, imutabilidade, air gap e ransomware resilience</li>
+        </ul>
+      </div>
+
+      <div class="day-card" id="s13d4">
+        <div class="day-header">
+          <div>
+            <span class="day-label t-plus">Analista+</span>
+            <div class="day-title">Alta Disponibilidade, DR e Escalabilidade</div>
+            <div class="day-hours">3h • Quinta da Semana 13</div>
+          </div>
+          <button class="day-check" onclick="toggleDay('s13d4')">✓</button>
+        </div>
+        <ul class="day-topics">
+          <li>HA vs DR; redundância, failover, failback e eliminação de SPOF</li>
+          <li>Cluster active-active e active-passive; balanceamento L4/L7</li>
+          <li>Replicação síncrona e assíncrona; consistência e latência</li>
+          <li>RTO, RPO, MTD, MTBF, MTTR e disponibilidade percentual</li>
+          <li>Arquiteturas multi-AZ, multi-region e disaster recovery drills</li>
+          <li>Chaos engineering em noções e testes de resiliência</li>
+        </ul>
+      </div>
+
+      <div class="day-card" id="s13d5">
+        <div class="day-header">
+          <div>
+            <span class="day-label t-plus">Analista+</span>
+            <div class="day-title">Segurança e Governança em Nuvem</div>
+            <div class="day-hours">3h • Sexta da Semana 13</div>
+          </div>
+          <button class="day-check" onclick="toggleDay('s13d5')">✓</button>
+        </div>
+        <ul class="day-topics">
+          <li>IAM cloud: usuários, grupos, roles, policies e least privilege</li>
+          <li>Criptografia em trânsito e repouso; KMS, HSM e rotação de chaves</li>
+          <li>Security groups, NACLs, WAF, proteção DDoS e segmentação</li>
+          <li>CSPM, CWPP e CNAPP em noções</li>
+          <li>Logs de auditoria, trilhas, compliance e monitoramento contínuo</li>
+          <li>Riscos de cloud: má configuração, exposição pública, chaves vazadas e shadow IT</li>
+        </ul>
+      </div>
+
+      <div class="day-card" id="s13d6">
+        <div class="day-header">
+          <div>
+            <span class="day-label t-rev">Revisão</span>
+            <div class="day-title">Questões de Cloud e Storage</div>
+            <div class="day-hours">3h • Sábado da Semana 13</div>
+          </div>
+          <button class="day-check" onclick="toggleDay('s13d6')">✓</button>
+        </div>
+        <ul class="day-topics">
+          <li>20 questões de NIST Cloud e modelos IaaS/PaaS/SaaS</li>
+          <li>15 questões de AWS/Azure/GCP em conceitos</li>
+          <li>15 questões de storage, RAID, SAN/NAS e backup</li>
+          <li>15 questões de HA, DR e resiliência</li>
+          <li>Criar tabela: RTO/RPO/MTBF/MTTR/HA/DR</li>
+          <li>Revisão D+7 de DevOps</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="week" id="s14">
+  <div class="week-header" onclick="toggleWeek(this)">
+    <div class="week-num">14</div>
+    <div>
+      <div class="week-title">Governança de TI · ITIL · COBIT · Gestão de Projetos</div>
+      <div class="week-subtitle">Governança, serviços, processos e projetos de TI</div>
+    </div>
+    <div class="week-meta"><span class="week-tag wt-gov">Governança</span><span class="chevron">▾</span></div>
+  </div>
+  <div class="week-body">
+    <div class="progress-bar-wrap"><div class="progress-bar" id="prog-s14" style="width:0%"></div></div>
+    <div class="week-progress-label" id="prog-label-s14">0 / 6 dias concluídos</div><br>
+    <div class="days-grid">
+
+      <div class="day-card" id="s14d1">
+        <div class="day-header">
+          <div>
+            <span class="day-label t-ti">TI</span>
+            <div class="day-title">ITIL 4 — Conceitos e Sistema de Valor</div>
+            <div class="day-hours">3h • Segunda da Semana 14</div>
+          </div>
+          <button class="day-check" onclick="toggleDay('s14d1')">✓</button>
+        </div>
+        <ul class="day-topics">
+          <li>Serviço, valor, organização, cliente, usuário, patrocinador e relacionamento de serviço</li>
+          <li>Quatro dimensões do gerenciamento de serviços</li>
+          <li>Sistema de Valor de Serviço: cadeia de valor, práticas, princípios, governança e melhoria contínua</li>
+          <li>Sete princípios orientadores do ITIL 4</li>
+          <li>Cadeia de valor: plan, improve, engage, design and transition, obtain/build, deliver and support</li>
+          <li>Pegadinhas: valor não é só produto; foco em co-criação de valor</li>
+        </ul>
+      </div>
+
+      <div class="day-card" id="s14d2">
+        <div class="day-header">
+          <div>
+            <span class="day-label t-ti">TI</span>
+            <div class="day-title">ITIL 4 — Práticas de Gerenciamento</div>
+            <div class="day-hours">3h • Terça da Semana 14</div>
+          </div>
+          <button class="day-check" onclick="toggleDay('s14d2')">✓</button>
+        </div>
+        <ul class="day-topics">
+          <li>Práticas gerais: arquitetura, melhoria contínua, segurança da informação, relacionamento e fornecedores</li>
+          <li>Práticas de serviço: incidentes, problemas, mudanças, requisições, catálogo, nível de serviço e disponibilidade</li>
+          <li>Práticas técnicas: implantação, infraestrutura e plataformas, desenvolvimento e gestão de software</li>
+          <li>Incidente vs problema; mudança normal, padrão e emergencial</li>
+          <li>SLA, OLA, UC, catálogo de serviços e central de serviços</li>
+          <li>Métricas de suporte e melhoria contínua</li>
+        </ul>
+      </div>
+
+      <div class="day-card" id="s14d3">
+        <div class="day-header">
+          <div>
+            <span class="day-label t-plus">Analista+</span>
+            <div class="day-title">COBIT 2019 e Governança Corporativa de TI</div>
+            <div class="day-hours">3h • Quarta da Semana 14</div>
+          </div>
+          <button class="day-check" onclick="toggleDay('s14d3')">✓</button>
+        </div>
+        <ul class="day-topics">
+          <li>Governança vs gestão; objetivos de governança e gestão</li>
+          <li>Princípios do sistema de governança e do framework COBIT 2019</li>
+          <li>Componentes do sistema de governança: processos, estruturas, informação, cultura, pessoas, serviços e políticas</li>
+          <li>Domínios: EDM, APO, BAI, DSS e MEA</li>
+          <li>Design factors e goals cascade em noções</li>
+          <li>Capacidade de processo e níveis de maturidade em visão de prova</li>
+        </ul>
+      </div>
+
+      <div class="day-card" id="s14d4">
+        <div class="day-header">
+          <div>
+            <span class="day-label t-plus">Analista+</span>
+            <div class="day-title">Gestão de Projetos, PMBOK e Ágil Híbrido</div>
+            <div class="day-hours">3h • Quinta da Semana 14</div>
+          </div>
+          <button class="day-check" onclick="toggleDay('s14d4')">✓</button>
+        </div>
+        <ul class="day-topics">
+          <li>PMBOK 6: grupos de processos e áreas de conhecimento em visão clássica</li>
+          <li>PMBOK 7: princípios, domínios de desempenho e tailoring</li>
+          <li>Escopo, cronograma, custos, qualidade, recursos, comunicações, riscos, aquisições e stakeholders</li>
+          <li>EAP/WBS, caminho crítico, valor agregado e matriz RACI</li>
+          <li>Gerenciamento de riscos: identificação, análise qualitativa/quantitativa e respostas</li>
+          <li>Integração entre gestão tradicional, ágil e híbrida</li>
+        </ul>
+      </div>
+
+      <div class="day-card" id="s14d5">
+        <div class="day-header">
+          <div>
+            <span class="day-label t-geral">Geral</span>
+            <div class="day-title">Gestão Pública, BPMN e Planejamento</div>
+            <div class="day-hours">3h • Sexta da Semana 14</div>
+          </div>
+          <button class="day-check" onclick="toggleDay('s14d5')">✓</button>
+        </div>
+        <ul class="day-topics">
+          <li>Gestão por processos: processo, subprocesso, atividade, tarefa e evento</li>
+          <li>BPMN: eventos, atividades, gateways, pools, lanes, fluxos e artefatos</li>
+          <li>BSC, mapa estratégico, objetivos, indicadores, metas e iniciativas</li>
+          <li>SWOT, PDCA, 5W2H, Ishikawa, Pareto e matriz GUT</li>
+          <li>Governança pública, accountability, transparência e eficiência</li>
+          <li>Decreto 9.094/2017 e simplificação de serviços públicos em noções</li>
+        </ul>
+      </div>
+
+      <div class="day-card" id="s14d6">
+        <div class="day-header">
+          <div>
+            <span class="day-label t-rev">Revisão</span>
+            <div class="day-title">Questões de Governança e Gestão</div>
+            <div class="day-hours">3h • Sábado da Semana 14</div>
+          </div>
+          <button class="day-check" onclick="toggleDay('s14d6')">✓</button>
+        </div>
+        <ul class="day-topics">
+          <li>25 questões de ITIL 4</li>
+          <li>20 questões de COBIT 2019</li>
+          <li>15 questões de PMBOK e gestão de projetos</li>
+          <li>15 questões de BPMN, BSC e gestão pública</li>
+          <li>Tabela comparativa: ITIL = serviço; COBIT = governança; PMBOK = projeto</li>
+          <li>Revisão D+21 de Programação</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="week" id="s15">
+  <div class="week-header" onclick="toggleWeek(this)">
+    <div class="week-num">15</div>
+    <div>
+      <div class="week-title">TIC no Judiciário · CNJ · PDPJ-Br · Contratações · Acessibilidade</div>
+      <div class="week-subtitle">Normativos e tecnologia específicos do Poder Judiciário</div>
+    </div>
+    <div class="week-meta"><span class="week-tag wt-gov">Judiciário TIC</span><span class="chevron">▾</span></div>
+  </div>
+  <div class="week-body">
+    <div class="progress-bar-wrap"><div class="progress-bar" id="prog-s15" style="width:0%"></div></div>
+    <div class="week-progress-label" id="prog-label-s15">0 / 6 dias concluídos</div><br>
+    <div class="days-grid">
+
+      <div class="day-card" id="s15d1">
+        <div class="day-header">
+          <div>
+            <span class="day-label t-geral">Geral</span>
+            <div class="day-title">Estratégia Nacional do Poder Judiciário</div>
+            <div class="day-hours">3h • Segunda da Semana 15</div>
+          </div>
+          <button class="day-check" onclick="toggleDay('s15d1')">✓</button>
+        </div>
+        <ul class="day-topics">
+          <li>Resolução CNJ 325/2020: Estratégia Nacional do Poder Judiciário 2021-2026</li>
+          <li>Macrodesafios, alinhamento dos planos estratégicos e monitoramento</li>
+          <li>Metas nacionais do Judiciário e Justiça em Números em noções</li>
+          <li>Planejamento estratégico institucional do TRT-alvo</li>
+          <li>Governança, transparência, dados estatísticos e painéis de acompanhamento</li>
+          <li>Como a banca mistura gestão pública, CNJ e TIC</li>
+        </ul>
+      </div>
+
+      <div class="day-card" id="s15d2">
+        <div class="day-header">
+          <div>
+            <span class="day-label t-plus">Analista+</span>
+            <div class="day-title">ENTIC-JUD e Governança de TIC</div>
+            <div class="day-hours">3h • Terça da Semana 15</div>
+          </div>
+          <button class="day-check" onclick="toggleDay('s15d2')">✓</button>
+        </div>
+        <ul class="day-topics">
+          <li>Resolução CNJ 370/2021: ENTIC-JUD 2021-2026</li>
+          <li>Governança, gestão e colaboração tecnológica no Judiciário</li>
+          <li>iGovTIC-JUD, metas de maturidade, indicadores e acompanhamento</li>
+          <li>Objetivos ligados à segurança da informação, dados, infraestrutura e soluções corporativas</li>
+          <li>Comitês, planejamento, portfólio, orçamento e priorização de TIC</li>
+          <li>Relação entre ENTIC-JUD, PDTIC, planos estratégicos e governança institucional</li>
+        </ul>
+      </div>
+
+      <div class="day-card" id="s15d3">
+        <div class="day-header">
+          <div>
+            <span class="day-label t-plus">Analista+</span>
+            <div class="day-title">PDPJ-Br, PJe e Sistemas Judiciais</div>
+            <div class="day-hours">3h • Quarta da Semana 15</div>
+          </div>
+          <button class="day-check" onclick="toggleDay('s15d3')">✓</button>
+        </div>
+        <ul class="day-topics">
+          <li>Resolução CNJ 335/2020: política pública de governança e gestão do processo judicial eletrônico</li>
+          <li>PDPJ-Br: integração e consolidação dos sistemas eletrônicos do Judiciário</li>
+          <li>PJe como sistema prioritário do CNJ e plataforma multisserviço</li>
+          <li>Arquitetura PDPJ-Br: microsserviços, APIs, marketplace, barramento e interoperabilidade em noções</li>
+          <li>Portarias e atos relacionados à governança da PDPJ-Br em visão de edital</li>
+          <li>Riscos de prova: decorar número da resolução e finalidade principal</li>
+        </ul>
+      </div>
+
+      <div class="day-card" id="s15d4">
+        <div class="day-header">
+          <div>
+            <span class="day-label t-plus">Analista+</span>
+            <div class="day-title">Contratações de TIC no Judiciário</div>
+            <div class="day-hours">3h • Quinta da Semana 15</div>
+          </div>
+          <button class="day-check" onclick="toggleDay('s15d4')">✓</button>
+        </div>
+        <ul class="day-topics">
+          <li>Resolução CNJ 468/2022: diretrizes para contratações de bens e serviços de TIC no Judiciário</li>
+          <li>Atualização pela Resolução CNJ 616/2025 e uso da Lei 14.133/2021 e LC 182/2021</li>
+          <li>Solução de TIC, Plano de Contratações de STIC/TIC e guia de contratações</li>
+          <li>Estudo técnico preliminar, análise de riscos, termo de referência e gestão contratual em noções</li>
+          <li>Fiscalização técnica, administrativa e requisitante; papéis e responsabilidades</li>
+          <li>Ligação com COBIT, ITIL, PMBOK, segurança, LGPD e governança pública</li>
+        </ul>
+      </div>
+
+      <div class="day-card" id="s15d5">
+        <div class="day-header">
+          <div>
+            <span class="day-label t-ti">TI</span>
+            <div class="day-title">Acessibilidade Digital, Governo Digital e Inclusão</div>
+            <div class="day-hours">3h • Sexta da Semana 15</div>
+          </div>
+          <button class="day-check" onclick="toggleDay('s15d5')">✓</button>
+        </div>
+        <ul class="day-topics">
+          <li>WCAG 2.2: princípios perceptível, operável, compreensível e robusto; níveis A, AA e AAA</li>
+          <li>eMAG: recomendações para acessibilidade dos sítios e portais do governo brasileiro</li>
+          <li>HTML semântico, texto alternativo, contraste, navegação por teclado e foco visível</li>
+          <li>ARIA: papéis, estados, propriedades e uso com parcimônia</li>
+          <li>Leitores de tela, formulários acessíveis, legendas, audiodescrição e linguagem simples</li>
+          <li>Lei Brasileira de Inclusão aplicada a sistemas, portais e atendimento digital</li>
+        </ul>
+      </div>
+
+      <div class="day-card" id="s15d6">
+        <div class="day-header">
+          <div>
+            <span class="day-label t-rev">Revisão</span>
+            <div class="day-title">Questões de CNJ/TIC/Acessibilidade</div>
+            <div class="day-hours">3h • Sábado da Semana 15</div>
+          </div>
+          <button class="day-check" onclick="toggleDay('s15d6')">✓</button>
+        </div>
+        <ul class="day-topics">
+          <li>20 questões de Estratégia Nacional do Judiciário e gestão pública</li>
+          <li>20 questões de ENTIC-JUD e governança de TIC</li>
+          <li>15 questões de PDPJ-Br/PJe/interoperabilidade</li>
+          <li>15 questões de contratações TIC e Lei 14.133 aplicada a TI</li>
+          <li>10 questões de acessibilidade digital, WCAG/eMAG e inclusão</li>
+          <li>Tabela obrigatória: número da resolução → assunto → palavra-chave</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="week" id="s16">
+  <div class="week-header" onclick="toggleWeek(this)">
+    <div class="week-num">16</div>
+    <div>
+      <div class="week-title">Inteligência Artificial · Ciência de Dados · Ética</div>
+      <div class="week-subtitle">IA, ML, NLP e uso no Poder Judiciário</div>
+    </div>
+    <div class="week-meta"><span class="week-tag wt-cloud">IA &amp; Dados</span><span class="chevron">▾</span></div>
+  </div>
+  <div class="week-body">
+    <div class="progress-bar-wrap"><div class="progress-bar" id="prog-s16" style="width:0%"></div></div>
+    <div class="week-progress-label" id="prog-label-s16">0 / 6 dias concluídos</div><br>
+    <div class="days-grid">
+
+      <div class="day-card" id="s16d1">
+        <div class="day-header">
+          <div>
+            <span class="day-label t-plus">Analista+</span>
+            <div class="day-title">Fundamentos de IA e Machine Learning</div>
+            <div class="day-hours">3h • Segunda da Semana 16</div>
+          </div>
+          <button class="day-check" onclick="toggleDay('s16d1')">✓</button>
+        </div>
+        <ul class="day-topics">
+          <li>IA, aprendizado de máquina, aprendizado profundo e ciência de dados</li>
+          <li>Aprendizado supervisionado, não supervisionado e por reforço</li>
+          <li>Regressão, classificação, clustering, redução de dimensionalidade e recomendação</li>
+          <li>Treino, validação, teste, generalização, overfitting e underfitting</li>
+          <li>Métricas: acurácia, precisão, revocação, F1, matriz de confusão, ROC/AUC e RMSE</li>
+          <li>Pipeline de ML: coleta, limpeza, features, modelo, avaliação e implantação</li>
+        </ul>
+      </div>
+
+      <div class="day-card" id="s16d2">
+        <div class="day-header">
+          <div>
+            <span class="day-label t-plus">Analista+</span>
+            <div class="day-title">Algoritmos de ML cobrados em concurso</div>
+            <div class="day-hours">3h • Terça da Semana 16</div>
+          </div>
+          <button class="day-check" onclick="toggleDay('s16d2')">✓</button>
+        </div>
+        <ul class="day-topics">
+          <li>Regressão linear e logística em noções</li>
+          <li>Árvore de decisão: nós, folhas, impureza, ganho de informação e superajuste</li>
+          <li>Random Forest: ensemble, bagging, robustez e importância de variáveis</li>
+          <li>SVM: hiperplano, margem, vetores de suporte e kernel em noções</li>
+          <li>K-means: escolha de k, centróides, distância e limitações</li>
+          <li>Cluster hierárquico, Ward, dendrograma e DBSCAN em noções</li>
+        </ul>
+      </div>
+
+      <div class="day-card" id="s16d3">
+        <div class="day-header">
+          <div>
+            <span class="day-label t-plus">Analista+</span>
+            <div class="day-title">Deep Learning e NLP</div>
+            <div class="day-hours">3h • Quarta da Semana 16</div>
+          </div>
+          <button class="day-check" onclick="toggleDay('s16d3')">✓</button>
+        </div>
+        <ul class="day-topics">
+          <li>Redes neurais: neurônios, pesos, bias, função de ativação, camadas e backpropagation em noções</li>
+          <li>CNN: convolução, filtros, pooling e aplicações em imagem</li>
+          <li>RNN, LSTM e GRU em noções para sequências</li>
+          <li>NLP: tokenização, stemming, lematização, stopwords, n-grams e embeddings</li>
+          <li>Transformers, atenção, LLMs, prompt, fine-tuning e RAG em visão conceitual</li>
+          <li>Limitações: alucinação, viés, explicabilidade, privacidade e segurança</li>
+        </ul>
+      </div>
+
+      <div class="day-card" id="s16d4">
+        <div class="day-header">
+          <div>
+            <span class="day-label t-plus">Analista+</span>
+            <div class="day-title">IA no Judiciário e Resolução CNJ 332/2020</div>
+            <div class="day-hours">3h • Quinta da Semana 16</div>
+          </div>
+          <button class="day-check" onclick="toggleDay('s16d4')">✓</button>
+        </div>
+        <ul class="day-topics">
+          <li>Resolução CNJ 332/2020: ética, transparência e governança na produção e uso de IA no Judiciário</li>
+          <li>Princípios: respeito aos direitos fundamentais, não discriminação, publicidade, transparência e controle do usuário</li>
+          <li>Victor/STF, Sócrates/CSJT e aplicações de triagem, classificação e apoio à decisão em noções</li>
+          <li>IA como apoio, não substituição indevida da decisão judicial humana</li>
+          <li>Riscos: viés algorítmico, opacidade, automação excessiva e proteção de dados</li>
+          <li>Auditoria, documentação, explicabilidade e responsabilidade em sistemas de IA</li>
+        </ul>
+      </div>
+
+      <div class="day-card" id="s16d5">
+        <div class="day-header">
+          <div>
+            <span class="day-label t-plus">Analista+</span>
+            <div class="day-title">Ética, Segurança e Governança de IA</div>
+            <div class="day-hours">3h • Sexta da Semana 16</div>
+          </div>
+          <button class="day-check" onclick="toggleDay('s16d5')">✓</button>
+        </div>
+        <ul class="day-topics">
+          <li>Viés, fairness, accountability, transparency e explainability</li>
+          <li>Dados sensíveis, anonimização, minimização e bases legais na LGPD</li>
+          <li>Ataques a IA: data poisoning, prompt injection, model inversion e vazamento de dados em noções</li>
+          <li>MLOps: versionamento de dados/modelos, monitoramento de drift e reprodutibilidade</li>
+          <li>Uso responsável de IA generativa no setor público</li>
+          <li>Como resolver questões: identificar promessa exagerada, ausência de controle humano ou violação de dados</li>
+        </ul>
+      </div>
+
+      <div class="day-card" id="s16d6">
+        <div class="day-header">
+          <div>
+            <span class="day-label t-rev">Revisão</span>
+            <div class="day-title">Questões de IA, ML e Dados</div>
+            <div class="day-hours">3h • Sábado da Semana 16</div>
+          </div>
+          <button class="day-check" onclick="toggleDay('s16d6')">✓</button>
+        </div>
+        <ul class="day-topics">
+          <li>25 questões de conceitos de ML e algoritmos</li>
+          <li>15 questões de clustering, SVM, árvore e random forest</li>
+          <li>15 questões de NLP, deep learning e LLMs</li>
+          <li>15 questões de IA no Judiciário, ética e Resolução CNJ 332/2020</li>
+          <li>Quadro comparativo: regressão, classificação e clustering</li>
+          <li>Revisão D+7 de CNJ/TIC</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="week" id="s17">
+  <div class="week-header" onclick="toggleWeek(this)">
+    <div class="week-num">17</div>
+    <div>
+      <div class="week-title">Revisão Integrada I · Gerais · Direito · Normativos</div>
+      <div class="week-subtitle">Consolidação do que mais derruba nota fora de TI pura</div>
+    </div>
+    <div class="week-meta"><span class="week-tag wt-final">Revisão</span><span class="chevron">▾</span></div>
+  </div>
+  <div class="week-body">
+    <div class="progress-bar-wrap"><div class="progress-bar" id="prog-s17" style="width:0%"></div></div>
+    <div class="week-progress-label" id="prog-label-s17">0 / 6 dias concluídos</div><br>
+    <div class="days-grid">
+
+      <div class="day-card" id="s17d1">
+        <div class="day-header">
+          <div>
+            <span class="day-label t-rev">Revisão</span>
+            <div class="day-title">Português e Inglês Técnico — Revisão Forte</div>
+            <div class="day-hours">3h • Segunda da Semana 17</div>
+          </div>
+          <button class="day-check" onclick="toggleDay('s17d1')">✓</button>
+        </div>
+        <ul class="day-topics">
+          <li>Resolver 40 questões de Português misturando interpretação, sintaxe, pontuação, crase e reescrita</li>
+          <li>Resolver 15 questões de Inglês Técnico ou textos curtos de documentação de TI</li>
+          <li>Revisar somente erros recorrentes, não reler teoria inteira</li>
+          <li>Atualizar lista de conectivos, regência e casos de crase</li>
+          <li>Fazer leitura cronometrada de texto técnico em inglês</li>
+          <li>Marcar 5 pontos que ainda precisam de reforço</li>
+        </ul>
+      </div>
+
+      <div class="day-card" id="s17d2">
+        <div class="day-header">
+          <div>
+            <span class="day-label t-rev">Revisão</span>
+            <div class="day-title">Direito Constitucional, Administrativo e Lei 8.112</div>
+            <div class="day-hours">3h • Terça da Semana 17</div>
+          </div>
+          <button class="day-check" onclick="toggleDay('s17d2')">✓</button>
+        </div>
+        <ul class="day-topics">
+          <li>Resolver 20 questões de Constitucional com foco no Poder Judiciário</li>
+          <li>Resolver 20 questões de Administrativo: atos, poderes, organização e licitações</li>
+          <li>Resolver 15 questões de Lei 8.112 e regime disciplinar</li>
+          <li>Revisar artigos e conceitos que foram confundidos</li>
+          <li>Separar pegadinhas: anulação/revogação, descentralização/desconcentração, provimento/vacância</li>
+          <li>Revisão ativa em voz alta por 20 minutos</li>
+        </ul>
+      </div>
+
+      <div class="day-card" id="s17d3">
+        <div class="day-header">
+          <div>
+            <span class="day-label t-rev">Revisão</span>
+            <div class="day-title">Direito do Trabalho, Processo e Regimento Interno</div>
+            <div class="day-hours">3h • Quarta da Semana 17</div>
+          </div>
+          <button class="day-check" onclick="toggleDay('s17d3')">✓</button>
+        </div>
+        <ul class="day-topics">
+          <li>Resolver 20 questões de noções trabalhistas e processo do trabalho</li>
+          <li>Ler o índice e os artigos centrais do Regimento Interno do TRT-alvo</li>
+          <li>Montar quadro: órgão → composição → competência</li>
+          <li>Revisar estrutura da Justiça do Trabalho</li>
+          <li>Fazer flashcards de prazos, recursos e competências quando aplicável</li>
+          <li>Marcar pontos dependentes do edital específico</li>
+        </ul>
+      </div>
+
+      <div class="day-card" id="s17d4">
+        <div class="day-header">
+          <div>
+            <span class="day-label t-rev">Revisão</span>
+            <div class="day-title">Normativos CNJ e TIC no Judiciário</div>
+            <div class="day-hours">3h • Quinta da Semana 17</div>
+          </div>
+          <button class="day-check" onclick="toggleDay('s17d4')">✓</button>
+        </div>
+        <ul class="day-topics">
+          <li>Resolver 30 questões ou assertivas sobre CNJ, PDPJ-Br, ENTIC-JUD e contratações TIC</li>
+          <li>Tabela obrigatória: CNJ 325, 332, 335, 370, 468 e 616</li>
+          <li>Revisar finalidade de cada ato e palavra-chave de identificação</li>
+          <li>Revisar WCAG/eMAG, acessibilidade e inclusão digital</li>
+          <li>Simular perguntas: &#x27;qual resolução institui o quê?&#x27;</li>
+          <li>Eliminar confusões entre governança institucional, TIC, IA e contratações</li>
+        </ul>
+      </div>
+
+      <div class="day-card" id="s17d5">
+        <div class="day-header">
+          <div>
+            <span class="day-label t-rev">Revisão</span>
+            <div class="day-title">Raciocínio Lógico e Matemática Básica</div>
+            <div class="day-hours">3h • Sexta da Semana 17</div>
+          </div>
+          <button class="day-check" onclick="toggleDay('s17d5')">✓</button>
+        </div>
+        <ul class="day-topics">
+          <li>Resolver 30 questões de lógica proposicional e argumentação</li>
+          <li>Resolver 15 questões de porcentagem, razão, proporção e regra de três</li>
+          <li>Resolver 10 questões de conjuntos e diagramas lógicos</li>
+          <li>Revisar equivalências, negações e quantificadores</li>
+          <li>Treinar controle de tempo por questão</li>
+          <li>Atualizar caderno de fórmulas e equivalências</li>
+        </ul>
+      </div>
+
+      <div class="day-card" id="s17d6">
+        <div class="day-header">
+          <div>
+            <span class="day-label t-sim">Simulado</span>
+            <div class="day-title">Simulado Parcial Gerais + Direito</div>
+            <div class="day-hours">3h • Sábado da Semana 17</div>
+          </div>
+          <button class="day-check" onclick="toggleDay('s17d6')">✓</button>
+        </div>
+        <ul class="day-topics">
+          <li>Simulado cronometrado: 60 questões de conhecimentos gerais, direito e normativos</li>
+          <li>Correção em três camadas: conteúdo, interpretação e tempo</li>
+          <li>Classificar erros por matéria e por causa</li>
+          <li>Revisar apenas os 10 erros mais perigosos</li>
+          <li>Definir prioridade de revisão para a próxima semana</li>
+          <li>Meta: 75% geral; abaixo de 65%, replanejar os blocos fracos</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="week" id="s18">
+  <div class="week-header" onclick="toggleWeek(this)">
+    <div class="week-num">18</div>
+    <div>
+      <div class="week-title">Revisão Integrada II · Infra · Redes · Segurança · BD</div>
+      <div class="week-subtitle">Consolidação dos blocos técnicos de maior peso</div>
+    </div>
+    <div class="week-meta"><span class="week-tag wt-final">Revisão TI</span><span class="chevron">▾</span></div>
+  </div>
+  <div class="week-body">
+    <div class="progress-bar-wrap"><div class="progress-bar" id="prog-s18" style="width:0%"></div></div>
+    <div class="week-progress-label" id="prog-label-s18">0 / 6 dias concluídos</div><br>
+    <div class="days-grid">
+
+      <div class="day-card" id="s18d1">
+        <div class="day-header">
+          <div>
+            <span class="day-label t-rev">Revisão</span>
+            <div class="day-title">Infraestrutura, SO e Virtualização</div>
+            <div class="day-hours">3h • Segunda da Semana 18</div>
+          </div>
+          <button class="day-check" onclick="toggleDay('s18d1')">✓</button>
+        </div>
+        <ul class="day-topics">
+          <li>Resolver 20 questões de arquitetura de computadores e SO</li>
+          <li>Resolver 20 questões de Linux/Windows/AD/PowerShell</li>
+          <li>Resolver 15 questões de Docker, Kubernetes e virtualização</li>
+          <li>Revisar comandos Linux e Windows mais cobrados</li>
+          <li>Revisar memória, processo, deadlock, permissões e LVM</li>
+          <li>Criar quadro final de comandos e conceitos</li>
+        </ul>
+      </div>
+
+      <div class="day-card" id="s18d2">
+        <div class="day-header">
+          <div>
+            <span class="day-label t-rev">Revisão</span>
+            <div class="day-title">Redes — Revisão Completa</div>
+            <div class="day-hours">3h • Terça da Semana 18</div>
+          </div>
+          <button class="day-check" onclick="toggleDay('s18d2')">✓</button>
+        </div>
+        <ul class="day-topics">
+          <li>Resolver 30 questões de TCP/IP, protocolos, portas, IPv4/IPv6 e subnetting</li>
+          <li>Resolver 20 questões de VLAN, STP, roteamento, Wi-Fi e cabeamento</li>
+          <li>Resolver 10 questões de VoIP, QoS, multicast e SDN</li>
+          <li>Revisar tabela de portas e camadas OSI/TCP-IP</li>
+          <li>Refazer 10 cálculos de subnetting sem consulta</li>
+          <li>Atualizar lista de pegadinhas de redes</li>
+        </ul>
+      </div>
+
+      <div class="day-card" id="s18d3">
+        <div class="day-header">
+          <div>
+            <span class="day-label t-rev">Revisão</span>
+            <div class="day-title">Segurança da Informação — Revisão Completa</div>
+            <div class="day-hours">3h • Quarta da Semana 18</div>
+          </div>
+          <button class="day-check" onclick="toggleDay('s18d3')">✓</button>
+        </div>
+        <ul class="day-topics">
+          <li>Resolver 25 questões de ISO 27001/27002/27005, risco e controles</li>
+          <li>Resolver 20 questões de criptografia, certificados, IAM e VPN</li>
+          <li>Resolver 20 questões de ataques, OWASP, LGPD, forense e SIEM</li>
+          <li>Revisar conceitos literais: ameaça, vulnerabilidade, risco e controle</li>
+          <li>Revisar OWASP Top 10 e tipos de malware</li>
+          <li>Atualizar mapa de incidentes e resposta</li>
+        </ul>
+      </div>
+
+      <div class="day-card" id="s18d4">
+        <div class="day-header">
+          <div>
+            <span class="day-label t-rev">Revisão</span>
+            <div class="day-title">Banco de Dados, BI e Dados</div>
+            <div class="day-hours">3h • Quinta da Semana 18</div>
+          </div>
+          <button class="day-check" onclick="toggleDay('s18d4')">✓</button>
+        </div>
+        <ul class="day-topics">
+          <li>Resolver 30 questões de SQL, modelagem, normalização e transações</li>
+          <li>Resolver 15 questões de álgebra relacional, índices e SGBDs</li>
+          <li>Resolver 15 questões de NoSQL, DW, BI, ETL e Big Data</li>
+          <li>Resolver 10 questões de Python para dados quando aplicável</li>
+          <li>Refazer consultas SQL erradas sem olhar resposta</li>
+          <li>Montar quadro de SQL: comando → categoria → efeito</li>
+        </ul>
+      </div>
+
+      <div class="day-card" id="s18d5">
+        <div class="day-header">
+          <div>
+            <span class="day-label t-rev">Revisão</span>
+            <div class="day-title">Engenharia, Programação, DevOps e Cloud</div>
+            <div class="day-hours">3h • Sexta da Semana 18</div>
+          </div>
+          <button class="day-check" onclick="toggleDay('s18d5')">✓</button>
+        </div>
+        <ul class="day-topics">
+          <li>Resolver 20 questões de Engenharia de Software, UML, requisitos e testes</li>
+          <li>Resolver 20 questões de programação, web, APIs e frameworks</li>
+          <li>Resolver 20 questões de DevOps, containers, CI/CD, IaC e cloud</li>
+          <li>Resolver 10 questões de governança ITIL/COBIT/PMBOK</li>
+          <li>Revisar mapas de arquitetura e padrões de projeto</li>
+          <li>Separar lacunas finais por peso e recorrência</li>
+        </ul>
+      </div>
+
+      <div class="day-card" id="s18d6">
+        <div class="day-header">
+          <div>
+            <span class="day-label t-sim">Simulado</span>
+            <div class="day-title">Simulado Técnico Integrado</div>
+            <div class="day-hours">3h • Sábado da Semana 18</div>
+          </div>
+          <button class="day-check" onclick="toggleDay('s18d6')">✓</button>
+        </div>
+        <ul class="day-topics">
+          <li>Simulado cronometrado com 60 questões de TI</li>
+          <li>Misturar redes, segurança, BD, engenharia, programação, cloud, governança e IA</li>
+          <li>Corrigir no mesmo dia e classificar erros</li>
+          <li>Identificar os 5 temas que mais custaram pontos</li>
+          <li>Planejar revisão final da Semana 18 em cima desses erros</li>
+          <li>Meta: 75% em TI; abaixo de 70%, priorizar erro recorrente em vez de conteúdo novo</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="week" id="s19">
+  <div class="week-header" onclick="toggleWeek(this)">
+    <div class="week-num">19</div>
+    <div>
+      <div class="week-title">Reta Final · Provas Reais · Simulados · Caderno de Erros</div>
+      <div class="week-subtitle">Execução final, controle de tempo e fechamento de lacunas</div>
+    </div>
+    <div class="week-meta"><span class="week-tag wt-final">Final</span><span class="chevron">▾</span></div>
+  </div>
+  <div class="week-body">
+    <div class="progress-bar-wrap"><div class="progress-bar" id="prog-s19" style="width:0%"></div></div>
+    <div class="week-progress-label" id="prog-label-s19">0 / 6 dias concluídos</div><br>
+    <div class="days-grid">
+
+      <div class="day-card" id="s19d1">
+        <div class="day-header">
+          <div>
+            <span class="day-label t-sim">Simulado</span>
+            <div class="day-title">Prova Real TRT — Técnico TI</div>
+            <div class="day-hours">3h • Segunda da Semana 19</div>
+          </div>
+          <button class="day-check" onclick="toggleDay('s19d1')">✓</button>
+        </div>
+        <ul class="day-topics">
+          <li>Resolver uma prova real de Técnico Judiciário TI, preferencialmente FCC/TRT</li>
+          <li>Cronometrar como prova oficial, sem consulta e sem pausas longas</li>
+          <li>Corrigir por assunto e por tipo de erro</li>
+          <li>Comparar desempenho entre Conhecimentos Gerais e Específicos</li>
+          <li>Registrar temas que apareceram e não estavam dominados</li>
+          <li>Não estudar conteúdo novo antes de corrigir a prova</li>
+        </ul>
+      </div>
+
+      <div class="day-card" id="s19d2">
+        <div class="day-header">
+          <div>
+            <span class="day-label t-sim">Simulado</span>
+            <div class="day-title">Prova Real TRT — Analista TI</div>
+            <div class="day-hours">3h • Terça da Semana 19</div>
+          </div>
+          <button class="day-check" onclick="toggleDay('s19d2')">✓</button>
+        </div>
+        <ul class="day-topics">
+          <li>Resolver uma prova real de Analista Judiciário TI, preferencialmente FCC/TRT</li>
+          <li>Controlar tempo médio por questão e pontos de travamento</li>
+          <li>Corrigir com foco em raciocínio da banca, não só gabarito</li>
+          <li>Anotar padrões de alternativa correta e distratores</li>
+          <li>Separar erros técnicos profundos de erros de leitura</li>
+          <li>Atualizar ranking dos assuntos finais</li>
+        </ul>
+      </div>
+
+      <div class="day-card" id="s19d3">
+        <div class="day-header">
+          <div>
+            <span class="day-label t-rev">Revisão</span>
+            <div class="day-title">Caderno de Erros — Bloco 1</div>
+            <div class="day-hours">3h • Quarta da Semana 19</div>
+          </div>
+          <button class="day-check" onclick="toggleDay('s19d3')">✓</button>
+        </div>
+        <ul class="day-topics">
+          <li>Revisar todos os erros de Português, Inglês, Raciocínio e Direito</li>
+          <li>Transformar cada erro em regra curta e objetiva</li>
+          <li>Eliminar anotações genéricas como &#x27;prestar mais atenção&#x27;</li>
+          <li>Criar 30 flashcards finais de alto risco</li>
+          <li>Fazer 20 questões apenas dos tópicos errados</li>
+          <li>Encerrar o dia com revisão leve, sem abrir tema novo</li>
+        </ul>
+      </div>
+
+      <div class="day-card" id="s19d4">
+        <div class="day-header">
+          <div>
+            <span class="day-label t-rev">Revisão</span>
+            <div class="day-title">Caderno de Erros — Bloco 2</div>
+            <div class="day-hours">3h • Quinta da Semana 19</div>
+          </div>
+          <button class="day-check" onclick="toggleDay('s19d4')">✓</button>
+        </div>
+        <ul class="day-topics">
+          <li>Revisar erros de Redes, Segurança, Banco e Sistemas Operacionais</li>
+          <li>Refazer questões erradas sem olhar comentários</li>
+          <li>Criar tabelas finais: portas, protocolos, normas ISO, SQL e comandos</li>
+          <li>Separar 10 conceitos que precisam memorização literal</li>
+          <li>Fazer revisão ativa por perguntas e respostas</li>
+          <li>Não gastar tempo com tópicos que já estão acima de 85%</li>
+        </ul>
+      </div>
+
+      <div class="day-card" id="s19d5">
+        <div class="day-header">
+          <div>
+            <span class="day-label t-rev">Revisão</span>
+            <div class="day-title">Caderno de Erros — Bloco 3</div>
+            <div class="day-hours">3h • Sexta da Semana 19</div>
+          </div>
+          <button class="day-check" onclick="toggleDay('s19d5')">✓</button>
+        </div>
+        <ul class="day-topics">
+          <li>Revisar erros de Engenharia, Programação, DevOps, Cloud, Governança, CNJ e IA</li>
+          <li>Refazer questões de UML, ITIL, COBIT, CNJ e padrões de arquitetura</li>
+          <li>Revisar número e finalidade dos normativos CNJ mais prováveis</li>
+          <li>Consolidar mapa final de assuntos por força de cobrança</li>
+          <li>Fazer leitura leve dos resumos de revisão</li>
+          <li>Preparar estratégia de prova: ordem, tempo, chutes conscientes e marcação</li>
+        </ul>
+      </div>
+
+      <div class="day-card" id="s19d6">
+        <div class="day-header">
+          <div>
+            <span class="day-label t-sim">Simulado</span>
+            <div class="day-title">Simulado Final + Logística de Prova</div>
+            <div class="day-hours">3h • Sábado da Semana 19</div>
+          </div>
+          <button class="day-check" onclick="toggleDay('s19d6')">✓</button>
+        </div>
+        <ul class="day-topics">
+          <li>Simulado final integrado com 60 questões ou modelo do edital escolhido</li>
+          <li>Corrigir somente o essencial e evitar abrir conteúdo novo pesado</li>
+          <li>Revisar documentos, local de prova, horário, caneta, alimentação e deslocamento</li>
+          <li>Ler tabelas finais: portas, normas, resoluções CNJ, ITIL/COBIT e SQL</li>
+          <li>Descanso ativo: revisão curta e sono adequado</li>
+          <li>Fechamento: confiança no processo e execução objetiva no dia da prova</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="sec-header" id="materias">
+  <h2>Mapa Completo de Matérias</h2>
+  <span class="sec-badge" style="background:rgba(108,99,255,.15);color:#a78bfa;">Checklist de cobertura</span>
+</div>
+<div class="mat-section"><h3>Conhecimentos Gerais</h3><div class="mat-grid">
+<div class="mat-item"><strong>Língua Portuguesa</strong>Ortografia, acentuação, crase, morfologia, sintaxe, pontuação, concordância, regência, coesão, interpretação, reescrita e redação oficial.</div>
+<div class="mat-item"><strong>Inglês Técnico</strong>Leitura instrumental, vocabulário de redes, segurança, desenvolvimento, cloud, documentação, logs e mensagens de erro.</div>
+<div class="mat-item"><strong>Raciocínio Lógico-Matemático</strong>Proposições, conectivos, equivalências, negações, quantificadores, argumentos, conjuntos, porcentagem e proporcionalidade.</div>
+<div class="mat-item"><strong>Direito Constitucional</strong>Princípios fundamentais, direitos e garantias, organização do Estado e Poder Judiciário.</div>
+<div class="mat-item"><strong>Direito Administrativo</strong>Princípios, atos, poderes, organização administrativa, controle, licitações e contratos.</div>
+<div class="mat-item"><strong>Lei 8.112/1990</strong>Provimento, vacância, direitos, vantagens, deveres, proibições, responsabilidades e PAD.</div>
+<div class="mat-item"><strong>Direito do Trabalho e Processo do Trabalho</strong>Noções de CLT, Justiça do Trabalho, reclamação, audiência, recursos e execução.</div>
+<div class="mat-item"><strong>Regimento Interno do TRT-alvo</strong>Estrutura, órgãos, competências, sessões, composição, atribuições e funcionamento interno.</div>
+<div class="mat-item"><strong>Ética, PCD e Atendimento</strong>Ética no serviço público, atendimento ao cidadão, Estatuto da Pessoa com Deficiência e inclusão.</div>
+</div></div>
+<div class="mat-section"><h3>Infraestrutura e Redes</h3><div class="mat-grid">
+<div class="mat-item"><strong>Arquitetura de Computadores</strong>CPU, memória, barramentos, I/O, pipeline, boot, particionamento, desempenho e hardware.</div>
+<div class="mat-item"><strong>Sistemas Operacionais</strong>Processos, threads, memória, deadlock, sistemas de arquivos, Linux, Windows, AD, PowerShell e shell script.</div>
+<div class="mat-item"><strong>Virtualização e Containers</strong>Hipervisores, Docker, Compose, Kubernetes, volumes, redes, imagens, registry e orquestração.</div>
+<div class="mat-item"><strong>Redes de Computadores</strong>OSI/TCP-IP, IPv4/IPv6, subnetting, TCP, UDP, DNS, DHCP, HTTP, SNMP, LDAP, RADIUS e protocolos.</div>
+<div class="mat-item"><strong>Redes Avançadas</strong>VLAN, STP, roteamento, OSPF, BGP, QoS, multicast, VoIP, SDN, SD-WAN e VXLAN.</div>
+<div class="mat-item"><strong>Cabeamento Estruturado</strong>NBR 14565, cabeamento horizontal/backbone, fibra, cobre, racks, patch panels e certificação.</div>
+<div class="mat-item"><strong>Cloud e Storage</strong>NIST Cloud, AWS/Azure/GCP, IaaS/PaaS/SaaS, RAID, SAN, NAS, HA, DR, backup e resiliência.</div>
+</div></div>
+<div class="mat-section"><h3>Segurança da Informação</h3><div class="mat-grid">
+<div class="mat-item"><strong>Normas e Riscos</strong>ISO 27001, 27002, 27005, SGSI, controles, riscos, BIA, continuidade, RTO e RPO.</div>
+<div class="mat-item"><strong>Criptografia e IAM</strong>AES, RSA, ECC, hash, assinatura digital, certificados X.509, PKI, MFA, RBAC, OAuth2, OIDC, JWT.</div>
+<div class="mat-item"><strong>Ataques e Defesa</strong>Malware, phishing, DDoS, spoofing, MITM, SQLi, XSS, CSRF, SSRF, IDS/IPS, WAF e VPN.</div>
+<div class="mat-item"><strong>OWASP e DevSecOps</strong>OWASP Top 10, ASVS, SAST, DAST, SCA, secrets scanning e segurança de aplicações.</div>
+<div class="mat-item"><strong>LGPD e Privacidade</strong>Dados pessoais, dados sensíveis, princípios, bases legais, direitos do titular, ANPD e incidentes.</div>
+<div class="mat-item"><strong>Forense e Incidentes</strong>Cadeia de custódia, evidência, logs, SIEM, SOAR, resposta a incidentes e threat intelligence.</div>
+</div></div>
+<div class="mat-section"><h3>Banco, Dados, IA e BI</h3><div class="mat-grid">
+<div class="mat-item"><strong>Banco Relacional</strong>MER, modelo relacional, normalização, SQL, transações, ACID, isolamento, índices, triggers e álgebra relacional.</div>
+<div class="mat-item"><strong>NoSQL</strong>Documento, chave-valor, coluna larga, grafos, CAP, BASE, consistência eventual e modelagem orientada a consulta.</div>
+<div class="mat-item"><strong>DW, BI e Big Data</strong>ETL/ELT, OLAP, modelagem dimensional, Power BI/Tableau, Hadoop, Spark, Kafka e governança de dados.</div>
+<div class="mat-item"><strong>Python para Dados</strong>NumPy, pandas, matplotlib, scikit-learn, pipelines, treino/teste e métricas.</div>
+<div class="mat-item"><strong>IA e Machine Learning</strong>Supervisionado, não supervisionado, reforço, regressão, classificação, clustering, SVM, árvores, random forest, redes neurais e NLP.</div>
+<div class="mat-item"><strong>IA no Judiciário</strong>Resolução CNJ 332/2020, Victor/STF, Sócrates/CSJT, ética, viés, transparência, explicabilidade e controle humano.</div>
+</div></div>
+<div class="mat-section"><h3>Desenvolvimento, Engenharia e Governança</h3><div class="mat-grid">
+<div class="mat-item"><strong>Engenharia de Software</strong>Processos, requisitos, UML 2.5, testes, ISO 25010, métricas, métodos ágeis, Scrum, Kanban, XP e RUP.</div>
+<div class="mat-item"><strong>Programação</strong>Algoritmos, estruturas de dados, POO, Java, Jakarta EE, JPA/Hibernate, Spring, C#, Node.js, JS/TS.</div>
+<div class="mat-item"><strong>Web e APIs</strong>HTML5, CSS3, XML, JSON, Angular, Bootstrap, Angular Material, REST, SOAP, OpenAPI, mensageria e integração.</div>
+<div class="mat-item"><strong>Arquitetura e DevOps</strong>SOA, microsserviços, API Gateway, Saga, Circuit Breaker, Git, CI/CD, Docker, Kubernetes, IaC e observabilidade.</div>
+<div class="mat-item"><strong>Governança e Gestão</strong>ITIL 4, COBIT 2019, PMBOK, BPMN, BSC, gestão pública, governança de TI e gestão de serviços.</div>
+<div class="mat-item"><strong>TIC no Judiciário</strong>CNJ 325/2020, 335/2020, 370/2021, 468/2022, 616/2025, PDPJ-Br, PJe, ENTIC-JUD, contratações TIC, WCAG e eMAG.</div>
+</div></div>
+
+<div class="sec-header" id="fontes">
+  <h2>Fontes e referências de cobertura</h2>
+  <span class="sec-badge" style="background:rgba(251,191,36,.12);color:#fbbf24;">Base normativa</span>
+</div>
+<div class="source-list">
+  <p>Use sempre o edital publicado do TRT-alvo como fonte final. Este plano cobre o núcleo comum de TRT/TI e inclui pontos recorrentes em provas e editais recentes.</p>
+  <ul>
+    <li>Editais e provas de TRT/TI, com referência especial a FCC/TRT.</li>
+    <li>Constituição Federal de 1988; Lei 8.112/1990; Lei 14.133/2021; Lei 13.709/2018; Estatuto da Pessoa com Deficiência.</li>
+    <li>Resoluções CNJ 325/2020, 332/2020, 335/2020, 370/2021, 468/2022 e 616/2025.</li>
+    <li>ISO/IEC 27001, 27002, 27005, 25010, 12207; ITIL 4; COBIT 2019; PMBOK; DAMA-DMBOK.</li>
+    <li>WCAG 2.2 e eMAG para acessibilidade digital.</li>
+  </ul>
+</div>
+</main>
+<div id="global-progress"><h4>Progresso total</h4><div id="gp-val">0%</div><div id="gp-label">0 / 108 dias concluídos</div></div>
+<footer>Plano TRT — TI Judicial Completo • 19 semanas • 114 dias • 342h • Segunda a sábado</footer>
+<script>
+const TOTAL_DAYS = 114;
+function toggleWeek(header){ header.parentElement.classList.toggle('open'); }
+function toggleDay(id){
+  const card=document.getElementById(id);
+  const btn=card.querySelector('.day-check');
+  card.classList.toggle('done'); btn.classList.toggle('checked');
+  localStorage.setItem('trt_ti_completo_'+id, card.classList.contains('done') ? '1' : '0');
+  updateProgress();
+}
+function updateProgress(){
+  let totalDone=0;
+  for(let w=1;w<=19;w++){
+    let done=0;
+    for(let d=1;d<=6;d++){
+      const card=document.getElementById(`s${w}d${d}`);
+      if(card && card.classList.contains('done')) done++;
+    }
+    totalDone += done;
+    const prog=document.getElementById(`prog-s${w}`);
+    const label=document.getElementById(`prog-label-s${w}`);
+    if(prog) prog.style.width=(done/6*100)+'%';
+    if(label) label.textContent=`${done} / 6 dias concluídos`;
+  }
+  const pct=Math.round(totalDone/TOTAL_DAYS*100);
+  document.getElementById('gp-val').textContent=pct+'%';
+  document.getElementById('gp-label').textContent=`${totalDone} / ${TOTAL_DAYS} dias concluídos`;
+}
+document.addEventListener('DOMContentLoaded',()=>{
+  for(let w=1;w<=19;w++){
+    for(let d=1;d<=6;d++){
+      const id=`s${w}d${d}`;
+      const card=document.getElementById(id);
+      if(card && localStorage.getItem('trt_ti_completo_'+id)==='1'){
+        card.classList.add('done');
+        const btn=card.querySelector('.day-check');
+        if(btn) btn.classList.add('checked');
+      }
+    }
+  }
+  updateProgress();
+});
+const sections=document.querySelectorAll('.week,#materias,#fontes');
+const navLinks=document.querySelectorAll('nav a');
+window.addEventListener('scroll',()=>{
+  let current='semanas';
+  sections.forEach(sec=>{ if(window.scrollY >= sec.offsetTop - 140) current=sec.id; });
+  navLinks.forEach(a=>{ a.classList.remove('active'); if(a.getAttribute('href')==='#'+current) a.classList.add('active'); });
+});
+</script>
+</body>
+</html>

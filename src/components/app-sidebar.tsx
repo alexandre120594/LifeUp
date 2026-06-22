@@ -16,6 +16,7 @@ import {
   WalletCards,
   FileSpreadsheet,
   ListChecks,
+  BookOpenCheck,
 } from "lucide-react";
 import { useInboxItems } from "@/hooks/useInboxMutations";
 import { useLifeHabits } from "@/hooks/useLifeHabitMutations";
@@ -124,6 +125,12 @@ const studyItems: SidebarItem[] = [
     description: "Subjects and schedule",
   },
   {
+    title: "TRT TI Plan",
+    url: "/study/trt-plan",
+    icon: BookOpenCheck,
+    description: "19-week exam roadmap",
+  },
+  {
     title: "Focus Timer",
     url: "/pomodoro",
     icon: TimerReset,
@@ -209,6 +216,7 @@ export function AppSidebar() {
     "/study": studySubjects?.length ?? 0,
     "/study/mistakes": studyMistakes?.filter((mistake) => mistake.status !== "mastered").length ?? 0,
     "/study/planner": studySubjects?.length ?? 0,
+    "/study/trt-plan": 19,
   };
 
   return (
