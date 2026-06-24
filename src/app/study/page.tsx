@@ -8,6 +8,7 @@ import {
   GraduationCap,
   ListChecks,
   Percent,
+  ShieldCheck,
   Sparkles,
   Target,
   TimerReset,
@@ -562,6 +563,12 @@ export default function StudyDashboardPage() {
               <Link href="/study/trt-plan">
                 <BookOpenCheck className="h-4 w-4" />
                 TRT TI plan
+              </Link>
+            </Button>
+            <Button asChild className="flex-1 xl:w-full" variant="outline">
+              <Link href="/study/trt-audit-plan">
+                <ShieldCheck className="h-4 w-4" />
+                Audit plan
               </Link>
             </Button>
           </div>

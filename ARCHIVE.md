@@ -6,7 +6,7 @@ If a new agent needs to know where work stopped, start here.
 ## Current Snapshot
 
 Date of latest update:
-- 2026-06-22
+- 2026-06-24
 
 Current app position:
 - `/` is the Life Dashboard and focuses on projects, routines, tasks, planning, and finance
@@ -43,6 +43,7 @@ Current app position:
 - Study Dashboard now includes a Focus Timer graph grouped by subject
 - Study Dashboard now has one current week, month, or year filter controlling question performance, studied time, active subjects, mastery, review pressure, and subject pressure across the page
 - Study tools now includes a native TRT TI Plan page generated from `plano-trt-ti-completo-ajustado.html`, preserving all 19 weeks and 114 days with search, category filters, subject coverage, references, and local completion tracking
+- Study tools now includes a separate audited TRT TI Plan page generated from `plano-trt-ti-auditoria-2017-2025-4-topicos-separado.html`, preserving Base, Analyst, and Technician tracks with 299 unique days, matter filters, D+1/D+7/D+21 review prompts, audit notes, and local completion tracking
 - Inbox page captures unprocessed ideas, reminders, study topics, and loose work, paginates the queue, supports popup editing with project/habit/task linking, and can convert items into notes
 - Notes page stores searchable categorized notes with pagination, popup editing, and optional project, habit, and task links
 - dashboard now shows a daily/weekly tracker snapshot instead of the project throughput graph
@@ -76,6 +77,25 @@ Current app position:
 - mutation flows now force fresh API reads, await React Query invalidations, and show toast feedback for save, update, delete, and failed actions so edited content appears without leaving and returning to the page
 
 ## Completed Recently
+
+### Audited TRT TI separated-track plan
+
+Implemented:
+- added `/study/trt-audit-plan` as a separate Study tools page
+- imported `plano-trt-ti-auditoria-2017-2025-4-topicos-separado.html` into typed JSON data
+- preserved Base, Analyst, and Technician tracks with 299 unique study days
+- added track switching, matter filtering, topic search, weekly progress, D+1/D+7/D+21 review prompts, audit notes, and browser-local completion tracking
+- exposed the new plan in the Study sidebar and Study Dashboard actions without replacing the existing 19-week TRT TI plan
+
+Main files:
+- `scripts/import-trt-audit-study-plan.mjs`
+- `src/data/trt-audit-study-plan.json`
+- `src/types/trt-audit-study-plan.ts`
+- `src/app/study/trt-audit-plan/page.tsx`
+- `src/components/app-sidebar.tsx`
+- `src/app/study/page.tsx`
+- `README.md`
+- `ARCHIVE.md`
 
 ### Life Planning good/bad habit tracker
 

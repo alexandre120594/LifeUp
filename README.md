@@ -16,6 +16,7 @@ The app currently supports:
 - study records for subjects, planned weekly hours, and repeating day/hour study blocks in the data layer
 - dedicated Study workspace with a visual command-center dashboard, subject-based mistake log, study plan, and standalone focus timer
 - dedicated TRT TI study roadmap under Study tools, imported from `plano-trt-ti-completo-ajustado.html`, with 19 weeks, 114 study days, topic search, category filtering, subject coverage, references, and browser-persisted completion progress
+- dedicated TRT TI audit roadmap under Study tools, imported from `plano-trt-ti-auditoria-2017-2025-4-topicos-separado.html`, with separate Base, Analyst, and Technician tracks, 299 unique study days, topic search, matter filtering, D+1/D+7/D+21 review prompts, audit notes, and browser-persisted completion progress
 - Study Plan page for week-specific planned study blocks, manual studied-time registration, visual planned-vs-studied comparison, and question performance summary
 - Study Plan registers actual study sessions from begin/finish datetimes, calculates studied duration, lets week board study entries and their matching question counts be edited/deleted in popups, compares planned versus studied hours, and filters the week board by subject
 - Study Plan finish flow can also record aggregate right/wrong question totals for the study block, show weekly counts on the planner, edit/delete saved count entries, and feed dashboard question-practice charts
@@ -145,6 +146,8 @@ There is also repeatable local seed data for testing charts and flows.
   - week-specific study board with planned blocks, manual studied sessions, subject create/edit/delete controls, subject filtering, and planned-vs-actual totals
 - `src/app/study/trt-plan/page.tsx`
   - native TRT TI exam roadmap with the complete 19-week source plan, progress tracking, filters, subject map, and references
+- `src/app/study/trt-audit-plan/page.tsx`
+  - native audited TRT TI roadmap separated by base, analyst, and technician tracks, with progress tracking, matter filters, spaced review prompts, and audit coverage notes
 - `src/app/finance/page.tsx`
   - Personal Financial Organizer MVP with summary, one-popup creation, visual totals, recent transactions, plans, and insights
 - `src/app/finance/tracker/page.tsx`

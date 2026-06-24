@@ -9,7 +9,8 @@
     "lint": "eslint",
     "db:seed": "tsx prisma/seed.ts",
     "db:backfill-streaks": "tsx prisma/backfill-streaks.ts",
-    "study:import-trt-plan": "node scripts/import-trt-study-plan.mjs"
+    "study:import-trt-plan": "node scripts/import-trt-study-plan.mjs",
+    "study:import-trt-audit-plan": "node scripts/import-trt-audit-study-plan.mjs"
   },
   "dependencies": {
     "@prisma/adapter-pg": "^7.2.0",
