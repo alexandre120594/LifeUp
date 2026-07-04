@@ -562,7 +562,7 @@ export default function StudyDashboardPage() {
             <Button asChild className="flex-1 xl:w-full" variant="outline">
               <Link href="/study/trt-plan">
                 <BookOpenCheck className="h-4 w-4" />
-                TRT TI plan
+                Dataprev plan
               </Link>
             </Button>
             <Button asChild className="flex-1 xl:w-full" variant="outline">

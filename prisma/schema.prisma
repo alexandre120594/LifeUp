@@ -34,6 +34,7 @@ model User {
   studyMistakes StudyMistake[]
   studySessions StudySession[]
   studyQuestionPractices StudyQuestionPractice[]
+  studyPlanProgress StudyPlanProgress[]
   createdAt DateTime @default(now())
 }
 model Project {
@@ -264,6 +265,18 @@ model StudyPlanBlock {
 
   @@index([boardId, dayIndex, startTime])
   @@index([subjectId])
+}
+
+model StudyPlanProgress {
+  id        String   @id @default(cuid())
+  planKey   String
+  itemId    String
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([userId, planKey, itemId])
+  @@index([userId, planKey])
 }
 
 model Task {

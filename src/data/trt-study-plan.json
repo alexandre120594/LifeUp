@@ -1,1950 +1,2368 @@
 {
-  "title": "Plano de Estudos TRT — TI Judicial Completo",
-  "description": "Plano para Analista e Técnico de Tecnologia da Informação, com conhecimentos gerais, direito, infraestrutura, redes, segurança, desenvolvimento, dados, governança, CNJ, IA e revisão espaçada.",
-  "structure": "Cada dia foi pensado para 3h: 1h40 a 2h de teoria, 40 a 60 minutos de questões e 20 minutos de revisão ativa. O sábado consolida a semana. O domingo fica livre ou para revisão leve dos erros críticos.",
+  "title": "Plano alternado até 21/09 Desenvolvimento de Software",
+  "subtitle": "Dataprev 2026 • FGV • Perfil 3",
+  "description": "Plano isolado da Dataprev para Analista de Tecnologia da Informação — Perfil 3, com alternância de conteúdos para evitar blocos longos de uma mesma matéria. Todo o conteúdo programático foi mantido no checklist e distribuído nos estudos de 06/07 a 21/09.",
+  "sourceFile": "dataprev-perfil3-plano-ate-21-09-alternado-conferido.html",
+  "structure": "O plano intercala Conhecimentos Gerais, Desenvolvimento, Banco/BI, Segurança e Governança. A sequência evita estudar muitos dias seguidos do mesmo bloco e força revisão indireta por contraste.",
+  "usage": [
+    "O plano intercala Conhecimentos Gerais, Desenvolvimento, Banco/BI, Segurança e Governança. A sequência evita estudar muitos dias seguidos do mesmo bloco e força revisão indireta por contraste."
+  ],
   "stats": {
-    "weeks": 19,
-    "days": 114,
-    "totalHours": 342,
-    "hoursPerDay": 3
+    "weeks": 12,
+    "days": 67,
+    "totalHours": 107,
+    "hoursPerDay": 1.5,
+    "examDate": "11/10/2026",
+    "contentEndDate": "21/09/2026",
+    "questions": 70,
+    "compensation": "R$ 10.685,44"
   },
+  "headerStats": [
+    {
+      "value": "67",
+      "label": "dias de estudo"
+    },
+    {
+      "value": "21/09",
+      "label": "fim do conteúdo"
+    },
+    {
+      "value": "11/10",
+      "label": "prova objetiva"
+    },
+    {
+      "value": "70",
+      "label": "questões"
+    },
+    {
+      "value": "R$ 10.685,44",
+      "label": "remuneração inicial"
+    }
+  ],
   "weeks": [
     {
-      "id": "s1",
+      "id": "sem1",
       "number": 1,
-      "title": "Língua Portuguesa · Inglês Técnico · Raciocínio Lógico",
-      "subtitle": "Base de leitura, interpretação e resolução lógica",
-      "tag": "Base",
+      "title": "Semana 1 · 06/07 a 11/07",
+      "subtitle": "Conteúdos alternados: gerais, desenvolvimento, banco, segurança, BI e governança.",
+      "tag": "6 dias",
       "days": [
         {
-          "id": "s1d1",
-          "category": "Geral",
-          "title": "Português — Ortografia, Acentuação e Crase",
-          "schedule": "3h • Segunda da Semana 1",
+          "id": "dia-1",
+          "sourceId": "d1",
+          "category": "Língua Portuguesa",
+          "title": "Dia 01 · Português — interpretação, gêneros e tipos textuais",
+          "schedule": "Seg · 06/07/2026 · bloco sugerido: 1h30",
           "topics": [
-            "Ortografia oficial: emprego de letras, hífen, maiúsculas e minúsculas",
-            "Acentuação gráfica: oxítonas, paroxítonas, proparoxítonas, hiatos e ditongos",
-            "Emprego do sinal indicativo de crase: regra geral, casos proibidos e facultativos",
-            "Classes de palavras: substantivo, adjetivo, artigo, numeral, pronome, verbo, advérbio, preposição, conjunção, interjeição",
-            "Flexão nominal e verbal; formação de palavras por derivação e composição",
-            "Questões FCC/FGV/Cebraspe com foco em eliminação de alternativas"
-          ]
+            "Compreensão e interpretação de textos de gêneros variados",
+            "Reconhecimento de tipos e gêneros textuais",
+            "Tese, ideia central, inferência, pressuposto, subentendido e efeito de sentido",
+            "Questões FGV: interpretar comando antes de procurar alternativa correta"
+          ],
+          "task": "Execução: teoria objetiva + 15 a 25 questões + 3 linhas no caderno de erros. No sábado, aumentar questões e revisar erros da semana."
         },
         {
-          "id": "s1d2",
-          "category": "Geral",
-          "title": "Português — Sintaxe, Pontuação e Concordância",
-          "schedule": "3h • Terça da Semana 1",
+          "id": "dia-2",
+          "sourceId": "d2",
+          "category": "Desenvolvimento de Sistemas",
+          "title": "Dia 02 · Java base, orientação a objetos e desenvolvimento de sistemas",
+          "schedule": "Ter · 07/07/2026 · bloco sugerido: 1h30",
           "topics": [
-            "Termos da oração: sujeito, predicado, complementos, adjuntos, agente da passiva",
-            "Período composto: coordenação e subordinação; valores semânticos dos conectivos",
-            "Concordância nominal e verbal; casos especiais recorrentes em prova",
-            "Regência nominal e verbal; colocação pronominal; vozes verbais",
-            "Pontuação: vírgula, ponto e vírgula, dois-pontos, travessão e parênteses",
-            "Correlação de tempos e modos verbais"
-          ]
+            "Desenvolvimento de sistemas e ciclo básico de construção de software",
+            "Java 6 ou superior: sintaxe, classes, objetos, pacotes, exceções e collections",
+            "Orientação a objetos: classe, objeto, encapsulamento, herança, polimorfismo e abstração",
+            "Generics, annotations e noções de JVM apenas no nível necessário para prova"
+          ],
+          "task": "Execução: teoria objetiva + 15 a 25 questões + 3 linhas no caderno de erros. No sábado, aumentar questões e revisar erros da semana."
         },
         {
-          "id": "s1d3",
-          "category": "Geral",
-          "title": "Português — Interpretação, Coesão e Redação Oficial",
-          "schedule": "3h • Quarta da Semana 1",
+          "id": "dia-3",
+          "sourceId": "d3",
+          "category": "Raciocínio Lógico",
+          "title": "Dia 03 · RLM — estruturas lógicas e proposições",
+          "schedule": "Qua · 08/07/2026 · bloco sugerido: 1h30",
           "topics": [
-            "Compreensão e interpretação de textos: tese, inferência, pressupostos e subentendidos",
-            "Coesão referencial e sequencial; coerência textual; reescritura de frases",
-            "Denotação, conotação, figuras de linguagem e intertextualidade",
-            "Discurso direto, indireto e indireto livre",
-            "Redação oficial: clareza, concisão, impessoalidade, formalidade e padrão culto",
-            "Adequação da linguagem ao tipo de documento institucional"
-          ]
-        },
-        {
-          "id": "s1d4",
-          "category": "Geral",
-          "title": "Inglês Técnico para TI",
-          "schedule": "3h • Quinta da Semana 1",
-          "topics": [
-            "Leitura instrumental: scanning, skimming, cognatos, falsos cognatos e inferência contextual",
-            "Vocabulário de redes: routing, switching, packet, subnet, gateway, firewall, protocol",
-            "Vocabulário de desenvolvimento: framework, deployment, build, branch, commit, issue, runtime",
-            "Vocabulário de segurança: breach, threat, vulnerability, encryption, authentication, backup",
-            "Mensagens de erro, documentação técnica, logs e trechos de manuais",
-            "Questões com tradução técnica sem decorar palavra por palavra"
-          ]
-        },
-        {
-          "id": "s1d5",
-          "category": "Geral",
-          "title": "Raciocínio Lógico-Matemático I",
-          "schedule": "3h • Sexta da Semana 1",
-          "topics": [
+            "Estruturas lógicas e lógica sentencial/proposicional",
             "Proposições simples e compostas; conectivos lógicos",
             "Tabelas-verdade, tautologia, contradição e contingência",
-            "Equivalências lógicas: De Morgan, contraposição, condicional e bicondicional",
-            "Negação de proposições compostas e de quantificadores",
-            "Argumentos válidos, silogismos e diagramas lógicos",
-            "Problemas de contagem simples, porcentagem e proporcionalidade"
-          ]
+            "Equivalências básicas e negação de proposições compostas"
+          ],
+          "task": "Execução: teoria objetiva + 15 a 25 questões + 3 linhas no caderno de erros. No sábado, aumentar questões e revisar erros da semana."
         },
         {
-          "id": "s1d6",
-          "category": "Revisão",
-          "title": "Revisão D+1/D+7 + Questões da Semana 1",
-          "schedule": "3h • Sábado da Semana 1",
+          "id": "dia-4",
+          "sourceId": "d4",
+          "category": "Legislação SI/Proteção de Dados",
+          "title": "Dia 04 · LAI e decretos — acesso, sigilo e classificação da informação",
+          "schedule": "Qui · 09/07/2026 · bloco sugerido: 1h30",
           "topics": [
-            "20 questões de Português: interpretação, sintaxe e pontuação",
-            "15 questões de Raciocínio Lógico",
-            "10 questões de Inglês Técnico com textos curtos de TI",
-            "Revisar erros em caderno: regra, motivo do erro e gatilho da banca",
-            "Flashcards: crase, conectivos, equivalências lógicas e falsos cognatos",
-            "Meta mínima: 70% por bloco; abaixo disso, repetir teoria no domingo opcional"
-          ]
+            "Lei nº 12.527/2011: capítulos I, II, III, IV e V",
+            "Decreto nº 7.724: regulamentação da LAI",
+            "Decreto nº 7.845: informação classificada e tratamento da informação sigilosa",
+            "Separar transparência ativa, transparência passiva, recurso, restrição e classificação"
+          ],
+          "task": "Execução: teoria objetiva + 15 a 25 questões + 3 linhas no caderno de erros. No sábado, aumentar questões e revisar erros da semana."
+        },
+        {
+          "id": "dia-5",
+          "sourceId": "d5",
+          "category": "Java/Jakarta/JPA",
+          "title": "Dia 05 · Java EE, Jakarta EE, JPA e Hibernate",
+          "schedule": "Sex · 10/07/2026 · bloco sugerido: 1h30",
+          "topics": [
+            "Java EE 6 ou superior e Jakarta EE: escopo, containers, componentes e especificações",
+            "JPA 2 ou superior: entidades, relacionamentos, EntityManager, JPQL e ciclo de vida",
+            "Hibernate: ORM, lazy/eager, cache, mapeamentos e principais armadilhas",
+            "Diferença entre linguagem, especificação, implementação e framework"
+          ],
+          "task": "Execução: teoria objetiva + 15 a 25 questões + 3 linhas no caderno de erros. No sábado, aumentar questões e revisar erros da semana."
+        },
+        {
+          "id": "dia-6",
+          "sourceId": "d6",
+          "category": "Banco de Dados",
+          "title": "Dia 06 · Modelagem de dados e abordagem relacional/multidimensional",
+          "schedule": "Sáb · 11/07/2026 · bloco sugerido: 2h30",
+          "topics": [
+            "Modelagem conceitual, lógica e física",
+            "Modelo entidade-relacionamento, modelo relacional e modelo multidimensional",
+            "Entidade, atributo, relacionamento, cardinalidade, chave primária e chave estrangeira",
+            "Quando usar visão relacional, dimensional, transacional e analítica"
+          ],
+          "task": "Execução: teoria objetiva + 15 a 25 questões + 3 linhas no caderno de erros. No sábado, aumentar questões e revisar erros da semana."
         }
       ]
     },
     {
-      "id": "s2",
+      "id": "sem2",
       "number": 2,
-      "title": "Direito Constitucional · Administrativo · TRT Institucional",
-      "subtitle": "Núcleo jurídico e institucional comum aos cargos de TRT",
-      "tag": "Direito",
+      "title": "Semana 2 · 13/07 a 18/07",
+      "subtitle": "Conteúdos alternados: gerais, desenvolvimento, banco, segurança, BI e governança.",
+      "tag": "6 dias",
       "days": [
         {
-          "id": "s2d1",
-          "category": "Direito",
-          "title": "Direito Constitucional — CF/88 e Poder Judiciário",
-          "schedule": "3h • Segunda da Semana 2",
+          "id": "dia-7",
+          "sourceId": "d7",
+          "category": "Língua Inglesa",
+          "title": "Dia 07 · Inglês — compreensão textual e gramática útil",
+          "schedule": "Seg · 13/07/2026 · bloco sugerido: 1h30",
           "topics": [
-            "Princípios fundamentais e objetivos da República",
-            "Direitos e garantias fundamentais: arts. 5º a 17 da CF/88",
-            "Organização do Estado: União, Estados, DF e Municípios",
-            "Poderes da República: Legislativo, Executivo e Judiciário",
-            "Poder Judiciário: STF, STJ, TST, TRTs, juízes do trabalho e competências",
-            "Funções essenciais à Justiça: Ministério Público, Advocacia Pública, Defensoria"
-          ]
+            "Compreensão de textos em língua inglesa",
+            "Gramática relevante para o sentido: verb tenses, modals, connectors, pronouns e passive voice",
+            "Vocabulário de software, cloud, API, security, database, testing e project management",
+            "Técnica: skimming, scanning, cognatos, falsos cognatos e inferência por contexto"
+          ],
+          "task": "Execução: teoria objetiva + 15 a 25 questões + 3 linhas no caderno de erros. No sábado, aumentar questões e revisar erros da semana."
         },
         {
-          "id": "s2d2",
-          "category": "Direito",
-          "title": "Direito Administrativo — Organização e Atos",
-          "schedule": "3h • Terça da Semana 2",
+          "id": "dia-8",
+          "sourceId": "d8",
+          "category": "Spring",
+          "title": "Dia 08 · Spring, Spring Boot e Spring Cloud",
+          "schedule": "Ter · 14/07/2026 · bloco sugerido: 1h30",
           "topics": [
-            "Princípios expressos e implícitos: legalidade, impessoalidade, moralidade, publicidade, eficiência",
-            "Administração direta e indireta; autarquias, fundações, empresas públicas e sociedades de economia mista",
-            "Centralização, descentralização, desconcentração, delegação e avocação",
-            "Atos administrativos: conceito, requisitos, atributos, classificação e espécies",
-            "Anulação, revogação, convalidação e cassação de atos administrativos",
-            "Poderes administrativos: vinculado, discricionário, hierárquico, disciplinar, regulamentar e polícia"
-          ]
+            "Spring Framework: IoC, DI, beans, configuration, profiles e lifecycle",
+            "Spring MVC e criação de APIs REST",
+            "Spring Boot: starters, auto-configuration, actuator, properties e empacotamento",
+            "Spring Cloud: service discovery, config server, gateway e circuit breaker em noções"
+          ],
+          "task": "Execução: teoria objetiva + 15 a 25 questões + 3 linhas no caderno de erros. No sábado, aumentar questões e revisar erros da semana."
         },
         {
-          "id": "s2d3",
-          "category": "Direito",
-          "title": "Lei 8.112/1990 e Responsabilidade do Servidor",
-          "schedule": "3h • Quarta da Semana 2",
+          "id": "dia-9",
+          "sourceId": "d9",
+          "category": "Atualidades e IA",
+          "title": "Dia 09 · Atualidades e fundamentos de Inteligência Artificial",
+          "schedule": "Qua · 15/07/2026 · bloco sugerido: 1h30",
           "topics": [
-            "Cargo, emprego e função pública; provimento, posse, exercício, estabilidade",
-            "Vacância, remoção, redistribuição e substituição",
-            "Direitos e vantagens: vencimento, remuneração, adicionais, licenças e afastamentos",
-            "Deveres, proibições e acumulação de cargos",
-            "Responsabilidades civil, penal e administrativa",
-            "Processo administrativo disciplinar: sindicância, PAD, penalidades e prescrição"
-          ]
+            "Tópicos atuais: segurança, transportes, política, economia, sociedade, educação e saúde",
+            "Cultura, tecnologia, energia, relações internacionais, desenvolvimento sustentável e ecologia",
+            "Conceitos de inteligência artificial e aprendizado de máquina",
+            "Diferenças entre IA simbólica, machine learning, deep learning e IA generativa em nível conceitual"
+          ],
+          "task": "Execução: teoria objetiva + 15 a 25 questões + 3 linhas no caderno de erros. No sábado, aumentar questões e revisar erros da semana."
         },
         {
-          "id": "s2d4",
-          "category": "Direito",
-          "title": "Licitações, Contratos e Controle da Administração",
-          "schedule": "3h • Quinta da Semana 2",
+          "id": "dia-10",
+          "sourceId": "d10",
+          "category": "Segurança da Informação",
+          "title": "Dia 10 · Políticas, procedimentos, ISO 27001/27002 e CID",
+          "schedule": "Qui · 16/07/2026 · bloco sugerido: 1h30",
           "topics": [
-            "Lei 14.133/2021: princípios, modalidades, critérios de julgamento e fases",
-            "Contratação direta: dispensa e inexigibilidade",
-            "Contratos administrativos: cláusulas necessárias, garantias, alteração e extinção",
-            "Gestão e fiscalização contratual; sanções administrativas",
-            "Controle interno, externo e judicial; papel do TCU e controle social",
-            "Improbidade administrativa em visão geral e atualizações centrais"
-          ]
+            "Políticas de segurança da informação e procedimentos de segurança",
+            "Conceitos gerais de gerenciamento de segurança",
+            "ABNT NBR ISO/IEC 27001:2022 e SGSI",
+            "ABNT NBR ISO/IEC 27002:2022; confiabilidade, integridade e disponibilidade; mecanismos de segurança"
+          ],
+          "task": "Execução: teoria objetiva + 15 a 25 questões + 3 linhas no caderno de erros. No sábado, aumentar questões e revisar erros da semana."
         },
         {
-          "id": "s2d5",
-          "category": "Direito",
-          "title": "Direito do Trabalho, Processo do Trabalho e Regimento",
-          "schedule": "3h • Sexta da Semana 2",
+          "id": "dia-11",
+          "sourceId": "d11",
+          "category": "Desenvolvimento de Sistemas",
+          "title": "Dia 11 · JavaScript, REST e JSON",
+          "schedule": "Sex · 17/07/2026 · bloco sugerido: 1h30",
           "topics": [
-            "Noções de CLT: contrato de trabalho, jornada, férias, salário e rescisão",
-            "Organização da Justiça do Trabalho: Varas do Trabalho, TRTs e TST",
-            "Processo do Trabalho: reclamação, audiência, sentença, recursos e execução",
-            "Regimento Interno do TRT-alvo: estrutura, órgãos, competências e sessões",
-            "Ética no serviço público, atendimento ao cidadão e dever de urbanidade",
-            "Estatuto da Pessoa com Deficiência: acessibilidade, inclusão e atendimento prioritário"
-          ]
-        },
-        {
-          "id": "s2d6",
-          "category": "Revisão",
-          "title": "Revisão Jurídica + Questões da Semana 2",
-          "schedule": "3h • Sábado da Semana 2",
-          "topics": [
-            "20 questões de Constitucional focadas em Poder Judiciário",
-            "20 questões de Administrativo e Lei 8.112",
-            "10 questões de Licitações e Contratos",
-            "10 questões de Direito do Trabalho/Processo do Trabalho/Regimento",
-            "Mapa mental: estrutura do Judiciário Trabalhista",
-            "Revisão D+7 dos erros de Português e Raciocínio"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "s3",
-      "number": 3,
-      "title": "Arquitetura de Computadores · Sistemas Operacionais · Virtualização",
-      "subtitle": "Base de infraestrutura local e administração de servidores",
-      "tag": "Infra",
-      "days": [
-        {
-          "id": "s3d1",
-          "category": "TI",
-          "title": "Arquitetura de Computadores e Hardware",
-          "schedule": "3h • Segunda da Semana 3",
-          "topics": [
-            "CPU, ULA, unidade de controle, registradores, barramentos e ciclo de instrução",
-            "Memória: cache L1/L2/L3, RAM, ROM, secundária e memória virtual",
-            "Pipeline, paralelismo, interrupções, DMA e dispositivos de entrada/saída",
-            "Arquiteturas CISC/RISC; 32 bits vs 64 bits; endianess em noções",
-            "BIOS/UEFI, boot, particionamento MBR/GPT e sistemas de arquivos",
-            "Noções de desempenho: throughput, latência, IOPS, gargalos de CPU/memória/disco"
-          ]
-        },
-        {
-          "id": "s3d2",
-          "category": "TI",
-          "title": "Sistemas Operacionais — Conceitos Internos",
-          "schedule": "3h • Terça da Semana 3",
-          "topics": [
-            "Processos, threads, escalonamento, estados de processo e troca de contexto",
-            "Gerenciamento de memória: paginação, segmentação, swapping, TLB, page fault e thrashing",
-            "Sincronização: semáforos, mutex, monitores, condição de corrida e região crítica",
-            "Deadlock: exclusão mútua, posse e espera, não preempção, espera circular; prevenção e detecção",
-            "Sistemas de arquivos, journaling, permissões e metadados",
-            "Virtualização de memória, drivers, chamadas de sistema e kernel"
-          ]
-        },
-        {
-          "id": "s3d3",
-          "category": "TI",
-          "title": "Linux — Administração, Shell e Serviços",
-          "schedule": "3h • Quarta da Semana 3",
-          "topics": [
-            "FHS: /etc, /var, /home, /bin, /sbin, /usr, /tmp, /proc e /dev",
-            "Usuários, grupos, sudoers, chmod, chown, umask, SUID, SGID e sticky bit",
-            "Processos e serviços: ps, top, kill, nice, systemctl, journalctl e crontab",
-            "Gerência de pacotes: apt, yum, dnf, rpm, dpkg; logs em /var/log",
-            "Shell script: variáveis, condicionais, loops, funções, pipes, grep, awk, sed",
-            "Redes e firewall: ip, ss/netstat, ping, traceroute, iptables, nftables, firewalld"
-          ]
-        },
-        {
-          "id": "s3d4",
-          "category": "TI",
-          "title": "Windows, Active Directory e PowerShell",
-          "schedule": "3h • Quinta da Semana 3",
-          "topics": [
-            "Windows 10/11 e Windows Server 2019/2022: papéis, recursos e administração",
-            "Active Directory: domínios, florestas, árvores, OUs, usuários, grupos e GPOs",
-            "DNS e DHCP no Windows Server; File Server, permissões NTFS e compartilhamento",
-            "IIS, Remote Desktop Services, WSUS, logs de eventos e monitoramento básico",
-            "PowerShell: Get-Command, Get-Service, Get-Process, pipeline, scripts e administração remota",
-            "Noções de backup, restauração, failover e clustering em ambiente Windows"
-          ]
-        },
-        {
-          "id": "s3d5",
-          "category": "TI",
-          "title": "Virtualização, Contêineres e Armazenamento Local",
-          "schedule": "3h • Sexta da Semana 3",
-          "topics": [
-            "Hipervisor tipo 1 e tipo 2: VMware ESXi, Hyper-V, KVM e VirtualBox",
-            "VM vs contêiner: isolamento, kernel compartilhado, imagens e camadas",
-            "Docker: imagem, container, Dockerfile, volumes, redes, registry e Compose",
-            "Kubernetes básico: pod, deployment, service, namespace, configmap, secret e ingress",
-            "Discos e volumes: LVM, pvcreate, vgcreate, lvcreate, resize e snapshots",
-            "RAID 0, 1, 5, 6, 10: striping, mirroring, paridade, desempenho e tolerância"
-          ]
-        },
-        {
-          "id": "s3d6",
-          "category": "Revisão",
-          "title": "Questões de SO, Linux, Windows e Virtualização",
-          "schedule": "3h • Sábado da Semana 3",
-          "topics": [
-            "20 questões de Sistemas Operacionais internos",
-            "20 questões de Linux e comandos",
-            "10 questões de Windows/AD/PowerShell",
-            "10 questões de Docker/Kubernetes/virtualização",
-            "Prática: montar tabela com comandos Linux e equivalentes Windows",
-            "Revisão D+7 do núcleo jurídico"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "s4",
-      "number": 4,
-      "title": "Redes I · TCP/IP · Protocolos · Endereçamento",
-      "subtitle": "Fundamentos de comunicação, serviços e protocolos",
-      "tag": "Redes",
-      "days": [
-        {
-          "id": "s4d1",
-          "category": "TI",
-          "title": "Modelos OSI e TCP/IP",
-          "schedule": "3h • Segunda da Semana 4",
-          "topics": [
-            "Modelo OSI: 7 camadas, funções, equipamentos e PDUs",
-            "Modelo TCP/IP: enlace, internet, transporte e aplicação",
-            "Encapsulamento, desencapsulamento, MTU, MSS e fragmentação",
-            "Topologias: estrela, barramento, anel, malha e híbrida",
-            "Tipos de rede: LAN, MAN, WAN, PAN, SAN, WLAN e VPN",
-            "Equipamentos: hub, switch, roteador, bridge, gateway, firewall, access point"
-          ]
-        },
-        {
-          "id": "s4d2",
-          "category": "TI",
-          "title": "IPv4, IPv6 e Subnetting",
-          "schedule": "3h • Terça da Semana 4",
-          "topics": [
-            "IPv4: classes históricas, máscara, CIDR, rede, broadcast e host válido",
-            "Subnetting na prática: /24 a /30, VLSM e cálculo de sub-redes",
-            "IPv6: notação, abreviação, prefixo, tipos de endereço e autoconfiguração",
-            "Unicast, multicast, anycast; link-local, global unicast e loopback",
-            "NAT, PAT, NAT64, DNS64 e mecanismos de transição IPv4/IPv6",
-            "ICMP e ICMPv6: echo, erros, neighbor discovery e SLAAC"
-          ]
-        },
-        {
-          "id": "s4d3",
-          "category": "TI",
-          "title": "Camada de Transporte e Aplicação",
-          "schedule": "3h • Quarta da Semana 4",
-          "topics": [
-            "TCP: handshake, controle de fluxo, controle de congestionamento e encerramento",
-            "UDP: características, usos e diferenças em relação ao TCP",
-            "Portas padrão: HTTP, HTTPS, DNS, SMTP, IMAP, POP3, SSH, FTP, DHCP, SNMP, LDAP",
-            "DNS: registros A, AAAA, MX, CNAME, PTR, TXT, NS e funcionamento recursivo/autoritativo",
-            "DHCP: Discover, Offer, Request, ACK; lease, reserva e escopo",
-            "HTTP/HTTPS: métodos, códigos de status, cookies, sessões, TLS e certificados"
-          ]
-        },
-        {
-          "id": "s4d4",
-          "category": "TI",
-          "title": "Serviços de Rede, Diretórios e Gerência",
-          "schedule": "3h • Quinta da Semana 4",
-          "topics": [
-            "LDAP e Active Directory em visão de protocolo; Kerberos em noções",
-            "SNMP: manager, agent, MIB, OID, versões v1/v2c/v3 e traps",
-            "Syslog, NTP, RADIUS, TACACS+, proxy e cache web",
-            "FTP, SFTP, FTPS, SMB/CIFS, NFS e compartilhamento de arquivos",
-            "Ferramentas: ping, traceroute/tracert, nslookup, dig, tcpdump, Wireshark, netcat",
-            "RMON, MRTG, Zabbix, Prometheus e Grafana em visão de monitoramento"
-          ]
-        },
-        {
-          "id": "s4d5",
-          "category": "TI",
-          "title": "Redes Sem Fio e Segurança Básica de Rede",
-          "schedule": "3h • Sexta da Semana 4",
-          "topics": [
-            "Padrões IEEE 802.11 a/b/g/n/ac/ax; frequências 2,4 GHz e 5 GHz",
-            "SSID, BSSID, canais, interferência, roaming e controladoras WLAN",
-            "WEP, WPA, WPA2, WPA3; PSK, Enterprise, SAE e OWE",
-            "EAP-TLS, PEAP, EAP-TTLS e autenticação 802.1X com RADIUS",
-            "Firewall, DMZ, ACLs, NAT, proxy, IDS/IPS e segmentação de rede",
-            "Noções de Zero Trust aplicadas à rede"
-          ]
-        },
-        {
-          "id": "s4d6",
-          "category": "Revisão",
-          "title": "Questões de Redes I + Subnetting",
-          "schedule": "3h • Sábado da Semana 4",
-          "topics": [
-            "30 questões de redes básicas e protocolos",
-            "15 exercícios de subnetting IPv4",
-            "10 questões de IPv6 e transição",
-            "10 questões de DNS, DHCP, TCP/UDP e portas",
-            "Criar tabela de portas e protocolos com camada OSI/TCP-IP",
-            "Revisão D+21 de Português e Raciocínio"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "s5",
-      "number": 5,
-      "title": "Redes II · Switching · Roteamento · Cabeamento · VoIP",
-      "subtitle": "Infraestrutura avançada de rede e serviços multimídia",
-      "tag": "Redes+",
-      "days": [
-        {
-          "id": "s5d1",
-          "category": "TI",
-          "title": "Switching, VLAN e Spanning Tree",
-          "schedule": "3h • Segunda da Semana 5",
-          "topics": [
-            "Switching: tabela MAC, flooding, learning, aging, collision domain e broadcast domain",
-            "VLAN: IEEE 802.1Q, porta access, porta trunk, native VLAN e inter-VLAN routing",
-            "STP, RSTP e MSTP: bridge ID, root bridge, estados e papéis de portas",
-            "Link aggregation: LACP IEEE 802.3ad e EtherChannel",
-            "Port security, BPDU Guard, Root Guard e proteção contra loops",
-            "Questões típicas sobre segmentação, broadcast e convergência"
-          ]
-        },
-        {
-          "id": "s5d2",
-          "category": "TI",
-          "title": "Roteamento e Protocolos Dinâmicos",
-          "schedule": "3h • Terça da Semana 5",
-          "topics": [
-            "Roteamento estático, rota padrão, distância administrativa e métrica",
-            "RIP/RIPv2: vetor de distância, hop count, limitações e convergência",
-            "OSPF: link-state, áreas, custo, LSDB, DR/BDR em noções",
-            "BGP: AS, eBGP, iBGP, path vector e uso na Internet",
-            "EIGRP em noções; redistribution e sumarização em visão conceitual",
-            "NAT estático, dinâmico, PAT e troubleshooting básico"
-          ]
-        },
-        {
-          "id": "s5d3",
-          "category": "TI",
-          "title": "Cabeamento Estruturado e Infraestrutura Física",
-          "schedule": "3h • Quarta da Semana 5",
-          "topics": [
-            "ABNT NBR 14565: conceitos, escopo e subsistemas de cabeamento estruturado",
-            "Cabeamento horizontal, backbone, área de trabalho, sala de telecomunicações e entrada de facilidades",
-            "Cabo par trançado: UTP, FTP/STP, Cat5e, Cat6, Cat6A, Cat7 e Cat8",
-            "Fibra óptica: monomodo, multimodo, conectores, transceptores e distâncias",
-            "Racks, patch panels, keystone, patch cords, organização e identificação",
-            "Testes: certificação, NEXT, atenuação, perda de retorno e diafonia"
-          ]
-        },
-        {
-          "id": "s5d4",
-          "category": "TI",
-          "title": "QoS, Multicast, VoIP e Videoconferência",
-          "schedule": "3h • Quinta da Semana 5",
-          "topics": [
-            "QoS: latência, jitter, perda, largura de banda e priorização",
-            "IntServ, DiffServ, DSCP, CoS e filas de prioridade",
-            "Multicast: IGMP, PIM, grupos multicast e aplicações",
-            "VoIP: SIP, H.323, RTP, RTCP e codecs G.711, G.729, Opus",
-            "Videoconferência: MCU, gateway, endpoint, WebRTC e requisitos de rede",
-            "Troubleshooting: perda de pacotes, jitter e MOS em noções"
-          ]
-        },
-        {
-          "id": "s5d5",
-          "category": "Analista+",
-          "title": "SDN, SD-WAN, VXLAN e Redes Modernas",
-          "schedule": "3h • Sexta da Semana 5",
-          "topics": [
-            "SDN: separação plano de controle/plano de dados e controlador",
-            "OpenFlow e programabilidade de rede em noções",
-            "SD-WAN: overlay, escolha dinâmica de caminho, segurança e orquestração",
-            "VXLAN: VNI, VTEP, overlay L2 sobre L3 e data center fabric",
-            "Microsegmentação, NSX-T, distributed firewall e políticas por workload",
-            "SASE, CASB e integração entre rede e segurança em visão conceitual"
-          ]
-        },
-        {
-          "id": "s5d6",
-          "category": "Revisão",
-          "title": "Questões de Redes II",
-          "schedule": "3h • Sábado da Semana 5",
-          "topics": [
-            "25 questões de switching, VLAN, STP e roteamento",
-            "15 questões de cabeamento estruturado",
-            "10 questões de QoS, VoIP e multicast",
-            "10 questões de SDN/SD-WAN/VXLAN",
-            "Laboratório mental: desenhar rede com VLAN, roteador, firewall e servidor",
-            "Revisão D+7 de Redes I"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "s6",
-      "number": 6,
-      "title": "Segurança da Informação I · Normas · Riscos · Criptografia",
-      "subtitle": "Fundamentos normativos e técnicos de segurança",
-      "tag": "Segurança",
-      "days": [
-        {
-          "id": "s6d1",
-          "category": "TI",
-          "title": "Conceitos de Segurança e ISO 27001/27002",
-          "schedule": "3h • Segunda da Semana 6",
-          "topics": [
-            "CID: confidencialidade, integridade e disponibilidade",
-            "Autenticidade, não repúdio, privacidade, accountability e rastreabilidade",
-            "ISO/IEC 27001:2022: SGSI, contexto, liderança, planejamento, suporte, operação, avaliação e melhoria",
-            "ISO/IEC 27002:2022: controles organizacionais, de pessoas, físicos e tecnológicos",
-            "Política de segurança, classificação da informação e conscientização",
-            "Controles preventivos, detectivos, corretivos, dissuasórios e compensatórios"
-          ]
-        },
-        {
-          "id": "s6d2",
-          "category": "TI",
-          "title": "Gestão de Riscos e Continuidade",
-          "schedule": "3h • Terça da Semana 6",
-          "topics": [
-            "ISO/IEC 27005: identificação, análise, avaliação e tratamento de riscos",
-            "Ameaça, vulnerabilidade, impacto, probabilidade, risco inerente e risco residual",
-            "Apetite, tolerância, aceitação, mitigação, transferência e evitação de risco",
-            "BIA, PCN/BCP, PRD/DRP, plano de resposta a incidentes",
-            "RTO, RPO, MTD, hot site, warm site, cold site e estratégias de recuperação",
-            "Backup completo, incremental, diferencial, sintético, retenção e teste de restauração"
-          ]
-        },
-        {
-          "id": "s6d3",
-          "category": "TI",
-          "title": "Criptografia, Hash, Assinatura Digital e PKI",
-          "schedule": "3h • Quarta da Semana 6",
-          "topics": [
-            "Criptografia simétrica: DES, 3DES, AES e modos de operação em noções",
-            "Criptografia assimétrica: RSA, ECC, Diffie-Hellman e troca de chaves",
-            "Hash: MD5, SHA-1, SHA-2, SHA-3, salt, HMAC e integridade",
-            "Assinatura digital: hash + chave privada; verificação com chave pública",
-            "Certificados X.509, AC, AC Raiz, cadeia de confiança, revogação, CRL e OCSP",
-            "ICP-Brasil, carimbo de tempo e validade jurídica em noções"
-          ]
-        },
-        {
-          "id": "s6d4",
-          "category": "TI",
-          "title": "Controle de Acesso, IAM e Autenticação",
-          "schedule": "3h • Quinta da Semana 6",
-          "topics": [
-            "Identificação, autenticação, autorização, auditoria e accounting",
-            "MFA: senha, token, TOTP, push, biometria, FIDO2/WebAuthn",
-            "DAC, MAC, RBAC, ABAC e princípio do menor privilégio",
-            "SSO, federação, SAML, OAuth 2.0, OpenID Connect e JWT",
-            "Kerberos, LDAP, RADIUS, TACACS+ e 802.1X",
-            "Gestão de identidades privilegiadas, ciclo de vida de contas e segregação de funções"
-          ]
-        },
-        {
-          "id": "s6d5",
-          "category": "TI",
-          "title": "Segurança de Perímetro, Endpoints e Rede",
-          "schedule": "3h • Sexta da Semana 6",
-          "topics": [
-            "Firewall packet filter, stateful, proxy firewall e NGFW",
-            "IDS/IPS: assinatura, anomalia, inline, passivo e posicionamento",
-            "WAF, UTM, NAC, DLP, antispam, EDR, XDR e antivírus",
-            "VPN: IPSec AH/ESP/IKE, SSL/TLS VPN, OpenVPN e WireGuard",
-            "Hardening, gestão de patches, baseline seguro e CIS Benchmarks em noções",
-            "Segmentação, DMZ, bastion host, jump server e Zero Trust"
-          ]
-        },
-        {
-          "id": "s6d6",
-          "category": "Revisão",
-          "title": "Questões de Segurança I",
-          "schedule": "3h • Sábado da Semana 6",
-          "topics": [
-            "30 questões de ISO 27001/27002/27005 e gestão de riscos",
-            "15 questões de criptografia, hash, certificado e assinatura",
-            "15 questões de IAM, controle de acesso e autenticação",
-            "Mapa mental: risco, ameaça, vulnerabilidade, impacto e controle",
-            "Tabela comparativa: AES/RSA/hash/assinatura/certificado",
-            "Revisão D+21 de Direito e D+7 de Redes II"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "s7",
-      "number": 7,
-      "title": "Segurança II · Ataques · OWASP · LGPD · Forense",
-      "subtitle": "Ameaças, resposta a incidentes e proteção de dados",
-      "tag": "Segurança+",
-      "days": [
-        {
-          "id": "s7d1",
-          "category": "TI",
-          "title": "Malwares, Ataques e Engenharia Social",
-          "schedule": "3h • Segunda da Semana 7",
-          "topics": [
-            "Vírus, worm, trojan, spyware, adware, keylogger, rootkit, backdoor e botnet",
-            "Ransomware, scareware, fileless malware e ataques à cadeia de suprimentos",
-            "DoS, DDoS, spoofing, sniffing, MITM, replay, session hijacking e brute force",
-            "Phishing, spear phishing, whaling, smishing, vishing, baiting, pretexting e tailgating",
-            "ARP spoofing, DNS poisoning, evil twin, rogue AP e ataques Wi-Fi",
-            "Indicadores de comprometimento e noções de MITRE ATT&CK"
-          ]
-        },
-        {
-          "id": "s7d2",
-          "category": "TI",
-          "title": "Segurança de Aplicações e OWASP",
-          "schedule": "3h • Terça da Semana 7",
-          "topics": [
-            "OWASP Top 10: broken access control, cryptographic failures, injection e demais riscos",
-            "SQL Injection, XSS refletido/armazenado/DOM, CSRF, SSRF e command injection",
-            "Validação de entrada, parametrização de consultas, escape e output encoding",
-            "Gerenciamento de sessão, cookies HttpOnly, Secure, SameSite e proteção contra fixação de sessão",
-            "OWASP ASVS: níveis, controles e finalidade em auditoria de aplicação",
-            "SAST, DAST, SCA, secrets scanning e DevSecOps"
-          ]
-        },
-        {
-          "id": "s7d3",
-          "category": "Direito",
-          "title": "LGPD, Privacidade e Segurança de Dados",
-          "schedule": "3h • Quarta da Semana 7",
-          "topics": [
-            "Lei 13.709/2018: dado pessoal, dado sensível, titular, controlador, operador e encarregado",
-            "Princípios do art. 6º e bases legais do art. 7º",
-            "Direitos dos titulares e tratamento pelo poder público",
-            "Relatório de impacto, privacy by design, privacy by default e anonimização/pseudonimização",
-            "ANPD: fiscalização, sanções e comunicação de incidentes",
-            "ISO 27701, governança de privacidade e relação com ISO 27001"
-          ]
-        },
-        {
-          "id": "s7d4",
-          "category": "Analista+",
-          "title": "Forense Computacional e Resposta a Incidentes",
-          "schedule": "3h • Quinta da Semana 7",
-          "topics": [
-            "Ciclo de resposta a incidentes: preparação, identificação, contenção, erradicação, recuperação e lições aprendidas",
-            "Cadeia de custódia, coleta, preservação, análise e documentação de evidências",
-            "Volatilidade da evidência, imagem forense, hash de evidência e timeline",
-            "Logs de sistema, rede, aplicação, autenticação e correlação de eventos",
-            "SIEM, SOAR, regras de correlação, falso positivo e falso negativo",
-            "Noções de malware analysis e threat intelligence"
-          ]
-        },
-        {
-          "id": "s7d5",
-          "category": "TI",
-          "title": "Segurança no Judiciário e Normas Correlatas",
-          "schedule": "3h • Sexta da Semana 7",
-          "topics": [
-            "Política de segurança da informação no setor público e governança de segurança",
-            "ENSEC-PJ em noções: estratégia nacional de segurança cibernética do Poder Judiciário",
-            "PGCRC-PJ: gestão de riscos cibernéticos e continuidade no Judiciário em noções",
-            "Gestão de vulnerabilidades, inventário de ativos e priorização por risco",
-            "Controle de acesso em sistemas judiciais e trilhas de auditoria",
-            "Preparação para questões que misturam CNJ, segurança, LGPD e governança"
-          ]
-        },
-        {
-          "id": "s7d6",
-          "category": "Revisão",
-          "title": "Questões de Segurança II",
-          "schedule": "3h • Sábado da Semana 7",
-          "topics": [
-            "25 questões de ataques, malware e engenharia social",
-            "20 questões de OWASP e segurança de aplicações",
-            "15 questões de LGPD e privacidade",
-            "10 questões de forense, SIEM e resposta a incidentes",
-            "Atualizar caderno de erros de Segurança com vocabulário literal",
-            "Revisão D+7 de Segurança I"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "s8",
-      "number": 8,
-      "title": "Banco de Dados I · Modelagem · SQL · Transações",
-      "subtitle": "Banco relacional do conceitual ao SQL prático",
-      "tag": "BD",
-      "days": [
-        {
-          "id": "s8d1",
-          "category": "TI",
-          "title": "Modelagem Conceitual, Lógica e Física",
-          "schedule": "3h • Segunda da Semana 8",
-          "topics": [
-            "Modelo entidade-relacionamento: entidade, atributo, relacionamento e cardinalidade",
-            "Entidade fraca, atributo composto, multivalorado, derivado e identificador",
-            "Modelo relacional: relação, tupla, atributo, domínio e esquema",
-            "Chaves: primária, estrangeira, candidata, alternativa, composta e surrogate key",
-            "Integridade de entidade, referencial e de domínio",
-            "Notações Chen e Crow's Foot; transformação MER → modelo relacional"
-          ]
-        },
-        {
-          "id": "s8d2",
-          "category": "TI",
-          "title": "Normalização e Dependências",
-          "schedule": "3h • Terça da Semana 8",
-          "topics": [
-            "Dependência funcional, dependência parcial e dependência transitiva",
-            "1FN: atomicidade e eliminação de grupos repetidos",
-            "2FN: eliminação de dependência parcial em chave composta",
-            "3FN: eliminação de dependência transitiva",
-            "BCNF, 4FN e 5FN em noções para Analista",
-            "Desnormalização controlada, redundância e anomalias de inserção/atualização/exclusão"
-          ]
-        },
-        {
-          "id": "s8d3",
-          "category": "TI",
-          "title": "SQL Essencial — DDL, DML, DQL",
-          "schedule": "3h • Quarta da Semana 8",
-          "topics": [
-            "DDL: CREATE, ALTER, DROP, TRUNCATE; tabelas, constraints, views e índices",
-            "DML: INSERT, UPDATE, DELETE e MERGE em noções",
-            "DQL: SELECT, WHERE, ORDER BY, DISTINCT, LIMIT/OFFSET e aliases",
-            "JOINs: INNER, LEFT, RIGHT, FULL, CROSS e SELF JOIN",
-            "GROUP BY, HAVING e funções agregadas: COUNT, SUM, AVG, MIN, MAX",
-            "Subconsultas correlacionadas e não correlacionadas; EXISTS, IN, ANY, ALL"
-          ]
-        },
-        {
-          "id": "s8d4",
-          "category": "TI",
-          "title": "SQL Avançado, Transações e Concorrência",
-          "schedule": "3h • Quinta da Semana 8",
-          "topics": [
-            "DCL: GRANT, REVOKE; usuários, roles, privilégios e perfis",
-            "TCL: COMMIT, ROLLBACK e SAVEPOINT",
-            "ACID: atomicidade, consistência, isolamento e durabilidade",
-            "Níveis de isolamento: Read Uncommitted, Read Committed, Repeatable Read e Serializable",
-            "Problemas de concorrência: dirty read, non-repeatable read, phantom read e lost update",
-            "Triggers, stored procedures, functions, cursores e views materializadas"
-          ]
-        },
-        {
-          "id": "s8d5",
-          "category": "Analista+",
-          "title": "SGBDs, Índices e Otimização",
-          "schedule": "3h • Sexta da Semana 8",
-          "topics": [
-            "Índices B-tree, hash, bitmap, clustered e non-clustered",
-            "Plano de execução, seletividade, cardinalidade, estatísticas e custo",
-            "Particionamento, sharding, replicação, backup e restore",
-            "Oracle, PostgreSQL, SQL Server, MySQL/MariaDB e H2: diferenças em noções",
-            "Controle de privilégios e auditoria em banco de dados",
-            "Álgebra relacional: seleção, projeção, junção, união, diferença e produto cartesiano"
-          ]
-        },
-        {
-          "id": "s8d6",
-          "category": "Revisão",
-          "title": "Questões de Banco Relacional",
-          "schedule": "3h • Sábado da Semana 8",
-          "topics": [
-            "30 questões SQL com JOIN, GROUP BY, HAVING e subquery",
-            "15 questões de normalização e modelagem",
-            "10 questões de transações, ACID e isolamento",
-            "10 questões de índices, álgebra relacional e privilégios",
-            "Prática: resolver consultas sem olhar gabarito por pelo menos 25 minutos",
-            "Revisão D+21 de Redes I"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "s9",
-      "number": 9,
-      "title": "Banco de Dados II · NoSQL · BI · Dados",
-      "subtitle": "Dados modernos, análise e governança da informação",
-      "tag": "Dados",
-      "days": [
-        {
-          "id": "s9d1",
-          "category": "TI",
-          "title": "NoSQL e Bancos Distribuídos",
-          "schedule": "3h • Segunda da Semana 9",
-          "topics": [
-            "NoSQL: chave-valor, documento, coluna larga e grafos",
-            "MongoDB, Redis, Cassandra, HBase e Neo4j em visão comparativa",
-            "CAP theorem: consistência, disponibilidade e tolerância a partição",
-            "BASE vs ACID; consistência eventual e replicação",
-            "Modelagem orientada a consulta; agregados e documentos",
-            "Casos de uso e limitações de NoSQL em prova"
-          ]
-        },
-        {
-          "id": "s9d2",
-          "category": "TI",
-          "title": "Data Warehouse, ETL/ELT e Modelagem Dimensional",
-          "schedule": "3h • Terça da Semana 9",
-          "topics": [
-            "Data warehouse, data mart, ODS, data lake e lakehouse",
-            "ETL vs ELT: extração, transformação, carga e qualidade de dados",
-            "Modelagem dimensional: fatos, dimensões, medidas, granularidade e hierarquias",
-            "Esquema estrela, floco de neve e constelação de fatos",
-            "SCD: dimensões lentamente mutáveis tipos 1, 2 e 3 em noções",
-            "Metadados, linhagem, catálogo de dados e data quality"
-          ]
-        },
-        {
-          "id": "s9d3",
-          "category": "TI",
-          "title": "Business Intelligence e Visualização",
-          "schedule": "3h • Quarta da Semana 9",
-          "topics": [
-            "BI: indicadores, KPIs, dashboards, relatórios e análise ad hoc",
-            "OLTP vs OLAP; cubos, drill-down, roll-up, slice, dice e pivot",
-            "Power BI, Tableau, Qlik e Metabase em noções",
-            "DAX e linguagem de medidas em visão conceitual",
-            "Boas práticas de visualização: escala, comparação, tendência e proporção",
-            "Erros comuns em gráficos e interpretação de indicadores"
-          ]
-        },
-        {
-          "id": "s9d4",
-          "category": "Analista+",
-          "title": "Big Data e Processamento Distribuído",
-          "schedule": "3h • Quinta da Semana 9",
-          "topics": [
-            "Volume, velocidade, variedade, veracidade e valor dos dados",
-            "Hadoop, HDFS, MapReduce, Spark e processamento em memória",
-            "Streaming: Kafka, filas, tópicos, consumidores, particionamento e offsets",
-            "Batch vs streaming; lambda architecture e kappa architecture em noções",
-            "Governança de dados: DAMA-DMBOK, papéis, políticas, qualidade e segurança",
-            "DataOps e automação de pipelines de dados"
-          ]
-        },
-        {
-          "id": "s9d5",
-          "category": "Analista+",
-          "title": "Python para Dados",
-          "schedule": "3h • Sexta da Semana 9",
-          "topics": [
-            "Python básico para análise: tipos, listas, dicionários, funções e módulos",
-            "NumPy: arrays, vetorização e operações numéricas",
-            "pandas: DataFrame, Series, leitura de arquivos, filtros, groupby e merge",
-            "matplotlib: gráficos básicos e interpretação de visualizações",
-            "scikit-learn: treino, teste, métricas e pipeline em noções",
-            "Cuidados: overfitting, vazamento de dados e reprodutibilidade"
-          ]
-        },
-        {
-          "id": "s9d6",
-          "category": "Revisão",
-          "title": "Questões de Dados, BI e NoSQL",
-          "schedule": "3h • Sábado da Semana 9",
-          "topics": [
-            "20 questões de NoSQL e bancos distribuídos",
-            "20 questões de DW, ETL, modelagem dimensional e OLAP",
-            "10 questões de BI, visualização e indicadores",
-            "10 questões de Big Data, Spark/Kafka e governança de dados",
-            "10 questões de Python/pandas/scikit-learn quando houver no edital",
-            "Revisão D+7 de Banco Relacional"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "s10",
-      "number": 10,
-      "title": "Engenharia de Software · Requisitos · UML · Testes",
-      "subtitle": "Processo de desenvolvimento e qualidade de software",
-      "tag": "Eng. Software",
-      "days": [
-        {
-          "id": "s10d1",
-          "category": "Analista+",
-          "title": "Processos de Software e Ciclo de Vida",
-          "schedule": "3h • Segunda da Semana 10",
-          "topics": [
-            "Modelos cascata, incremental, iterativo, espiral, prototipação e modelo V",
-            "RUP: iniciação, elaboração, construção e transição; disciplinas e melhores práticas",
-            "ISO/IEC/IEEE 12207: processos do ciclo de vida de software",
-            "CMMI-DEV: níveis de maturidade e áreas de capacidade em noções",
-            "MR-MPS-SW/MPS.BR: níveis G a A e conceitos centrais",
-            "Trade-offs entre previsibilidade, flexibilidade, custo e risco"
-          ]
-        },
-        {
-          "id": "s10d2",
-          "category": "Analista+",
-          "title": "Engenharia de Requisitos",
-          "schedule": "3h • Terça da Semana 10",
-          "topics": [
-            "Elicitação, análise, especificação, validação e gerenciamento de requisitos",
-            "Requisitos funcionais, não funcionais, regras de negócio e restrições",
-            "Técnicas: entrevista, questionário, workshop, observação, prototipação e brainstorming",
-            "Casos de uso, histórias de usuário, critérios de aceitação e rastreabilidade",
-            "Baseline, controle de mudanças, matriz de rastreabilidade e priorização",
-            "Pegadinhas: requisito vs solução; requisito funcional vs não funcional"
-          ]
-        },
-        {
-          "id": "s10d3",
-          "category": "Analista+",
-          "title": "UML 2.5 — Diagramas e Metamodelo",
-          "schedule": "3h • Quarta da Semana 10",
-          "topics": [
-            "Diagramas estruturais: classes, objetos, componentes, pacotes, implantação e estrutura composta",
-            "Diagramas comportamentais: casos de uso, atividades, estados e máquina de estados",
-            "Diagramas de interação: sequência, comunicação, tempo e visão geral de interação",
-            "Relacionamentos: associação, agregação, composição, generalização, realização e dependência",
-            "Diagrama de classes: atributos, operações, visibilidade, multiplicidade e navegabilidade",
-            "Property em UML: atributo de classe ou extremidade de associação"
-          ]
-        },
-        {
-          "id": "s10d4",
-          "category": "Analista+",
-          "title": "Testes, Qualidade e Métricas",
-          "schedule": "3h • Quinta da Semana 10",
-          "topics": [
-            "Testes unitário, integração, sistema, aceitação, regressão, fumaça, sanidade, carga, stress e desempenho",
-            "Caixa preta, caixa branca e caixa cinza; particionamento de equivalência e valor limite",
-            "TDD, BDD, Gherkin, Given-When-Then e automação de testes",
-            "ISO/IEC 25010: características de qualidade do produto de software",
-            "ISO 9126 como referência histórica; qualidade interna, externa e em uso",
-            "Métricas: cobertura, complexidade ciclomática, defeitos, APF e produtividade"
-          ]
-        },
-        {
-          "id": "s10d5",
-          "category": "Analista+",
-          "title": "Métodos Ágeis e Gestão do Produto",
-          "schedule": "3h • Sexta da Semana 10",
-          "topics": [
-            "Manifesto Ágil: 4 valores e 12 princípios",
-            "Scrum: papéis, eventos, artefatos, backlog, incremento, DoD e DoR",
-            "Kanban: fluxo, WIP, lead time, cycle time, throughput e classes de serviço",
-            "XP: TDD, pair programming, refatoração, integração contínua e pequenas releases",
-            "SAFe, LeSS e Nexus em visão de escalonamento ágil",
-            "Métricas ágeis: velocity, burn-down, burn-up e cumulative flow diagram"
-          ]
-        },
-        {
-          "id": "s10d6",
-          "category": "Revisão",
-          "title": "Questões de Engenharia de Software",
-          "schedule": "3h • Sábado da Semana 10",
-          "topics": [
-            "20 questões de processos, RUP, 12207, CMMI e MPS.BR",
-            "15 questões de requisitos",
-            "20 questões de UML",
-            "15 questões de testes, qualidade e métodos ágeis",
-            "Desenhar um diagrama de classes e um de casos de uso com notação correta",
-            "Revisão D+21 de Segurança I"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "s11",
-      "number": 11,
-      "title": "Programação · Web · APIs · Frameworks",
-      "subtitle": "Desenvolvimento cobrado literalmente em editais de TI",
-      "tag": "Dev",
-      "days": [
-        {
-          "id": "s11d1",
-          "category": "TI",
-          "title": "Lógica de Programação, POO e Estruturas",
-          "schedule": "3h • Segunda da Semana 11",
-          "topics": [
-            "Algoritmos, variáveis, tipos, operadores, condicionais, laços e funções",
-            "Estruturas de dados: arrays, listas, pilhas, filas, mapas, árvores e grafos em noções",
-            "Complexidade básica: O(1), O(log n), O(n), O(n log n), O(n²)",
-            "POO: classe, objeto, atributo, método, encapsulamento, herança, polimorfismo e abstração",
-            "Interfaces, classes abstratas, composição vs herança e SOLID em noções",
-            "Tratamento de exceções, coleções e generics em visão de linguagem"
-          ]
-        },
-        {
-          "id": "s11d2",
-          "category": "Analista+",
-          "title": "Java, Jakarta EE, JPA/Hibernate e Spring",
-          "schedule": "3h • Terça da Semana 11",
-          "topics": [
-            "Java: sintaxe, classes, interfaces, exceções, coleções, streams e anotações em noções",
-            "Jakarta EE: servlets, CDI, JAX-RS, EJB e arquitetura corporativa em visão geral",
-            "JPA/Hibernate: entidades, relacionamentos, EntityManager, HQL/JPQL e lazy/eager loading",
-            "Hibernate Envers, auditoria e versionamento de entidades em noções",
-            "Spring Boot: configuração, controllers, services, repositories e injeção de dependência",
-            "Spring Security, Spring Cloud, Eureka, Zuul/Gateway, Config Server e Actuator"
-          ]
-        },
-        {
-          "id": "s11d3",
-          "category": "TI",
-          "title": "Web Front-end: HTML, CSS, JavaScript e TypeScript",
-          "schedule": "3h • Quarta da Semana 11",
-          "topics": [
-            "HTML5: estrutura, semântica, formulários, tabelas, mídia e atributos ARIA em noções",
-            "CSS3: seletores, box model, flexbox, grid, responsividade e especificidade",
             "JavaScript: tipos, escopo, funções, objetos, arrays, promises, async/await e módulos",
-            "TypeScript: tipagem estática, interfaces, types, generics e classes",
-            "DOM, eventos, fetch, JSON e manipulação de formulários",
-            "Bootstrap, Angular Material e noções de jQuery em manutenção de legado"
-          ]
+            "REST: recursos, métodos HTTP, códigos de status, stateless, idempotência e cache",
+            "JSON: estrutura, serialização, validação, payload e contrato",
+            "Boas práticas de endpoints: paginação, filtros, versionamento e erros padronizados"
+          ],
+          "task": "Execução: teoria objetiva + 15 a 25 questões + 3 linhas no caderno de erros. No sábado, aumentar questões e revisar erros da semana."
         },
         {
-          "id": "s11d4",
-          "category": "Analista+",
-          "title": "Angular, Node.js, C# e Ecossistema Web",
-          "schedule": "3h • Quinta da Semana 11",
+          "id": "dia-12",
+          "sourceId": "d12",
+          "category": "Banco de Dados",
+          "title": "Dia 12 · SQL, DDL, DML e SGBD",
+          "schedule": "Sáb · 18/07/2026 · bloco sugerido: 2h30",
           "topics": [
-            "Angular: componentes, módulos, services, dependency injection, routing e forms",
-            "RxJS: Observable, subscribe, pipe, map, switchMap e tratamento assíncrono em noções",
-            "Node.js: event loop, npm, módulos, Express/NestJS em visão geral",
-            "C#: tipos, classes, LINQ, async/await e ASP.NET Core em noções",
-            "XML, XSD, JSON, YAML e serialização/deserialização",
-            "MapStruct, DTOs, mapeamento objeto-objeto e validação de dados"
-          ]
-        },
-        {
-          "id": "s11d5",
-          "category": "Analista+",
-          "title": "APIs, Integração e Arquitetura de Serviços",
-          "schedule": "3h • Sexta da Semana 11",
-          "topics": [
-            "REST: recursos, verbos HTTP, status codes, stateless, idempotência e HATEOAS",
-            "SOAP, WSDL, XML Schema, UDDI em noções e comparação com REST",
-            "OpenAPI/Swagger, versionamento de APIs, paginação, filtros e contratos",
-            "Autenticação em APIs: API key, Basic, Bearer, JWT, OAuth2 e OIDC",
-            "Mensageria: RabbitMQ, Kafka, filas, tópicos, pub/sub e DLQ",
-            "Padrões: MVC, DAO, DTO, Repository, Factory, Strategy, Observer, Proxy, Circuit Breaker e Saga"
-          ]
-        },
-        {
-          "id": "s11d6",
-          "category": "Revisão",
-          "title": "Questões de Programação e Web",
-          "schedule": "3h • Sábado da Semana 11",
-          "topics": [
-            "20 questões de POO, algoritmos e estruturas de dados",
-            "15 questões de Java/JPA/Hibernate/Spring",
-            "15 questões de HTML/CSS/JS/TS/Angular",
-            "10 questões de APIs REST/SOAP/OpenAPI/mensageria",
-            "Criar mapa de padrões de projeto com finalidade e pegadinha típica",
-            "Revisão D+7 de Engenharia de Software"
-          ]
+            "SQL: SELECT, WHERE, ORDER BY, DISTINCT, JOIN, GROUP BY e HAVING",
+            "DDL: CREATE, ALTER, DROP, TRUNCATE, constraints, views e índices",
+            "DML: INSERT, UPDATE, DELETE e MERGE em noções",
+            "SGBD: funções, catálogo, controle de concorrência, recuperação e administração básica"
+          ],
+          "task": "Execução: teoria objetiva + 15 a 25 questões + 3 linhas no caderno de erros. No sábado, aumentar questões e revisar erros da semana."
         }
       ]
     },
     {
-      "id": "s12",
-      "number": 12,
-      "title": "Arquitetura · DevOps · Containers · Cloud Native",
-      "subtitle": "Entrega, operação, automação e arquitetura moderna",
-      "tag": "DevOps",
+      "id": "sem3",
+      "number": 3,
+      "title": "Semana 3 · 20/07 a 25/07",
+      "subtitle": "Conteúdos alternados: gerais, desenvolvimento, banco, segurança, BI e governança.",
+      "tag": "6 dias",
       "days": [
         {
-          "id": "s12d1",
-          "category": "Analista+",
-          "title": "Arquitetura de Sistemas e Integração",
-          "schedule": "3h • Segunda da Semana 12",
+          "id": "dia-13",
+          "sourceId": "d13",
+          "category": "Língua Portuguesa",
+          "title": "Dia 13 · Português — coesão, referenciação e tempos verbais",
+          "schedule": "Seg · 20/07/2026 · bloco sugerido: 1h30",
           "topics": [
-            "Monólito, camadas, hexagonal, limpa, orientada a serviços e microsserviços",
-            "SOA, ESB, barramento de serviços, orquestração e coreografia",
-            "API Gateway, service discovery, config server e load balancing",
-            "Padrões distribuídos: Circuit Breaker, Retry, Timeout, Bulkhead, Saga e Outbox",
-            "Consistência eventual, transações distribuídas, idempotência e compensação",
-            "Trade-offs: acoplamento, coesão, latência, observabilidade e complexidade operacional"
-          ]
+            "Coesão textual: referenciação, substituição, repetição e retomada",
+            "Conectores e sequenciação textual",
+            "Tempos e modos verbais na interpretação e na reescrita",
+            "Ortografia oficial: grafia, hífen, maiúsculas/minúsculas e casos recorrentes da FGV"
+          ],
+          "task": "Execução: teoria objetiva + 15 a 25 questões + 3 linhas no caderno de erros. No sábado, aumentar questões e revisar erros da semana."
         },
         {
-          "id": "s12d2",
-          "category": "TI",
-          "title": "Git, Build, CI/CD e Qualidade de Código",
-          "schedule": "3h • Terça da Semana 12",
+          "id": "dia-14",
+          "sourceId": "d14",
+          "category": "Integração/API",
+          "title": "Dia 14 · API, Swagger/OpenAPI, Web Services, SOA e mensageria",
+          "schedule": "Ter · 21/07/2026 · bloco sugerido: 1h30",
           "topics": [
-            "Git: commit, branch, merge, rebase, tag, conflito e pull request",
-            "CI: build automático, testes, análise estática e artefatos",
-            "CD: delivery vs deployment; stages de pipeline e aprovações",
-            "Jenkins, GitLab CI, GitHub Actions e Azure DevOps em noções",
-            "Estratégias de deploy: blue-green, canary, rolling update e feature flags",
-            "Code review, lint, SonarQube, cobertura, qualidade e débito técnico"
-          ]
+            "API: consumidores, provedores, contrato, autenticação e versionamento",
+            "Swagger/OpenAPI: schemas, parâmetros, responses, examples e leitura de especificação",
+            "Web services, SOAP, WSDL, UDDI e arquitetura orientada a serviços",
+            "Mensageria: filas, tópicos, producers, consumers, ack, retry, DLQ e idempotência"
+          ],
+          "task": "Execução: teoria objetiva + 15 a 25 questões + 3 linhas no caderno de erros. No sábado, aumentar questões e revisar erros da semana."
         },
         {
-          "id": "s12d3",
-          "category": "TI",
-          "title": "Docker, Kubernetes e Orquestração",
-          "schedule": "3h • Quarta da Semana 12",
+          "id": "dia-15",
+          "sourceId": "d15",
+          "category": "Raciocínio Lógico",
+          "title": "Dia 15 · RLM — argumentação, analogias e equivalências",
+          "schedule": "Qua · 22/07/2026 · bloco sugerido: 1h30",
           "topics": [
-            "Dockerfile: FROM, RUN, COPY, ADD, CMD, ENTRYPOINT, EXPOSE, ENV e WORKDIR",
-            "Imagens, camadas, registry, volumes, bind mounts e redes Docker",
-            "Kubernetes: pod, replica set, deployment, service, ingress, namespace, configmap e secret",
-            "Liveness/readiness/startup probes, requests/limits e escalabilidade",
-            "Helm, manifests YAML, rolling update e rollback",
-            "Segurança em containers: least privilege, image scanning, secrets e runtime security"
-          ]
+            "Lógica de argumentação: analogias, inferências, deduções e conclusões",
+            "Equivalências: De Morgan, condicional, bicondicional e contrapositiva",
+            "Diagramas lógicos e relações entre conjuntos",
+            "Transformar enunciado em estrutura lógica antes de calcular"
+          ],
+          "task": "Execução: teoria objetiva + 15 a 25 questões + 3 linhas no caderno de erros. No sábado, aumentar questões e revisar erros da semana."
         },
         {
-          "id": "s12d4",
-          "category": "Analista+",
-          "title": "Infrastructure as Code e Automação",
-          "schedule": "3h • Quinta da Semana 12",
+          "id": "dia-16",
+          "sourceId": "d16",
+          "category": "Legislação SI/Proteção de Dados",
+          "title": "Dia 16 · LGPD — capítulos cobrados no edital",
+          "schedule": "Qui · 23/07/2026 · bloco sugerido: 1h30",
           "topics": [
-            "IaC: conceito, benefícios, idempotência e controle de versão",
-            "Terraform: providers, resources, state, plan, apply e destroy em noções",
-            "Ansible: playbooks, inventory, modules e automação de configuração",
-            "Puppet/Chef em noções históricas e comparação",
-            "Ambientes dev/homolog/prod, configuração externa e gestão de segredos",
-            "Automação operacional: scripts, runbooks, ChatOps e pipelines"
-          ]
+            "LGPD: capítulos I, II, III e IV",
+            "Dados pessoais, dados sensíveis, titular, controlador, operador e encarregado",
+            "Bases legais, direitos do titular e tratamento pelo poder público",
+            "Capítulos VII, VIII e IX: segurança, boas práticas, fiscalização e sanções"
+          ],
+          "task": "Execução: teoria objetiva + 15 a 25 questões + 3 linhas no caderno de erros. No sábado, aumentar questões e revisar erros da semana."
         },
         {
-          "id": "s12d5",
-          "category": "Analista+",
-          "title": "Observabilidade, SRE e Operação",
-          "schedule": "3h • Sexta da Semana 12",
+          "id": "dia-17",
+          "sourceId": "d17",
+          "category": "Testes",
+          "title": "Dia 17 · Testes de aplicações, JUnit e TDD",
+          "schedule": "Sex · 24/07/2026 · bloco sugerido: 1h30",
           "topics": [
-            "Logs, métricas e traces: três pilares da observabilidade",
-            "Prometheus, Grafana, Alertmanager, exporters e PromQL básico",
-            "ELK/OpenSearch: Elasticsearch, Logstash/Fluentd/Fluent Bit e Kibana",
-            "SRE: SLI, SLO, SLA, error budget, toil e postmortem sem culpa",
-            "Monitoramento sintético, APM, tracing distribuído e OpenTelemetry em noções",
-            "Gestão de incidentes, severidade, comunicação e lições aprendidas"
-          ]
+            "Conceitos básicos de testes de aplicações",
+            "Testes unitários, integração, regressão, funcionais, usabilidade e testes ágeis",
+            "JUnit: asserts, fixtures, mocks e organização de testes",
+            "Testes automatizados, tipos de testes, TDD e gestão do ciclo de vida de testes"
+          ],
+          "task": "Execução: teoria objetiva + 15 a 25 questões + 3 linhas no caderno de erros. No sábado, aumentar questões e revisar erros da semana."
         },
         {
-          "id": "s12d6",
-          "category": "Revisão",
-          "title": "Questões de Arquitetura e DevOps",
-          "schedule": "3h • Sábado da Semana 12",
+          "id": "dia-18",
+          "sourceId": "d18",
+          "category": "BI/Dados",
+          "title": "Dia 18 · BI, suporte à decisão, Data Warehouse, ETL e OLAP",
+          "schedule": "Sáb · 25/07/2026 · bloco sugerido: 2h30",
           "topics": [
-            "20 questões de arquitetura, SOA, microsserviços e padrões",
-            "15 questões de Git, CI/CD e deploy",
-            "20 questões de Docker/Kubernetes/IaC",
-            "10 questões de observabilidade, SRE e monitoramento",
-            "Atualizar caderno de siglas: SLI, SLO, SLA, SRE, IaC, CI, CD",
-            "Revisão D+21 de Banco Relacional"
-          ]
+            "Conceitos, fundamentos, características, técnicas e métodos de BI",
+            "Sistemas de suporte à decisão e gestão de conteúdo",
+            "Arquitetura e aplicações de data warehouse",
+            "ETL, OLAP, fatos, dimensões, medidas e granularidade"
+          ],
+          "task": "Execução: teoria objetiva + 15 a 25 questões + 3 linhas no caderno de erros. No sábado, aumentar questões e revisar erros da semana."
         }
       ]
     },
     {
-      "id": "s13",
-      "number": 13,
-      "title": "Cloud Computing · Storage · Alta Disponibilidade",
-      "subtitle": "Nuvem, armazenamento corporativo e resiliência",
-      "tag": "Cloud",
+      "id": "sem4",
+      "number": 4,
+      "title": "Semana 4 · 27/07 a 01/08",
+      "subtitle": "Conteúdos alternados: gerais, desenvolvimento, banco, segurança, BI e governança.",
+      "tag": "6 dias",
       "days": [
         {
-          "id": "s13d1",
-          "category": "TI",
-          "title": "Cloud Computing — NIST SP 800-145",
-          "schedule": "3h • Segunda da Semana 13",
+          "id": "dia-19",
+          "sourceId": "d19",
+          "category": "Língua Portuguesa",
+          "title": "Dia 19 · Português — morfossintaxe, classes, pontuação e concordância",
+          "schedule": "Seg · 27/07/2026 · bloco sugerido: 1h30",
           "topics": [
-            "Cinco características essenciais: on-demand self-service, broad network access, resource pooling, rapid elasticity e measured service",
-            "Modelos de serviço: IaaS, PaaS, SaaS, FaaS, BaaS e DBaaS",
-            "Modelos de implantação: pública, privada, híbrida e comunitária",
-            "Responsabilidade compartilhada: provedor vs cliente",
-            "Regiões, zonas de disponibilidade, edge, CDN e latência",
-            "Custos em nuvem: pay-as-you-go, rightsizing, reservas e FinOps em noções"
-          ]
+            "Estrutura morfossintática do período",
+            "Classes de palavras e funções sintáticas",
+            "Coordenação, subordinação e valor semântico dos conectivos",
+            "Pontuação, concordância verbal e concordância nominal"
+          ],
+          "task": "Execução: teoria objetiva + 15 a 25 questões + 3 linhas no caderno de erros. No sábado, aumentar questões e revisar erros da semana."
         },
         {
-          "id": "s13d2",
-          "category": "TI",
-          "title": "AWS, Azure e GCP — Serviços Essenciais",
-          "schedule": "3h • Terça da Semana 13",
+          "id": "dia-20",
+          "sourceId": "d20",
+          "category": "Frontend",
+          "title": "Dia 20 · Frontend web: HTML, CSS, UX, Ajax, Vue, Angular e React",
+          "schedule": "Ter · 28/07/2026 · bloco sugerido: 1h30",
           "topics": [
-            "AWS: EC2, S3, RDS, Lambda, IAM, VPC, CloudWatch e CloudFormation em noções",
-            "Azure: VM, Blob Storage, Azure SQL, Functions, Entra ID/Azure AD, VNet e Monitor",
-            "GCP: Compute Engine, Cloud Storage, BigQuery, Cloud Functions, IAM e VPC",
-            "Compute, storage, network, database, IAM e observability nos três provedores",
-            "Serverless: cold start, stateless, eventos, limites e escalabilidade",
-            "Containers gerenciados: EKS, AKS, GKE e registries"
-          ]
+            "HTML: estrutura, semântica, formulários, tabelas, mídia e ARIA em noções",
+            "CSS: seletores, box model, flexbox, grid, responsividade e especificidade",
+            "Ajax, fetch, DOM, eventos e integração com APIs",
+            "VueJS, Angular e React: componentes, estado, rotas, renderização e diferenças gerais"
+          ],
+          "task": "Execução: teoria objetiva + 15 a 25 questões + 3 linhas no caderno de erros. No sábado, aumentar questões e revisar erros da semana."
         },
         {
-          "id": "s13d3",
-          "category": "TI",
-          "title": "Armazenamento Corporativo",
-          "schedule": "3h • Quarta da Semana 13",
+          "id": "dia-21",
+          "sourceId": "d21",
+          "category": "Raciocínio Lógico",
+          "title": "Dia 21 · RLM — lógica de primeira ordem e diagramas",
+          "schedule": "Qua · 29/07/2026 · bloco sugerido: 1h30",
           "topics": [
-            "DAS, NAS, SAN e armazenamento definido por software",
-            "SAN: Fibre Channel, iSCSI e FCoE; zoning e LUN em noções",
-            "NAS: SMB/CIFS e NFS; permissões, compartilhamento e casos de uso",
-            "Objeto, bloco e arquivo em nuvem: S3, EBS, EFS e equivalentes",
-            "Deduplicação, compressão, thin provisioning e snapshots",
-            "Backup, retenção, imutabilidade, air gap e ransomware resilience"
-          ]
+            "Lógica de primeira ordem e quantificadores",
+            "Negação de todo, algum, nenhum e existe",
+            "Diagramas lógicos com inclusão, interseção, disjunção e complemento",
+            "Problemas que exigem dedução e eliminação de alternativas"
+          ],
+          "task": "Execução: teoria objetiva + 15 a 25 questões + 3 linhas no caderno de erros. No sábado, aumentar questões e revisar erros da semana."
         },
         {
-          "id": "s13d4",
-          "category": "Analista+",
-          "title": "Alta Disponibilidade, DR e Escalabilidade",
-          "schedule": "3h • Quinta da Semana 13",
+          "id": "dia-22",
+          "sourceId": "d22",
+          "category": "Legislação SI/Proteção de Dados",
+          "title": "Dia 22 · Delitos Informáticos e Marco Civil da Internet",
+          "schedule": "Qui · 30/07/2026 · bloco sugerido: 1h30",
           "topics": [
-            "HA vs DR; redundância, failover, failback e eliminação de SPOF",
-            "Cluster active-active e active-passive; balanceamento L4/L7",
-            "Replicação síncrona e assíncrona; consistência e latência",
-            "RTO, RPO, MTD, MTBF, MTTR e disponibilidade percentual",
-            "Arquiteturas multi-AZ, multi-region e disaster recovery drills",
-            "Chaos engineering em noções e testes de resiliência"
-          ]
+            "Lei nº 12.737/2012: art. 2º e invasão de dispositivo informático",
+            "Marco Civil da Internet: capítulo II, seção I",
+            "Marco Civil: capítulo III, seções I e II",
+            "Responsabilidade, registros, privacidade, conexão, aplicações e retirada de conteúdo"
+          ],
+          "task": "Execução: teoria objetiva + 15 a 25 questões + 3 linhas no caderno de erros. No sábado, aumentar questões e revisar erros da semana."
         },
         {
-          "id": "s13d5",
-          "category": "Analista+",
-          "title": "Segurança e Governança em Nuvem",
-          "schedule": "3h • Sexta da Semana 13",
+          "id": "dia-23",
+          "sourceId": "d23",
+          "category": "DevOps/Git",
+          "title": "Dia 23 · DevOps, Git e gestão da configuração",
+          "schedule": "Sex · 31/07/2026 · bloco sugerido: 1h30",
           "topics": [
-            "IAM cloud: usuários, grupos, roles, policies e least privilege",
-            "Criptografia em trânsito e repouso; KMS, HSM e rotação de chaves",
-            "Security groups, NACLs, WAF, proteção DDoS e segmentação",
-            "CSPM, CWPP e CNAPP em noções",
-            "Logs de auditoria, trilhas, compliance e monitoramento contínuo",
-            "Riscos de cloud: má configuração, exposição pública, chaves vazadas e shadow IT"
-          ]
+            "DevOps: cultura, colaboração, automação e integração desenvolvimento-operação",
+            "Git: commit, branch, merge, rebase, tag, pull request e conflitos",
+            "CI/CD: build, testes, análise estática, deploy, rollback e rastreabilidade",
+            "Gestão da configuração, versionamento e controle de mudanças"
+          ],
+          "task": "Execução: teoria objetiva + 15 a 25 questões + 3 linhas no caderno de erros. No sábado, aumentar questões e revisar erros da semana."
         },
         {
-          "id": "s13d6",
-          "category": "Revisão",
-          "title": "Questões de Cloud e Storage",
-          "schedule": "3h • Sábado da Semana 13",
+          "id": "dia-24",
+          "sourceId": "d24",
+          "category": "Banco de Dados",
+          "title": "Dia 24 · Normalização, integridade, metadados e modelagem dimensional",
+          "schedule": "Sáb · 01/08/2026 · bloco sugerido: 2h30",
           "topics": [
-            "20 questões de NIST Cloud e modelos IaaS/PaaS/SaaS",
-            "15 questões de AWS/Azure/GCP em conceitos",
-            "15 questões de storage, RAID, SAN/NAS e backup",
-            "15 questões de HA, DR e resiliência",
-            "Criar tabela: RTO/RPO/MTBF/MTTR/HA/DR",
-            "Revisão D+7 de DevOps"
-          ]
+            "Normalização: 1FN, 2FN, 3FN, BCNF e anomalias",
+            "Integridade referencial, integridade de entidade e integridade de domínio",
+            "Metadados: significado, catálogo, linhagem e uso na governança",
+            "Modelagem dimensional: estrela, floco de neve, fato, dimensão e hierarquias"
+          ],
+          "task": "Execução: teoria objetiva + 15 a 25 questões + 3 linhas no caderno de erros. No sábado, aumentar questões e revisar erros da semana."
         }
       ]
     },
     {
-      "id": "s14",
-      "number": 14,
-      "title": "Governança de TI · ITIL · COBIT · Gestão de Projetos",
-      "subtitle": "Governança, serviços, processos e projetos de TI",
-      "tag": "Governança",
+      "id": "sem5",
+      "number": 5,
+      "title": "Semana 5 · 03/08 a 08/08",
+      "subtitle": "Conteúdos alternados: gerais, desenvolvimento, banco, segurança, BI e governança.",
+      "tag": "6 dias",
       "days": [
         {
-          "id": "s14d1",
-          "category": "TI",
-          "title": "ITIL 4 — Conceitos e Sistema de Valor",
-          "schedule": "3h • Segunda da Semana 14",
+          "id": "dia-25",
+          "sourceId": "d25",
+          "category": "Língua Inglesa",
+          "title": "Dia 25 · Inglês — textos técnicos, logs e documentação",
+          "schedule": "Seg · 03/08/2026 · bloco sugerido: 1h30",
           "topics": [
-            "Serviço, valor, organização, cliente, usuário, patrocinador e relacionamento de serviço",
-            "Quatro dimensões do gerenciamento de serviços",
-            "Sistema de Valor de Serviço: cadeia de valor, práticas, princípios, governança e melhoria contínua",
-            "Sete princípios orientadores do ITIL 4",
-            "Cadeia de valor: plan, improve, engage, design and transition, obtain/build, deliver and support",
-            "Pegadinhas: valor não é só produto; foco em co-criação de valor"
-          ]
+            "Compreensão de textos técnicos em inglês",
+            "Leitura de documentação de API, frameworks, cloud, banco e segurança",
+            "Mensagens de erro, logs e changelogs",
+            "Itens gramaticais que mudam sentido: negação, comparativos, conditionals e modal verbs"
+          ],
+          "task": "Execução: teoria objetiva + 15 a 25 questões + 3 linhas no caderno de erros. No sábado, aumentar questões e revisar erros da semana."
         },
         {
-          "id": "s14d2",
-          "category": "TI",
-          "title": "ITIL 4 — Práticas de Gerenciamento",
-          "schedule": "3h • Terça da Semana 14",
+          "id": "dia-26",
+          "sourceId": "d26",
+          "category": "Arquitetura Web",
+          "title": "Dia 26 · Arquitetura de software, aplicações web e ambientes corporativos",
+          "schedule": "Ter · 04/08/2026 · bloco sugerido: 1h30",
           "topics": [
-            "Práticas gerais: arquitetura, melhoria contínua, segurança da informação, relacionamento e fornecedores",
-            "Práticas de serviço: incidentes, problemas, mudanças, requisições, catálogo, nível de serviço e disponibilidade",
-            "Práticas técnicas: implantação, infraestrutura e plataformas, desenvolvimento e gestão de software",
-            "Incidente vs problema; mudança normal, padrão e emergencial",
-            "SLA, OLA, UC, catálogo de serviços e central de serviços",
-            "Métricas de suporte e melhoria contínua"
-          ]
+            "Arquitetura de software: camadas, componentes, acoplamento, coesão e trade-offs",
+            "Arquitetura de aplicações web: cliente, servidor, apresentação, negócio e dados",
+            "Servidor web versus servidor de aplicações",
+            "Ambientes Internet, extranet, intranet e portal: finalidades, características físicas/lógicas, aplicações e serviços"
+          ],
+          "task": "Execução: teoria objetiva + 15 a 25 questões + 3 linhas no caderno de erros. No sábado, aumentar questões e revisar erros da semana."
         },
         {
-          "id": "s14d3",
-          "category": "Analista+",
-          "title": "COBIT 2019 e Governança Corporativa de TI",
-          "schedule": "3h • Quarta da Semana 14",
+          "id": "dia-27",
+          "sourceId": "d27",
+          "category": "Atualidades e IA",
+          "title": "Dia 27 · Atualidades — temas de mundo e tecnologia",
+          "schedule": "Qua · 05/08/2026 · bloco sugerido: 1h30",
           "topics": [
-            "Governança vs gestão; objetivos de governança e gestão",
-            "Princípios do sistema de governança e do framework COBIT 2019",
-            "Componentes do sistema de governança: processos, estruturas, informação, cultura, pessoas, serviços e políticas",
-            "Domínios: EDM, APO, BAI, DSS e MEA",
-            "Design factors e goals cascade em noções",
-            "Capacidade de processo e níveis de maturidade em visão de prova"
-          ]
+            "Segurança, transportes, política, economia e sociedade",
+            "Educação, saúde, cultura, tecnologia e energia",
+            "Relações internacionais, desenvolvimento sustentável e ecologia",
+            "Como a FGV costuma cobrar atualidades: contexto, causa, efeito e conceito"
+          ],
+          "task": "Execução: teoria objetiva + 15 a 25 questões + 3 linhas no caderno de erros. No sábado, aumentar questões e revisar erros da semana."
         },
         {
-          "id": "s14d4",
-          "category": "Analista+",
-          "title": "Gestão de Projetos, PMBOK e Ágil Híbrido",
-          "schedule": "3h • Quinta da Semana 14",
+          "id": "dia-28",
+          "sourceId": "d28",
+          "category": "Segurança da Informação",
+          "title": "Dia 28 · Controle de acesso, OAuth2, SSO e mecanismos de segurança",
+          "schedule": "Qui · 06/08/2026 · bloco sugerido: 1h30",
           "topics": [
-            "PMBOK 6: grupos de processos e áreas de conhecimento em visão clássica",
-            "PMBOK 7: princípios, domínios de desempenho e tailoring",
-            "Escopo, cronograma, custos, qualidade, recursos, comunicações, riscos, aquisições e stakeholders",
-            "EAP/WBS, caminho crítico, valor agregado e matriz RACI",
-            "Gerenciamento de riscos: identificação, análise qualitativa/quantitativa e respostas",
-            "Integração entre gestão tradicional, ágil e híbrida"
-          ]
+            "Mecanismos de segurança: autenticação, autorização, auditoria, criptografia e monitoramento",
+            "Controle de acesso: DAC, MAC, RBAC, ABAC e menor privilégio",
+            "OAuth2: papéis, authorization code, scopes, tokens e refresh tokens",
+            "SSO: finalidade, vantagens, riscos e relação com federação de identidade"
+          ],
+          "task": "Execução: teoria objetiva + 15 a 25 questões + 3 linhas no caderno de erros. No sábado, aumentar questões e revisar erros da semana."
         },
         {
-          "id": "s14d5",
-          "category": "Geral",
-          "title": "Gestão Pública, BPMN e Planejamento",
-          "schedule": "3h • Sexta da Semana 14",
+          "id": "dia-29",
+          "sourceId": "d29",
+          "category": "Mobile/SPA/PWA",
+          "title": "Dia 29 · Mobile Android/iOS, SPA, PWA e padrões frontend",
+          "schedule": "Sex · 07/08/2026 · bloco sugerido: 1h30",
           "topics": [
-            "Gestão por processos: processo, subprocesso, atividade, tarefa e evento",
+            "Desenvolvimento mobile Android: ciclo de vida, permissões, armazenamento local e consumo de APIs",
+            "Desenvolvimento iOS em noções: app, ciclo de vida, publicação e integração",
+            "Padrões frontend, SPA e PWA",
+            "Diferenças entre app nativo, web responsiva, SPA e PWA"
+          ],
+          "task": "Execução: teoria objetiva + 15 a 25 questões + 3 linhas no caderno de erros. No sábado, aumentar questões e revisar erros da semana."
+        },
+        {
+          "id": "dia-30",
+          "sourceId": "d30",
+          "category": "BI/Dados",
+          "title": "Dia 30 · Data mining, visualização, cubos e fontes de dados",
+          "schedule": "Sáb · 08/08/2026 · bloco sugerido: 2h30",
+          "topics": [
+            "Data warehouse versus data mining",
+            "Visualização de dados: bancos de dados individuais, cubos e painéis",
+            "Mapeamento de fontes de dados e técnicas para coleta de dados",
+            "Arquitetura de business intelligence: fontes, integração, armazenamento, análise e apresentação"
+          ],
+          "task": "Execução: teoria objetiva + 15 a 25 questões + 3 linhas no caderno de erros. No sábado, aumentar questões e revisar erros da semana."
+        }
+      ]
+    },
+    {
+      "id": "sem6",
+      "number": 6,
+      "title": "Semana 6 · 10/08 a 15/08",
+      "subtitle": "Conteúdos alternados: gerais, desenvolvimento, banco, segurança, BI e governança.",
+      "tag": "6 dias",
+      "days": [
+        {
+          "id": "dia-31",
+          "sourceId": "d31",
+          "category": "Língua Portuguesa",
+          "title": "Dia 31 · Português — regência, crase e colocação pronominal",
+          "schedule": "Seg · 10/08/2026 · bloco sugerido: 1h30",
+          "topics": [
+            "Regência verbal e nominal",
+            "Crase: regra geral, casos proibidos, facultativos e expressões recorrentes",
+            "Colocação pronominal: próclise, mesóclise e ênclise",
+            "Aplicação em reescrita, correção gramatical e troca de termos"
+          ],
+          "task": "Execução: teoria objetiva + 15 a 25 questões + 3 linhas no caderno de erros. No sábado, aumentar questões e revisar erros da semana."
+        },
+        {
+          "id": "dia-32",
+          "sourceId": "d32",
+          "category": "Qualidade de Código",
+          "title": "Dia 32 · Clean Code, análise estática e SonarQube",
+          "schedule": "Ter · 11/08/2026 · bloco sugerido: 1h30",
+          "topics": [
+            "Clean Code: nomes, funções pequenas, baixo acoplamento, alta coesão e legibilidade",
+            "Análise estática de código-fonte: objetivo, limites e indicadores",
+            "SonarQube: bugs, vulnerabilities, code smells, duplicação e cobertura",
+            "Dívida técnica, quality gate e uso em pipeline"
+          ],
+          "task": "Execução: teoria objetiva + 15 a 25 questões + 3 linhas no caderno de erros. No sábado, aumentar questões e revisar erros da semana."
+        },
+        {
+          "id": "dia-33",
+          "sourceId": "d33",
+          "category": "Raciocínio Lógico",
+          "title": "Dia 33 · RLM — problemas aritméticos, geométricos e matriciais",
+          "schedule": "Qua · 12/08/2026 · bloco sugerido: 1h30",
+          "topics": [
+            "Problemas aritméticos: porcentagem, razão, proporção, regra de três e médias",
+            "Problemas geométricos básicos: perímetro, área, volume e proporcionalidade",
+            "Problemas matriciais e padrões visuais",
+            "Controle de tempo: resolver por método, não por tentativa solta"
+          ],
+          "task": "Execução: teoria objetiva + 15 a 25 questões + 3 linhas no caderno de erros. No sábado, aumentar questões e revisar erros da semana."
+        },
+        {
+          "id": "dia-34",
+          "sourceId": "d34",
+          "category": "Segurança da Informação",
+          "title": "Dia 34 · Riscos, ameaça, vulnerabilidade, impacto, SDL e OWASP",
+          "schedule": "Qui · 13/08/2026 · bloco sugerido: 1h30",
+          "topics": [
+            "Gerência de riscos em segurança da informação",
+            "Ameaça, vulnerabilidade, impacto, probabilidade, risco inerente e risco residual",
+            "Ciclo de Vida de Desenvolvimento Seguro — SDL",
+            "OWASP Top 10: visão geral, riscos recorrentes e mitigação"
+          ],
+          "task": "Execução: teoria objetiva + 15 a 25 questões + 3 linhas no caderno de erros. No sábado, aumentar questões e revisar erros da semana."
+        },
+        {
+          "id": "dia-35",
+          "sourceId": "d35",
+          "category": "Engenharia de Requisitos",
+          "title": "Dia 35 · Engenharia de requisitos — classificação, processo e elicitação",
+          "schedule": "Sex · 14/08/2026 · bloco sugerido: 1h30",
+          "topics": [
+            "Engenharia de requisitos: elicitação, análise, especificação, validação e gerenciamento",
+            "Classificação de requisitos: funcionais, não funcionais, regras de negócio e restrições",
+            "Processo de engenharia de requisitos e rastreabilidade",
+            "Técnicas de elicitação: entrevista, questionário, workshop, observação, prototipação e brainstorming"
+          ],
+          "task": "Execução: teoria objetiva + 15 a 25 questões + 3 linhas no caderno de erros. No sábado, aumentar questões e revisar erros da semana."
+        },
+        {
+          "id": "dia-36",
+          "sourceId": "d36",
+          "category": "Banco de Dados",
+          "title": "Dia 36 · NoSQL, banco em memória, data lakes e Big Data",
+          "schedule": "Sáb · 15/08/2026 · bloco sugerido: 2h30",
+          "topics": [
+            "Banco de dados NoSQL: documento, chave-valor, coluna larga e grafos",
+            "Banco de dados em memória: finalidade, desempenho, cache e riscos",
+            "Data lakes e soluções para Big Data",
+            "Dados estruturados e não estruturados"
+          ],
+          "task": "Execução: teoria objetiva + 15 a 25 questões + 3 linhas no caderno de erros. No sábado, aumentar questões e revisar erros da semana."
+        }
+      ]
+    },
+    {
+      "id": "sem7",
+      "number": 7,
+      "title": "Semana 7 · 17/08 a 22/08",
+      "subtitle": "Conteúdos alternados: gerais, desenvolvimento, banco, segurança, BI e governança.",
+      "tag": "6 dias",
+      "days": [
+        {
+          "id": "dia-37",
+          "sourceId": "d37",
+          "category": "Língua Portuguesa",
+          "title": "Dia 37 · Português — reescrita, sentido e níveis de formalidade",
+          "schedule": "Seg · 17/08/2026 · bloco sugerido: 1h30",
+          "topics": [
+            "Reescrita de frases e parágrafos",
+            "Significação de palavras e substituição de palavras ou trechos",
+            "Reorganização de orações e períodos",
+            "Reescrita em diferentes gêneros e níveis de formalidade"
+          ],
+          "task": "Execução: teoria objetiva + 15 a 25 questões + 3 linhas no caderno de erros. No sábado, aumentar questões e revisar erros da semana."
+        },
+        {
+          "id": "dia-38",
+          "sourceId": "d38",
+          "category": "JSF/PrimeFaces",
+          "title": "Dia 38 · JSF, PrimeFaces e aplicações Java web",
+          "schedule": "Ter · 18/08/2026 · bloco sugerido: 1h30",
+          "topics": [
+            "JSF: componentes, managed beans, ciclo de vida, navegação e validação",
+            "PrimeFaces: componentes, Ajax e integração com JSF",
+            "Aplicações Java web: estrutura, empacotamento, deploy e sessão",
+            "Servidor de aplicações e servidor web em cenário corporativo"
+          ],
+          "task": "Execução: teoria objetiva + 15 a 25 questões + 3 linhas no caderno de erros. No sábado, aumentar questões e revisar erros da semana."
+        },
+        {
+          "id": "dia-39",
+          "sourceId": "d39",
+          "category": "Atualidades e IA",
+          "title": "Dia 39 · IA generativa, modelos de linguagem, ética e privacidade",
+          "schedule": "Qua · 19/08/2026 · bloco sugerido: 1h30",
+          "topics": [
+            "Modelos generativos e modelos de linguagem",
+            "Conceitos: treinamento, inferência, prompt, alucinação, viés e limitação de modelos",
+            "Ética, governança e privacidade em IA",
+            "Uso responsável de IA em organizações públicas e riscos regulatórios"
+          ],
+          "task": "Execução: teoria objetiva + 15 a 25 questões + 3 linhas no caderno de erros. No sábado, aumentar questões e revisar erros da semana."
+        },
+        {
+          "id": "dia-40",
+          "sourceId": "d40",
+          "category": "Segurança da Informação",
+          "title": "Dia 40 · SAST, DAST e análise estática/dinâmica de código",
+          "schedule": "Qui · 20/08/2026 · bloco sugerido: 1h30",
+          "topics": [
+            "Análise estática de código: SAST, momento de uso, vantagens e limitações",
+            "Análise dinâmica de código: DAST, ambiente de teste, vantagens e limitações",
+            "Diferença entre SAST, DAST, SCA, pentest e revisão manual",
+            "Como isso se conecta a SDL, OWASP, SonarQube e DevSecOps"
+          ],
+          "task": "Execução: teoria objetiva + 15 a 25 questões + 3 linhas no caderno de erros. No sábado, aumentar questões e revisar erros da semana."
+        },
+        {
+          "id": "dia-41",
+          "sourceId": "d41",
+          "category": "Metodologias Ágeis",
+          "title": "Dia 41 · Scrum, Kanban, XP, Lean e Guia Scrum",
+          "schedule": "Sex · 21/08/2026 · bloco sugerido: 1h30",
+          "topics": [
+            "Metodologias ágeis de desenvolvimento",
+            "Scrum: papéis, eventos, artefatos, increment, Definition of Done e Guia Scrum",
+            "Kanban e Lean: fluxo, WIP, lead time, melhoria contínua e desperdícios",
+            "XP: TDD, pair programming, refactoring, CI e small releases"
+          ],
+          "task": "Execução: teoria objetiva + 15 a 25 questões + 3 linhas no caderno de erros. No sábado, aumentar questões e revisar erros da semana."
+        },
+        {
+          "id": "dia-42",
+          "sourceId": "d42",
+          "category": "Banco de Dados",
+          "title": "Dia 42 · Integração, ingestão, ETL/ELT e transferência de arquivos",
+          "schedule": "Sáb · 22/08/2026 · bloco sugerido: 2h30",
+          "topics": [
+            "Avaliação de modelos de dados: aderência, redundância, integridade e desempenho",
+            "Técnicas de integração e ingestão de dados",
+            "ETL versus ELT: extração, transformação, carga e governança",
+            "Transferência de arquivos e integração via base de dados"
+          ],
+          "task": "Execução: teoria objetiva + 15 a 25 questões + 3 linhas no caderno de erros. No sábado, aumentar questões e revisar erros da semana."
+        }
+      ]
+    },
+    {
+      "id": "sem8",
+      "number": 8,
+      "title": "Semana 8 · 24/08 a 29/08",
+      "subtitle": "Conteúdos alternados: gerais, desenvolvimento, banco, segurança, BI e governança.",
+      "tag": "6 dias",
+      "days": [
+        {
+          "id": "dia-43",
+          "sourceId": "d43",
+          "category": "RPA/Workflow",
+          "title": "Dia 43 · Low-code, no-code, RPA, workflow e CMS",
+          "schedule": "Seg · 24/08/2026 · bloco sugerido: 1h30",
+          "topics": [
+            "Ferramentas low-code e no-code: finalidade, produtividade, governança e riscos",
+            "RPA: automação de tarefas repetitivas, bots, limites e manutenção",
+            "Workflow: fluxo, tarefas, estados, papéis, aprovação e rastreabilidade",
+            "Sistemas de gestão de conteúdo: conceitos básicos, aplicações e governança"
+          ],
+          "task": "Execução: teoria objetiva + 15 a 25 questões + 3 linhas no caderno de erros. No sábado, aumentar questões e revisar erros da semana."
+        },
+        {
+          "id": "dia-44",
+          "sourceId": "d44",
+          "category": "Design/Padrões",
+          "title": "Dia 44 · Design de software, padrões de desenvolvimento e reuso",
+          "schedule": "Ter · 25/08/2026 · bloco sugerido: 1h30",
+          "topics": [
+            "Design de software: modularidade, separação de responsabilidades e dependências",
+            "Padrões de desenvolvimento e reuso: MVC, Repository, Factory, Strategy, Observer, DTO e DAO",
+            "Arquitetura orientada a objetos versus arquitetura orientada a serviços",
+            "Critério de prova: reconhecer finalidade do padrão e problema que resolve"
+          ],
+          "task": "Execução: teoria objetiva + 15 a 25 questões + 3 linhas no caderno de erros. No sábado, aumentar questões e revisar erros da semana."
+        },
+        {
+          "id": "dia-45",
+          "sourceId": "d45",
+          "category": "Gestão/Governança TI",
+          "title": "Dia 45 · Gerenciamento de projetos, programas, portfólio e abordagens",
+          "schedule": "Qua · 26/08/2026 · bloco sugerido: 1h30",
+          "topics": [
+            "Gerenciamento de projetos: conceito, restrições, escopo, prazo, custo, qualidade e comunicação",
+            "Projetos, programas e portfólio",
+            "Áreas de conhecimento e processos/grupos de processos em visão PMBOK",
+            "Abordagens tradicional, híbrida e ágil; gestão de riscos em projetos"
+          ],
+          "task": "Execução: teoria objetiva + 15 a 25 questões + 3 linhas no caderno de erros. No sábado, aumentar questões e revisar erros da semana."
+        },
+        {
+          "id": "dia-46",
+          "sourceId": "d46",
+          "category": "BI/Dados",
+          "title": "Dia 46 · BI — revisão aplicada e questões",
+          "schedule": "Qui · 27/08/2026 · bloco sugerido: 1h30",
+          "topics": [
+            "Arquitetura de BI completa: fontes, staging, ETL, DW, OLAP, cubos e visualização",
+            "Sistemas de suporte à decisão e gestão de conteúdo",
+            "Data mining, coleta de dados e mapeamento de fontes",
+            "Questões: identificar camada da arquitetura e diferença entre BI, DW, OLAP e mineração"
+          ],
+          "task": "Execução: teoria objetiva + 15 a 25 questões + 3 linhas no caderno de erros. No sábado, aumentar questões e revisar erros da semana."
+        },
+        {
+          "id": "dia-47",
+          "sourceId": "d47",
+          "category": "Integração/API",
+          "title": "Dia 47 · Interoperabilidade, mensageria e contratos de integração",
+          "schedule": "Sex · 28/08/2026 · bloco sugerido: 1h30",
+          "topics": [
+            "Interoperabilidade de sistemas: formatos, protocolos, contratos e compatibilidade",
+            "Mensageria versus chamada síncrona REST/SOAP",
+            "API Gateway: roteamento, autenticação, rate limit, agregação e observabilidade",
+            "Erros comuns: confundir OpenAPI com API, REST com HTTP e fila com banco de dados"
+          ],
+          "task": "Execução: teoria objetiva + 15 a 25 questões + 3 linhas no caderno de erros. No sábado, aumentar questões e revisar erros da semana."
+        },
+        {
+          "id": "dia-48",
+          "sourceId": "d48",
+          "category": "ITIL v4",
+          "title": "Dia 48 · ITIL v4 — gerenciamento de serviços",
+          "schedule": "Sáb · 29/08/2026 · bloco sugerido: 2h30",
+          "topics": [
+            "Gerenciamento de serviços com ITIL v4",
+            "Conceitos, disciplinas, estrutura e objetivos da ITIL",
+            "Sistema de valor de serviço, quatro dimensões e cadeia de valor",
+            "Práticas mais prováveis: incidentes, problemas, mudanças, requisições, nível de serviço e melhoria contínua"
+          ],
+          "task": "Execução: teoria objetiva + 15 a 25 questões + 3 linhas no caderno de erros. No sábado, aumentar questões e revisar erros da semana."
+        }
+      ]
+    },
+    {
+      "id": "sem9",
+      "number": 9,
+      "title": "Semana 9 · 31/08 a 05/09",
+      "subtitle": "Conteúdos alternados: gerais, desenvolvimento, banco, segurança, BI e governança.",
+      "tag": "6 dias",
+      "days": [
+        {
+          "id": "dia-49",
+          "sourceId": "d49",
+          "category": "Métricas/Estimativas",
+          "title": "Dia 49 · Pontos de função, Story Points e codificação por tipo de software",
+          "schedule": "Seg · 31/08/2026 · bloco sugerido: 1h30",
+          "topics": [
+            "Metodologia de ponto de função: entradas, saídas, consultas, arquivos lógicos e interfaces em noções",
+            "Story Points: estimativa relativa, complexidade, incerteza e esforço",
+            "Codificação de software transacional, analítico, mobile e API",
+            "Diferença entre métrica funcional, esforço técnico e produtividade"
+          ],
+          "task": "Execução: teoria objetiva + 15 a 25 questões + 3 linhas no caderno de erros. No sábado, aumentar questões e revisar erros da semana."
+        },
+        {
+          "id": "dia-50",
+          "sourceId": "d50",
+          "category": "Arquitetura Moderna",
+          "title": "Dia 50 · Arquitetura hexagonal, microsserviços, orquestração e containers",
+          "schedule": "Ter · 01/09/2026 · bloco sugerido: 1h30",
+          "topics": [
+            "Arquitetura hexagonal: domínio, portas, adaptadores e inversão de dependência",
+            "Microsserviços: autonomia, banco por serviço, comunicação, deploy independente e observabilidade",
+            "Orquestração de serviços, API Gateway e containers",
+            "Monólito versus microsserviços: custo, resiliência, complexidade e governança"
+          ],
+          "task": "Execução: teoria objetiva + 15 a 25 questões + 3 linhas no caderno de erros. No sábado, aumentar questões e revisar erros da semana."
+        },
+        {
+          "id": "dia-51",
+          "sourceId": "d51",
+          "category": "COBIT 2019",
+          "title": "Dia 51 · COBIT 2019 — governança de TI",
+          "schedule": "Qua · 02/09/2026 · bloco sugerido: 1h30",
+          "topics": [
+            "Governança de TI com COBIT 2019",
+            "Conceitos, estrutura, objetivos de governança e objetivos de gestão",
+            "Componentes do sistema de governança e fatores de desenho em noções",
+            "Diferença operacional: COBIT governa; ITIL gerencia serviços; PMBOK gerencia projetos"
+          ],
+          "task": "Execução: teoria objetiva + 15 a 25 questões + 3 linhas no caderno de erros. No sábado, aumentar questões e revisar erros da semana."
+        },
+        {
+          "id": "dia-52",
+          "sourceId": "d52",
+          "category": "Segurança/Protocolos",
+          "title": "Dia 52 · HTTPS, SSL/TLS e blockchain",
+          "schedule": "Qui · 03/09/2026 · bloco sugerido: 1h30",
+          "topics": [
+            "HTTPS: HTTP sobre TLS, certificados, cadeia de confiança e finalidade",
+            "SSL/TLS: handshake, criptografia, autenticação e integridade em noções",
+            "Quando a questão cobra HTTPS versus SSL/TLS",
+            "Blockchain: blocos, hash, encadeamento, consenso, imutabilidade e casos de uso"
+          ],
+          "task": "Execução: teoria objetiva + 15 a 25 questões + 3 linhas no caderno de erros. No sábado, aumentar questões e revisar erros da semana."
+        },
+        {
+          "id": "dia-53",
+          "sourceId": "d53",
+          "category": "Arquitetura Moderna",
+          "title": "Dia 53 · Transações distribuídas e consistência",
+          "schedule": "Sex · 04/09/2026 · bloco sugerido: 1h30",
+          "topics": [
+            "Transações distribuídas: problema, atomicidade entre serviços e falhas parciais",
+            "Two-phase commit em noções e limitações",
+            "Saga: coreografia, orquestração e compensação",
+            "Consistência forte, consistência eventual, idempotência e retry seguro"
+          ],
+          "task": "Execução: teoria objetiva + 15 a 25 questões + 3 linhas no caderno de erros. No sábado, aumentar questões e revisar erros da semana."
+        },
+        {
+          "id": "dia-54",
+          "sourceId": "d54",
+          "category": "BPMN",
+          "title": "Dia 54 · Gestão de processos e BPMN",
+          "schedule": "Sáb · 05/09/2026 · bloco sugerido: 2h30",
+          "topics": [
+            "Gestão de processos e modelagem de processos de negócio",
             "BPMN: eventos, atividades, gateways, pools, lanes, fluxos e artefatos",
-            "BSC, mapa estratégico, objetivos, indicadores, metas e iniciativas",
-            "SWOT, PDCA, 5W2H, Ishikawa, Pareto e matriz GUT",
-            "Governança pública, accountability, transparência e eficiência",
-            "Decreto 9.094/2017 e simplificação de serviços públicos em noções"
-          ]
-        },
-        {
-          "id": "s14d6",
-          "category": "Revisão",
-          "title": "Questões de Governança e Gestão",
-          "schedule": "3h • Sábado da Semana 14",
-          "topics": [
-            "25 questões de ITIL 4",
-            "20 questões de COBIT 2019",
-            "15 questões de PMBOK e gestão de projetos",
-            "15 questões de BPMN, BSC e gestão pública",
-            "Tabela comparativa: ITIL = serviço; COBIT = governança; PMBOK = projeto",
-            "Revisão D+21 de Programação"
-          ]
+            "Modelagem as-is, to-be, melhoria e automação",
+            "Diferença entre processo de negócio, projeto, serviço e workflow"
+          ],
+          "task": "Execução: teoria objetiva + 15 a 25 questões + 3 linhas no caderno de erros. No sábado, aumentar questões e revisar erros da semana."
         }
       ]
     },
     {
-      "id": "s15",
-      "number": 15,
-      "title": "TIC no Judiciário · CNJ · PDPJ-Br · Contratações · Acessibilidade",
-      "subtitle": "Normativos e tecnologia específicos do Poder Judiciário",
-      "tag": "Judiciário TIC",
+      "id": "sem10",
+      "number": 10,
+      "title": "Semana 10 · 07/09 a 12/09",
+      "subtitle": "Conteúdos alternados: gerais, desenvolvimento, banco, segurança, BI e governança.",
+      "tag": "6 dias",
       "days": [
         {
-          "id": "s15d1",
-          "category": "Geral",
-          "title": "Estratégia Nacional do Poder Judiciário",
-          "schedule": "3h • Segunda da Semana 15",
+          "id": "dia-55",
+          "sourceId": "d55",
+          "category": "UX/CMS",
+          "title": "Dia 55 · UX, CMS, arquitetura da informação e acessibilidade",
+          "schedule": "Seg · 07/09/2026 · bloco sugerido: 1h30",
           "topics": [
-            "Resolução CNJ 325/2020: Estratégia Nacional do Poder Judiciário 2021-2026",
-            "Macrodesafios, alinhamento dos planos estratégicos e monitoramento",
-            "Metas nacionais do Judiciário e Justiça em Números em noções",
-            "Planejamento estratégico institucional do TRT-alvo",
-            "Governança, transparência, dados estatísticos e painéis de acompanhamento",
-            "Como a banca mistura gestão pública, CNJ e TIC"
-          ]
+            "User Experience: pesquisa, jornada, usabilidade, heurísticas e teste de usabilidade",
+            "Arquitetura da informação: organização, navegação, rotulagem e busca",
+            "Portais corporativos: finalidade, conteúdo, governança e integração",
+            "Acessibilidade, usabilidade e desenho/planejamento de interação em aplicações web"
+          ],
+          "task": "Execução: teoria objetiva + 15 a 25 questões + 3 linhas no caderno de erros. No sábado, aumentar questões e revisar erros da semana."
         },
         {
-          "id": "s15d2",
-          "category": "Analista+",
-          "title": "ENTIC-JUD e Governança de TIC",
-          "schedule": "3h • Terça da Semana 15",
+          "id": "dia-56",
+          "sourceId": "d56",
+          "category": "IA/Dados/Big Data",
+          "title": "Dia 56 · IA, análise de dados e Big Data em desenvolvimento",
+          "schedule": "Ter · 08/09/2026 · bloco sugerido: 1h30",
           "topics": [
-            "Resolução CNJ 370/2021: ENTIC-JUD 2021-2026",
-            "Governança, gestão e colaboração tecnológica no Judiciário",
-            "iGovTIC-JUD, metas de maturidade, indicadores e acompanhamento",
-            "Objetivos ligados à segurança da informação, dados, infraestrutura e soluções corporativas",
-            "Comitês, planejamento, portfólio, orçamento e priorização de TIC",
-            "Relação entre ENTIC-JUD, PDTIC, planos estratégicos e governança institucional"
-          ]
+            "Conceitos de Inteligência Artificial, análise de dados e Big Data",
+            "Pipeline de dados, coleta, preparação, processamento e visualização",
+            "Dados estruturados, semiestruturados e não estruturados",
+            "Relação com aplicações analíticas, APIs, BI e decisões orientadas a dados"
+          ],
+          "task": "Execução: teoria objetiva + 15 a 25 questões + 3 linhas no caderno de erros. No sábado, aumentar questões e revisar erros da semana."
         },
         {
-          "id": "s15d3",
-          "category": "Analista+",
-          "title": "PDPJ-Br, PJe e Sistemas Judiciais",
-          "schedule": "3h • Quarta da Semana 15",
+          "id": "dia-57",
+          "sourceId": "d57",
+          "category": "Revisão Geral",
+          "title": "Dia 57 · Revisão intercalada — Português, Inglês e RLM",
+          "schedule": "Qua · 09/09/2026 · bloco sugerido: 1h30",
           "topics": [
-            "Resolução CNJ 335/2020: política pública de governança e gestão do processo judicial eletrônico",
-            "PDPJ-Br: integração e consolidação dos sistemas eletrônicos do Judiciário",
-            "PJe como sistema prioritário do CNJ e plataforma multisserviço",
-            "Arquitetura PDPJ-Br: microsserviços, APIs, marketplace, barramento e interoperabilidade em noções",
-            "Portarias e atos relacionados à governança da PDPJ-Br em visão de edital",
-            "Riscos de prova: decorar número da resolução e finalidade principal"
-          ]
+            "Português: interpretação, coesão, morfossintaxe, concordância, regência, crase e reescrita",
+            "Inglês: leitura técnica, gramática de sentido e vocabulário de TI",
+            "RLM: proposições, equivalências, diagramas, primeira ordem e problemas aritméticos/geométricos/matriciais",
+            "Refazer erros e registrar regra objetiva no caderno de erros"
+          ],
+          "task": "Execução: teoria objetiva + 15 a 25 questões + 3 linhas no caderno de erros. No sábado, aumentar questões e revisar erros da semana."
         },
         {
-          "id": "s15d4",
-          "category": "Analista+",
-          "title": "Contratações de TIC no Judiciário",
-          "schedule": "3h • Quinta da Semana 15",
+          "id": "dia-58",
+          "sourceId": "d58",
+          "category": "Revisão Legislação",
+          "title": "Dia 58 · Revisão intercalada — LAI, Delitos, Marco Civil e LGPD",
+          "schedule": "Qui · 10/09/2026 · bloco sugerido: 1h30",
           "topics": [
-            "Resolução CNJ 468/2022: diretrizes para contratações de bens e serviços de TIC no Judiciário",
-            "Atualização pela Resolução CNJ 616/2025 e uso da Lei 14.133/2021 e LC 182/2021",
-            "Solução de TIC, Plano de Contratações de STIC/TIC e guia de contratações",
-            "Estudo técnico preliminar, análise de riscos, termo de referência e gestão contratual em noções",
-            "Fiscalização técnica, administrativa e requisitante; papéis e responsabilidades",
-            "Ligação com COBIT, ITIL, PMBOK, segurança, LGPD e governança pública"
-          ]
+            "LAI e decretos: acesso, sigilo, classificação, recurso e transparência",
+            "Delitos informáticos: art. 2º da Lei nº 12.737/2012",
+            "Marco Civil: direitos, garantias, conexão, aplicações e registros",
+            "LGPD: princípios, bases legais, agentes, direitos, segurança, fiscalização e sanções"
+          ],
+          "task": "Execução: teoria objetiva + 15 a 25 questões + 3 linhas no caderno de erros. No sábado, aumentar questões e revisar erros da semana."
         },
         {
-          "id": "s15d5",
-          "category": "TI",
-          "title": "Acessibilidade Digital, Governo Digital e Inclusão",
-          "schedule": "3h • Sexta da Semana 15",
+          "id": "dia-59",
+          "sourceId": "d59",
+          "category": "Revisão Segurança",
+          "title": "Dia 59 · Revisão intercalada — Segurança de software e SI",
+          "schedule": "Sex · 11/09/2026 · bloco sugerido: 1h30",
           "topics": [
-            "WCAG 2.2: princípios perceptível, operável, compreensível e robusto; níveis A, AA e AAA",
-            "eMAG: recomendações para acessibilidade dos sítios e portais do governo brasileiro",
-            "HTML semântico, texto alternativo, contraste, navegação por teclado e foco visível",
-            "ARIA: papéis, estados, propriedades e uso com parcimônia",
-            "Leitores de tela, formulários acessíveis, legendas, audiodescrição e linguagem simples",
-            "Lei Brasileira de Inclusão aplicada a sistemas, portais e atendimento digital"
-          ]
+            "Políticas, procedimentos, ISO 27001/27002 e CID",
+            "Controle de acesso, OAuth2, SSO e mecanismos de segurança",
+            "Riscos, ameaça, vulnerabilidade, impacto e SDL",
+            "OWASP Top 10, SAST, DAST e análise estática/dinâmica de código"
+          ],
+          "task": "Execução: teoria objetiva + 15 a 25 questões + 3 linhas no caderno de erros. No sábado, aumentar questões e revisar erros da semana."
         },
         {
-          "id": "s15d6",
-          "category": "Revisão",
-          "title": "Questões de CNJ/TIC/Acessibilidade",
-          "schedule": "3h • Sábado da Semana 15",
+          "id": "dia-60",
+          "sourceId": "d60",
+          "category": "Revisão Banco/BI",
+          "title": "Dia 60 · Revisão intercalada — Banco de Dados e BI",
+          "schedule": "Sáb · 12/09/2026 · bloco sugerido: 2h30",
           "topics": [
-            "20 questões de Estratégia Nacional do Judiciário e gestão pública",
-            "20 questões de ENTIC-JUD e governança de TIC",
-            "15 questões de PDPJ-Br/PJe/interoperabilidade",
-            "15 questões de contratações TIC e Lei 14.133 aplicada a TI",
-            "10 questões de acessibilidade digital, WCAG/eMAG e inclusão",
-            "Tabela obrigatória: número da resolução → assunto → palavra-chave"
-          ]
+            "Modelagem conceitual, lógica, física, relacional, multidimensional e dimensional",
+            "Normalização, integridade referencial, metadados, SQL, DDL, DML e SGBD",
+            "NoSQL, banco em memória, data lakes, Big Data e dados estruturados/não estruturados",
+            "BI, DW, ETL/ELT, OLAP, data mining, cubos, fontes e arquitetura de BI"
+          ],
+          "task": "Execução: teoria objetiva + 15 a 25 questões + 3 linhas no caderno de erros. No sábado, aumentar questões e revisar erros da semana."
         }
       ]
     },
     {
-      "id": "s16",
-      "number": 16,
-      "title": "Inteligência Artificial · Ciência de Dados · Ética",
-      "subtitle": "IA, ML, NLP e uso no Poder Judiciário",
-      "tag": "IA & Dados",
+      "id": "sem11",
+      "number": 11,
+      "title": "Semana 11 · 14/09 a 19/09",
+      "subtitle": "Conteúdos alternados: gerais, desenvolvimento, banco, segurança, BI e governança.",
+      "tag": "6 dias",
       "days": [
         {
-          "id": "s16d1",
-          "category": "Analista+",
-          "title": "Fundamentos de IA e Machine Learning",
-          "schedule": "3h • Segunda da Semana 16",
+          "id": "dia-61",
+          "sourceId": "d61",
+          "category": "Revisão Java/Spring",
+          "title": "Dia 61 · Revisão final — Java, Jakarta, JPA, Hibernate e Spring",
+          "schedule": "Seg · 14/09/2026 · bloco sugerido: 1h30",
           "topics": [
-            "IA, aprendizado de máquina, aprendizado profundo e ciência de dados",
-            "Aprendizado supervisionado, não supervisionado e por reforço",
-            "Regressão, classificação, clustering, redução de dimensionalidade e recomendação",
-            "Treino, validação, teste, generalização, overfitting e underfitting",
-            "Métricas: acurácia, precisão, revocação, F1, matriz de confusão, ROC/AUC e RMSE",
-            "Pipeline de ML: coleta, limpeza, features, modelo, avaliação e implantação"
-          ]
+            "Java 6+, Java EE 6+, Jakarta EE, JPA 2+, Hibernate, JSF e PrimeFaces",
+            "Spring, Spring Boot, Spring Cloud e arquitetura de aplicações Java",
+            "POO, padrões, reuso, Clean Code, SonarQube e qualidade",
+            "Questões dirigidas: identificar tecnologia, camada, finalidade e armadilha"
+          ],
+          "task": "Execução: teoria objetiva + 15 a 25 questões + 3 linhas no caderno de erros. No sábado, aumentar questões e revisar erros da semana."
         },
         {
-          "id": "s16d2",
-          "category": "Analista+",
-          "title": "Algoritmos de ML cobrados em concurso",
-          "schedule": "3h • Terça da Semana 16",
+          "id": "dia-62",
+          "sourceId": "d62",
+          "category": "Revisão APIs/Front",
+          "title": "Dia 62 · Revisão final — Frontend, APIs, XML, REST e JSON",
+          "schedule": "Ter · 15/09/2026 · bloco sugerido: 1h30",
           "topics": [
-            "Regressão linear e logística em noções",
-            "Árvore de decisão: nós, folhas, impureza, ganho de informação e superajuste",
-            "Random Forest: ensemble, bagging, robustez e importância de variáveis",
-            "SVM: hiperplano, margem, vetores de suporte e kernel em noções",
-            "K-means: escolha de k, centróides, distância e limitações",
-            "Cluster hierárquico, Ward, dendrograma e DBSCAN em noções"
-          ]
+            "HTML, CSS, UX, Ajax, VueJS, Angular e React",
+            "Padrões frontend, SPA, PWA e mobile Android/iOS",
+            "API, Swagger/OpenAPI, REST, JSON, XML, XSLT, UDDI e Web Services",
+            "HTTPS, SSL/TLS, autenticação e contratos de integração"
+          ],
+          "task": "Execução: teoria objetiva + 15 a 25 questões + 3 linhas no caderno de erros. No sábado, aumentar questões e revisar erros da semana."
         },
         {
-          "id": "s16d3",
-          "category": "Analista+",
-          "title": "Deep Learning e NLP",
-          "schedule": "3h • Quarta da Semana 16",
+          "id": "dia-63",
+          "sourceId": "d63",
+          "category": "Revisão Governança",
+          "title": "Dia 63 · Revisão final — Governança, projetos, ágil e BPMN",
+          "schedule": "Qua · 16/09/2026 · bloco sugerido: 1h30",
           "topics": [
-            "Redes neurais: neurônios, pesos, bias, função de ativação, camadas e backpropagation em noções",
-            "CNN: convolução, filtros, pooling e aplicações em imagem",
-            "RNN, LSTM e GRU em noções para sequências",
-            "NLP: tokenização, stemming, lematização, stopwords, n-grams e embeddings",
-            "Transformers, atenção, LLMs, prompt, fine-tuning e RAG em visão conceitual",
-            "Limitações: alucinação, viés, explicabilidade, privacidade e segurança"
-          ]
+            "Gerenciamento de projetos, programas, portfólio, áreas de conhecimento e grupos de processos",
+            "Abordagens tradicional, híbrida e ágil; Scrum, Lean, Kanban, Guia Scrum e XP",
+            "ITIL v4: conceitos, disciplinas, estrutura e objetivos",
+            "COBIT 2019 e BPMN: conceitos, estrutura, objetivos e modelagem"
+          ],
+          "task": "Execução: teoria objetiva + 15 a 25 questões + 3 linhas no caderno de erros. No sábado, aumentar questões e revisar erros da semana."
         },
         {
-          "id": "s16d4",
-          "category": "Analista+",
-          "title": "IA no Judiciário e Resolução CNJ 332/2020",
-          "schedule": "3h • Quinta da Semana 16",
+          "id": "dia-64",
+          "sourceId": "d64",
+          "category": "Revisão Arquitetura",
+          "title": "Dia 64 · Revisão final — Arquitetura, microsserviços, DevOps e containers",
+          "schedule": "Qui · 17/09/2026 · bloco sugerido: 1h30",
           "topics": [
-            "Resolução CNJ 332/2020: ética, transparência e governança na produção e uso de IA no Judiciário",
-            "Princípios: respeito aos direitos fundamentais, não discriminação, publicidade, transparência e controle do usuário",
-            "Victor/STF, Sócrates/CSJT e aplicações de triagem, classificação e apoio à decisão em noções",
-            "IA como apoio, não substituição indevida da decisão judicial humana",
-            "Riscos: viés algorítmico, opacidade, automação excessiva e proteção de dados",
-            "Auditoria, documentação, explicabilidade e responsabilidade em sistemas de IA"
-          ]
+            "Arquitetura de software, SOA, aplicações web, servidor web e servidor de aplicações",
+            "Mensageria, interoperabilidade, orquestração, API Gateway e transações distribuídas",
+            "Arquitetura hexagonal, microsserviços, containers e blockchain",
+            "DevOps, Git, CI/CD, configuração e rastreabilidade"
+          ],
+          "task": "Execução: teoria objetiva + 15 a 25 questões + 3 linhas no caderno de erros. No sábado, aumentar questões e revisar erros da semana."
         },
         {
-          "id": "s16d5",
-          "category": "Analista+",
-          "title": "Ética, Segurança e Governança de IA",
-          "schedule": "3h • Sexta da Semana 16",
+          "id": "dia-65",
+          "sourceId": "d65",
+          "category": "Revisão Requisitos/Testes",
+          "title": "Dia 65 · Revisão final — requisitos, testes, métricas e UX",
+          "schedule": "Sex · 18/09/2026 · bloco sugerido: 1h30",
           "topics": [
-            "Viés, fairness, accountability, transparency e explainability",
-            "Dados sensíveis, anonimização, minimização e bases legais na LGPD",
-            "Ataques a IA: data poisoning, prompt injection, model inversion e vazamento de dados em noções",
-            "MLOps: versionamento de dados/modelos, monitoramento de drift e reprodutibilidade",
-            "Uso responsável de IA generativa no setor público",
-            "Como resolver questões: identificar promessa exagerada, ausência de controle humano ou violação de dados"
-          ]
+            "Engenharia de requisitos: classificação, processo e elicitação",
+            "Testes: unitário, integração, ágil, usabilidade, automatizado, tipos, TDD e ciclo de vida",
+            "Ponto de função, Story Points, codificação transacional/analítica/mobile/API",
+            "UX, CMS, arquitetura da informação, portais, workflow, acessibilidade e interação"
+          ],
+          "task": "Execução: teoria objetiva + 15 a 25 questões + 3 linhas no caderno de erros. No sábado, aumentar questões e revisar erros da semana."
         },
         {
-          "id": "s16d6",
-          "category": "Revisão",
-          "title": "Questões de IA, ML e Dados",
-          "schedule": "3h • Sábado da Semana 16",
+          "id": "dia-66",
+          "sourceId": "d66",
+          "category": "Simulado/Caderno de erros",
+          "title": "Dia 66 · Simulado dirigido e caderno de erros",
+          "schedule": "Sáb · 19/09/2026 · bloco sugerido: 2h30",
           "topics": [
-            "25 questões de conceitos de ML e algoritmos",
-            "15 questões de clustering, SVM, árvore e random forest",
-            "15 questões de NLP, deep learning e LLMs",
-            "15 questões de IA no Judiciário, ética e Resolução CNJ 332/2020",
-            "Quadro comparativo: regressão, classificação e clustering",
-            "Revisão D+7 de CNJ/TIC"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "s17",
-      "number": 17,
-      "title": "Revisão Integrada I · Gerais · Direito · Normativos",
-      "subtitle": "Consolidação do que mais derruba nota fora de TI pura",
-      "tag": "Revisão",
-      "days": [
-        {
-          "id": "s17d1",
-          "category": "Revisão",
-          "title": "Português e Inglês Técnico — Revisão Forte",
-          "schedule": "3h • Segunda da Semana 17",
-          "topics": [
-            "Resolver 40 questões de Português misturando interpretação, sintaxe, pontuação, crase e reescrita",
-            "Resolver 15 questões de Inglês Técnico ou textos curtos de documentação de TI",
-            "Revisar somente erros recorrentes, não reler teoria inteira",
-            "Atualizar lista de conectivos, regência e casos de crase",
-            "Fazer leitura cronometrada de texto técnico em inglês",
-            "Marcar 5 pontos que ainda precisam de reforço"
-          ]
-        },
-        {
-          "id": "s17d2",
-          "category": "Revisão",
-          "title": "Direito Constitucional, Administrativo e Lei 8.112",
-          "schedule": "3h • Terça da Semana 17",
-          "topics": [
-            "Resolver 20 questões de Constitucional com foco no Poder Judiciário",
-            "Resolver 20 questões de Administrativo: atos, poderes, organização e licitações",
-            "Resolver 15 questões de Lei 8.112 e regime disciplinar",
-            "Revisar artigos e conceitos que foram confundidos",
-            "Separar pegadinhas: anulação/revogação, descentralização/desconcentração, provimento/vacância",
-            "Revisão ativa em voz alta por 20 minutos"
-          ]
-        },
-        {
-          "id": "s17d3",
-          "category": "Revisão",
-          "title": "Direito do Trabalho, Processo e Regimento Interno",
-          "schedule": "3h • Quarta da Semana 17",
-          "topics": [
-            "Resolver 20 questões de noções trabalhistas e processo do trabalho",
-            "Ler o índice e os artigos centrais do Regimento Interno do TRT-alvo",
-            "Montar quadro: órgão → composição → competência",
-            "Revisar estrutura da Justiça do Trabalho",
-            "Fazer flashcards de prazos, recursos e competências quando aplicável",
-            "Marcar pontos dependentes do edital específico"
-          ]
-        },
-        {
-          "id": "s17d4",
-          "category": "Revisão",
-          "title": "Normativos CNJ e TIC no Judiciário",
-          "schedule": "3h • Quinta da Semana 17",
-          "topics": [
-            "Resolver 30 questões ou assertivas sobre CNJ, PDPJ-Br, ENTIC-JUD e contratações TIC",
-            "Tabela obrigatória: CNJ 325, 332, 335, 370, 468 e 616",
-            "Revisar finalidade de cada ato e palavra-chave de identificação",
-            "Revisar WCAG/eMAG, acessibilidade e inclusão digital",
-            "Simular perguntas: 'qual resolução institui o quê?'",
-            "Eliminar confusões entre governança institucional, TIC, IA e contratações"
-          ]
-        },
-        {
-          "id": "s17d5",
-          "category": "Revisão",
-          "title": "Raciocínio Lógico e Matemática Básica",
-          "schedule": "3h • Sexta da Semana 17",
-          "topics": [
-            "Resolver 30 questões de lógica proposicional e argumentação",
-            "Resolver 15 questões de porcentagem, razão, proporção e regra de três",
-            "Resolver 10 questões de conjuntos e diagramas lógicos",
-            "Revisar equivalências, negações e quantificadores",
-            "Treinar controle de tempo por questão",
-            "Atualizar caderno de fórmulas e equivalências"
-          ]
-        },
-        {
-          "id": "s17d6",
-          "category": "Simulado",
-          "title": "Simulado Parcial Gerais + Direito",
-          "schedule": "3h • Sábado da Semana 17",
-          "topics": [
-            "Simulado cronometrado: 60 questões de conhecimentos gerais, direito e normativos",
-            "Correção em três camadas: conteúdo, interpretação e tempo",
-            "Classificar erros por matéria e por causa",
-            "Revisar apenas os 10 erros mais perigosos",
-            "Definir prioridade de revisão para a próxima semana",
-            "Meta: 75% geral; abaixo de 65%, replanejar os blocos fracos"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "s18",
-      "number": 18,
-      "title": "Revisão Integrada II · Infra · Redes · Segurança · BD",
-      "subtitle": "Consolidação dos blocos técnicos de maior peso",
-      "tag": "Revisão TI",
-      "days": [
-        {
-          "id": "s18d1",
-          "category": "Revisão",
-          "title": "Infraestrutura, SO e Virtualização",
-          "schedule": "3h • Segunda da Semana 18",
-          "topics": [
-            "Resolver 20 questões de arquitetura de computadores e SO",
-            "Resolver 20 questões de Linux/Windows/AD/PowerShell",
-            "Resolver 15 questões de Docker, Kubernetes e virtualização",
-            "Revisar comandos Linux e Windows mais cobrados",
-            "Revisar memória, processo, deadlock, permissões e LVM",
-            "Criar quadro final de comandos e conceitos"
-          ]
-        },
-        {
-          "id": "s18d2",
-          "category": "Revisão",
-          "title": "Redes — Revisão Completa",
-          "schedule": "3h • Terça da Semana 18",
-          "topics": [
-            "Resolver 30 questões de TCP/IP, protocolos, portas, IPv4/IPv6 e subnetting",
-            "Resolver 20 questões de VLAN, STP, roteamento, Wi-Fi e cabeamento",
-            "Resolver 10 questões de VoIP, QoS, multicast e SDN",
-            "Revisar tabela de portas e camadas OSI/TCP-IP",
-            "Refazer 10 cálculos de subnetting sem consulta",
-            "Atualizar lista de pegadinhas de redes"
-          ]
-        },
-        {
-          "id": "s18d3",
-          "category": "Revisão",
-          "title": "Segurança da Informação — Revisão Completa",
-          "schedule": "3h • Quarta da Semana 18",
-          "topics": [
-            "Resolver 25 questões de ISO 27001/27002/27005, risco e controles",
-            "Resolver 20 questões de criptografia, certificados, IAM e VPN",
-            "Resolver 20 questões de ataques, OWASP, LGPD, forense e SIEM",
-            "Revisar conceitos literais: ameaça, vulnerabilidade, risco e controle",
-            "Revisar OWASP Top 10 e tipos de malware",
-            "Atualizar mapa de incidentes e resposta"
-          ]
-        },
-        {
-          "id": "s18d4",
-          "category": "Revisão",
-          "title": "Banco de Dados, BI e Dados",
-          "schedule": "3h • Quinta da Semana 18",
-          "topics": [
-            "Resolver 30 questões de SQL, modelagem, normalização e transações",
-            "Resolver 15 questões de álgebra relacional, índices e SGBDs",
-            "Resolver 15 questões de NoSQL, DW, BI, ETL e Big Data",
-            "Resolver 10 questões de Python para dados quando aplicável",
-            "Refazer consultas SQL erradas sem olhar resposta",
-            "Montar quadro de SQL: comando → categoria → efeito"
-          ]
-        },
-        {
-          "id": "s18d5",
-          "category": "Revisão",
-          "title": "Engenharia, Programação, DevOps e Cloud",
-          "schedule": "3h • Sexta da Semana 18",
-          "topics": [
-            "Resolver 20 questões de Engenharia de Software, UML, requisitos e testes",
-            "Resolver 20 questões de programação, web, APIs e frameworks",
-            "Resolver 20 questões de DevOps, containers, CI/CD, IaC e cloud",
-            "Resolver 10 questões de governança ITIL/COBIT/PMBOK",
-            "Revisar mapas de arquitetura e padrões de projeto",
-            "Separar lacunas finais por peso e recorrência"
-          ]
-        },
-        {
-          "id": "s18d6",
-          "category": "Simulado",
-          "title": "Simulado Técnico Integrado",
-          "schedule": "3h • Sábado da Semana 18",
-          "topics": [
-            "Simulado cronometrado com 60 questões de TI",
-            "Misturar redes, segurança, BD, engenharia, programação, cloud, governança e IA",
-            "Corrigir no mesmo dia e classificar erros",
-            "Identificar os 5 temas que mais custaram pontos",
-            "Planejar revisão final da Semana 18 em cima desses erros",
-            "Meta: 75% em TI; abaixo de 70%, priorizar erro recorrente em vez de conteúdo novo"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "s19",
-      "number": 19,
-      "title": "Reta Final · Provas Reais · Simulados · Caderno de Erros",
-      "subtitle": "Execução final, controle de tempo e fechamento de lacunas",
-      "tag": "Final",
-      "days": [
-        {
-          "id": "s19d1",
-          "category": "Simulado",
-          "title": "Prova Real TRT — Técnico TI",
-          "schedule": "3h • Segunda da Semana 19",
-          "topics": [
-            "Resolver uma prova real de Técnico Judiciário TI, preferencialmente FCC/TRT",
-            "Cronometrar como prova oficial, sem consulta e sem pausas longas",
-            "Corrigir por assunto e por tipo de erro",
-            "Comparar desempenho entre Conhecimentos Gerais e Específicos",
-            "Registrar temas que apareceram e não estavam dominados",
-            "Não estudar conteúdo novo antes de corrigir a prova"
-          ]
-        },
-        {
-          "id": "s19d2",
-          "category": "Simulado",
-          "title": "Prova Real TRT — Analista TI",
-          "schedule": "3h • Terça da Semana 19",
-          "topics": [
-            "Resolver uma prova real de Analista Judiciário TI, preferencialmente FCC/TRT",
-            "Controlar tempo médio por questão e pontos de travamento",
-            "Corrigir com foco em raciocínio da banca, não só gabarito",
-            "Anotar padrões de alternativa correta e distratores",
-            "Separar erros técnicos profundos de erros de leitura",
-            "Atualizar ranking dos assuntos finais"
-          ]
-        },
-        {
-          "id": "s19d3",
-          "category": "Revisão",
-          "title": "Caderno de Erros — Bloco 1",
-          "schedule": "3h • Quarta da Semana 19",
-          "topics": [
-            "Revisar todos os erros de Português, Inglês, Raciocínio e Direito",
-            "Transformar cada erro em regra curta e objetiva",
-            "Eliminar anotações genéricas como 'prestar mais atenção'",
+            "Resolver bloco misto com peso maior em Desenvolvimento de Sistemas, Banco, Segurança, BI e Governança",
+            "Separar erros por causa: conceito ausente, confusão entre ferramentas, leitura errada ou falta de memorização",
             "Criar 30 flashcards finais de alto risco",
-            "Fazer 20 questões apenas dos tópicos errados",
-            "Encerrar o dia com revisão leve, sem abrir tema novo"
-          ]
-        },
+            "Definir assuntos que entram na revisão de 22/09 a 10/10"
+          ],
+          "task": "Execução: teoria objetiva + 15 a 25 questões + 3 linhas no caderno de erros. No sábado, aumentar questões e revisar erros da semana."
+        }
+      ]
+    },
+    {
+      "id": "sem12",
+      "number": 12,
+      "title": "Semana 12 · 21/09 a 21/09",
+      "subtitle": "Conteúdos alternados: gerais, desenvolvimento, banco, segurança, BI e governança.",
+      "tag": "1 dias",
+      "days": [
         {
-          "id": "s19d4",
-          "category": "Revisão",
-          "title": "Caderno de Erros — Bloco 2",
-          "schedule": "3h • Quinta da Semana 19",
+          "id": "dia-67",
+          "sourceId": "d67",
+          "category": "Fechamento",
+          "title": "Dia 67 · 21/09 — auditoria final de cobertura e plano de revisão",
+          "schedule": "Seg · 21/09/2026 · bloco sugerido: 2h",
           "topics": [
-            "Revisar erros de Redes, Segurança, Banco e Sistemas Operacionais",
-            "Refazer questões erradas sem olhar comentários",
-            "Criar tabelas finais: portas, protocolos, normas ISO, SQL e comandos",
-            "Separar 10 conceitos que precisam memorização literal",
-            "Fazer revisão ativa por perguntas e respostas",
-            "Não gastar tempo com tópicos que já estão acima de 85%"
-          ]
-        },
-        {
-          "id": "s19d5",
-          "category": "Revisão",
-          "title": "Caderno de Erros — Bloco 3",
-          "schedule": "3h • Sexta da Semana 19",
-          "topics": [
-            "Revisar erros de Engenharia, Programação, DevOps, Cloud, Governança, CNJ e IA",
-            "Refazer questões de UML, ITIL, COBIT, CNJ e padrões de arquitetura",
-            "Revisar número e finalidade dos normativos CNJ mais prováveis",
-            "Consolidar mapa final de assuntos por força de cobrança",
-            "Fazer leitura leve dos resumos de revisão",
-            "Preparar estratégia de prova: ordem, tempo, chutes conscientes e marcação"
-          ]
-        },
-        {
-          "id": "s19d6",
-          "category": "Simulado",
-          "title": "Simulado Final + Logística de Prova",
-          "schedule": "3h • Sábado da Semana 19",
-          "topics": [
-            "Simulado final integrado com 60 questões ou modelo do edital escolhido",
-            "Corrigir somente o essencial e evitar abrir conteúdo novo pesado",
-            "Revisar documentos, local de prova, horário, caneta, alimentação e deslocamento",
-            "Ler tabelas finais: portas, normas, resoluções CNJ, ITIL/COBIT e SQL",
-            "Descanso ativo: revisão curta e sono adequado",
-            "Fechamento: confiança no processo e execução objetiva no dia da prova"
-          ]
+            "Conferir checklist integral do edital: pendência deve ficar igual a zero",
+            "Marcar tópicos fracos para revisão pós-21/09",
+            "Montar roteiro 22/09 a 10/10: simulados, revisão espaçada e caderno de erros",
+            "Não abrir assunto novo depois de hoje; foco passa a ser retenção e prova"
+          ],
+          "task": "Execução: teoria objetiva + 15 a 25 questões + 3 linhas no caderno de erros. No sábado, aumentar questões e revisar erros da semana."
         }
       ]
     }
   ],
-  "subjectGroups": [
+  "checklistSections": [
     {
-      "title": "Conhecimentos Gerais",
-      "items": [
+      "title": "Módulo I — Conhecimentos Gerais",
+      "description": "Checklist oficial de cobertura. Todos os itens abaixo foram mantidos no plano ou na auditoria de cobertura.",
+      "groups": [
         {
           "title": "Língua Portuguesa",
-          "description": "Ortografia, acentuação, crase, morfologia, sintaxe, pontuação, concordância, regência, coesão, interpretação, reescrita e redação oficial."
+          "items": [
+            {
+              "id": "chk-Módulo-I---Conhecimentos-Gerais-Língua-Portuguesa-0",
+              "title": "Compreensão e interpretação de textos de gêneros variados"
+            },
+            {
+              "id": "chk-Módulo-I---Conhecimentos-Gerais-Língua-Portuguesa-1",
+              "title": "Reconhecimento de tipos e gêneros textuais"
+            },
+            {
+              "id": "chk-Módulo-I---Conhecimentos-Gerais-Língua-Portuguesa-2",
+              "title": "Ortografia oficial"
+            },
+            {
+              "id": "chk-Módulo-I---Conhecimentos-Gerais-Língua-Portuguesa-3",
+              "title": "Coesão textual"
+            },
+            {
+              "id": "chk-Módulo-I---Conhecimentos-Gerais-Língua-Portuguesa-4",
+              "title": "Referenciação"
+            },
+            {
+              "id": "chk-Módulo-I---Conhecimentos-Gerais-Língua-Portuguesa-5",
+              "title": "Substituição"
+            },
+            {
+              "id": "chk-Módulo-I---Conhecimentos-Gerais-Língua-Portuguesa-6",
+              "title": "Repetição"
+            },
+            {
+              "id": "chk-Módulo-I---Conhecimentos-Gerais-Língua-Portuguesa-7",
+              "title": "Conectores"
+            },
+            {
+              "id": "chk-Módulo-I---Conhecimentos-Gerais-Língua-Portuguesa-8",
+              "title": "Sequenciação textual"
+            },
+            {
+              "id": "chk-Módulo-I---Conhecimentos-Gerais-Língua-Portuguesa-9",
+              "title": "Tempos e modos verbais"
+            },
+            {
+              "id": "chk-Módulo-I---Conhecimentos-Gerais-Língua-Portuguesa-10",
+              "title": "Estrutura morfossintática do período"
+            },
+            {
+              "id": "chk-Módulo-I---Conhecimentos-Gerais-Língua-Portuguesa-11",
+              "title": "Classes de palavras"
+            },
+            {
+              "id": "chk-Módulo-I---Conhecimentos-Gerais-Língua-Portuguesa-12",
+              "title": "Coordenação e subordinação"
+            },
+            {
+              "id": "chk-Módulo-I---Conhecimentos-Gerais-Língua-Portuguesa-13",
+              "title": "Pontuação"
+            },
+            {
+              "id": "chk-Módulo-I---Conhecimentos-Gerais-Língua-Portuguesa-14",
+              "title": "Concordância verbal e nominal"
+            },
+            {
+              "id": "chk-Módulo-I---Conhecimentos-Gerais-Língua-Portuguesa-15",
+              "title": "Regência verbal e nominal"
+            },
+            {
+              "id": "chk-Módulo-I---Conhecimentos-Gerais-Língua-Portuguesa-16",
+              "title": "Crase"
+            },
+            {
+              "id": "chk-Módulo-I---Conhecimentos-Gerais-Língua-Portuguesa-17",
+              "title": "Colocação pronominal"
+            },
+            {
+              "id": "chk-Módulo-I---Conhecimentos-Gerais-Língua-Portuguesa-18",
+              "title": "Reescrita de frases e parágrafos"
+            },
+            {
+              "id": "chk-Módulo-I---Conhecimentos-Gerais-Língua-Portuguesa-19",
+              "title": "Significação de palavras"
+            },
+            {
+              "id": "chk-Módulo-I---Conhecimentos-Gerais-Língua-Portuguesa-20",
+              "title": "Substituição de palavras ou trechos"
+            },
+            {
+              "id": "chk-Módulo-I---Conhecimentos-Gerais-Língua-Portuguesa-21",
+              "title": "Reorganização de orações e períodos"
+            },
+            {
+              "id": "chk-Módulo-I---Conhecimentos-Gerais-Língua-Portuguesa-22",
+              "title": "Reescrita em diferentes gêneros e níveis de formalidade"
+            }
+          ]
         },
         {
-          "title": "Inglês Técnico",
-          "description": "Leitura instrumental, vocabulário de redes, segurança, desenvolvimento, cloud, documentação, logs e mensagens de erro."
+          "title": "Língua Inglesa",
+          "items": [
+            {
+              "id": "chk-Módulo-I---Conhecimentos-Gerais-Língua-Inglesa-0",
+              "title": "Compreensão de textos em língua inglesa"
+            },
+            {
+              "id": "chk-Módulo-I---Conhecimentos-Gerais-Língua-Inglesa-1",
+              "title": "Itens gramaticais relevantes para entendimento dos sentidos dos textos"
+            }
+          ]
         },
         {
-          "title": "Raciocínio Lógico-Matemático",
-          "description": "Proposições, conectivos, equivalências, negações, quantificadores, argumentos, conjuntos, porcentagem e proporcionalidade."
+          "title": "Raciocínio Lógico",
+          "items": [
+            {
+              "id": "chk-Módulo-I---Conhecimentos-Gerais-Raciocínio-Lógico-0",
+              "title": "Estruturas lógicas"
+            },
+            {
+              "id": "chk-Módulo-I---Conhecimentos-Gerais-Raciocínio-Lógico-1",
+              "title": "Lógica de argumentação"
+            },
+            {
+              "id": "chk-Módulo-I---Conhecimentos-Gerais-Raciocínio-Lógico-2",
+              "title": "Analogias"
+            },
+            {
+              "id": "chk-Módulo-I---Conhecimentos-Gerais-Raciocínio-Lógico-3",
+              "title": "Inferências"
+            },
+            {
+              "id": "chk-Módulo-I---Conhecimentos-Gerais-Raciocínio-Lógico-4",
+              "title": "Deduções"
+            },
+            {
+              "id": "chk-Módulo-I---Conhecimentos-Gerais-Raciocínio-Lógico-5",
+              "title": "Conclusões"
+            },
+            {
+              "id": "chk-Módulo-I---Conhecimentos-Gerais-Raciocínio-Lógico-6",
+              "title": "Lógica sentencial/proposicional"
+            },
+            {
+              "id": "chk-Módulo-I---Conhecimentos-Gerais-Raciocínio-Lógico-7",
+              "title": "Proposições simples e compostas"
+            },
+            {
+              "id": "chk-Módulo-I---Conhecimentos-Gerais-Raciocínio-Lógico-8",
+              "title": "Tabelas-verdade"
+            },
+            {
+              "id": "chk-Módulo-I---Conhecimentos-Gerais-Raciocínio-Lógico-9",
+              "title": "Equivalências"
+            },
+            {
+              "id": "chk-Módulo-I---Conhecimentos-Gerais-Raciocínio-Lógico-10",
+              "title": "Diagramas lógicos"
+            },
+            {
+              "id": "chk-Módulo-I---Conhecimentos-Gerais-Raciocínio-Lógico-11",
+              "title": "Lógica de primeira ordem"
+            },
+            {
+              "id": "chk-Módulo-I---Conhecimentos-Gerais-Raciocínio-Lógico-12",
+              "title": "Problemas aritméticos"
+            },
+            {
+              "id": "chk-Módulo-I---Conhecimentos-Gerais-Raciocínio-Lógico-13",
+              "title": "Problemas geométricos"
+            },
+            {
+              "id": "chk-Módulo-I---Conhecimentos-Gerais-Raciocínio-Lógico-14",
+              "title": "Problemas matriciais"
+            }
+          ]
         },
         {
-          "title": "Direito Constitucional",
-          "description": "Princípios fundamentais, direitos e garantias, organização do Estado e Poder Judiciário."
+          "title": "Atualidades e Inteligência Artificial",
+          "items": [
+            {
+              "id": "chk-Módulo-I---Conhecimentos-Gerais-Atualidades-e-Inteligência-Artificial-0",
+              "title": "Segurança"
+            },
+            {
+              "id": "chk-Módulo-I---Conhecimentos-Gerais-Atualidades-e-Inteligência-Artificial-1",
+              "title": "Transportes"
+            },
+            {
+              "id": "chk-Módulo-I---Conhecimentos-Gerais-Atualidades-e-Inteligência-Artificial-2",
+              "title": "Política"
+            },
+            {
+              "id": "chk-Módulo-I---Conhecimentos-Gerais-Atualidades-e-Inteligência-Artificial-3",
+              "title": "Economia"
+            },
+            {
+              "id": "chk-Módulo-I---Conhecimentos-Gerais-Atualidades-e-Inteligência-Artificial-4",
+              "title": "Sociedade"
+            },
+            {
+              "id": "chk-Módulo-I---Conhecimentos-Gerais-Atualidades-e-Inteligência-Artificial-5",
+              "title": "Educação"
+            },
+            {
+              "id": "chk-Módulo-I---Conhecimentos-Gerais-Atualidades-e-Inteligência-Artificial-6",
+              "title": "Saúde"
+            },
+            {
+              "id": "chk-Módulo-I---Conhecimentos-Gerais-Atualidades-e-Inteligência-Artificial-7",
+              "title": "Cultura"
+            },
+            {
+              "id": "chk-Módulo-I---Conhecimentos-Gerais-Atualidades-e-Inteligência-Artificial-8",
+              "title": "Tecnologia"
+            },
+            {
+              "id": "chk-Módulo-I---Conhecimentos-Gerais-Atualidades-e-Inteligência-Artificial-9",
+              "title": "Energia"
+            },
+            {
+              "id": "chk-Módulo-I---Conhecimentos-Gerais-Atualidades-e-Inteligência-Artificial-10",
+              "title": "Relações internacionais"
+            },
+            {
+              "id": "chk-Módulo-I---Conhecimentos-Gerais-Atualidades-e-Inteligência-Artificial-11",
+              "title": "Desenvolvimento sustentável"
+            },
+            {
+              "id": "chk-Módulo-I---Conhecimentos-Gerais-Atualidades-e-Inteligência-Artificial-12",
+              "title": "Ecologia"
+            },
+            {
+              "id": "chk-Módulo-I---Conhecimentos-Gerais-Atualidades-e-Inteligência-Artificial-13",
+              "title": "Conceitos de inteligência artificial"
+            },
+            {
+              "id": "chk-Módulo-I---Conhecimentos-Gerais-Atualidades-e-Inteligência-Artificial-14",
+              "title": "Aprendizado de máquina"
+            },
+            {
+              "id": "chk-Módulo-I---Conhecimentos-Gerais-Atualidades-e-Inteligência-Artificial-15",
+              "title": "Modelos generativos"
+            },
+            {
+              "id": "chk-Módulo-I---Conhecimentos-Gerais-Atualidades-e-Inteligência-Artificial-16",
+              "title": "Modelos de linguagem"
+            },
+            {
+              "id": "chk-Módulo-I---Conhecimentos-Gerais-Atualidades-e-Inteligência-Artificial-17",
+              "title": "Ética em IA"
+            },
+            {
+              "id": "chk-Módulo-I---Conhecimentos-Gerais-Atualidades-e-Inteligência-Artificial-18",
+              "title": "Governança em IA"
+            },
+            {
+              "id": "chk-Módulo-I---Conhecimentos-Gerais-Atualidades-e-Inteligência-Artificial-19",
+              "title": "Privacidade em IA"
+            }
+          ]
         },
         {
-          "title": "Direito Administrativo",
-          "description": "Princípios, atos, poderes, organização administrativa, controle, licitações e contratos."
-        },
-        {
-          "title": "Lei 8.112/1990",
-          "description": "Provimento, vacância, direitos, vantagens, deveres, proibições, responsabilidades e PAD."
-        },
-        {
-          "title": "Direito do Trabalho e Processo do Trabalho",
-          "description": "Noções de CLT, Justiça do Trabalho, reclamação, audiência, recursos e execução."
-        },
-        {
-          "title": "Regimento Interno do TRT-alvo",
-          "description": "Estrutura, órgãos, competências, sessões, composição, atribuições e funcionamento interno."
-        },
-        {
-          "title": "Ética, PCD e Atendimento",
-          "description": "Ética no serviço público, atendimento ao cidadão, Estatuto da Pessoa com Deficiência e inclusão."
+          "title": "Legislação acerca de Segurança da Informação e Proteção de Dados",
+          "items": [
+            {
+              "id": "chk-Módulo-I---Conhecimentos-Gerais-Legislação-acerca-de-Segurança-da-Informação-e-Proteção-de-Dados-0",
+              "title": "Lei nº 12.527/2011 — capítulos I, II, III, IV e V"
+            },
+            {
+              "id": "chk-Módulo-I---Conhecimentos-Gerais-Legislação-acerca-de-Segurança-da-Informação-e-Proteção-de-Dados-1",
+              "title": "Decreto nº 7.724"
+            },
+            {
+              "id": "chk-Módulo-I---Conhecimentos-Gerais-Legislação-acerca-de-Segurança-da-Informação-e-Proteção-de-Dados-2",
+              "title": "Decreto nº 7.845"
+            },
+            {
+              "id": "chk-Módulo-I---Conhecimentos-Gerais-Legislação-acerca-de-Segurança-da-Informação-e-Proteção-de-Dados-3",
+              "title": "Lei nº 12.737/2012 — art. 2º"
+            },
+            {
+              "id": "chk-Módulo-I---Conhecimentos-Gerais-Legislação-acerca-de-Segurança-da-Informação-e-Proteção-de-Dados-4",
+              "title": "Lei nº 12.965/2014 — capítulo II, seção I"
+            },
+            {
+              "id": "chk-Módulo-I---Conhecimentos-Gerais-Legislação-acerca-de-Segurança-da-Informação-e-Proteção-de-Dados-5",
+              "title": "Lei nº 12.965/2014 — capítulo III, seções I e II"
+            },
+            {
+              "id": "chk-Módulo-I---Conhecimentos-Gerais-Legislação-acerca-de-Segurança-da-Informação-e-Proteção-de-Dados-6",
+              "title": "Lei nº 13.709/2018 — capítulos I, II, III, IV, VII, VIII e IX"
+            }
+          ]
         }
       ]
     },
     {
-      "title": "Infraestrutura e Redes",
-      "items": [
+      "title": "Módulo II — Perfil 3: Desenvolvimento de Software",
+      "description": "Checklist oficial de cobertura. Todos os itens abaixo foram mantidos no plano ou na auditoria de cobertura.",
+      "groups": [
         {
-          "title": "Arquitetura de Computadores",
-          "description": "CPU, memória, barramentos, I/O, pipeline, boot, particionamento, desempenho e hardware."
+          "title": "Desenvolvimento de Sistemas",
+          "items": [
+            {
+              "id": "chk-Módulo-II---Perfil-3:-Desenvolvimento-de-Software-Desenvolvimento-de-Sistemas-0",
+              "title": "Desenvolvimento de sistemas"
+            },
+            {
+              "id": "chk-Módulo-II---Perfil-3:-Desenvolvimento-de-Software-Desenvolvimento-de-Sistemas-1",
+              "title": "Java 6 ou superior"
+            },
+            {
+              "id": "chk-Módulo-II---Perfil-3:-Desenvolvimento-de-Software-Desenvolvimento-de-Sistemas-2",
+              "title": "Java EE 6 ou superior"
+            },
+            {
+              "id": "chk-Módulo-II---Perfil-3:-Desenvolvimento-de-Software-Desenvolvimento-de-Sistemas-3",
+              "title": "Jakarta EE"
+            },
+            {
+              "id": "chk-Módulo-II---Perfil-3:-Desenvolvimento-de-Software-Desenvolvimento-de-Sistemas-4",
+              "title": "JPA 2 ou superior"
+            },
+            {
+              "id": "chk-Módulo-II---Perfil-3:-Desenvolvimento-de-Software-Desenvolvimento-de-Sistemas-5",
+              "title": "JavaScript"
+            },
+            {
+              "id": "chk-Módulo-II---Perfil-3:-Desenvolvimento-de-Software-Desenvolvimento-de-Sistemas-6",
+              "title": "JUnit"
+            },
+            {
+              "id": "chk-Módulo-II---Perfil-3:-Desenvolvimento-de-Software-Desenvolvimento-de-Sistemas-7",
+              "title": "Hibernate"
+            },
+            {
+              "id": "chk-Módulo-II---Perfil-3:-Desenvolvimento-de-Software-Desenvolvimento-de-Sistemas-8",
+              "title": "JSF"
+            },
+            {
+              "id": "chk-Módulo-II---Perfil-3:-Desenvolvimento-de-Software-Desenvolvimento-de-Sistemas-9",
+              "title": "PrimeFaces"
+            },
+            {
+              "id": "chk-Módulo-II---Perfil-3:-Desenvolvimento-de-Software-Desenvolvimento-de-Sistemas-10",
+              "title": "Spring"
+            },
+            {
+              "id": "chk-Módulo-II---Perfil-3:-Desenvolvimento-de-Software-Desenvolvimento-de-Sistemas-11",
+              "title": "Spring Cloud"
+            },
+            {
+              "id": "chk-Módulo-II---Perfil-3:-Desenvolvimento-de-Software-Desenvolvimento-de-Sistemas-12",
+              "title": "Spring Boot"
+            },
+            {
+              "id": "chk-Módulo-II---Perfil-3:-Desenvolvimento-de-Software-Desenvolvimento-de-Sistemas-13",
+              "title": "Android"
+            },
+            {
+              "id": "chk-Módulo-II---Perfil-3:-Desenvolvimento-de-Software-Desenvolvimento-de-Sistemas-14",
+              "title": "iOS"
+            },
+            {
+              "id": "chk-Módulo-II---Perfil-3:-Desenvolvimento-de-Software-Desenvolvimento-de-Sistemas-15",
+              "title": "Low-code"
+            },
+            {
+              "id": "chk-Módulo-II---Perfil-3:-Desenvolvimento-de-Software-Desenvolvimento-de-Sistemas-16",
+              "title": "No-code"
+            },
+            {
+              "id": "chk-Módulo-II---Perfil-3:-Desenvolvimento-de-Software-Desenvolvimento-de-Sistemas-17",
+              "title": "Análise estática de código-fonte"
+            },
+            {
+              "id": "chk-Módulo-II---Perfil-3:-Desenvolvimento-de-Software-Desenvolvimento-de-Sistemas-18",
+              "title": "Clean Code"
+            },
+            {
+              "id": "chk-Módulo-II---Perfil-3:-Desenvolvimento-de-Software-Desenvolvimento-de-Sistemas-19",
+              "title": "SonarQube"
+            },
+            {
+              "id": "chk-Módulo-II---Perfil-3:-Desenvolvimento-de-Software-Desenvolvimento-de-Sistemas-20",
+              "title": "Arquitetura de software"
+            },
+            {
+              "id": "chk-Módulo-II---Perfil-3:-Desenvolvimento-de-Software-Desenvolvimento-de-Sistemas-21",
+              "title": "Interoperabilidade de sistemas"
+            },
+            {
+              "id": "chk-Módulo-II---Perfil-3:-Desenvolvimento-de-Software-Desenvolvimento-de-Sistemas-22",
+              "title": "Arquitetura orientada a serviços"
+            },
+            {
+              "id": "chk-Módulo-II---Perfil-3:-Desenvolvimento-de-Software-Desenvolvimento-de-Sistemas-23",
+              "title": "Web services"
+            },
+            {
+              "id": "chk-Módulo-II---Perfil-3:-Desenvolvimento-de-Software-Desenvolvimento-de-Sistemas-24",
+              "title": "Mensageria"
+            },
+            {
+              "id": "chk-Módulo-II---Perfil-3:-Desenvolvimento-de-Software-Desenvolvimento-de-Sistemas-25",
+              "title": "API"
+            },
+            {
+              "id": "chk-Módulo-II---Perfil-3:-Desenvolvimento-de-Software-Desenvolvimento-de-Sistemas-26",
+              "title": "Swagger"
+            },
+            {
+              "id": "chk-Módulo-II---Perfil-3:-Desenvolvimento-de-Software-Desenvolvimento-de-Sistemas-27",
+              "title": "Orientação a objetos"
+            },
+            {
+              "id": "chk-Módulo-II---Perfil-3:-Desenvolvimento-de-Software-Desenvolvimento-de-Sistemas-28",
+              "title": "Arquitetura de aplicações web"
+            },
+            {
+              "id": "chk-Módulo-II---Perfil-3:-Desenvolvimento-de-Software-Desenvolvimento-de-Sistemas-29",
+              "title": "Servidor de aplicações"
+            },
+            {
+              "id": "chk-Módulo-II---Perfil-3:-Desenvolvimento-de-Software-Desenvolvimento-de-Sistemas-30",
+              "title": "Servidor web"
+            },
+            {
+              "id": "chk-Módulo-II---Perfil-3:-Desenvolvimento-de-Software-Desenvolvimento-de-Sistemas-31",
+              "title": "Internet"
+            },
+            {
+              "id": "chk-Módulo-II---Perfil-3:-Desenvolvimento-de-Software-Desenvolvimento-de-Sistemas-32",
+              "title": "Extranet"
+            },
+            {
+              "id": "chk-Módulo-II---Perfil-3:-Desenvolvimento-de-Software-Desenvolvimento-de-Sistemas-33",
+              "title": "Intranet"
+            },
+            {
+              "id": "chk-Módulo-II---Perfil-3:-Desenvolvimento-de-Software-Desenvolvimento-de-Sistemas-34",
+              "title": "Portal"
+            },
+            {
+              "id": "chk-Módulo-II---Perfil-3:-Desenvolvimento-de-Software-Desenvolvimento-de-Sistemas-35",
+              "title": "XML"
+            },
+            {
+              "id": "chk-Módulo-II---Perfil-3:-Desenvolvimento-de-Software-Desenvolvimento-de-Sistemas-36",
+              "title": "XSLT"
+            },
+            {
+              "id": "chk-Módulo-II---Perfil-3:-Desenvolvimento-de-Software-Desenvolvimento-de-Sistemas-37",
+              "title": "UDDI"
+            },
+            {
+              "id": "chk-Módulo-II---Perfil-3:-Desenvolvimento-de-Software-Desenvolvimento-de-Sistemas-38",
+              "title": "REST"
+            },
+            {
+              "id": "chk-Módulo-II---Perfil-3:-Desenvolvimento-de-Software-Desenvolvimento-de-Sistemas-39",
+              "title": "JSON"
+            },
+            {
+              "id": "chk-Módulo-II---Perfil-3:-Desenvolvimento-de-Software-Desenvolvimento-de-Sistemas-40",
+              "title": "DevOps"
+            },
+            {
+              "id": "chk-Módulo-II---Perfil-3:-Desenvolvimento-de-Software-Desenvolvimento-de-Sistemas-41",
+              "title": "Git"
+            },
+            {
+              "id": "chk-Módulo-II---Perfil-3:-Desenvolvimento-de-Software-Desenvolvimento-de-Sistemas-42",
+              "title": "Testes de aplicações"
+            },
+            {
+              "id": "chk-Módulo-II---Perfil-3:-Desenvolvimento-de-Software-Desenvolvimento-de-Sistemas-43",
+              "title": "Testes unitários"
+            },
+            {
+              "id": "chk-Módulo-II---Perfil-3:-Desenvolvimento-de-Software-Desenvolvimento-de-Sistemas-44",
+              "title": "Testes de integração"
+            },
+            {
+              "id": "chk-Módulo-II---Perfil-3:-Desenvolvimento-de-Software-Desenvolvimento-de-Sistemas-45",
+              "title": "Testes ágeis"
+            },
+            {
+              "id": "chk-Módulo-II---Perfil-3:-Desenvolvimento-de-Software-Desenvolvimento-de-Sistemas-46",
+              "title": "Teste de usabilidade"
+            },
+            {
+              "id": "chk-Módulo-II---Perfil-3:-Desenvolvimento-de-Software-Desenvolvimento-de-Sistemas-47",
+              "title": "Testes automatizados"
+            },
+            {
+              "id": "chk-Módulo-II---Perfil-3:-Desenvolvimento-de-Software-Desenvolvimento-de-Sistemas-48",
+              "title": "Tipos de testes"
+            },
+            {
+              "id": "chk-Módulo-II---Perfil-3:-Desenvolvimento-de-Software-Desenvolvimento-de-Sistemas-49",
+              "title": "TDD"
+            },
+            {
+              "id": "chk-Módulo-II---Perfil-3:-Desenvolvimento-de-Software-Desenvolvimento-de-Sistemas-50",
+              "title": "Gestão do ciclo de vida de testes"
+            },
+            {
+              "id": "chk-Módulo-II---Perfil-3:-Desenvolvimento-de-Software-Desenvolvimento-de-Sistemas-51",
+              "title": "RPA"
+            },
+            {
+              "id": "chk-Módulo-II---Perfil-3:-Desenvolvimento-de-Software-Desenvolvimento-de-Sistemas-52",
+              "title": "Scrum"
+            },
+            {
+              "id": "chk-Módulo-II---Perfil-3:-Desenvolvimento-de-Software-Desenvolvimento-de-Sistemas-53",
+              "title": "Kanban"
+            },
+            {
+              "id": "chk-Módulo-II---Perfil-3:-Desenvolvimento-de-Software-Desenvolvimento-de-Sistemas-54",
+              "title": "XP"
+            },
+            {
+              "id": "chk-Módulo-II---Perfil-3:-Desenvolvimento-de-Software-Desenvolvimento-de-Sistemas-55",
+              "title": "Padrões de desenvolvimento e reuso"
+            },
+            {
+              "id": "chk-Módulo-II---Perfil-3:-Desenvolvimento-de-Software-Desenvolvimento-de-Sistemas-56",
+              "title": "Codificação de software transacional"
+            },
+            {
+              "id": "chk-Módulo-II---Perfil-3:-Desenvolvimento-de-Software-Desenvolvimento-de-Sistemas-57",
+              "title": "Codificação de software analítico"
+            },
+            {
+              "id": "chk-Módulo-II---Perfil-3:-Desenvolvimento-de-Software-Desenvolvimento-de-Sistemas-58",
+              "title": "Codificação de software mobile"
+            },
+            {
+              "id": "chk-Módulo-II---Perfil-3:-Desenvolvimento-de-Software-Desenvolvimento-de-Sistemas-59",
+              "title": "Codificação de API"
+            },
+            {
+              "id": "chk-Módulo-II---Perfil-3:-Desenvolvimento-de-Software-Desenvolvimento-de-Sistemas-60",
+              "title": "Pontos de função"
+            },
+            {
+              "id": "chk-Módulo-II---Perfil-3:-Desenvolvimento-de-Software-Desenvolvimento-de-Sistemas-61",
+              "title": "Story Points"
+            },
+            {
+              "id": "chk-Módulo-II---Perfil-3:-Desenvolvimento-de-Software-Desenvolvimento-de-Sistemas-62",
+              "title": "Engenharia de requisitos"
+            },
+            {
+              "id": "chk-Módulo-II---Perfil-3:-Desenvolvimento-de-Software-Desenvolvimento-de-Sistemas-63",
+              "title": "Classificação de requisitos"
+            },
+            {
+              "id": "chk-Módulo-II---Perfil-3:-Desenvolvimento-de-Software-Desenvolvimento-de-Sistemas-64",
+              "title": "Processo de engenharia de requisitos"
+            },
+            {
+              "id": "chk-Módulo-II---Perfil-3:-Desenvolvimento-de-Software-Desenvolvimento-de-Sistemas-65",
+              "title": "Técnicas de elicitação"
+            },
+            {
+              "id": "chk-Módulo-II---Perfil-3:-Desenvolvimento-de-Software-Desenvolvimento-de-Sistemas-66",
+              "title": "HTML"
+            },
+            {
+              "id": "chk-Módulo-II---Perfil-3:-Desenvolvimento-de-Software-Desenvolvimento-de-Sistemas-67",
+              "title": "CSS"
+            },
+            {
+              "id": "chk-Módulo-II---Perfil-3:-Desenvolvimento-de-Software-Desenvolvimento-de-Sistemas-68",
+              "title": "UX"
+            },
+            {
+              "id": "chk-Módulo-II---Perfil-3:-Desenvolvimento-de-Software-Desenvolvimento-de-Sistemas-69",
+              "title": "Ajax"
+            },
+            {
+              "id": "chk-Módulo-II---Perfil-3:-Desenvolvimento-de-Software-Desenvolvimento-de-Sistemas-70",
+              "title": "VueJS"
+            },
+            {
+              "id": "chk-Módulo-II---Perfil-3:-Desenvolvimento-de-Software-Desenvolvimento-de-Sistemas-71",
+              "title": "Angular"
+            },
+            {
+              "id": "chk-Módulo-II---Perfil-3:-Desenvolvimento-de-Software-Desenvolvimento-de-Sistemas-72",
+              "title": "React"
+            },
+            {
+              "id": "chk-Módulo-II---Perfil-3:-Desenvolvimento-de-Software-Desenvolvimento-de-Sistemas-73",
+              "title": "Padrões de frontend"
+            },
+            {
+              "id": "chk-Módulo-II---Perfil-3:-Desenvolvimento-de-Software-Desenvolvimento-de-Sistemas-74",
+              "title": "SPA"
+            },
+            {
+              "id": "chk-Módulo-II---Perfil-3:-Desenvolvimento-de-Software-Desenvolvimento-de-Sistemas-75",
+              "title": "PWA"
+            },
+            {
+              "id": "chk-Módulo-II---Perfil-3:-Desenvolvimento-de-Software-Desenvolvimento-de-Sistemas-76",
+              "title": "HTTPS"
+            },
+            {
+              "id": "chk-Módulo-II---Perfil-3:-Desenvolvimento-de-Software-Desenvolvimento-de-Sistemas-77",
+              "title": "SSL/TLS"
+            },
+            {
+              "id": "chk-Módulo-II---Perfil-3:-Desenvolvimento-de-Software-Desenvolvimento-de-Sistemas-78",
+              "title": "Blockchain"
+            },
+            {
+              "id": "chk-Módulo-II---Perfil-3:-Desenvolvimento-de-Software-Desenvolvimento-de-Sistemas-79",
+              "title": "Design de software"
+            },
+            {
+              "id": "chk-Módulo-II---Perfil-3:-Desenvolvimento-de-Software-Desenvolvimento-de-Sistemas-80",
+              "title": "Arquitetura hexagonal"
+            },
+            {
+              "id": "chk-Módulo-II---Perfil-3:-Desenvolvimento-de-Software-Desenvolvimento-de-Sistemas-81",
+              "title": "Microsserviços"
+            },
+            {
+              "id": "chk-Módulo-II---Perfil-3:-Desenvolvimento-de-Software-Desenvolvimento-de-Sistemas-82",
+              "title": "Orquestração de serviços"
+            },
+            {
+              "id": "chk-Módulo-II---Perfil-3:-Desenvolvimento-de-Software-Desenvolvimento-de-Sistemas-83",
+              "title": "API Gateway"
+            },
+            {
+              "id": "chk-Módulo-II---Perfil-3:-Desenvolvimento-de-Software-Desenvolvimento-de-Sistemas-84",
+              "title": "Containers"
+            },
+            {
+              "id": "chk-Módulo-II---Perfil-3:-Desenvolvimento-de-Software-Desenvolvimento-de-Sistemas-85",
+              "title": "Transações distribuídas"
+            },
+            {
+              "id": "chk-Módulo-II---Perfil-3:-Desenvolvimento-de-Software-Desenvolvimento-de-Sistemas-86",
+              "title": "Sistemas de gestão de conteúdo"
+            },
+            {
+              "id": "chk-Módulo-II---Perfil-3:-Desenvolvimento-de-Software-Desenvolvimento-de-Sistemas-87",
+              "title": "Arquitetura da informação"
+            },
+            {
+              "id": "chk-Módulo-II---Perfil-3:-Desenvolvimento-de-Software-Desenvolvimento-de-Sistemas-88",
+              "title": "Portais corporativos"
+            },
+            {
+              "id": "chk-Módulo-II---Perfil-3:-Desenvolvimento-de-Software-Desenvolvimento-de-Sistemas-89",
+              "title": "Workflow"
+            },
+            {
+              "id": "chk-Módulo-II---Perfil-3:-Desenvolvimento-de-Software-Desenvolvimento-de-Sistemas-90",
+              "title": "Acessibilidade"
+            },
+            {
+              "id": "chk-Módulo-II---Perfil-3:-Desenvolvimento-de-Software-Desenvolvimento-de-Sistemas-91",
+              "title": "Usabilidade"
+            },
+            {
+              "id": "chk-Módulo-II---Perfil-3:-Desenvolvimento-de-Software-Desenvolvimento-de-Sistemas-92",
+              "title": "Desenho e planejamento de interação em aplicações web"
+            },
+            {
+              "id": "chk-Módulo-II---Perfil-3:-Desenvolvimento-de-Software-Desenvolvimento-de-Sistemas-93",
+              "title": "Conceitos de IA, análise de dados e Big Data"
+            }
+          ]
         },
         {
-          "title": "Sistemas Operacionais",
-          "description": "Processos, threads, memória, deadlock, sistemas de arquivos, Linux, Windows, AD, PowerShell e shell script."
+          "title": "Inteligência de Negócios — BI",
+          "items": [
+            {
+              "id": "chk-Módulo-II---Perfil-3:-Desenvolvimento-de-Software-Inteligência-de-Negócios---BI-0",
+              "title": "Conceitos de BI"
+            },
+            {
+              "id": "chk-Módulo-II---Perfil-3:-Desenvolvimento-de-Software-Inteligência-de-Negócios---BI-1",
+              "title": "Fundamentos de BI"
+            },
+            {
+              "id": "chk-Módulo-II---Perfil-3:-Desenvolvimento-de-Software-Inteligência-de-Negócios---BI-2",
+              "title": "Características de BI"
+            },
+            {
+              "id": "chk-Módulo-II---Perfil-3:-Desenvolvimento-de-Software-Inteligência-de-Negócios---BI-3",
+              "title": "Técnicas e métodos de BI"
+            },
+            {
+              "id": "chk-Módulo-II---Perfil-3:-Desenvolvimento-de-Software-Inteligência-de-Negócios---BI-4",
+              "title": "Sistemas de suporte à decisão"
+            },
+            {
+              "id": "chk-Módulo-II---Perfil-3:-Desenvolvimento-de-Software-Inteligência-de-Negócios---BI-5",
+              "title": "Gestão de conteúdo"
+            },
+            {
+              "id": "chk-Módulo-II---Perfil-3:-Desenvolvimento-de-Software-Inteligência-de-Negócios---BI-6",
+              "title": "Data warehouse"
+            },
+            {
+              "id": "chk-Módulo-II---Perfil-3:-Desenvolvimento-de-Software-Inteligência-de-Negócios---BI-7",
+              "title": "ETL"
+            },
+            {
+              "id": "chk-Módulo-II---Perfil-3:-Desenvolvimento-de-Software-Inteligência-de-Negócios---BI-8",
+              "title": "OLAP"
+            },
+            {
+              "id": "chk-Módulo-II---Perfil-3:-Desenvolvimento-de-Software-Inteligência-de-Negócios---BI-9",
+              "title": "Data mining"
+            },
+            {
+              "id": "chk-Módulo-II---Perfil-3:-Desenvolvimento-de-Software-Inteligência-de-Negócios---BI-10",
+              "title": "Visualização de dados"
+            },
+            {
+              "id": "chk-Módulo-II---Perfil-3:-Desenvolvimento-de-Software-Inteligência-de-Negócios---BI-11",
+              "title": "Bancos de dados individuais"
+            },
+            {
+              "id": "chk-Módulo-II---Perfil-3:-Desenvolvimento-de-Software-Inteligência-de-Negócios---BI-12",
+              "title": "Cubos"
+            },
+            {
+              "id": "chk-Módulo-II---Perfil-3:-Desenvolvimento-de-Software-Inteligência-de-Negócios---BI-13",
+              "title": "Mapeamento de fontes de dados"
+            },
+            {
+              "id": "chk-Módulo-II---Perfil-3:-Desenvolvimento-de-Software-Inteligência-de-Negócios---BI-14",
+              "title": "Técnicas para coleta de dados"
+            },
+            {
+              "id": "chk-Módulo-II---Perfil-3:-Desenvolvimento-de-Software-Inteligência-de-Negócios---BI-15",
+              "title": "Arquitetura de business intelligence"
+            }
+          ]
         },
         {
-          "title": "Virtualização e Containers",
-          "description": "Hipervisores, Docker, Compose, Kubernetes, volumes, redes, imagens, registry e orquestração."
+          "title": "Segurança da Informação",
+          "items": [
+            {
+              "id": "chk-Módulo-II---Perfil-3:-Desenvolvimento-de-Software-Segurança-da-Informação-0",
+              "title": "Políticas de segurança da informação"
+            },
+            {
+              "id": "chk-Módulo-II---Perfil-3:-Desenvolvimento-de-Software-Segurança-da-Informação-1",
+              "title": "Procedimentos de segurança"
+            },
+            {
+              "id": "chk-Módulo-II---Perfil-3:-Desenvolvimento-de-Software-Segurança-da-Informação-2",
+              "title": "Conceitos gerais de gerenciamento"
+            },
+            {
+              "id": "chk-Módulo-II---Perfil-3:-Desenvolvimento-de-Software-Segurança-da-Informação-3",
+              "title": "ABNT NBR ISO/IEC 27001:2022"
+            },
+            {
+              "id": "chk-Módulo-II---Perfil-3:-Desenvolvimento-de-Software-Segurança-da-Informação-4",
+              "title": "ABNT NBR ISO/IEC 27002:2022"
+            },
+            {
+              "id": "chk-Módulo-II---Perfil-3:-Desenvolvimento-de-Software-Segurança-da-Informação-5",
+              "title": "Confiabilidade"
+            },
+            {
+              "id": "chk-Módulo-II---Perfil-3:-Desenvolvimento-de-Software-Segurança-da-Informação-6",
+              "title": "Integridade"
+            },
+            {
+              "id": "chk-Módulo-II---Perfil-3:-Desenvolvimento-de-Software-Segurança-da-Informação-7",
+              "title": "Disponibilidade"
+            },
+            {
+              "id": "chk-Módulo-II---Perfil-3:-Desenvolvimento-de-Software-Segurança-da-Informação-8",
+              "title": "Mecanismos de segurança"
+            },
+            {
+              "id": "chk-Módulo-II---Perfil-3:-Desenvolvimento-de-Software-Segurança-da-Informação-9",
+              "title": "Controle de acesso"
+            },
+            {
+              "id": "chk-Módulo-II---Perfil-3:-Desenvolvimento-de-Software-Segurança-da-Informação-10",
+              "title": "OAuth2"
+            },
+            {
+              "id": "chk-Módulo-II---Perfil-3:-Desenvolvimento-de-Software-Segurança-da-Informação-11",
+              "title": "SSO"
+            },
+            {
+              "id": "chk-Módulo-II---Perfil-3:-Desenvolvimento-de-Software-Segurança-da-Informação-12",
+              "title": "Gerência de riscos"
+            },
+            {
+              "id": "chk-Módulo-II---Perfil-3:-Desenvolvimento-de-Software-Segurança-da-Informação-13",
+              "title": "Ameaça"
+            },
+            {
+              "id": "chk-Módulo-II---Perfil-3:-Desenvolvimento-de-Software-Segurança-da-Informação-14",
+              "title": "Vulnerabilidade"
+            },
+            {
+              "id": "chk-Módulo-II---Perfil-3:-Desenvolvimento-de-Software-Segurança-da-Informação-15",
+              "title": "Impacto"
+            },
+            {
+              "id": "chk-Módulo-II---Perfil-3:-Desenvolvimento-de-Software-Segurança-da-Informação-16",
+              "title": "SDL"
+            },
+            {
+              "id": "chk-Módulo-II---Perfil-3:-Desenvolvimento-de-Software-Segurança-da-Informação-17",
+              "title": "OWASP Top 10"
+            },
+            {
+              "id": "chk-Módulo-II---Perfil-3:-Desenvolvimento-de-Software-Segurança-da-Informação-18",
+              "title": "Análise estática de código"
+            },
+            {
+              "id": "chk-Módulo-II---Perfil-3:-Desenvolvimento-de-Software-Segurança-da-Informação-19",
+              "title": "Análise dinâmica de código"
+            },
+            {
+              "id": "chk-Módulo-II---Perfil-3:-Desenvolvimento-de-Software-Segurança-da-Informação-20",
+              "title": "SAST"
+            },
+            {
+              "id": "chk-Módulo-II---Perfil-3:-Desenvolvimento-de-Software-Segurança-da-Informação-21",
+              "title": "DAST"
+            }
+          ]
         },
         {
-          "title": "Redes de Computadores",
-          "description": "OSI/TCP-IP, IPv4/IPv6, subnetting, TCP, UDP, DNS, DHCP, HTTP, SNMP, LDAP, RADIUS e protocolos."
+          "title": "Banco de Dados",
+          "items": [
+            {
+              "id": "chk-Módulo-II---Perfil-3:-Desenvolvimento-de-Software-Banco-de-Dados-0",
+              "title": "Modelagem de dados conceitual"
+            },
+            {
+              "id": "chk-Módulo-II---Perfil-3:-Desenvolvimento-de-Software-Banco-de-Dados-1",
+              "title": "Modelagem de dados lógica"
+            },
+            {
+              "id": "chk-Módulo-II---Perfil-3:-Desenvolvimento-de-Software-Banco-de-Dados-2",
+              "title": "Modelagem de dados física"
+            },
+            {
+              "id": "chk-Módulo-II---Perfil-3:-Desenvolvimento-de-Software-Banco-de-Dados-3",
+              "title": "Abordagem relacional"
+            },
+            {
+              "id": "chk-Módulo-II---Perfil-3:-Desenvolvimento-de-Software-Banco-de-Dados-4",
+              "title": "Abordagem multidimensional"
+            },
+            {
+              "id": "chk-Módulo-II---Perfil-3:-Desenvolvimento-de-Software-Banco-de-Dados-5",
+              "title": "Normalização"
+            },
+            {
+              "id": "chk-Módulo-II---Perfil-3:-Desenvolvimento-de-Software-Banco-de-Dados-6",
+              "title": "Integridade referencial"
+            },
+            {
+              "id": "chk-Módulo-II---Perfil-3:-Desenvolvimento-de-Software-Banco-de-Dados-7",
+              "title": "Metadados"
+            },
+            {
+              "id": "chk-Módulo-II---Perfil-3:-Desenvolvimento-de-Software-Banco-de-Dados-8",
+              "title": "Modelagem dimensional"
+            },
+            {
+              "id": "chk-Módulo-II---Perfil-3:-Desenvolvimento-de-Software-Banco-de-Dados-9",
+              "title": "SQL"
+            },
+            {
+              "id": "chk-Módulo-II---Perfil-3:-Desenvolvimento-de-Software-Banco-de-Dados-10",
+              "title": "DDL"
+            },
+            {
+              "id": "chk-Módulo-II---Perfil-3:-Desenvolvimento-de-Software-Banco-de-Dados-11",
+              "title": "DML"
+            },
+            {
+              "id": "chk-Módulo-II---Perfil-3:-Desenvolvimento-de-Software-Banco-de-Dados-12",
+              "title": "SGBD"
+            },
+            {
+              "id": "chk-Módulo-II---Perfil-3:-Desenvolvimento-de-Software-Banco-de-Dados-13",
+              "title": "Propriedades de banco de dados"
+            },
+            {
+              "id": "chk-Módulo-II---Perfil-3:-Desenvolvimento-de-Software-Banco-de-Dados-14",
+              "title": "Banco de dados NoSQL"
+            },
+            {
+              "id": "chk-Módulo-II---Perfil-3:-Desenvolvimento-de-Software-Banco-de-Dados-15",
+              "title": "Banco de dados em memória"
+            },
+            {
+              "id": "chk-Módulo-II---Perfil-3:-Desenvolvimento-de-Software-Banco-de-Dados-16",
+              "title": "Data lakes"
+            },
+            {
+              "id": "chk-Módulo-II---Perfil-3:-Desenvolvimento-de-Software-Banco-de-Dados-17",
+              "title": "Soluções para Big Data"
+            },
+            {
+              "id": "chk-Módulo-II---Perfil-3:-Desenvolvimento-de-Software-Banco-de-Dados-18",
+              "title": "Dados estruturados"
+            },
+            {
+              "id": "chk-Módulo-II---Perfil-3:-Desenvolvimento-de-Software-Banco-de-Dados-19",
+              "title": "Dados não estruturados"
+            },
+            {
+              "id": "chk-Módulo-II---Perfil-3:-Desenvolvimento-de-Software-Banco-de-Dados-20",
+              "title": "Avaliação de modelos de dados"
+            },
+            {
+              "id": "chk-Módulo-II---Perfil-3:-Desenvolvimento-de-Software-Banco-de-Dados-21",
+              "title": "Técnicas de integração e ingestão de dados"
+            },
+            {
+              "id": "chk-Módulo-II---Perfil-3:-Desenvolvimento-de-Software-Banco-de-Dados-22",
+              "title": "ETL/ELT"
+            },
+            {
+              "id": "chk-Módulo-II---Perfil-3:-Desenvolvimento-de-Software-Banco-de-Dados-23",
+              "title": "Transferência de arquivos"
+            },
+            {
+              "id": "chk-Módulo-II---Perfil-3:-Desenvolvimento-de-Software-Banco-de-Dados-24",
+              "title": "Integração via base de dados"
+            }
+          ]
         },
         {
-          "title": "Redes Avançadas",
-          "description": "VLAN, STP, roteamento, OSPF, BGP, QoS, multicast, VoIP, SDN, SD-WAN e VXLAN."
-        },
-        {
-          "title": "Cabeamento Estruturado",
-          "description": "NBR 14565, cabeamento horizontal/backbone, fibra, cobre, racks, patch panels e certificação."
-        },
-        {
-          "title": "Cloud e Storage",
-          "description": "NIST Cloud, AWS/Azure/GCP, IaaS/PaaS/SaaS, RAID, SAN, NAS, HA, DR, backup e resiliência."
-        }
-      ]
-    },
-    {
-      "title": "Segurança da Informação",
-      "items": [
-        {
-          "title": "Normas e Riscos",
-          "description": "ISO 27001, 27002, 27005, SGSI, controles, riscos, BIA, continuidade, RTO e RPO."
-        },
-        {
-          "title": "Criptografia e IAM",
-          "description": "AES, RSA, ECC, hash, assinatura digital, certificados X.509, PKI, MFA, RBAC, OAuth2, OIDC, JWT."
-        },
-        {
-          "title": "Ataques e Defesa",
-          "description": "Malware, phishing, DDoS, spoofing, MITM, SQLi, XSS, CSRF, SSRF, IDS/IPS, WAF e VPN."
-        },
-        {
-          "title": "OWASP e DevSecOps",
-          "description": "OWASP Top 10, ASVS, SAST, DAST, SCA, secrets scanning e segurança de aplicações."
-        },
-        {
-          "title": "LGPD e Privacidade",
-          "description": "Dados pessoais, dados sensíveis, princípios, bases legais, direitos do titular, ANPD e incidentes."
-        },
-        {
-          "title": "Forense e Incidentes",
-          "description": "Cadeia de custódia, evidência, logs, SIEM, SOAR, resposta a incidentes e threat intelligence."
-        }
-      ]
-    },
-    {
-      "title": "Banco, Dados, IA e BI",
-      "items": [
-        {
-          "title": "Banco Relacional",
-          "description": "MER, modelo relacional, normalização, SQL, transações, ACID, isolamento, índices, triggers e álgebra relacional."
-        },
-        {
-          "title": "NoSQL",
-          "description": "Documento, chave-valor, coluna larga, grafos, CAP, BASE, consistência eventual e modelagem orientada a consulta."
-        },
-        {
-          "title": "DW, BI e Big Data",
-          "description": "ETL/ELT, OLAP, modelagem dimensional, Power BI/Tableau, Hadoop, Spark, Kafka e governança de dados."
-        },
-        {
-          "title": "Python para Dados",
-          "description": "NumPy, pandas, matplotlib, scikit-learn, pipelines, treino/teste e métricas."
-        },
-        {
-          "title": "IA e Machine Learning",
-          "description": "Supervisionado, não supervisionado, reforço, regressão, classificação, clustering, SVM, árvores, random forest, redes neurais e NLP."
-        },
-        {
-          "title": "IA no Judiciário",
-          "description": "Resolução CNJ 332/2020, Victor/STF, Sócrates/CSJT, ética, viés, transparência, explicabilidade e controle humano."
-        }
-      ]
-    },
-    {
-      "title": "Desenvolvimento, Engenharia e Governança",
-      "items": [
-        {
-          "title": "Engenharia de Software",
-          "description": "Processos, requisitos, UML 2.5, testes, ISO 25010, métricas, métodos ágeis, Scrum, Kanban, XP e RUP."
-        },
-        {
-          "title": "Programação",
-          "description": "Algoritmos, estruturas de dados, POO, Java, Jakarta EE, JPA/Hibernate, Spring, C#, Node.js, JS/TS."
-        },
-        {
-          "title": "Web e APIs",
-          "description": "HTML5, CSS3, XML, JSON, Angular, Bootstrap, Angular Material, REST, SOAP, OpenAPI, mensageria e integração."
-        },
-        {
-          "title": "Arquitetura e DevOps",
-          "description": "SOA, microsserviços, API Gateway, Saga, Circuit Breaker, Git, CI/CD, Docker, Kubernetes, IaC e observabilidade."
-        },
-        {
-          "title": "Governança e Gestão",
-          "description": "ITIL 4, COBIT 2019, PMBOK, BPMN, BSC, gestão pública, governança de TI e gestão de serviços."
-        },
-        {
-          "title": "TIC no Judiciário",
-          "description": "CNJ 325/2020, 335/2020, 370/2021, 468/2022, 616/2025, PDPJ-Br, PJe, ENTIC-JUD, contratações TIC, WCAG e eMAG."
+          "title": "Gestão e Governança de TI",
+          "items": [
+            {
+              "id": "chk-Módulo-II---Perfil-3:-Desenvolvimento-de-Software-Gestão-e-Governança-de-TI-0",
+              "title": "Gerenciamento de projetos"
+            },
+            {
+              "id": "chk-Módulo-II---Perfil-3:-Desenvolvimento-de-Software-Gestão-e-Governança-de-TI-1",
+              "title": "Projetos"
+            },
+            {
+              "id": "chk-Módulo-II---Perfil-3:-Desenvolvimento-de-Software-Gestão-e-Governança-de-TI-2",
+              "title": "Programas"
+            },
+            {
+              "id": "chk-Módulo-II---Perfil-3:-Desenvolvimento-de-Software-Gestão-e-Governança-de-TI-3",
+              "title": "Portfólio"
+            },
+            {
+              "id": "chk-Módulo-II---Perfil-3:-Desenvolvimento-de-Software-Gestão-e-Governança-de-TI-4",
+              "title": "Áreas de conhecimento"
+            },
+            {
+              "id": "chk-Módulo-II---Perfil-3:-Desenvolvimento-de-Software-Gestão-e-Governança-de-TI-5",
+              "title": "Abordagem tradicional"
+            },
+            {
+              "id": "chk-Módulo-II---Perfil-3:-Desenvolvimento-de-Software-Gestão-e-Governança-de-TI-6",
+              "title": "Abordagem híbrida"
+            },
+            {
+              "id": "chk-Módulo-II---Perfil-3:-Desenvolvimento-de-Software-Gestão-e-Governança-de-TI-7",
+              "title": "Abordagem ágil"
+            },
+            {
+              "id": "chk-Módulo-II---Perfil-3:-Desenvolvimento-de-Software-Gestão-e-Governança-de-TI-8",
+              "title": "Scrum"
+            },
+            {
+              "id": "chk-Módulo-II---Perfil-3:-Desenvolvimento-de-Software-Gestão-e-Governança-de-TI-9",
+              "title": "Lean"
+            },
+            {
+              "id": "chk-Módulo-II---Perfil-3:-Desenvolvimento-de-Software-Gestão-e-Governança-de-TI-10",
+              "title": "Kanban"
+            },
+            {
+              "id": "chk-Módulo-II---Perfil-3:-Desenvolvimento-de-Software-Gestão-e-Governança-de-TI-11",
+              "title": "Guia Scrum"
+            },
+            {
+              "id": "chk-Módulo-II---Perfil-3:-Desenvolvimento-de-Software-Gestão-e-Governança-de-TI-12",
+              "title": "Processos"
+            },
+            {
+              "id": "chk-Módulo-II---Perfil-3:-Desenvolvimento-de-Software-Gestão-e-Governança-de-TI-13",
+              "title": "Grupos de processos"
+            },
+            {
+              "id": "chk-Módulo-II---Perfil-3:-Desenvolvimento-de-Software-Gestão-e-Governança-de-TI-14",
+              "title": "Gestão de riscos"
+            },
+            {
+              "id": "chk-Módulo-II---Perfil-3:-Desenvolvimento-de-Software-Gestão-e-Governança-de-TI-15",
+              "title": "Gerenciamento de serviços com ITIL v4"
+            },
+            {
+              "id": "chk-Módulo-II---Perfil-3:-Desenvolvimento-de-Software-Gestão-e-Governança-de-TI-16",
+              "title": "Conceitos da ITIL"
+            },
+            {
+              "id": "chk-Módulo-II---Perfil-3:-Desenvolvimento-de-Software-Gestão-e-Governança-de-TI-17",
+              "title": "Disciplinas da ITIL"
+            },
+            {
+              "id": "chk-Módulo-II---Perfil-3:-Desenvolvimento-de-Software-Gestão-e-Governança-de-TI-18",
+              "title": "Estrutura da ITIL"
+            },
+            {
+              "id": "chk-Módulo-II---Perfil-3:-Desenvolvimento-de-Software-Gestão-e-Governança-de-TI-19",
+              "title": "Objetivos da ITIL"
+            },
+            {
+              "id": "chk-Módulo-II---Perfil-3:-Desenvolvimento-de-Software-Gestão-e-Governança-de-TI-20",
+              "title": "COBIT 2019"
+            },
+            {
+              "id": "chk-Módulo-II---Perfil-3:-Desenvolvimento-de-Software-Gestão-e-Governança-de-TI-21",
+              "title": "Conceitos do COBIT"
+            },
+            {
+              "id": "chk-Módulo-II---Perfil-3:-Desenvolvimento-de-Software-Gestão-e-Governança-de-TI-22",
+              "title": "Estrutura do COBIT"
+            },
+            {
+              "id": "chk-Módulo-II---Perfil-3:-Desenvolvimento-de-Software-Gestão-e-Governança-de-TI-23",
+              "title": "Objetivos do COBIT"
+            },
+            {
+              "id": "chk-Módulo-II---Perfil-3:-Desenvolvimento-de-Software-Gestão-e-Governança-de-TI-24",
+              "title": "Gestão de processos"
+            },
+            {
+              "id": "chk-Módulo-II---Perfil-3:-Desenvolvimento-de-Software-Gestão-e-Governança-de-TI-25",
+              "title": "Modelagem de processos de negócio com BPMN"
+            }
+          ]
         }
       ]
     }
   ],
-  "references": [
-    "Editais e provas de TRT/TI, com referência especial a FCC/TRT.",
-    "Constituição Federal de 1988; Lei 8.112/1990; Lei 14.133/2021; Lei 13.709/2018; Estatuto da Pessoa com Deficiência.",
-    "Resoluções CNJ 325/2020, 332/2020, 335/2020, 370/2021, 468/2022 e 616/2025.",
-    "ISO/IEC 27001, 27002, 27005, 25010, 12207; ITIL 4; COBIT 2019; PMBOK; DAMA-DMBOK.",
-    "WCAG 2.2 e eMAG para acessibilidade digital."
+  "audit": {
+    "summary": "0 pendências de conteúdo programático. O checklist mantém todos os tópicos informados para Módulo I e Módulo II — Perfil 3.",
+    "distribution": [
+      {
+        "label": "Língua Portuguesa",
+        "value": "5"
+      },
+      {
+        "label": "Banco de Dados",
+        "value": "5"
+      },
+      {
+        "label": "Raciocínio Lógico",
+        "value": "4"
+      },
+      {
+        "label": "Segurança da Informação",
+        "value": "4"
+      },
+      {
+        "label": "Legislação SI/Proteção de Dados",
+        "value": "3"
+      },
+      {
+        "label": "Atualidades e IA",
+        "value": "3"
+      },
+      {
+        "label": "BI/Dados",
+        "value": "3"
+      },
+      {
+        "label": "Desenvolvimento de Sistemas",
+        "value": "2"
+      },
+      {
+        "label": "Língua Inglesa",
+        "value": "2"
+      },
+      {
+        "label": "Integração/API",
+        "value": "2"
+      },
+      {
+        "label": "Arquitetura Moderna",
+        "value": "2"
+      },
+      {
+        "label": "Java/Jakarta/JPA",
+        "value": "1"
+      },
+      {
+        "label": "Spring",
+        "value": "1"
+      },
+      {
+        "label": "Testes",
+        "value": "1"
+      },
+      {
+        "label": "Frontend",
+        "value": "1"
+      },
+      {
+        "label": "DevOps/Git",
+        "value": "1"
+      },
+      {
+        "label": "Arquitetura Web",
+        "value": "1"
+      },
+      {
+        "label": "Mobile/SPA/PWA",
+        "value": "1"
+      },
+      {
+        "label": "Qualidade de Código",
+        "value": "1"
+      },
+      {
+        "label": "Engenharia de Requisitos",
+        "value": "1"
+      },
+      {
+        "label": "JSF/PrimeFaces",
+        "value": "1"
+      },
+      {
+        "label": "Metodologias Ágeis",
+        "value": "1"
+      },
+      {
+        "label": "RPA/Workflow",
+        "value": "1"
+      },
+      {
+        "label": "Design/Padrões",
+        "value": "1"
+      },
+      {
+        "label": "Gestão/Governança TI",
+        "value": "1"
+      },
+      {
+        "label": "ITIL v4",
+        "value": "1"
+      },
+      {
+        "label": "Métricas/Estimativas",
+        "value": "1"
+      },
+      {
+        "label": "COBIT 2019",
+        "value": "1"
+      },
+      {
+        "label": "Segurança/Protocolos",
+        "value": "1"
+      },
+      {
+        "label": "BPMN",
+        "value": "1"
+      },
+      {
+        "label": "UX/CMS",
+        "value": "1"
+      },
+      {
+        "label": "IA/Dados/Big Data",
+        "value": "1"
+      },
+      {
+        "label": "Revisão Geral",
+        "value": "1"
+      },
+      {
+        "label": "Revisão Legislação",
+        "value": "1"
+      },
+      {
+        "label": "Revisão Segurança",
+        "value": "1"
+      },
+      {
+        "label": "Revisão Banco/BI",
+        "value": "1"
+      },
+      {
+        "label": "Revisão Java/Spring",
+        "value": "1"
+      },
+      {
+        "label": "Revisão APIs/Front",
+        "value": "1"
+      },
+      {
+        "label": "Revisão Governança",
+        "value": "1"
+      },
+      {
+        "label": "Revisão Arquitetura",
+        "value": "1"
+      },
+      {
+        "label": "Revisão Requisitos/Testes",
+        "value": "1"
+      },
+      {
+        "label": "Simulado/Caderno de erros",
+        "value": "1"
+      },
+      {
+        "label": "Fechamento",
+        "value": "1"
+      }
+    ],
+    "notes": [
+      "O edital é muito amplo em Desenvolvimento de Sistemas. O plano cobre tudo, mas Java/Spring, APIs, testes, requisitos, banco e segurança precisam de mais questões.",
+      "Depois de 21/09, use o período até 10/10 para simulado, revisão de erros e reforço nos tópicos abaixo de 70%.",
+      "Não substitua estudo por checklist; checklist só confirma cobertura."
+    ]
+  },
+  "editalCards": [
+    {
+      "label": "Inscrição",
+      "title": "06/07/2026 a 06/08/2026",
+      "description": "Inscrições das 16h de 06/07 até as 16h de 06/08. Taxa: R$ 110,00. Pagamento até 07/08/2026."
+    },
+    {
+      "label": "Prova",
+      "title": "11/10/2026 · 13h às 17h",
+      "description": "Prova objetiva com 70 questões. Conhecimentos Gerais: 40 questões. Conhecimentos Específicos: 30 questões."
+    },
+    {
+      "label": "Pontuação",
+      "title": "115 pontos totais",
+      "description": "Gerais: 40 pontos. Específicos: 75 pontos. Mínimo de aprovação: 57,5 pontos e não zerar disciplina."
+    },
+    {
+      "label": "Remuneração",
+      "title": "R$ 10.685,44",
+      "description": "Salário nominal: R$ 9.423,30. Adicional de atividade: R$ 1.262,14. Remuneração inicial: R$ 10.685,44."
+    },
+    {
+      "label": "Benefícios",
+      "title": "Benefícios principais",
+      "description": "Ticket alimentação/refeição de R$ 1.357,20; auxílio pré-escolar ou escolar até R$ 1.758,35; auxílio tratamento especializado até R$ 1.230,00; seguro de vida; assistência à saúde por reembolso; Prevdata; PLR; gratificação variável; progressão na carreira."
+    },
+    {
+      "label": "Vagas Perfil 3",
+      "title": "Desenvolvimento de Software",
+      "description": "Vagas imediatas em Fortaleza, João Pessoa, Natal e Florianópolis. Brasília, Rio de Janeiro e São Paulo apenas cadastro de reserva no quadro do perfil."
+    }
   ]
 }

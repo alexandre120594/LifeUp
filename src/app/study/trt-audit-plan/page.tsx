@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   BookOpenCheck,
   Check,
@@ -35,10 +35,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  useSaveStudyPlanProgress,
+  useStudyPlanProgress,
+} from "@/hooks/useStudyMutations";
 import { cn } from "@/lib/utils";
 
 const plan = planData as TrtAuditStudyPlan;
-const STORAGE_KEY = "lifeup:trt-audit-study-plan:completed";
+const PLAN_KEY = "trt-audit";
+const LEGACY_STORAGE_KEY = "lifeup:trt-audit-study-plan:completed";
 const PLAN_DAY_IDS = new Set(
   plan.tracks.flatMap((track) =>
     track.data.map((day) => `${track.id}:${day.day}`)
@@ -63,9 +68,9 @@ const matterToneByClass: Record<string, string> = {
   "c-rlm": "border-orange-200 bg-orange-100 text-orange-950",
 };
 
-function readCompletedDays() {
+function readLegacyCompletedDays() {
   try {
-    const value = window.localStorage.getItem(STORAGE_KEY);
+    const value = window.localStorage.getItem(LEGACY_STORAGE_KEY);
     const parsed: unknown = value ? JSON.parse(value) : [];
 
     return Array.isArray(parsed)
@@ -148,19 +153,39 @@ function TrackSummary({
 
 export default function TrtAuditStudyPlanPage() {
   const [activeTrackId, setActiveTrackId] = useState(plan.tracks[0]?.id ?? "");
-  const [completedDays, setCompletedDays] = useState<Set<string>>(new Set());
   const [openWeeks, setOpenWeeks] = useState<Set<number>>(new Set([1]));
   const [query, setQuery] = useState("");
   const [matter, setMatter] = useState("all");
   const [view, setView] = useState<DetailView>("schedule");
+  const migratedLegacyProgress = useRef(false);
+  const { data: persistedProgress } = useStudyPlanProgress(PLAN_KEY);
+  const { mutate: savePersistedProgress } = useSaveStudyPlanProgress(PLAN_KEY);
+
+  const completedDays = useMemo(
+    () =>
+      new Set(
+        (persistedProgress?.itemIds ?? []).filter((itemId) =>
+          PLAN_DAY_IDS.has(itemId)
+        )
+      ),
+    [persistedProgress]
+  );
 
   useEffect(() => {
-    const timeout = window.setTimeout(() => {
-      setCompletedDays(readCompletedDays());
-    }, 0);
+    if (!persistedProgress) {
+      return;
+    }
 
-    return () => window.clearTimeout(timeout);
-  }, []);
+    if (!migratedLegacyProgress.current && completedDays.size === 0) {
+      migratedLegacyProgress.current = true;
+      const legacyItems = readLegacyCompletedDays();
+
+      if (legacyItems.size > 0) {
+        savePersistedProgress([...legacyItems]);
+        window.localStorage.removeItem(LEGACY_STORAGE_KEY);
+      }
+    }
+  }, [completedDays, persistedProgress, savePersistedProgress]);
 
   const activeTrack = useMemo(
     () =>
@@ -214,18 +239,15 @@ export default function TrtAuditStudyPlanPage() {
   function toggleDay(day: TrtAuditStudyDay) {
     const dayId = getTrackDayId(activeTrack.id, day.day);
 
-    setCompletedDays((current) => {
-      const next = new Set(current);
+    const next = new Set(completedDays);
 
-      if (next.has(dayId)) {
-        next.delete(dayId);
-      } else {
-        next.add(dayId);
-      }
+    if (next.has(dayId)) {
+      next.delete(dayId);
+    } else {
+      next.add(dayId);
+    }
 
-      window.localStorage.setItem(STORAGE_KEY, JSON.stringify([...next]));
-      return next;
-    });
+    savePersistedProgress([...next]);
   }
 
   function toggleWeek(week: number) {

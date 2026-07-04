@@ -21,6 +21,10 @@ export type StudyQuestionPracticeFilters = {
   to?: string;
 };
 
+export type StudyPlanProgressPayload = {
+  itemIds: string[];
+};
+
 export const StudyServices = {
   getSubjects: () => apiClient<StudySubject[]>("/api/study-subjects"),
   createSubject: (data: StudySubjectInput) =>
@@ -113,4 +117,16 @@ export const StudyServices = {
     apiClient<{ ok: boolean }>(`/api/study-question-practice/${id}`, {
       method: "DELETE",
     }),
+  getPlanProgress: (planKey: string) =>
+    apiClient<StudyPlanProgressPayload>(
+      `/api/study-plan-progress?planKey=${encodeURIComponent(planKey)}`
+    ),
+  savePlanProgress: (planKey: string, itemIds: string[]) =>
+    apiClient<StudyPlanProgressPayload>(
+      `/api/study-plan-progress?planKey=${encodeURIComponent(planKey)}`,
+      {
+        method: "PUT",
+        body: JSON.stringify({ itemIds }),
+      }
+    ),
 };

@@ -1,13 +1,17 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   BookOpenCheck,
+  CalendarDays,
   Check,
   ChevronDown,
+  ClipboardCheck,
   Clock3,
+  FileText,
   ListFilter,
   Search,
+  ShieldCheck,
   Target,
 } from "lucide-react";
 import planData from "@/data/trt-study-plan.json";
@@ -29,24 +33,37 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  useSaveStudyPlanProgress,
+  useStudyPlanProgress,
+} from "@/hooks/useStudyMutations";
 import { cn } from "@/lib/utils";
 
 const plan = planData as TrtStudyPlan;
-const STORAGE_KEY = "lifeup:trt-study-plan:completed";
+const PLAN_KEY = "dataprev-perfil3";
+const LEGACY_STORAGE_KEY = "lifeup:dataprev-perfil3-plan:completed";
 const PLAN_DAY_IDS = new Set(
   plan.weeks.flatMap((week) => week.days.map((day) => day.id))
 );
-type PlanView = "schedule" | "subjects" | "references";
+const PLAN_ITEM_IDS = new Set([
+  ...PLAN_DAY_IDS,
+  ...plan.checklistSections.flatMap((section) =>
+    section.groups.flatMap((group) => group.items.map((item) => item.id))
+  ),
+]);
 
-function readCompletedDays() {
+type PlanView = "schedule" | "checklist" | "audit" | "edital";
+
+function readLegacyCompletedItems() {
   try {
-    const value = window.localStorage.getItem(STORAGE_KEY);
+    const value = window.localStorage.getItem(LEGACY_STORAGE_KEY);
     const parsed: unknown = value ? JSON.parse(value) : [];
+
     return Array.isArray(parsed)
       ? new Set(
           parsed.filter(
             (item): item is string =>
-              typeof item === "string" && PLAN_DAY_IDS.has(item)
+              typeof item === "string" && PLAN_ITEM_IDS.has(item)
           )
         )
       : new Set<string>();
@@ -56,21 +73,41 @@ function readCompletedDays() {
 }
 
 export default function TrtStudyPlanPage() {
-  const [completedDays, setCompletedDays] = useState<Set<string>>(new Set());
   const [openWeeks, setOpenWeeks] = useState<Set<string>>(
     new Set([plan.weeks[0]?.id])
   );
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState("all");
   const [view, setView] = useState<PlanView>("schedule");
+  const migratedLegacyProgress = useRef(false);
+  const { data: persistedProgress } = useStudyPlanProgress(PLAN_KEY);
+  const { mutate: savePersistedProgress } = useSaveStudyPlanProgress(PLAN_KEY);
+
+  const completedItems = useMemo(
+    () =>
+      new Set(
+        (persistedProgress?.itemIds ?? []).filter((itemId) =>
+          PLAN_ITEM_IDS.has(itemId)
+        )
+      ),
+    [persistedProgress]
+  );
 
   useEffect(() => {
-    const timeout = window.setTimeout(() => {
-      setCompletedDays(readCompletedDays());
-    }, 0);
+    if (!persistedProgress) {
+      return;
+    }
 
-    return () => window.clearTimeout(timeout);
-  }, []);
+    if (!migratedLegacyProgress.current && completedItems.size === 0) {
+      migratedLegacyProgress.current = true;
+      const legacyItems = readLegacyCompletedItems();
+
+      if (legacyItems.size > 0) {
+        savePersistedProgress([...legacyItems]);
+        window.localStorage.removeItem(LEGACY_STORAGE_KEY);
+      }
+    }
+  }, [completedItems, persistedProgress, savePersistedProgress]);
 
   const categories = useMemo(
     () =>
@@ -96,9 +133,10 @@ export default function TrtStudyPlanPage() {
           const searchable = [
             week.title,
             week.subtitle,
-            week.tag,
             day.category,
             day.title,
+            day.schedule,
+            day.task,
             ...day.topics,
           ]
             .join(" ")
@@ -113,23 +151,42 @@ export default function TrtStudyPlanPage() {
       .filter((week) => week.days.length > 0);
   }, [category, query]);
 
-  const completedCount = completedDays.size;
-  const progress = Math.round((completedCount / plan.stats.days) * 100);
-  const completedHours = completedCount * plan.stats.hoursPerDay;
+  const completedDayCount = [...completedItems].filter((item) =>
+    PLAN_DAY_IDS.has(item)
+  ).length;
+  const progress = Math.round((completedDayCount / plan.stats.days) * 100);
+  const completedHours = Math.round(completedDayCount * plan.stats.hoursPerDay);
+  const checklistTotal = plan.checklistSections.reduce(
+    (sectionTotal, section) =>
+      sectionTotal +
+      section.groups.reduce(
+        (groupTotal, group) => groupTotal + group.items.length,
+        0
+      ),
+    0
+  );
+  const checklistDone = plan.checklistSections.reduce(
+    (sectionTotal, section) =>
+      sectionTotal +
+      section.groups.reduce(
+        (groupTotal, group) =>
+          groupTotal +
+          group.items.filter((item) => completedItems.has(item.id)).length,
+        0
+      ),
+    0
+  );
 
-  function toggleDay(dayId: string) {
-    setCompletedDays((current) => {
-      const next = new Set(current);
+  function toggleItem(itemId: string) {
+    const next = new Set(completedItems);
 
-      if (next.has(dayId)) {
-        next.delete(dayId);
-      } else {
-        next.add(dayId);
-      }
+    if (next.has(itemId)) {
+      next.delete(itemId);
+    } else {
+      next.add(itemId);
+    }
 
-      window.localStorage.setItem(STORAGE_KEY, JSON.stringify([...next]));
-      return next;
-    });
+    savePersistedProgress([...next]);
   }
 
   function toggleWeek(weekId: string) {
@@ -153,7 +210,7 @@ export default function TrtStudyPlanPage() {
           <div className="min-w-0">
             <div className="flex items-center gap-2 text-sm font-semibold text-primary">
               <BookOpenCheck className="h-4 w-4" />
-              Concurso público · Poder Judiciário · TI
+              {plan.subtitle}
             </div>
             <h1 className="mt-2 text-2xl font-semibold tracking-tight sm:text-3xl md:text-4xl">
               {plan.title}
@@ -161,20 +218,17 @@ export default function TrtStudyPlanPage() {
             <p className="mt-3 max-w-4xl text-sm leading-6 text-muted-foreground sm:text-base">
               {plan.description}
             </p>
-            <div className="mt-5 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
-              {[
-                ["Semanas", plan.stats.weeks],
-                ["Dias de estudo", plan.stats.days],
-                ["Carga total", `${plan.stats.totalHours}h`],
-                ["Por dia", `${plan.stats.hoursPerDay}h`],
-              ].map(([label, value]) => (
+            <div className="mt-5 grid gap-2 sm:grid-cols-2 lg:grid-cols-5">
+              {plan.headerStats.map((item) => (
                 <div
                   className="rounded-xl border border-border/60 bg-background/65 px-3 py-3"
-                  key={label}
+                  key={item.label}
                 >
-                  <div className="text-xs text-muted-foreground">{label}</div>
+                  <div className="text-xs text-muted-foreground">
+                    {item.label}
+                  </div>
                   <div className="mt-1 text-xl font-semibold tabular-nums">
-                    {value}
+                    {item.value}
                   </div>
                 </div>
               ))}
@@ -184,7 +238,7 @@ export default function TrtStudyPlanPage() {
           <div className="rounded-2xl border border-border/70 bg-background/75 p-5">
             <div className="flex items-center justify-between gap-3">
               <div>
-                <div className="text-sm font-medium">Progresso total</div>
+                <div className="text-sm font-medium">Progresso do cronograma</div>
                 <div className="mt-1 text-3xl font-semibold tabular-nums">
                   {progress}%
                 </div>
@@ -199,9 +253,13 @@ export default function TrtStudyPlanPage() {
             </div>
             <div className="mt-3 flex flex-wrap justify-between gap-2 text-xs text-muted-foreground">
               <span>
-                {completedCount} / {plan.stats.days} dias
+                {completedDayCount} / {plan.stats.days} dias
               </span>
               <span>{completedHours}h concluídas</span>
+            </div>
+            <div className="mt-4 rounded-xl border border-border/60 bg-secondary/25 p-3 text-xs leading-5 text-muted-foreground">
+              Checklist: {checklistDone} / {checklistTotal} itens oficiais
+              conferidos.
             </div>
           </div>
         </CardContent>
@@ -214,30 +272,40 @@ export default function TrtStudyPlanPage() {
               onClick={() => setView("schedule")}
               variant={view === "schedule" ? "default" : "outline"}
             >
+              <CalendarDays className="h-4 w-4" />
               Cronograma
             </Button>
             <Button
-              onClick={() => setView("subjects")}
-              variant={view === "subjects" ? "default" : "outline"}
+              onClick={() => setView("checklist")}
+              variant={view === "checklist" ? "default" : "outline"}
             >
-              Mapa de matérias
+              <ClipboardCheck className="h-4 w-4" />
+              Checklist
             </Button>
             <Button
-              onClick={() => setView("references")}
-              variant={view === "references" ? "default" : "outline"}
+              onClick={() => setView("audit")}
+              variant={view === "audit" ? "default" : "outline"}
             >
-              Fontes
+              <ShieldCheck className="h-4 w-4" />
+              Auditoria
+            </Button>
+            <Button
+              onClick={() => setView("edital")}
+              variant={view === "edital" ? "default" : "outline"}
+            >
+              <FileText className="h-4 w-4" />
+              Edital
             </Button>
           </div>
 
           {view === "schedule" ? (
-            <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_220px]">
+            <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_260px]">
               <label className="relative block">
                 <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                 <Input
                   className="pl-9"
                   onChange={(event) => setQuery(event.target.value)}
-                  placeholder="Buscar semana, matéria ou tópico..."
+                  placeholder="Buscar semana, matéria, data ou tópico..."
                   value={query}
                 />
               </label>
@@ -265,7 +333,7 @@ export default function TrtStudyPlanPage() {
           <Card className="border-border/70 bg-secondary/20">
             <CardContent className="p-4 text-sm leading-6 text-muted-foreground sm:p-5">
               <span className="font-semibold text-foreground">
-                Estrutura de uso:
+                Regra de alternância:
               </span>{" "}
               {plan.structure}
             </CardContent>
@@ -274,7 +342,7 @@ export default function TrtStudyPlanPage() {
           <div className="grid gap-4">
             {visibleWeeks.map((week) => {
               const completedInWeek = week.days.filter((day) =>
-                completedDays.has(day.id)
+                completedItems.has(day.id)
               ).length;
               const weekProgress = Math.round(
                 (completedInWeek / week.days.length) * 100
@@ -324,7 +392,7 @@ export default function TrtStudyPlanPage() {
                   {isOpen ? (
                     <CardContent className="grid gap-3 border-t border-border/60 p-4 sm:grid-cols-2 sm:p-5 xl:grid-cols-3">
                       {week.days.map((day) => {
-                        const isCompleted = completedDays.has(day.id);
+                        const isCompleted = completedItems.has(day.id);
 
                         return (
                           <article
@@ -362,7 +430,7 @@ export default function TrtStudyPlanPage() {
                                     ? "border-primary bg-primary text-primary-foreground"
                                     : "border-border hover:border-primary hover:text-primary"
                                 )}
-                                onClick={() => toggleDay(day.id)}
+                                onClick={() => toggleItem(day.id)}
                                 type="button"
                               >
                                 <Check className="h-4 w-4" />
@@ -379,6 +447,9 @@ export default function TrtStudyPlanPage() {
                                 </li>
                               ))}
                             </ul>
+                            <p className="rounded-lg bg-secondary/35 p-3 text-xs leading-5 text-muted-foreground">
+                              {day.task}
+                            </p>
                           </article>
                         );
                       })}
@@ -399,56 +470,123 @@ export default function TrtStudyPlanPage() {
         </>
       ) : null}
 
-      {view === "subjects" ? (
+      {view === "checklist" ? (
         <div className="grid gap-5">
-          {plan.subjectGroups.map((group) => (
-            <Card className="border-border/70 shadow-sm" key={group.title}>
+          {plan.checklistSections.map((section) => (
+            <Card className="border-border/70 shadow-sm" key={section.title}>
               <CardHeader>
-                <CardTitle>{group.title}</CardTitle>
-                <CardDescription>
-                  Conteúdos cobertos pelo cronograma de 19 semanas.
-                </CardDescription>
+                <CardTitle>{section.title}</CardTitle>
+                <CardDescription>{section.description}</CardDescription>
               </CardHeader>
-              <CardContent className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-                {group.items.map((item) => (
-                  <div
-                    className="rounded-xl border border-border/70 bg-background/70 p-4"
-                    key={item.title}
-                  >
-                    <div className="font-semibold">{item.title}</div>
-                    <p className="mt-2 text-sm leading-6 text-muted-foreground">
-                      {item.description}
-                    </p>
-                  </div>
-                ))}
+              <CardContent className="grid gap-4">
+                {section.groups.map((group) => {
+                  const done = group.items.filter((item) =>
+                    completedItems.has(item.id)
+                  ).length;
+
+                  return (
+                    <div
+                      className="rounded-xl border border-border/70 bg-background/70 p-4"
+                      key={group.title}
+                    >
+                      <div className="flex flex-wrap items-center justify-between gap-2">
+                        <div className="font-semibold">{group.title}</div>
+                        <Badge variant="outline">
+                          {done}/{group.items.length}
+                        </Badge>
+                      </div>
+                      <div className="mt-3 flex flex-wrap gap-2">
+                        {group.items.map((item) => {
+                          const isCompleted = completedItems.has(item.id);
+
+                          return (
+                            <button
+                              className={cn(
+                                "rounded-full border border-border/70 px-3 py-1.5 text-left text-xs leading-5 transition-colors",
+                                isCompleted
+                                  ? "border-primary bg-primary text-primary-foreground line-through"
+                                  : "bg-secondary/30 text-muted-foreground hover:border-primary hover:text-foreground"
+                              )}
+                              key={item.id}
+                              onClick={() => toggleItem(item.id)}
+                              type="button"
+                            >
+                              {item.title}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  );
+                })}
               </CardContent>
             </Card>
           ))}
         </div>
       ) : null}
 
-      {view === "references" ? (
-        <Card className="border-border/70 shadow-sm">
-          <CardHeader>
-            <CardTitle>Fontes e referências de cobertura</CardTitle>
-            <CardDescription>
-              Use sempre o edital publicado do TRT-alvo como fonte final.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <ul className="grid gap-3">
-              {plan.references.map((reference) => (
-                <li
-                  className="flex gap-3 rounded-xl border border-border/70 bg-background/70 p-4 text-sm leading-6 text-muted-foreground"
-                  key={reference}
+      {view === "audit" ? (
+        <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_minmax(320px,0.45fr)]">
+          <Card className="border-border/70 shadow-sm">
+            <CardHeader>
+              <CardTitle>Distribuição por bloco</CardTitle>
+              <CardDescription>{plan.audit.summary}</CardDescription>
+            </CardHeader>
+            <CardContent className="grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
+              {plan.audit.distribution.map((row) => (
+                <div
+                  className="flex items-center justify-between gap-3 rounded-lg border border-border/70 bg-background/70 p-3 text-sm"
+                  key={row.label}
                 >
-                  <span className="mt-2 h-2 w-2 shrink-0 rounded-full bg-primary" />
-                  <span>{reference}</span>
-                </li>
+                  <span className="min-w-0 truncate text-muted-foreground">
+                    {row.label}
+                  </span>
+                  <Badge>{row.value}</Badge>
+                </div>
               ))}
-            </ul>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+
+          <Card className="border-border/70 shadow-sm">
+            <CardHeader>
+              <CardTitle>Pontos de atenção</CardTitle>
+              <CardDescription>
+                Riscos de profundidade após a cobertura integral.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <ul className="grid gap-3">
+                {plan.audit.notes.map((note) => (
+                  <li
+                    className="flex gap-3 rounded-xl border border-border/70 bg-background/70 p-4 text-sm leading-6 text-muted-foreground"
+                    key={note}
+                  >
+                    <span className="mt-2 h-2 w-2 shrink-0 rounded-full bg-primary" />
+                    <span>{note}</span>
+                  </li>
+                ))}
+              </ul>
+            </CardContent>
+          </Card>
+        </div>
+      ) : null}
+
+      {view === "edital" ? (
+        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+          {plan.editalCards.map((card) => (
+            <Card className="border-border/70 shadow-sm" key={card.label}>
+              <CardHeader>
+                <Badge className="w-fit">{card.label}</Badge>
+                <CardTitle>{card.title}</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm leading-6 text-muted-foreground">
+                  {card.description}
+                </p>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
       ) : null}
     </div>
   );

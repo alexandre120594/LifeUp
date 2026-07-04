@@ -15,8 +15,8 @@ The app currently supports:
 - Life Planning tools for good/bad habit tracking, task calendar, and weekly planning
 - study records for subjects, planned weekly hours, and repeating day/hour study blocks in the data layer
 - dedicated Study workspace with a visual command-center dashboard, subject-based mistake log, study plan, and standalone focus timer
-- dedicated TRT TI study roadmap under Study tools, imported from `plano-trt-ti-completo-ajustado.html`, with 19 weeks, 114 study days, topic search, category filtering, subject coverage, references, and browser-persisted completion progress
-- dedicated TRT TI audit roadmap under Study tools, imported from `plano-trt-ti-auditoria-2017-2025-4-topicos-separado.html`, with separate Base, Analyst, and Technician tracks, 299 unique study days, topic search, matter filtering, D+1/D+7/D+21 review prompts, audit notes, and browser-persisted completion progress
+- dedicated Dataprev Perfil 3 study roadmap under Study tools, imported from `dataprev-perfil3-plano-ate-21-09-alternado-conferido.html`, with 12 weeks, 67 study days, topic search, category filtering, edital checklist, coverage audit, edital summary, and per-user persisted completion progress
+- dedicated TRT TI audit roadmap under Study tools, imported from `plano-trt-ti-auditoria-2017-2025-4-topicos-separado.html`, with separate Base, Analyst, and Technician tracks, 299 unique study days, topic search, matter filtering, D+1/D+7/D+21 review prompts, audit notes, and per-user persisted completion progress
 - Study Plan page for week-specific planned study blocks, manual studied-time registration, visual planned-vs-studied comparison, and question performance summary
 - Study Plan registers actual study sessions from begin/finish datetimes, calculates studied duration, lets week board study entries and their matching question counts be edited/deleted in popups, compares planned versus studied hours, and filters the week board by subject
 - Study Plan finish flow can also record aggregate right/wrong question totals for the study block, show weekly counts on the planner, edit/delete saved count entries, and feed dashboard question-practice charts
@@ -145,7 +145,7 @@ There is also repeatable local seed data for testing charts and flows.
 - `src/app/study/planner/page.tsx`
   - week-specific study board with planned blocks, manual studied sessions, subject create/edit/delete controls, subject filtering, and planned-vs-actual totals
 - `src/app/study/trt-plan/page.tsx`
-  - native TRT TI exam roadmap with the complete 19-week source plan, progress tracking, filters, subject map, and references
+  - native Dataprev Perfil 3 roadmap with the alternated 67-day source plan, progress tracking, filters, edital checklist, coverage audit, and edital summary
 - `src/app/study/trt-audit-plan/page.tsx`
   - native audited TRT TI roadmap separated by base, analyst, and technician tracks, with progress tracking, matter filters, spaced review prompts, and audit coverage notes
 - `src/app/finance/page.tsx`
@@ -292,6 +292,8 @@ There is also repeatable local seed data for testing charts and flows.
   - belongs to user and study subject, and stores begin time, finish time, calculated duration minutes, and optional notes
 - `StudyQuestionPractice`
   - belongs to user and study subject, and stores aggregate daily total, right, and wrong question counts
+- `StudyPlanProgress`
+  - belongs to user and stores checked roadmap item IDs per native study plan key
 - `StudyMistake`
   - belongs to user and study subject, stores question/result metadata, optional legacy answer/rule details, Guided Correction fields, review date, correction status, and review status
 - `InboxItem`
@@ -351,6 +353,9 @@ persist review records. Guided Correction adds nullable fields to that table so
 existing mistake records are not rewritten into correction-pending items.
 Study question-practice totals also require the current Prisma schema before the
 Study Plan finish flow can persist right/wrong counts for dashboard charts.
+Native study roadmap progress also requires the current schema because checked
+Dataprev and TRT audit plan items are persisted in `StudyPlanProgress` instead
+of browser-only storage.
 The Focus Timer also requires the current schema because new standalone study
 sessions save without a task association and persist an editable session name;
 older task-linked sessions can still be read as optional legacy context.

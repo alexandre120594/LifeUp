@@ -46,6 +46,39 @@ export function useStudyPlanBoard(weekStartKey: string) {
   });
 }
 
+export function useStudyPlanProgress(planKey: string) {
+  return useQuery({
+    queryKey: ["study-plan-progress", planKey],
+    queryFn: () => StudyServices.getPlanProgress(planKey),
+  });
+}
+
+export function useSaveStudyPlanProgress(planKey: string) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    meta: {
+      successMessage: "Plan progress saved.",
+      successTitle: "Saved",
+    },
+    mutationFn: (itemIds: string[]) =>
+      StudyServices.savePlanProgress(planKey, itemIds),
+    onMutate: async (itemIds) => {
+      await queryClient.cancelQueries({
+        queryKey: ["study-plan-progress", planKey],
+      });
+      queryClient.setQueryData(["study-plan-progress", planKey], { itemIds });
+    },
+    onSuccess: async (progress) => {
+      queryClient.setQueryData(["study-plan-progress", planKey], progress);
+      await queryClient.invalidateQueries({
+        queryKey: ["study-plan-progress", planKey],
+        refetchType: "all",
+      });
+    },
+  });
+}
+
 export function useCreateStudySubject() {
   const queryClient = useQueryClient();
 

@@ -42,8 +42,9 @@ Current app position:
 - Focus Timer history now filters by subject, supports editing saved session names and subjects, and supports deleting sessions with subject-hour totals refreshing after changes
 - Study Dashboard now includes a Focus Timer graph grouped by subject
 - Study Dashboard now has one current week, month, or year filter controlling question performance, studied time, active subjects, mastery, review pressure, and subject pressure across the page
-- Study tools now includes a native TRT TI Plan page generated from `plano-trt-ti-completo-ajustado.html`, preserving all 19 weeks and 114 days with search, category filters, subject coverage, references, and local completion tracking
-- Study tools now includes a separate audited TRT TI Plan page generated from `plano-trt-ti-auditoria-2017-2025-4-topicos-separado.html`, preserving Base, Analyst, and Technician tracks with 299 unique days, matter filters, D+1/D+7/D+21 review prompts, audit notes, and local completion tracking
+- Study tools now includes a native Dataprev Perfil 3 Plan page generated from `dataprev-perfil3-plano-ate-21-09-alternado-conferido.html`, preserving the 12-week, 67-day alternated schedule with search, category filters, edital checklist, coverage audit, edital summary, and persisted completion tracking
+- Study tools now includes a separate audited TRT TI Plan page generated from `plano-trt-ti-auditoria-2017-2025-4-topicos-separado.html`, preserving Base, Analyst, and Technician tracks with 299 unique days, matter filters, D+1/D+7/D+21 review prompts, audit notes, and persisted completion tracking
+- Dataprev and TRT audit study-plan check progress now persists per logged-in user through `StudyPlanProgress` instead of browser-only local storage
 - Inbox page captures unprocessed ideas, reminders, study topics, and loose work, paginates the queue, supports popup editing with project/habit/task linking, and can convert items into notes
 - Notes page stores searchable categorized notes with pagination, popup editing, and optional project, habit, and task links
 - dashboard now shows a daily/weekly tracker snapshot instead of the project throughput graph
@@ -78,14 +79,51 @@ Current app position:
 
 ## Completed Recently
 
+### Persisted native study-plan progress
+
+Implemented:
+- added `StudyPlanProgress` for per-user checked roadmap items keyed by native plan
+- added `/api/study-plan-progress` for authenticated progress reads and full-set saves
+- changed Dataprev Perfil 3 and TRT Audit Plan check actions to persist through the API
+- migrates old browser-only progress once when the server has no saved progress, then removes the old local key
+
+Main files:
+- `prisma/schema.prisma`
+- `src/app/api/study-plan-progress/route.ts`
+- `src/services/StudyServices.ts`
+- `src/hooks/useStudyMutations.ts`
+- `src/app/study/trt-plan/page.tsx`
+- `src/app/study/trt-audit-plan/page.tsx`
+- `src/lib/prisma.ts`
+- `README.md`
+- `ARCHIVE.md`
+
+### Dataprev Perfil 3 plan replacement
+
+Implemented:
+- replaced the primary `/study/trt-plan` content with the Dataprev 2026 Perfil 3 alternated plan
+- imported `dataprev-perfil3-plano-ate-21-09-alternado-conferido.html` into typed JSON data
+- preserved the 67-day schedule through 21/09/2026, edital checklist, coverage audit, edital dates/pay summary, search, category filters, and persisted completion tracking
+- renamed the Study sidebar and Study Dashboard shortcut from TRT TI Plan to Dataprev Plan
+
+Main files:
+- `scripts/import-trt-study-plan.mjs`
+- `src/data/trt-study-plan.json`
+- `src/types/trt-study-plan.ts`
+- `src/app/study/trt-plan/page.tsx`
+- `src/components/app-sidebar.tsx`
+- `src/app/study/page.tsx`
+- `README.md`
+- `ARCHIVE.md`
+
 ### Audited TRT TI separated-track plan
 
 Implemented:
 - added `/study/trt-audit-plan` as a separate Study tools page
 - imported `plano-trt-ti-auditoria-2017-2025-4-topicos-separado.html` into typed JSON data
 - preserved Base, Analyst, and Technician tracks with 299 unique study days
-- added track switching, matter filtering, topic search, weekly progress, D+1/D+7/D+21 review prompts, audit notes, and browser-local completion tracking
-- exposed the new plan in the Study sidebar and Study Dashboard actions without replacing the existing 19-week TRT TI plan
+- added track switching, matter filtering, topic search, weekly progress, D+1/D+7/D+21 review prompts, audit notes, and persisted completion tracking
+- exposed the audited plan in the Study sidebar and Study Dashboard actions; the primary `/study/trt-plan` route now contains the Dataprev Perfil 3 plan
 
 Main files:
 - `scripts/import-trt-audit-study-plan.mjs`

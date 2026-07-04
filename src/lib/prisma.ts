@@ -15,7 +15,8 @@ const hasCurrentFinanceDelegates =
   cachedPrisma &&
   "financialCategory" in cachedPrisma &&
   "plannedExpense" in cachedPrisma &&
-  "savingsContribution" in cachedPrisma;
+  "savingsContribution" in cachedPrisma &&
+  "studyPlanProgress" in cachedPrisma;
 
 const prisma: PrismaClient = hasCurrentFinanceDelegates ? cachedPrisma : new PrismaClient({
   adapter,
