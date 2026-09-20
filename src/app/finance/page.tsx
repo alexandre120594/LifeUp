@@ -22,6 +22,7 @@ import {
   Search,
   WalletCards,
 } from "lucide-react";
+import { DashboardViewport } from "@/components/dashboard-viewport";
 import { MenuPageHeader } from "@/components/menu-page-header";
 import { MoneyInput } from "@/components/money-input";
 import { OverviewPanel } from "@/components/overview-panel";
@@ -372,7 +373,7 @@ export default function FinancePage() {
   };
 
   return (
-    <div className="min-w-0 space-y-6 p-4 md:p-8">
+    <DashboardViewport contentClassName="space-y-4">
       <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
         <MenuPageHeader
           eyebrow="Personal finance"
@@ -926,7 +927,7 @@ export default function FinancePage() {
           </FinanceManageBlock>
         </CardContent>
       </Card>
-    </div>
+    </DashboardViewport>
   );
 }
 

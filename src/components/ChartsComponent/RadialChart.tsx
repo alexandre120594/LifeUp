@@ -26,6 +26,7 @@ type RadialChartDatum = {
 
 interface RadialText {
   title: string;
+  compact?: boolean;
   description: string;
   chartConfig: ChartConfig;
   chartData: RadialChartDatum[] | undefined;
@@ -39,6 +40,7 @@ export function ChartRadialText({
   chartConfig,
   chartData,
   children,
+  compact = false,
   description,
   type,
   tamanho,
@@ -48,15 +50,25 @@ export function ChartRadialText({
 
   const anguloDinamico = meta > 0 ? (valorAtual / meta) * 360 : 0;
   return (
-    <Card className="flex min-w-0 flex-col overflow-hidden">
-      <CardHeader className="items-center pb-0 text-center">
+    <Card className="flex min-h-0 min-w-0 flex-col overflow-hidden">
+      <CardHeader
+        className={
+          compact
+            ? "shrink-0 items-center gap-1 p-3 pb-0 text-center"
+            : "items-center pb-0 text-center"
+        }
+      >
         <CardTitle className="break-words text-base sm:text-lg">{title}</CardTitle>
         <CardDescription>{description}</CardDescription>
       </CardHeader>
-      <CardContent className="flex-1 pb-0">
+      <CardContent className={compact ? "min-h-0 flex-1 p-2 pb-0" : "flex-1 pb-0"}>
         <ChartContainer
           config={chartConfig}
-          className="mx-auto aspect-square h-[220px] max-h-[260px] w-full max-w-[260px]"
+          className={
+            compact
+              ? "mx-auto aspect-square h-full min-h-[120px] max-h-[190px] w-full max-w-[190px]"
+              : "mx-auto aspect-square h-[220px] max-h-[260px] w-full max-w-[260px]"
+          }
         >
           <RadialBarChart
             data={chartData}
@@ -107,7 +119,9 @@ export function ChartRadialText({
           </RadialBarChart>
         </ChartContainer>
       </CardContent>
-      <CardFooter className="flex-col gap-2 text-center text-sm">
+      <CardFooter
+        className={compact ? "shrink-0 flex-col gap-1 p-3 pt-0 text-center text-sm" : "flex-col gap-2 text-center text-sm"}
+      >
         {children}
       </CardFooter>
     </Card>

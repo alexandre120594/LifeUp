@@ -4,10 +4,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 export function useNotes(filters?: {
   category?: string;
-  habitId?: string;
-  projectId?: string;
   q?: string;
-  taskId?: string;
 }) {
   return useQuery({
     queryKey: ["notes", filters],
@@ -27,9 +24,6 @@ export function useCreateNote() {
     onSuccess: async () => {
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: ["notes"], refetchType: "all" }),
-        queryClient.invalidateQueries({ queryKey: ["projects"], refetchType: "all" }),
-        queryClient.invalidateQueries({ queryKey: ["habits"], refetchType: "all" }),
-        queryClient.invalidateQueries({ queryKey: ["task"], refetchType: "all" }),
       ]);
     },
   });
@@ -48,9 +42,6 @@ export function useUpdateNote() {
     onSuccess: async () => {
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: ["notes"], refetchType: "all" }),
-        queryClient.invalidateQueries({ queryKey: ["projects"], refetchType: "all" }),
-        queryClient.invalidateQueries({ queryKey: ["habits"], refetchType: "all" }),
-        queryClient.invalidateQueries({ queryKey: ["task"], refetchType: "all" }),
       ]);
     },
   });

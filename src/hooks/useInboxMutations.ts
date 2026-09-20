@@ -38,9 +38,6 @@ export function useUpdateInboxItem() {
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: ["inbox"], refetchType: "all" }),
         queryClient.invalidateQueries({ queryKey: ["notes"], refetchType: "all" }),
-        queryClient.invalidateQueries({ queryKey: ["projects"], refetchType: "all" }),
-        queryClient.invalidateQueries({ queryKey: ["habits"], refetchType: "all" }),
-        queryClient.invalidateQueries({ queryKey: ["task"], refetchType: "all" }),
       ]);
     },
   });

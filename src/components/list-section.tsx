@@ -8,6 +8,7 @@ export function ListSection({
   loadingLabel,
   emptyLabel,
   children,
+  compact = false,
 }: {
   title: string;
   description?: string;
@@ -16,16 +17,17 @@ export function ListSection({
   loadingLabel?: string;
   emptyLabel: string;
   children: React.ReactNode;
+  compact?: boolean;
 }) {
   return (
-    <Card className="min-w-0 overflow-hidden border shadow-sm">
-      <CardHeader>
+    <Card className="flex min-h-0 min-w-0 flex-col overflow-hidden border shadow-sm">
+      <CardHeader className={compact ? "shrink-0 gap-1 p-4" : undefined}>
         <CardTitle className="break-words">{title}</CardTitle>
         {description ? (
-          <p className="text-sm text-muted-foreground">{description}</p>
+          <p className={compact ? "hidden text-sm text-muted-foreground sm:block" : "text-sm text-muted-foreground"}>{description}</p>
         ) : null}
       </CardHeader>
-      <CardContent className="grid min-w-0 gap-4">
+      <CardContent className={compact ? "grid min-h-0 min-w-0 flex-1 gap-3 overflow-y-auto p-4 pt-0" : "grid min-w-0 gap-4"}>
         {isLoading ? (
           <p>{loadingLabel ?? "Loading..."}</p>
         ) : isEmpty ? (

@@ -8,10 +8,7 @@ import { apiClient } from "./api-client";
 export const NotesServices = {
   getAll: (filters?: {
     category?: string;
-    habitId?: string;
-    projectId?: string;
     q?: string;
-    taskId?: string;
   }) => {
     const searchParams = new URLSearchParams();
 
@@ -19,20 +16,8 @@ export const NotesServices = {
       searchParams.set("category", filters.category);
     }
 
-    if (filters?.habitId) {
-      searchParams.set("habitId", filters.habitId);
-    }
-
-    if (filters?.projectId) {
-      searchParams.set("projectId", filters.projectId);
-    }
-
     if (filters?.q) {
       searchParams.set("q", filters.q);
-    }
-
-    if (filters?.taskId) {
-      searchParams.set("taskId", filters.taskId);
     }
 
     const query = searchParams.toString();

@@ -4,12 +4,9 @@ import { NextRequest, NextResponse } from "next/server";
 
 const inboxItemTypes = [
   "idea",
-  "task",
   "note",
   "study",
   "finance",
-  "habit",
-  "project",
   "thought",
 ];
 
@@ -29,9 +26,6 @@ export async function GET(req: NextRequest) {
       ...(status && status !== "all" ? { status } : {}),
     },
     include: {
-      project: true,
-      habit: true,
-      task: true,
       note: true,
     },
     orderBy: { createdAt: "desc" },
@@ -65,9 +59,6 @@ export async function POST(req: NextRequest) {
         userId,
       },
       include: {
-        project: true,
-        habit: true,
-        task: true,
         note: true,
       },
     });

@@ -48,9 +48,9 @@ export function SelectRHF<FormType extends FieldValues>({
           ) : null}
           <div>
             <Select
-              onValueChange={(val: any) => {
+              onValueChange={(val: string) => {
                 field.onChange(String(val));
-                onSelected && onSelected(String(val));
+                onSelected?.(String(val));
               }}
               value={defaultValue || field?.value}
             >

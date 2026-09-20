@@ -5,15 +5,19 @@ export function MenuPageHeader({
   title,
   action,
 }: {
-  eyebrow: string;
+  eyebrow?: string;
   title: ReactNode;
   action?: ReactNode;
 }) {
   return (
-    <header className="flex min-w-0 flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-      <div className="min-w-0 space-y-1">
-        <p className="text-sm font-medium text-muted-foreground">{eyebrow}</p>
-        <h1 className="break-words text-2xl font-semibold tracking-tight sm:text-3xl md:text-4xl">
+    <header className="flex min-w-0 flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+      <div className="min-w-0">
+        {eyebrow ? (
+          <p className="text-xs font-medium uppercase tracking-[0.14em] text-muted-foreground">
+            {eyebrow}
+          </p>
+        ) : null}
+        <h1 className="break-words text-xl font-semibold tracking-tight sm:text-2xl">
           {title}
         </h1>
       </div>

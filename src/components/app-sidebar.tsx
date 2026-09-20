@@ -4,9 +4,8 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   BarChart3,
-  CalendarDays,
   CalendarRange,
-  FolderKanban,
+  Goal,
   GraduationCap,
   Home,
   Inbox,
@@ -15,17 +14,14 @@ import {
   TimerReset,
   WalletCards,
   FileSpreadsheet,
-  ListChecks,
   BookOpenCheck,
   ShieldCheck,
 } from "lucide-react";
+import { useGoals } from "@/hooks/useGoals";
 import { useInboxItems } from "@/hooks/useInboxMutations";
-import { useLifeHabits } from "@/hooks/useLifeHabitMutations";
 import { useNotes } from "@/hooks/useNoteMutations";
-import { useProjects } from "@/hooks/useProjectMutations";
 import { useStudyMistakes } from "@/hooks/useStudyMistakeMutations";
 import { useStudySubjects } from "@/hooks/useStudyMutations";
-import { useTask } from "@/hooks/useTaskMutation";
 import {
   Sidebar,
   SidebarContent,
@@ -43,7 +39,7 @@ type SidebarItem = {
   title: string;
   url: string;
   icon: typeof Home;
-  description: string;
+  description?: string;
 };
 
 const lifeItems: SidebarItem[] = [
@@ -51,13 +47,13 @@ const lifeItems: SidebarItem[] = [
     title: "Life Dashboard",
     url: "/",
     icon: Home,
-    description: "Projects, tasks, and money",
+    description: "Goals and progress",
   },
   {
-    title: "Projects",
-    url: "/projects",
-    icon: FolderKanban,
-    description: "Habits and tasks",
+    title: "Goals",
+    url: "/goals",
+    icon: Goal,
+    description: "Main direction",
   },
   {
     title: "Inbox",
@@ -69,7 +65,7 @@ const lifeItems: SidebarItem[] = [
     title: "Notes",
     url: "/notes",
     icon: NotebookText,
-    description: "Connected knowledge",
+    description: "Knowledge",
   },
   {
     title: "Finance",
@@ -82,27 +78,6 @@ const lifeItems: SidebarItem[] = [
     url: "/finance/tracker",
     icon: FileSpreadsheet,
     description: "CSV account spending",
-  },
-];
-
-const planningItems: SidebarItem[] = [
-  {
-    title: "Habit Tracker",
-    url: "/life-habits",
-    icon: ListChecks,
-    description: "Good and bad habits",
-  },
-  {
-    title: "Calendar",
-    url: "/calendar",
-    icon: CalendarDays,
-    description: "Plan tasks by day",
-  },
-  {
-    title: "Weekly Plan",
-    url: "/weekly-organizer",
-    icon: CalendarRange,
-    description: "Organize this week",
   },
 ];
 
@@ -165,7 +140,7 @@ function SidebarLinkList({
   const pathname = usePathname();
 
   return (
-    <SidebarMenu className="gap-2">
+    <SidebarMenu className="gap-1">
       {items.map((item) => {
         const isActive = isSidebarItemActive(pathname, item.url);
 
@@ -174,18 +149,20 @@ function SidebarLinkList({
             <SidebarMenuButton
               asChild
               isActive={isActive}
-              className="h-auto rounded-2xl px-3 py-3 transition-colors hover:bg-white/10 active:bg-white/20 data-[active=true]:bg-white/16"
+              className="h-auto rounded-lg px-2.5 py-2 transition-colors hover:bg-white/10 active:bg-white/20 data-[active=true]:bg-white/16"
             >
               <Link
                 href={item.url}
                 className="flex items-center gap-3 text-sidebar-foreground"
               >
-                <item.icon className="size-5" />
+                <item.icon className="size-4" />
                 <div className="flex min-w-0 flex-1 flex-col">
                   <span className="font-medium">{item.title}</span>
-                  <span className="truncate text-xs text-sidebar-foreground/70">
-                    {item.description}
-                  </span>
+                  {item.description ? (
+                    <span className="hidden truncate text-xs text-sidebar-foreground/70 min-[850px]:block">
+                      {item.description}
+                    </span>
+                  ) : null}
                 </div>
                 {item.url !== "/" ? (
                   <SidebarMenuBadge className="static ml-auto bg-white/15 text-sidebar-foreground">
@@ -202,21 +179,16 @@ function SidebarLinkList({
 }
 
 export function AppSidebar() {
-  const { data: projects } = useProjects();
-  const { data: tasks } = useTask();
+  const { data: goals } = useGoals();
   const { data: inboxItems } = useInboxItems({ status: "unprocessed" });
-  const { data: lifeHabits } = useLifeHabits();
   const { data: notes } = useNotes();
   const { data: studyMistakes } = useStudyMistakes();
   const { data: studySubjects } = useStudySubjects();
 
   const badges: Record<string, number> = {
-    "/projects": projects?.length ?? 0,
+    "/goals": goals?.length ?? 0,
     "/inbox": inboxItems?.length ?? 0,
     "/notes": notes?.length ?? 0,
-    "/calendar": tasks?.length ?? 0,
-    "/life-habits": lifeHabits?.length ?? 0,
-    "/weekly-organizer": tasks?.length ?? 0,
     "/pomodoro": 0,
     "/finance": 0,
     "/finance/tracker": 0,
@@ -229,22 +201,20 @@ export function AppSidebar() {
 
   return (
     <Sidebar className="border-r-0">
-      <SidebarContent className="bg-sidebar p-4 text-sidebar-foreground">
-        <SidebarGroup>
-          <SidebarGroupLabel className="mb-4 text-sidebar-foreground/70">
+      <SidebarContent className="bg-sidebar p-2.5 text-sidebar-foreground">
+        <SidebarGroup className="p-1">
+          <SidebarGroupLabel className="mb-1 text-sidebar-foreground/70">
             LifeUp Workspace
           </SidebarGroupLabel>
 
-          <div className="mb-5 rounded-3xl border border-white/15 bg-white/10 p-4 backdrop-blur-sm">
+          <div className="mb-2 rounded-lg border border-white/15 bg-white/10 p-2.5 backdrop-blur-sm max-[850px]:hidden">
             <div className="flex items-center gap-3">
-              <div className="rounded-2xl bg-white/15 p-2">
+              <div className="rounded-lg bg-white/15 p-2">
                 <BarChart3 className="size-5" />
               </div>
               <div>
                 <p className="text-sm font-semibold">Navigation Hub</p>
-                <p className="text-xs text-sidebar-foreground/70">
-                  Review metrics, then drill into the records that need action.
-                </p>
+                <p className="text-xs text-sidebar-foreground/70">Metrics and records</p>
               </div>
             </div>
           </div>
@@ -254,17 +224,8 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
 
-        <SidebarGroup className="mt-2">
-          <SidebarGroupLabel className="mb-2 text-sidebar-foreground/60">
-            Life planning
-          </SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarLinkList badges={badges} items={planningItems} />
-          </SidebarGroupContent>
-        </SidebarGroup>
-
-        <SidebarGroup className="mt-2">
-          <SidebarGroupLabel className="mb-2 text-sidebar-foreground/60">
+        <SidebarGroup className="mt-1 p-1">
+          <SidebarGroupLabel className="mb-1 text-sidebar-foreground/60">
             Study tools
           </SidebarGroupLabel>
           <SidebarGroupContent>
@@ -272,11 +233,9 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
 
-        <SidebarFooter className="mt-auto rounded-3xl border border-white/10 bg-white/8 p-4 text-sm text-sidebar-foreground/80">
-          <p className="font-medium">Current focus</p>
-          <p className="mt-1 text-xs text-sidebar-foreground/70">
-            Use Life for projects, routines, planning, and money. Use Study for subjects, reviews, question practice, and focus.
-          </p>
+        <SidebarFooter className="mt-auto rounded-lg border border-white/10 bg-white/8 p-2.5 text-sm text-sidebar-foreground/80 max-[850px]:hidden">
+          <p className="font-medium">Life + Study</p>
+          <p className="mt-1 text-xs text-sidebar-foreground/70">Plan, track, review.</p>
         </SidebarFooter>
       </SidebarContent>
     </Sidebar>

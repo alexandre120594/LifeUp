@@ -1,0 +1,13 @@
+node_modules
+.next
+.git
+.env
+.env.local
+.env.production
+*.tsbuildinfo
+*.html
+ARCHIVE.md
+README.md
+NEWFEATURE.md
+AGENTS.md
+.nginx

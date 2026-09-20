@@ -1,7 +1,7 @@
 {
-  "title": "Plano alternado até 21/09 Desenvolvimento de Software",
+  "title": "Plano alternado até 05/10 Desenvolvimento de Software",
   "subtitle": "Dataprev 2026 • FGV • Perfil 3",
-  "description": "Plano isolado da Dataprev para Analista de Tecnologia da Informação — Perfil 3, com alternância de conteúdos para evitar blocos longos de uma mesma matéria. Todo o conteúdo programático foi mantido no checklist e distribuído nos estudos de 06/07 a 21/09.",
+  "description": "Plano isolado da Dataprev para Analista de Tecnologia da Informação — Perfil 3, com alternância de conteúdos para evitar blocos longos de uma mesma matéria. Todo o conteúdo programático foi mantido no checklist e distribuído nos estudos de 06/07 a 05/10.",
   "sourceFile": "dataprev-perfil3-plano-ate-21-09-alternado-conferido.html",
   "structure": "O plano intercala Conhecimentos Gerais, Desenvolvimento, Banco/BI, Segurança e Governança. A sequência evita estudar muitos dias seguidos do mesmo bloco e força revisão indireta por contraste.",
   "usage": [
@@ -13,7 +13,7 @@
     "totalHours": 107,
     "hoursPerDay": 1.5,
     "examDate": "11/10/2026",
-    "contentEndDate": "21/09/2026",
+    "contentEndDate": "05/10/2026",
     "questions": 70,
     "compensation": "R$ 10.685,44"
   },
@@ -23,7 +23,7 @@
       "label": "dias de estudo"
     },
     {
-      "value": "21/09",
+      "value": "05/10",
       "label": "fim do conteúdo"
     },
     {
@@ -787,7 +787,7 @@
     {
       "id": "sem9",
       "number": 9,
-      "title": "Semana 9 · 31/08 a 05/09",
+      "title": "Semana 9 · 14/09 a 19/09",
       "subtitle": "Conteúdos alternados: gerais, desenvolvimento, banco, segurança, BI e governança.",
       "tag": "6 dias",
       "days": [
@@ -796,7 +796,7 @@
           "sourceId": "d49",
           "category": "Métricas/Estimativas",
           "title": "Dia 49 · Pontos de função, Story Points e codificação por tipo de software",
-          "schedule": "Seg · 31/08/2026 · bloco sugerido: 1h30",
+          "schedule": "Seg · 14/09/2026 · bloco sugerido: 1h30",
           "topics": [
             "Metodologia de ponto de função: entradas, saídas, consultas, arquivos lógicos e interfaces em noções",
             "Story Points: estimativa relativa, complexidade, incerteza e esforço",
@@ -810,7 +810,7 @@
           "sourceId": "d50",
           "category": "Arquitetura Moderna",
           "title": "Dia 50 · Arquitetura hexagonal, microsserviços, orquestração e containers",
-          "schedule": "Ter · 01/09/2026 · bloco sugerido: 1h30",
+          "schedule": "Ter · 15/09/2026 · bloco sugerido: 1h30",
           "topics": [
             "Arquitetura hexagonal: domínio, portas, adaptadores e inversão de dependência",
             "Microsserviços: autonomia, banco por serviço, comunicação, deploy independente e observabilidade",
@@ -824,7 +824,7 @@
           "sourceId": "d51",
           "category": "COBIT 2019",
           "title": "Dia 51 · COBIT 2019 — governança de TI",
-          "schedule": "Qua · 02/09/2026 · bloco sugerido: 1h30",
+          "schedule": "Qua · 16/09/2026 · bloco sugerido: 1h30",
           "topics": [
             "Governança de TI com COBIT 2019",
             "Conceitos, estrutura, objetivos de governança e objetivos de gestão",
@@ -838,7 +838,7 @@
           "sourceId": "d52",
           "category": "Segurança/Protocolos",
           "title": "Dia 52 · HTTPS, SSL/TLS e blockchain",
-          "schedule": "Qui · 03/09/2026 · bloco sugerido: 1h30",
+          "schedule": "Qui · 17/09/2026 · bloco sugerido: 1h30",
           "topics": [
             "HTTPS: HTTP sobre TLS, certificados, cadeia de confiança e finalidade",
             "SSL/TLS: handshake, criptografia, autenticação e integridade em noções",
@@ -852,7 +852,7 @@
           "sourceId": "d53",
           "category": "Arquitetura Moderna",
           "title": "Dia 53 · Transações distribuídas e consistência",
-          "schedule": "Sex · 04/09/2026 · bloco sugerido: 1h30",
+          "schedule": "Sex · 18/09/2026 · bloco sugerido: 1h30",
           "topics": [
             "Transações distribuídas: problema, atomicidade entre serviços e falhas parciais",
             "Two-phase commit em noções e limitações",
@@ -866,7 +866,7 @@
           "sourceId": "d54",
           "category": "BPMN",
           "title": "Dia 54 · Gestão de processos e BPMN",
-          "schedule": "Sáb · 05/09/2026 · bloco sugerido: 2h30",
+          "schedule": "Sáb · 19/09/2026 · bloco sugerido: 2h30",
           "topics": [
             "Gestão de processos e modelagem de processos de negócio",
             "BPMN: eventos, atividades, gateways, pools, lanes, fluxos e artefatos",
@@ -880,7 +880,7 @@
     {
       "id": "sem10",
       "number": 10,
-      "title": "Semana 10 · 07/09 a 12/09",
+      "title": "Semana 10 · 21/09 a 26/09",
       "subtitle": "Conteúdos alternados: gerais, desenvolvimento, banco, segurança, BI e governança.",
       "tag": "6 dias",
       "days": [
@@ -889,7 +889,7 @@
           "sourceId": "d55",
           "category": "UX/CMS",
           "title": "Dia 55 · UX, CMS, arquitetura da informação e acessibilidade",
-          "schedule": "Seg · 07/09/2026 · bloco sugerido: 1h30",
+          "schedule": "Seg · 21/09/2026 · bloco sugerido: 1h30",
           "topics": [
             "User Experience: pesquisa, jornada, usabilidade, heurísticas e teste de usabilidade",
             "Arquitetura da informação: organização, navegação, rotulagem e busca",
@@ -903,7 +903,7 @@
           "sourceId": "d56",
           "category": "IA/Dados/Big Data",
           "title": "Dia 56 · IA, análise de dados e Big Data em desenvolvimento",
-          "schedule": "Ter · 08/09/2026 · bloco sugerido: 1h30",
+          "schedule": "Ter · 22/09/2026 · bloco sugerido: 1h30",
           "topics": [
             "Conceitos de Inteligência Artificial, análise de dados e Big Data",
             "Pipeline de dados, coleta, preparação, processamento e visualização",
@@ -917,7 +917,7 @@
           "sourceId": "d57",
           "category": "Revisão Geral",
           "title": "Dia 57 · Revisão intercalada — Português, Inglês e RLM",
-          "schedule": "Qua · 09/09/2026 · bloco sugerido: 1h30",
+          "schedule": "Qua · 23/09/2026 · bloco sugerido: 1h30",
           "topics": [
             "Português: interpretação, coesão, morfossintaxe, concordância, regência, crase e reescrita",
             "Inglês: leitura técnica, gramática de sentido e vocabulário de TI",
@@ -931,7 +931,7 @@
           "sourceId": "d58",
           "category": "Revisão Legislação",
           "title": "Dia 58 · Revisão intercalada — LAI, Delitos, Marco Civil e LGPD",
-          "schedule": "Qui · 10/09/2026 · bloco sugerido: 1h30",
+          "schedule": "Qui · 24/09/2026 · bloco sugerido: 1h30",
           "topics": [
             "LAI e decretos: acesso, sigilo, classificação, recurso e transparência",
             "Delitos informáticos: art. 2º da Lei nº 12.737/2012",
@@ -945,7 +945,7 @@
           "sourceId": "d59",
           "category": "Revisão Segurança",
           "title": "Dia 59 · Revisão intercalada — Segurança de software e SI",
-          "schedule": "Sex · 11/09/2026 · bloco sugerido: 1h30",
+          "schedule": "Sex · 25/09/2026 · bloco sugerido: 1h30",
           "topics": [
             "Políticas, procedimentos, ISO 27001/27002 e CID",
             "Controle de acesso, OAuth2, SSO e mecanismos de segurança",
@@ -959,7 +959,7 @@
           "sourceId": "d60",
           "category": "Revisão Banco/BI",
           "title": "Dia 60 · Revisão intercalada — Banco de Dados e BI",
-          "schedule": "Sáb · 12/09/2026 · bloco sugerido: 2h30",
+          "schedule": "Sáb · 26/09/2026 · bloco sugerido: 2h30",
           "topics": [
             "Modelagem conceitual, lógica, física, relacional, multidimensional e dimensional",
             "Normalização, integridade referencial, metadados, SQL, DDL, DML e SGBD",
@@ -973,7 +973,7 @@
     {
       "id": "sem11",
       "number": 11,
-      "title": "Semana 11 · 14/09 a 19/09",
+      "title": "Semana 11 · 28/09 a 03/10",
       "subtitle": "Conteúdos alternados: gerais, desenvolvimento, banco, segurança, BI e governança.",
       "tag": "6 dias",
       "days": [
@@ -982,7 +982,7 @@
           "sourceId": "d61",
           "category": "Revisão Java/Spring",
           "title": "Dia 61 · Revisão final — Java, Jakarta, JPA, Hibernate e Spring",
-          "schedule": "Seg · 14/09/2026 · bloco sugerido: 1h30",
+          "schedule": "Seg · 28/09/2026 · bloco sugerido: 1h30",
           "topics": [
             "Java 6+, Java EE 6+, Jakarta EE, JPA 2+, Hibernate, JSF e PrimeFaces",
             "Spring, Spring Boot, Spring Cloud e arquitetura de aplicações Java",
@@ -996,7 +996,7 @@
           "sourceId": "d62",
           "category": "Revisão APIs/Front",
           "title": "Dia 62 · Revisão final — Frontend, APIs, XML, REST e JSON",
-          "schedule": "Ter · 15/09/2026 · bloco sugerido: 1h30",
+          "schedule": "Ter · 29/09/2026 · bloco sugerido: 1h30",
           "topics": [
             "HTML, CSS, UX, Ajax, VueJS, Angular e React",
             "Padrões frontend, SPA, PWA e mobile Android/iOS",
@@ -1010,7 +1010,7 @@
           "sourceId": "d63",
           "category": "Revisão Governança",
           "title": "Dia 63 · Revisão final — Governança, projetos, ágil e BPMN",
-          "schedule": "Qua · 16/09/2026 · bloco sugerido: 1h30",
+          "schedule": "Qua · 30/09/2026 · bloco sugerido: 1h30",
           "topics": [
             "Gerenciamento de projetos, programas, portfólio, áreas de conhecimento e grupos de processos",
             "Abordagens tradicional, híbrida e ágil; Scrum, Lean, Kanban, Guia Scrum e XP",
@@ -1024,7 +1024,7 @@
           "sourceId": "d64",
           "category": "Revisão Arquitetura",
           "title": "Dia 64 · Revisão final — Arquitetura, microsserviços, DevOps e containers",
-          "schedule": "Qui · 17/09/2026 · bloco sugerido: 1h30",
+          "schedule": "Qui · 01/10/2026 · bloco sugerido: 1h30",
           "topics": [
             "Arquitetura de software, SOA, aplicações web, servidor web e servidor de aplicações",
             "Mensageria, interoperabilidade, orquestração, API Gateway e transações distribuídas",
@@ -1038,7 +1038,7 @@
           "sourceId": "d65",
           "category": "Revisão Requisitos/Testes",
           "title": "Dia 65 · Revisão final — requisitos, testes, métricas e UX",
-          "schedule": "Sex · 18/09/2026 · bloco sugerido: 1h30",
+          "schedule": "Sex · 02/10/2026 · bloco sugerido: 1h30",
           "topics": [
             "Engenharia de requisitos: classificação, processo e elicitação",
             "Testes: unitário, integração, ágil, usabilidade, automatizado, tipos, TDD e ciclo de vida",
@@ -1052,12 +1052,12 @@
           "sourceId": "d66",
           "category": "Simulado/Caderno de erros",
           "title": "Dia 66 · Simulado dirigido e caderno de erros",
-          "schedule": "Sáb · 19/09/2026 · bloco sugerido: 2h30",
+          "schedule": "Sáb · 03/10/2026 · bloco sugerido: 2h30",
           "topics": [
             "Resolver bloco misto com peso maior em Desenvolvimento de Sistemas, Banco, Segurança, BI e Governança",
             "Separar erros por causa: conceito ausente, confusão entre ferramentas, leitura errada ou falta de memorização",
             "Criar 30 flashcards finais de alto risco",
-            "Definir assuntos que entram na revisão de 22/09 a 10/10"
+            "Definir assuntos que entram na revisão de 06/10 a 10/10"
           ],
           "task": "Execução: teoria objetiva + 15 a 25 questões + 3 linhas no caderno de erros. No sábado, aumentar questões e revisar erros da semana."
         }
@@ -1066,7 +1066,7 @@
     {
       "id": "sem12",
       "number": 12,
-      "title": "Semana 12 · 21/09 a 21/09",
+      "title": "Semana 12 · 05/10 a 05/10",
       "subtitle": "Conteúdos alternados: gerais, desenvolvimento, banco, segurança, BI e governança.",
       "tag": "1 dias",
       "days": [
@@ -1074,12 +1074,12 @@
           "id": "dia-67",
           "sourceId": "d67",
           "category": "Fechamento",
-          "title": "Dia 67 · 21/09 — auditoria final de cobertura e plano de revisão",
-          "schedule": "Seg · 21/09/2026 · bloco sugerido: 2h",
+          "title": "Dia 67 · 05/10 — auditoria final de cobertura e plano de revisão",
+          "schedule": "Seg · 05/10/2026 · bloco sugerido: 2h",
           "topics": [
             "Conferir checklist integral do edital: pendência deve ficar igual a zero",
-            "Marcar tópicos fracos para revisão pós-21/09",
-            "Montar roteiro 22/09 a 10/10: simulados, revisão espaçada e caderno de erros",
+            "Marcar tópicos fracos para revisão pós-05/10",
+            "Montar roteiro 06/10 a 10/10: simulados, revisão espaçada e caderno de erros",
             "Não abrir assunto novo depois de hoje; foco passa a ser retenção e prova"
           ],
           "task": "Execução: teoria objetiva + 15 a 25 questões + 3 linhas no caderno de erros. No sábado, aumentar questões e revisar erros da semana."
@@ -2329,7 +2329,7 @@
     ],
     "notes": [
       "O edital é muito amplo em Desenvolvimento de Sistemas. O plano cobre tudo, mas Java/Spring, APIs, testes, requisitos, banco e segurança precisam de mais questões.",
-      "Depois de 21/09, use o período até 10/10 para simulado, revisão de erros e reforço nos tópicos abaixo de 70%.",
+      "Depois de 05/10, use o período até 10/10 para simulado, revisão de erros e reforço nos tópicos abaixo de 70%.",
       "Não substitua estudo por checklist; checklist só confirma cobertura."
     ]
   },

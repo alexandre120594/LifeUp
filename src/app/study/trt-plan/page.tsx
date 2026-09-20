@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import planData from "@/data/trt-study-plan.json";
 import type { TrtStudyPlan } from "@/types/trt-study-plan";
+import { DashboardViewport } from "@/components/dashboard-viewport";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -204,7 +205,7 @@ export default function TrtStudyPlanPage() {
   }
 
   return (
-    <div className="mx-auto w-full max-w-[1600px] space-y-6 p-4 md:p-8">
+    <DashboardViewport contentClassName="space-y-4">
       <Card className="overflow-hidden border-primary/20 bg-gradient-to-br from-primary/14 via-card to-accent/20 shadow-sm">
         <CardContent className="grid gap-6 p-5 sm:p-6 xl:grid-cols-[minmax(0,1fr)_340px]">
           <div className="min-w-0">
@@ -588,6 +589,6 @@ export default function TrtStudyPlanPage() {
           ))}
         </div>
       ) : null}
-    </div>
+    </DashboardViewport>
   );
 }

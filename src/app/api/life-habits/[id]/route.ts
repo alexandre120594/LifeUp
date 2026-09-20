@@ -11,6 +11,8 @@ type LifeHabitPatchPayload = {
   dayKey?: unknown;
   kind?: unknown;
   notes?: unknown;
+  reward?: unknown;
+  targetDays?: unknown;
   title?: unknown;
 };
 
@@ -27,6 +29,8 @@ function normalizePatchPayload(body: LifeHabitPatchPayload) {
     color?: string | null;
     kind?: string;
     notes?: string | null;
+    reward?: string | null;
+    targetDays?: number;
     title?: string;
   } = {};
 
@@ -44,6 +48,24 @@ function normalizePatchPayload(body: LifeHabitPatchPayload) {
 
   if ("notes" in body) {
     data.notes = typeof body.notes === "string" && body.notes ? body.notes : null;
+  }
+
+  if ("reward" in body) {
+    data.reward =
+      typeof body.reward === "string" && body.reward ? body.reward : null;
+  }
+
+  if ("targetDays" in body) {
+    const parsedTargetDays =
+      typeof body.targetDays === "number"
+        ? body.targetDays
+        : typeof body.targetDays === "string"
+          ? Number.parseInt(body.targetDays, 10)
+          : Number.NaN;
+
+    if (Number.isFinite(parsedTargetDays)) {
+      data.targetDays = Math.min(Math.max(parsedTargetDays, 10), 365);
+    }
   }
 
   return data;
@@ -74,13 +96,6 @@ export async function PATCH(
     }
 
     if (body.action === "toggle-checkin") {
-      if (habit.kind !== "good") {
-        return NextResponse.json(
-          { message: "Only good habits can be checked out." },
-          { status: 400 }
-        );
-      }
-
       const dayKey = normalizeDayKey(body.dayKey);
       const hasCheckin = habit.checkins.includes(dayKey);
       const checkins = hasCheckin

@@ -9,6 +9,7 @@ import {
   FileUp,
   Trash2,
 } from "lucide-react";
+import { DashboardViewport } from "@/components/dashboard-viewport";
 import { MenuPageHeader } from "@/components/menu-page-header";
 import { Button } from "@/components/ui/button";
 import {
@@ -141,7 +142,7 @@ export default function FinanceTrackerPage() {
   };
 
   return (
-    <div className="min-w-0 space-y-6 p-4 md:p-8">
+    <DashboardViewport contentClassName="space-y-4">
       <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
         <MenuPageHeader
           eyebrow="Finance visualization"
@@ -454,7 +455,7 @@ export default function FinanceTrackerPage() {
           </div>
         </CardContent>
       </Card>
-    </div>
+    </DashboardViewport>
   );
 }
 

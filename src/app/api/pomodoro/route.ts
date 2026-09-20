@@ -21,22 +21,6 @@ function normalizeSession(session: {
     updatedAt: Date;
   } | null;
   subjectId: string | null;
-  task: {
-    habit: {
-      frequency: string;
-      history: string[];
-      id: string;
-      projectId: string;
-      reminderTime: string | null;
-      streak: number;
-      title: string;
-    } | null;
-    id: string;
-    project: { id: string; title: string; color: string | null; userId: number; createdAt: Date };
-    projectId: string;
-    title: string;
-  } | null;
-  taskId: string | null;
 }) {
   return {
     durationMinutes: session.durationMinutes,
@@ -48,16 +32,6 @@ function normalizeSession(session: {
     title: session.title,
     subject: session.subject,
     subjectId: session.subjectId,
-    task: session.task
-      ? {
-          habit: session.task.habit,
-          id: session.task.id,
-          project: session.task.project,
-          projectId: session.task.projectId,
-          title: session.task.title,
-        }
-      : null,
-    taskId: session.taskId,
   };
 }
 
@@ -72,12 +46,6 @@ export async function GET() {
     where: { userId },
     include: {
       subject: true,
-      task: {
-        include: {
-          habit: true,
-          project: true,
-        },
-      },
     },
     orderBy: { endedAt: "desc" },
   });
@@ -145,12 +113,6 @@ export async function POST(req: NextRequest) {
       },
       include: {
         subject: true,
-        task: {
-          include: {
-            habit: true,
-            project: true,
-          },
-        },
       },
     });
 

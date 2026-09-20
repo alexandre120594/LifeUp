@@ -14,6 +14,7 @@ import {
   Search,
   Trash2,
 } from "lucide-react";
+import { DashboardViewport } from "@/components/dashboard-viewport";
 import { MenuPageHeader } from "@/components/menu-page-header";
 import { OverviewPanel } from "@/components/overview-panel";
 import { Badge } from "@/components/ui/badge";
@@ -253,7 +254,7 @@ export default function StudyMistakesPage() {
   };
 
   return (
-    <div className="space-y-6 p-4 md:p-8">
+    <DashboardViewport contentClassName="space-y-4">
       <MenuPageHeader
         eyebrow="Study tools"
         title="Mistake Log"
@@ -575,7 +576,7 @@ export default function StudyMistakesPage() {
           ) : null}
         </CardContent>
       </Card>
-    </div>
+    </DashboardViewport>
   );
 }
 

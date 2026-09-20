@@ -6,6 +6,9 @@ const sourceFile = "dataprev-perfil3-plano-ate-21-09-alternado-conferido.html";
 const sourcePath = path.join(root, sourceFile);
 const outputPath = path.join(root, "src", "data", "trt-study-plan.json");
 const html = await readFile(sourcePath, "utf8");
+const retimedFromWeek = 9;
+const retimedDayShift = 14;
+const weekdayLabels = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
 
 function decodeHtml(value = "") {
   const entities = {
@@ -42,6 +45,99 @@ function sliceBetween(source, startNeedle, endNeedle) {
   }
 
   return source.slice(start, end);
+}
+
+function parseBrazilianDate(value) {
+  const [day, month, year] = value.split("/").map(Number);
+
+  return new Date(Date.UTC(year, month - 1, day));
+}
+
+function addDays(date, days) {
+  const next = new Date(date);
+
+  next.setUTCDate(next.getUTCDate() + days);
+
+  return next;
+}
+
+function formatDate(date) {
+  const day = String(date.getUTCDate()).padStart(2, "0");
+  const month = String(date.getUTCMonth() + 1).padStart(2, "0");
+
+  return `${day}/${month}/${date.getUTCFullYear()}`;
+}
+
+function shiftDateText(value, days) {
+  return formatDate(addDays(parseBrazilianDate(value), days));
+}
+
+function retimePlan(plan) {
+  const oldEndDate = plan.stats.contentEndDate;
+  const oldEndShortDate = oldEndDate.slice(0, 5);
+  const oldReviewStartDate = formatDate(addDays(parseBrazilianDate(oldEndDate), 1));
+
+  for (const week of plan.weeks) {
+    if (week.number < retimedFromWeek) {
+      continue;
+    }
+
+    for (const day of week.days) {
+      const scheduleMatch = day.schedule.match(
+        /^(.*?) · (\d{2}\/\d{2}\/\d{4}) · (.*)$/
+      );
+
+      if (!scheduleMatch) {
+        throw new Error(`Unexpected schedule format: ${day.schedule}`);
+      }
+
+      const nextDate = parseBrazilianDate(
+        shiftDateText(scheduleMatch[2], retimedDayShift)
+      );
+      const nextDateText = formatDate(nextDate);
+
+      day.schedule = `${weekdayLabels[nextDate.getUTCDay()]} · ${nextDateText} · ${scheduleMatch[3]}`;
+      day.title = day.title.replace(scheduleMatch[2].slice(0, 5), nextDateText.slice(0, 5));
+    }
+
+    const firstDate = week.days[0].schedule.match(/\d{2}\/\d{2}\/\d{4}/)?.[0];
+    const lastDate = week.days.at(-1).schedule.match(/\d{2}\/\d{2}\/\d{4}/)?.[0];
+
+    if (!firstDate || !lastDate) {
+      throw new Error(`Missing week boundary date for week ${week.number}`);
+    }
+
+    week.title = `Semana ${week.number} · ${firstDate.slice(0, 5)} a ${lastDate.slice(0, 5)}`;
+  }
+
+  const finalDate = plan.weeks.at(-1).days.at(-1).schedule.match(
+    /\d{2}\/\d{2}\/\d{4}/
+  )?.[0];
+
+  if (!finalDate) {
+    throw new Error("Missing final plan date");
+  }
+
+  const finalShortDate = finalDate.slice(0, 5);
+  const reviewStartDate = formatDate(addDays(parseBrazilianDate(finalDate), 1));
+
+  plan.title = plan.title.replace(oldEndShortDate, finalShortDate);
+  plan.description = plan.description.replace(oldEndShortDate, finalShortDate);
+  plan.stats.contentEndDate = finalDate;
+  plan.headerStats = plan.headerStats.map((item) =>
+    item.label === "fim do conteúdo" ? { ...item, value: finalShortDate } : item
+  );
+  plan.audit.notes = plan.audit.notes.map((note) =>
+    note.replace(oldEndShortDate, finalShortDate)
+  );
+
+  for (const day of plan.weeks.flatMap((week) => week.days)) {
+    day.topics = day.topics.map((topic) =>
+      topic
+        .replace(oldEndShortDate, finalShortDate)
+        .replace(oldReviewStartDate.slice(0, 5), reviewStartDate.slice(0, 5))
+    );
+  }
 }
 
 const headerHtml = sliceBetween(html, "<header>", "</header>");
@@ -192,6 +288,8 @@ const plan = {
   },
   editalCards,
 };
+
+retimePlan(plan);
 
 await mkdir(path.dirname(outputPath), { recursive: true });
 await writeFile(outputPath, `${JSON.stringify(plan, null, 2)}\n`, "utf8");

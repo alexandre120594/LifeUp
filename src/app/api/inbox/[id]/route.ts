@@ -4,46 +4,12 @@ import { NextRequest, NextResponse } from "next/server";
 
 const inboxItemTypes = [
   "idea",
-  "task",
   "note",
   "study",
   "finance",
-  "habit",
-  "project",
   "thought",
 ];
 const inboxItemStatuses = ["unprocessed", "processed"];
-
-async function ensureLinkedRecordsBelongToUser({
-  habitId,
-  noteId,
-  projectId,
-  taskId,
-  userId,
-}: {
-  habitId?: string | null;
-  noteId?: string | null;
-  projectId?: string | null;
-  taskId?: string | null;
-  userId: number;
-}) {
-  const checks = await Promise.all([
-    projectId
-      ? prisma.project.findFirst({ where: { id: projectId, userId } })
-      : Promise.resolve(true),
-    habitId
-      ? prisma.habit.findFirst({ where: { id: habitId, project: { userId } } })
-      : Promise.resolve(true),
-    taskId
-      ? prisma.task.findFirst({ where: { id: taskId, project: { userId } } })
-      : Promise.resolve(true),
-    noteId
-      ? prisma.note.findFirst({ where: { id: noteId, userId } })
-      : Promise.resolve(true),
-  ]);
-
-  return checks.every(Boolean);
-}
 
 export async function PATCH(
   req: NextRequest,
@@ -69,23 +35,15 @@ export async function PATCH(
       );
     }
 
-    const projectId =
-      "projectId" in body ? body.projectId || null : currentItem.projectId;
-    const habitId = "habitId" in body ? body.habitId || null : currentItem.habitId;
-    const taskId = "taskId" in body ? body.taskId || null : currentItem.taskId;
     const noteId = "noteId" in body ? body.noteId || null : currentItem.noteId;
 
-    const linksAreValid = await ensureLinkedRecordsBelongToUser({
-      habitId,
-      noteId,
-      projectId,
-      taskId,
-      userId,
-    });
+    const noteIsValid = noteId
+      ? await prisma.note.findFirst({ where: { id: noteId, userId } })
+      : true;
 
-    if (!linksAreValid) {
+    if (!noteIsValid) {
       return NextResponse.json(
-        { error: "One or more linked records were not found." },
+        { error: "Linked note was not found." },
         { status: 404 }
       );
     }
@@ -96,9 +54,6 @@ export async function PATCH(
           data: {
             category: currentItem.type,
             content: currentItem.content ?? currentItem.title,
-            habitId,
-            projectId,
-            taskId,
             title: currentItem.title,
             userId,
           },
@@ -107,16 +62,10 @@ export async function PATCH(
         return tx.inboxItem.update({
           where: { id },
           data: {
-            habitId,
             noteId: note.id,
-            projectId,
             status: "processed",
-            taskId,
           },
           include: {
-            project: true,
-            habit: true,
-            task: true,
             note: true,
           },
         });
@@ -143,17 +92,11 @@ export async function PATCH(
         ...("content" in body
           ? { content: typeof body.content === "string" ? body.content : null }
           : {}),
-        habitId,
         noteId,
-        projectId,
         status: nextStatus,
-        taskId,
         type: nextType,
       },
       include: {
-        project: true,
-        habit: true,
-        task: true,
         note: true,
       },
     });

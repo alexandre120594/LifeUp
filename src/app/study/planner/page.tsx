@@ -19,6 +19,7 @@ import {
   Plus,
   Trash,
 } from "lucide-react";
+import { DashboardViewport } from "@/components/dashboard-viewport";
 import { PageHero } from "@/components/page-hero";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -729,7 +730,7 @@ export default function StudyPlannerPage() {
   };
 
   return (
-    <div className="space-y-6 p-4 md:p-8">
+    <DashboardViewport contentClassName="space-y-4">
       <PageHero
         badgeIcon={GraduationCap}
         badgeLabel="Study planning"
@@ -1384,7 +1385,7 @@ export default function StudyPlannerPage() {
         </DialogContent>
       </Dialog>
 
-    </div>
+    </DashboardViewport>
   );
 }
 

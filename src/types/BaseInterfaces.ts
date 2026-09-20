@@ -1,29 +1,8 @@
-// src/types/index.ts
-
-export interface Task {
-  id: string;
-  title?: string;
-  completed?: boolean;
-  date?: Date | string;
-  projectId?: string;
-  habitId?: string | null;
-  dateFinish?: Date | string;
-  time?: string | null;
-  project?: Project;
-  habit?: Habit | null;
-  pomodoroSessions?: PomodoroSession[];
-  inboxItems?: InboxItem[];
-  notes?: Note[];
-}
-
 export type InboxItemType =
   | "idea"
-  | "task"
   | "note"
   | "study"
   | "finance"
-  | "habit"
-  | "project"
   | "thought";
 
 export type InboxItemStatus = "unprocessed" | "processed";
@@ -34,12 +13,6 @@ export interface InboxItem {
   content?: string | null;
   type: InboxItemType;
   status: InboxItemStatus;
-  projectId?: string | null;
-  project?: Project | null;
-  habitId?: string | null;
-  habit?: Habit | null;
-  taskId?: string | null;
-  task?: Task | null;
   noteId?: string | null;
   note?: Note | null;
   createdAt: Date | string;
@@ -57,9 +30,6 @@ export interface InboxItemUpdateInput {
   content?: string | null;
   type?: InboxItemType;
   status?: InboxItemStatus;
-  projectId?: string | null;
-  habitId?: string | null;
-  taskId?: string | null;
   noteId?: string | null;
   convertToNote?: boolean;
 }
@@ -69,12 +39,6 @@ export interface Note {
   title: string;
   content: string;
   category?: string | null;
-  projectId?: string | null;
-  project?: Project | null;
-  habitId?: string | null;
-  habit?: Habit | null;
-  taskId?: string | null;
-  task?: Task | null;
   inboxItems?: InboxItem[];
   createdAt: Date | string;
   updatedAt: Date | string;
@@ -84,18 +48,12 @@ export interface NoteCreateInput {
   title: string;
   content: string;
   category?: string;
-  projectId?: string | null;
-  habitId?: string | null;
-  taskId?: string | null;
 }
 
 export interface NoteUpdateInput {
   title?: string;
   content?: string;
   category?: string | null;
-  projectId?: string | null;
-  habitId?: string | null;
-  taskId?: string | null;
 }
 
 export interface PomodoroSession {
@@ -108,8 +66,6 @@ export interface PomodoroSession {
   notes?: string | null;
   subjectId?: string | null;
   subject?: StudySubject | null;
-  taskId?: string | null;
-  task?: Task | null;
 }
 
 export interface PomodoroSessionCreateInput {
@@ -139,48 +95,6 @@ export interface PomodoroDashboardResponse {
   totalMinutes: number;
   studyMinutes: number;
   bySubject: PomodoroSummaryItem[];
-}
-
-export interface Habit {
-  id: string;
-  title: string;
-  projectId: string;
-  streak: number;
-  history: string[];
-  frequency: string;
-  reminderTime?: string | null;
-  tasks?: Task[];
-  project?: Project; 
-  inboxItems?: InboxItem[];
-  notes?: Note[];
-  weeklyPlanSlotHabits?: WeeklyPlanSlotHabit[];
-}
-
-export interface WeeklyPlanSlotHabit {
-  id: string;
-  slotId: string;
-  habitId: string;
-  habit?: Habit;
-  createdAt: Date | string;
-}
-
-export interface WeeklyPlanSlotTask {
-  id: string;
-  slotId: string;
-  taskId: string;
-  task?: Task;
-  createdAt: Date | string;
-}
-
-export interface WeeklyPlanSlot {
-  id: string;
-  dayIndex: number;
-  hour: number;
-  boardId: string;
-  habits: WeeklyPlanSlotHabit[];
-  tasks?: WeeklyPlanSlotTask[];
-  createdAt: Date | string;
-  updatedAt: Date | string;
 }
 
 export interface StudySubject {
@@ -373,20 +287,6 @@ export interface StudyScheduleInput {
   subjectIds: string[];
 }
 
-export interface WeeklyPlanBoard {
-  id: string | null;
-  weekStartKey: string;
-  slots: WeeklyPlanSlot[];
-}
-
-export interface WeeklyPlanSlotInput {
-  weekStartKey: string;
-  dayIndex: number;
-  hour: number;
-  habitIds: string[];
-  taskIds?: string[];
-}
-
 export type LifeHabitKind = "good" | "bad";
 
 export interface LifeHabit {
@@ -395,6 +295,8 @@ export interface LifeHabit {
   kind: LifeHabitKind;
   color?: string | null;
   notes?: string | null;
+  targetDays: number;
+  reward?: string | null;
   checkins: string[];
   badEvents: string[];
   lastBadAt?: Date | string | null;
@@ -407,6 +309,8 @@ export interface LifeHabitCreateInput {
   kind: LifeHabitKind;
   color?: string | null;
   notes?: string | null;
+  targetDays?: number;
+  reward?: string | null;
 }
 
 export interface LifeHabitUpdateInput {
@@ -414,63 +318,14 @@ export interface LifeHabitUpdateInput {
   kind?: LifeHabitKind;
   color?: string | null;
   notes?: string | null;
+  targetDays?: number;
+  reward?: string | null;
 }
 
 export interface LifeHabitActionInput {
   action: "toggle-checkin" | "reset-bad";
   dayKey?: string;
 }
-
-export interface Project {
-  id: string;
-  title: string;  
-  color: string | null;
-  userId: number;
-  lastActivityDate?: Date | string;
-  streakGlobal?:number
-  dailyStreakTarget?: number;
-  createdAt: Date | string;
-  habits?: Habit[]; 
-  tasks?: Task[]; 
-  inboxItems?: InboxItem[];
-  notes?: Note[];
-}
-export interface ProjectRequest {
-  title: string;
-  color: string | null;
-  userId: number;
-  createdAt: Date | string;
-  lastActivityDate?: Date | string;
-  streakGlobal?:number
-  dailyStreakTarget?: number;
-  habits?: Habit[]; 
-  tasks?: Task[]; 
-}
-
-export interface ProjectCreateInput {
-  title?: string;
-  color?: string | null;
-  dailyStreakTarget?: number;
-}
-
-export interface HabitCreateInput {
-  title: string;
-  projectId?: string;
-  frequency?: string;
-  history?: string[];
-  reminderTime?: string;
-  streak?: number;
-}
-
-export interface TaskCreateInput {
-  title: string;
-  projectId: string;
-  habitId: string;
-  date?: string;
-  time?: string;
-}
-
-export type ProjectsResponse = Project[];
 
 export type FinanceRecordType = "income" | "expense";
 

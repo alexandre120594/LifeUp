@@ -18,6 +18,7 @@ import {
   StudyQuestionsBySubjectChart,
   StudyQuestionsChart,
 } from "@/components/ChartsComponent/InsightsCharts";
+import { DashboardViewport } from "@/components/dashboard-viewport";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -463,7 +464,7 @@ export default function StudyDashboardPage() {
         : "Your review queue is clear. Continue with the next planned study block.";
 
   return (
-    <div className="mx-auto w-full max-w-[1600px] space-y-8 p-4 md:p-8">
+    <DashboardViewport contentClassName="space-y-4">
       <Card className="overflow-hidden border-primary/20 bg-gradient-to-br from-primary/12 via-card to-accent/20 shadow-sm">
         <CardContent className="grid gap-6 p-5 sm:p-6 xl:grid-cols-[minmax(0,1fr)_auto] xl:items-center">
           <div className="min-w-0">
@@ -649,6 +650,6 @@ export default function StudyDashboardPage() {
           <SubjectPressurePanel subjects={subjectCounts} />
         </div>
       </section>
-    </div>
+    </DashboardViewport>
   );
 }

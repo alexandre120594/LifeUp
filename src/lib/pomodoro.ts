@@ -1,7 +1,6 @@
 import type {
   PomodoroDashboardResponse,
   PomodoroSession,
-  Task,
 } from "@/types/BaseInterfaces";
 
 export function formatFocusDuration(minutes: number) {
@@ -56,16 +55,4 @@ export function buildPomodoroDashboard(
     studyMinutes,
     totalMinutes,
   };
-}
-
-export function sumTaskFocusMinutes(tasks: Task[] = []) {
-  return tasks.reduce((total, task) => {
-    return (
-      total +
-      (task.pomodoroSessions?.reduce(
-        (taskTotal, session) => taskTotal + session.durationMinutes,
-        0
-      ) ?? 0)
-    );
-  }, 0);
 }

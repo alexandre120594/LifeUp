@@ -8,16 +8,28 @@ type LifeHabitPayload = {
   color?: unknown;
   kind?: unknown;
   notes?: unknown;
+  reward?: unknown;
+  targetDays?: unknown;
   title?: unknown;
 };
 
 function normalizeLifeHabitPayload(body: LifeHabitPayload) {
   const kind = typeof body.kind === "string" ? body.kind : "good";
+  const parsedTargetDays =
+    typeof body.targetDays === "number"
+      ? body.targetDays
+      : typeof body.targetDays === "string"
+        ? Number.parseInt(body.targetDays, 10)
+        : 30;
 
   return {
     color: typeof body.color === "string" && body.color ? body.color : null,
     kind: lifeHabitKinds.has(kind) ? kind : "good",
     notes: typeof body.notes === "string" && body.notes ? body.notes : null,
+    reward: typeof body.reward === "string" && body.reward ? body.reward : null,
+    targetDays: Number.isFinite(parsedTargetDays)
+      ? Math.min(Math.max(parsedTargetDays, 10), 365)
+      : 30,
     title: typeof body.title === "string" ? body.title.trim() : "",
   };
 }
