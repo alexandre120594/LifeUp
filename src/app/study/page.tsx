@@ -1,655 +1,288 @@
 "use client";
 
-import Link from "next/link";
-import { useMemo, useState } from "react";
-import {
-  AlertCircle,
-  BookOpenCheck,
-  GraduationCap,
-  ListChecks,
-  Percent,
-  ShieldCheck,
-  Sparkles,
-  Target,
-  TimerReset,
-} from "lucide-react";
-import {
-  StudyFocusBySubjectChart,
-  StudyQuestionsBySubjectChart,
-  StudyQuestionsChart,
-} from "@/components/ChartsComponent/InsightsCharts";
+import { useMemo, useState, type FormEvent } from "react";
+import { BookOpen, Brain, CalendarClock, CheckCircle2, Clock3, ExternalLink, Eye, FileText, Plus, RotateCcw, Target } from "lucide-react";
 import { DashboardViewport } from "@/components/dashboard-viewport";
+import { MenuPageHeader } from "@/components/menu-page-header";
+import { EmptyState, ErrorState, LoadingState, RetryButton } from "@/components/ui/app-state";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { useStudyMistakes } from "@/hooks/useStudyMistakeMutations";
-import {
-  useStudyQuestionPractice,
-  useStudySessions,
-  useStudySubjects,
-} from "@/hooks/useStudyMutations";
-import {
-  buildStudiedTimeBySubject,
-  buildStudyQuestionsBySubject,
-  buildStudyQuestionTrend,
-  filterStudyMistakesByPeriod,
-  filterStudySessionsByPeriod,
-  getStudyQuestionPeriodRange,
-  getStudyQuestionSummary,
-  getStudyReviewsForPeriod,
-  type StudyQuestionPeriod,
-} from "@/lib/analytics";
-import type { StudyMistake } from "@/types/BaseInterfaces";
-import { cn } from "@/lib/utils";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Progress } from "@/components/ui/progress";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
+import { useCreateStudyReview, useCreateStudySession, useCreateStudySubject, useCreateStudyTopic, useMasterStudyReview, useRescheduleStudyReview, useStudyWorkspace } from "@/hooks/useStudyWorkspace";
+import { buildStudySubjectAttention } from "@/lib/study-core";
+import type { StudyReview, StudyWorkspace } from "@/types/Study";
 
-function formatDate(date?: Date | string | null) {
-  if (!date) {
-    return "Not scheduled";
-  }
+type DialogMode = "review" | "session" | "subject" | "topic" | null;
+type ReviewDraft = { answer: string; prompt: string };
+type StudyAttention = ReturnType<typeof buildStudySubjectAttention>[number];
 
-  return new Date(date).toLocaleDateString(undefined, {
-    day: "2-digit",
-    month: "short",
-    year: "numeric",
-  });
-}
+const studyPlanLinks = [
+  {
+    description: "Perfil 3, FGV, plano alternado ate 21/09.",
+    href: "/study-plans/dataprev-plan.html",
+    title: "Dataprev Plan",
+  },
+  {
+    description: "Analista e Tecnico de TI, auditoria 2017-2025.",
+    href: "/study-plans/trt-ti-auditoria-plan.html",
+    title: "TRT em estudos",
+  },
+];
+
+const date = new Intl.DateTimeFormat("pt-BR", { day: "2-digit", month: "short" });
+const today = () => new Date().toISOString().slice(0, 10);
+const inDays = (days: number) => {
+  const value = new Date();
+  value.setDate(value.getDate() + days);
+  return value.toISOString().slice(0, 10);
+};
 
 function formatMinutes(minutes: number) {
-  if (minutes < 60) {
-    return `${minutes}m`;
-  }
-
   const hours = Math.floor(minutes / 60);
-  const remainingMinutes = minutes % 60;
-
-  return remainingMinutes ? `${hours}h ${remainingMinutes}m` : `${hours}h`;
+  const rest = minutes % 60;
+  return hours ? `${hours}h${rest ? ` ${rest}min` : ""}` : `${rest}min`;
 }
 
-function getPressureTone(total: number) {
-  if (total >= 8) {
-    return "bg-destructive";
-  }
-
-  if (total >= 4) {
-    return "bg-primary";
-  }
-
-  return "bg-muted-foreground";
+function Field({ children, label }: { children: React.ReactNode; label: string }) {
+  return <label className="grid gap-1.5 text-sm font-medium">{label}{children}</label>;
 }
 
-function DashboardSectionHeader({
-  description,
-  icon: Icon,
-  title,
-}: {
-  description: string;
-  icon: typeof GraduationCap;
-  title: string;
-}) {
-  return (
-    <div className="flex min-w-0 items-start gap-3">
-      <span className="mt-0.5 rounded-lg bg-primary/10 p-2 text-primary">
-        <Icon className="h-5 w-5" />
-      </span>
+function StudyDialog({ data, mode, onClose }: { data: StudyWorkspace; mode: DialogMode; onClose: () => void }) {
+  const createSession = useCreateStudySession();
+  const createSubject = useCreateStudySubject();
+  const createTopic = useCreateStudyTopic();
+  const createReview = useCreateStudyReview();
+  const [subjectId, setSubjectId] = useState(data.recommendation?.subjectId ?? data.subjects[0]?.id ?? "");
+  const [topicId, setTopicId] = useState(data.recommendation?.topicId ?? "none");
+  const [stage, setStage] = useState<"result" | "setup">("setup");
+  const [startedAt, setStartedAt] = useState<Date | null>(null);
+  const [duration, setDuration] = useState(data.recommendation?.durationMinutes ?? 25);
+  const [reviews, setReviews] = useState<ReviewDraft[]>([]);
+  const [error, setError] = useState<string | null>(null);
+  const activeSubjects = data.subjects.filter((subject) => subject.isActive);
+  const topics = activeSubjects.find((subject) => subject.id === subjectId)?.topics.filter((topic) => topic.isActive) ?? [];
+  const pending = createSession.isPending || createSubject.isPending || createTopic.isPending || createReview.isPending;
+
+  function close() {
+    setError(null);
+    setStage("setup");
+    setStartedAt(null);
+    setReviews([]);
+    onClose();
+  }
+
+  async function submit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const form = new FormData(event.currentTarget);
+    const value = (name: string) => String(form.get(name) ?? "").trim();
+    try {
+      setError(null);
+      if (mode === "subject") {
+        await createSubject.mutateAsync({ name: value("name"), plannedMinutesPerWeek: Number(value("plannedMinutesPerWeek") || 0) });
+      } else if (mode === "topic") {
+        await createTopic.mutateAsync({ name: value("name"), subjectId });
+      } else if (mode === "review") {
+        await createReview.mutateAsync({ answer: value("answer") || null, dueAt: value("dueAt"), notes: value("notes") || null, prompt: value("prompt"), subjectId, topicId: topicId === "none" ? null : topicId });
+      } else if (mode === "session" && stage === "result") {
+        const start = startedAt ?? new Date(Date.now() - duration * 60_000);
+        await createSession.mutateAsync({
+          correctQuestions: value("correctQuestions") ? Number(value("correctQuestions")) : null,
+          endedAt: new Date(start.getTime() + duration * 60_000).toISOString(),
+          notes: value("notes") || null,
+          reviews: reviews.filter((item) => item.prompt.trim()).map((item) => ({ answer: item.answer.trim() || null, dueAt: inDays(1), notes: null, prompt: item.prompt.trim() })),
+          startedAt: start.toISOString(),
+          subjectId,
+          topicId: topicId === "none" ? null : topicId,
+          totalQuestions: value("totalQuestions") ? Number(value("totalQuestions")) : null,
+        });
+      }
+      close();
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : "Nao foi possivel salvar.");
+    }
+  }
+
+  if (!mode) return null;
+  const title = mode === "session" ? (stage === "setup" ? "Preparar sessao" : "Resultado da sessao") : mode === "subject" ? "Nova materia" : mode === "topic" ? "Novo topico" : "Capturar revisao";
+  const description = mode === "session" ? (stage === "setup" ? "Confirme a recomendacao ou escolha outro foco." : "Registre somente o que aconteceu nesta sessao.") : mode === "subject" ? "A meta semanal e opcional e ajuda a ordenar a proxima acao." : mode === "topic" ? "Use um topico reutilizavel em sessoes e revisoes." : "Adicione um ponto importante diretamente a fila.";
+
+  return <Dialog open onOpenChange={(open) => !open && close()}><DialogContent className="max-h-[calc(100dvh-2rem)] overflow-y-auto sm:max-w-xl"><form className="grid gap-4" onSubmit={submit}>
+    <DialogHeader><DialogTitle>{title}</DialogTitle><DialogDescription>{description}</DialogDescription></DialogHeader>
+    {mode === "subject" && <><Field label="Materia"><Input name="name" required autoFocus /></Field><Field label="Meta semanal em minutos"><Input min="0" name="plannedMinutesPerWeek" type="number" defaultValue="120" /></Field></>}
+    {(mode === "session" || mode === "topic" || mode === "review") && <Field label="Materia"><Select value={subjectId} onValueChange={(value) => { setSubjectId(value); setTopicId("none"); }}><SelectTrigger><SelectValue placeholder="Selecione" /></SelectTrigger><SelectContent>{activeSubjects.map((subject) => <SelectItem key={subject.id} value={subject.id}>{subject.name}</SelectItem>)}</SelectContent></Select></Field>}
+    {(mode === "session" || mode === "review") && <Field label="Topico opcional"><Select value={topicId} onValueChange={setTopicId}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value="none">Sem topico</SelectItem>{topics.map((topic) => <SelectItem key={topic.id} value={topic.id}>{topic.name}</SelectItem>)}</SelectContent></Select></Field>}
+    {mode === "topic" && <Field label="Topico"><Input name="name" required /></Field>}
+    {mode === "review" && <><Field label="Ponto de lembranca"><Textarea name="prompt" required /></Field><Field label="Resposta opcional"><Textarea name="answer" /></Field><Field label="Revisar em"><Input defaultValue={today()} name="dueAt" type="date" required /></Field><Field label="Notas opcionais"><Textarea name="notes" /></Field></>}
+    {mode === "session" && stage === "setup" && <Field label="Duracao sugerida (minutos)"><Input min="1" value={duration} onChange={(event) => setDuration(Number(event.target.value))} type="number" required /></Field>}
+    {mode === "session" && stage === "result" && <><div className="rounded-lg border border-border bg-secondary/35 p-3 text-sm"><span className="font-medium">{formatMinutes(duration)}</span> em {activeSubjects.find((subject) => subject.id === subjectId)?.name}</div><div className="grid gap-4 sm:grid-cols-2"><Field label="Questoes"><Input min="0" name="totalQuestions" type="number" /></Field><Field label="Acertos"><Input min="0" name="correctQuestions" type="number" /></Field></div><Field label="Notas da sessao"><Textarea name="notes" /></Field><div className="grid gap-3 rounded-lg border border-border p-3"><div className="flex items-center justify-between gap-2"><div><p className="text-sm font-medium">Itens para revisar</p><p className="text-xs text-text-secondary">Cada item entra para amanha.</p></div><Button size="sm" type="button" variant="outline" onClick={() => setReviews((items) => [...items, { answer: "", prompt: "" }])}><Plus className="size-4" />Adicionar</Button></div>{reviews.map((review, index) => <div className="grid gap-2 rounded-md bg-secondary/35 p-3" key={index}><Input aria-label={`Ponto de lembranca ${index + 1}`} placeholder="O que lembrar?" value={review.prompt} onChange={(event) => setReviews((items) => items.map((item, itemIndex) => itemIndex === index ? { ...item, prompt: event.target.value } : item))} /><Textarea aria-label={`Resposta ${index + 1}`} placeholder="Resposta opcional" value={review.answer} onChange={(event) => setReviews((items) => items.map((item, itemIndex) => itemIndex === index ? { ...item, answer: event.target.value } : item))} /></div>)}</div></>}
+    {error && <p className="text-sm text-destructive" role="alert">{error}</p>}
+    <DialogFooter><Button type="button" variant="outline" onClick={close}>Cancelar</Button>{mode === "session" && stage === "setup" ? <Button disabled={!subjectId || duration < 1} type="button" onClick={() => { setStartedAt(new Date()); setStage("result"); }}>Iniciar sessao</Button> : <Button disabled={pending || (!subjectId && mode !== "subject")} type="submit">{pending ? "Salvando..." : mode === "session" ? "Concluir sessao" : "Salvar"}</Button>}</DialogFooter>
+  </form></DialogContent></Dialog>;
+}
+
+function MetricStrip({ data }: { data: StudyWorkspace }) {
+  const metrics = [
+    { label: "Tempo", value: formatMinutes(data.metrics.studiedMinutes), icon: Clock3 },
+    { label: "Questoes", value: data.metrics.totalQuestions, icon: BookOpen },
+    { label: "Acertos", value: `${data.metrics.accuracy}%`, icon: Brain },
+    { label: "Revisoes", value: data.metrics.overdueReviews, icon: CalendarClock },
+  ];
+
+  return <section className="grid shrink-0 grid-cols-2 overflow-hidden rounded-2xl border border-border bg-panel md:flex md:min-h-[70px] md:rounded-none md:border-x-0 md:border-t-0 md:bg-transparent">
+    {metrics.map((metric) => {
+      const Icon = metric.icon;
+      return <div className="min-w-0 border-r border-b border-border p-4 last:border-r-0 even:border-r-0 md:flex-1 md:border-b-0 md:px-5 md:first:pl-0 md:even:border-r md:last:border-r-0" key={metric.label}>
+        <div className="flex items-center gap-1.5 text-[10px] text-text-tertiary">
+          <Icon className="size-3.5" />
+          <span>{metric.label}</span>
+        </div>
+        <div className="mt-1 text-xl font-bold tracking-[-0.04em] text-foreground md:text-[22px]">{metric.value}</div>
+      </div>;
+    })}
+  </section>;
+}
+
+function AttentionRow({ item }: { item: StudyAttention }) {
+  const progress = item.goalMinutes > 0 ? Math.min(100, item.studiedMinutes / item.goalMinutes * 100) : 0;
+
+  return <article className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-4 border-t border-border px-2 py-3 first:border-t-0">
+    <div className="min-w-0">
+      <div className="flex min-w-0 items-center gap-2 text-sm font-semibold">
+        <span className="size-2 shrink-0 rounded-full" style={{ backgroundColor: item.color ?? "var(--primary)" }} />
+        <span className="truncate">{item.subjectName}</span>
+      </div>
+      <p className="ml-4 mt-1 truncate text-[11px] text-text-tertiary">{item.reason}</p>
+      {item.goalMinutes > 0 ? <div className="ml-4 mt-2 max-w-md"><Progress value={progress} /><p className="mt-1 text-[10px] text-text-tertiary">{formatMinutes(item.studiedMinutes)} de {formatMinutes(item.goalMinutes)} nesta semana</p></div> : null}
+    </div>
+    <div className="text-right text-sm font-bold text-foreground">
+      {item.accuracy}%
+      <small className="mt-0.5 block text-[10px] font-medium text-text-tertiary">acertos</small>
+    </div>
+  </article>;
+}
+
+function ReviewItem({ review }: { review: StudyReview }) {
+  const master = useMasterStudyReview();
+  const reschedule = useRescheduleStudyReview();
+  const [revealed, setRevealed] = useState(false);
+  const overdue = new Date(review.dueAt) <= new Date();
+
+  return <article className="border-t border-border px-2 py-3 first:border-t-0">
+    <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3">
       <div className="min-w-0">
-        <h2 className="text-lg font-semibold tracking-tight sm:text-xl">
-          {title}
-        </h2>
-        <p className="mt-1 text-sm text-muted-foreground">{description}</p>
+        <strong className="block truncate text-sm">{review.subject?.name}{review.topic ? ` - ${review.topic.name}` : ""}</strong>
+        <span className="mt-1 block truncate text-[11px] text-text-tertiary">{review.prompt}</span>
       </div>
+      <Badge variant={overdue ? "destructive" : "outline"}>{overdue ? "Hoje" : date.format(new Date(review.dueAt))}</Badge>
     </div>
-  );
+    {revealed ? <div className="mt-3 rounded-lg bg-secondary/35 p-3 text-sm text-text-secondary">{review.answer || review.notes || "Sem resposta registrada."}</div> : null}
+    <div className="mt-3 flex flex-wrap gap-2">
+      <Button size="sm" variant="outline" onClick={() => setRevealed((value) => !value)}><Eye className="size-4" />{revealed ? "Ocultar" : "Resposta"}</Button>
+      <Button size="sm" variant="outline" disabled={reschedule.isPending} onClick={() => reschedule.mutate({ dueAt: inDays(7), id: review.id })}><RotateCcw className="size-4" />7 dias</Button>
+      <Button size="sm" disabled={master.isPending} onClick={() => master.mutate(review.id)}><CheckCircle2 className="size-4" />Dominei</Button>
+    </div>
+  </article>;
 }
 
-function AccuracyPanel({
-  correct,
-  period,
-  rate,
-  total,
-  wrong,
-}: {
-  correct: number;
-  period: StudyQuestionPeriod;
-  rate: number;
-  total: number;
-  wrong: number;
-}) {
-  return (
-    <Card className="min-w-0 border-border/70 shadow-sm">
-      <CardHeader className="gap-3">
-        <CardTitle className="flex items-center gap-2">
-          <Percent className="h-5 w-5 text-primary" />
-          Question accuracy
-        </CardTitle>
-        <CardDescription>
-          Right and wrong answers from the selected calendar {period}.
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="grid gap-4">
-        <div className="grid grid-cols-3 gap-2 text-center">
-          <div className="rounded-lg border border-border/70 bg-background/75 p-3">
-            <div className="text-xs text-muted-foreground">Total</div>
-            <div className="mt-1 text-xl font-semibold">{total}</div>
-          </div>
-          <div className="rounded-lg border border-border/70 bg-background/75 p-3">
-            <div className="text-xs text-muted-foreground">Right</div>
-            <div className="mt-1 text-xl font-semibold">{correct}</div>
-          </div>
-          <div className="rounded-lg border border-border/70 bg-background/75 p-3">
-            <div className="text-xs text-muted-foreground">Wrong</div>
-            <div className="mt-1 text-xl font-semibold">{wrong}</div>
-          </div>
-        </div>
-        <div>
-          <div className="mb-2 flex items-center justify-between gap-3 text-sm">
-            <span className="text-muted-foreground">Accuracy</span>
-            <span className="font-semibold">{rate}%</span>
-          </div>
-          <div className="h-3 overflow-hidden rounded-full bg-secondary">
-            <div
-              className="h-full rounded-full bg-primary"
-              style={{ width: `${Math.min(Math.max(rate, 0), 100)}%` }}
-            />
-          </div>
-        </div>
-      </CardContent>
-    </Card>
-  );
-}
-
-function CompactPagination({
-  itemLabel,
-  onPageChange,
-  page,
-  pageSize,
-  totalItems,
-}: {
-  itemLabel: string;
-  onPageChange: (page: number) => void;
-  page: number;
-  pageSize: number;
-  totalItems: number;
-}) {
-  const totalPages = Math.max(1, Math.ceil(totalItems / pageSize));
-
-  if (totalItems <= pageSize) {
-    return null;
-  }
-
-  return (
-    <div className="flex flex-wrap items-center justify-between gap-2 border-t border-border/60 pt-3">
-      <span className="text-xs text-muted-foreground">
-        {page * pageSize + 1}–
-        {Math.min((page + 1) * pageSize, totalItems)} of {totalItems}{" "}
-        {itemLabel}
-      </span>
-      <div className="flex items-center gap-2">
-        <Button
-          disabled={page === 0}
-          onClick={() => onPageChange(Math.max(0, page - 1))}
-          size="sm"
-          type="button"
-          variant="outline"
-        >
-          Previous
-        </Button>
-        <span className="min-w-14 text-center text-xs font-medium">
-          {page + 1} / {totalPages}
+function StudyPlanLinks() {
+  return <div className="grid gap-2 border-t border-border px-2 py-3 md:grid-cols-2">
+    {studyPlanLinks.map((plan) => <a className="flex min-w-0 items-center justify-between gap-3 rounded-xl bg-secondary/35 p-3 text-sm hover:bg-hover" href={plan.href} target="_blank" rel="noreferrer" key={plan.href}>
+      <span className="flex min-w-0 items-center gap-3">
+        <span className="grid size-9 shrink-0 place-items-center rounded-lg bg-panel text-text-secondary"><FileText className="size-4" /></span>
+        <span className="min-w-0">
+          <span className="block truncate font-semibold">{plan.title}</span>
+          <span className="block truncate text-[11px] text-text-tertiary">{plan.description}</span>
         </span>
-        <Button
-          disabled={page >= totalPages - 1}
-          onClick={() => onPageChange(Math.min(totalPages - 1, page + 1))}
-          size="sm"
-          type="button"
-          variant="outline"
-        >
-          Next
-        </Button>
-      </div>
-    </div>
-  );
+      </span>
+      <ExternalLink className="size-4 shrink-0 text-text-tertiary" />
+    </a>)}
+  </div>;
 }
 
-function SubjectPressurePanel({
-  subjects,
-}: {
-  subjects: Array<{
-    color?: string | null;
-    id: string;
-    name: string;
-    total: number;
-  }>;
-}) {
-  const pageSize = 5;
-  const [page, setPage] = useState(0);
-  const pressureSubjects = subjects.filter((subject) => subject.total > 0);
-  const totalPages = Math.max(1, Math.ceil(pressureSubjects.length / pageSize));
-  const currentPage = Math.min(page, totalPages - 1);
-  const visibleSubjects = pressureSubjects.slice(
-    currentPage * pageSize,
-    (currentPage + 1) * pageSize
-  );
-  const maxTotal = Math.max(
-    ...pressureSubjects.map((subject) => subject.total),
-    1
-  );
+export default function StudyPage() {
+  const workspace = useStudyWorkspace();
+  const [dialog, setDialog] = useState<DialogMode>(null);
+  const data = workspace.data;
+  const attention = useMemo(() => data ? buildStudySubjectAttention(data.subjects, data.sessions, data.reviews) : [], [data]);
+  const pendingReviews = useMemo(() => data?.reviews.filter((review) => review.status === "pending").sort((a, b) => new Date(a.dueAt).getTime() - new Date(b.dueAt).getTime()).slice(0, 6) ?? [], [data]);
+  const recentSessions = data?.sessions.slice(0, 4) ?? [];
 
-  return (
-    <Card className="min-w-0 border-border/70 shadow-sm">
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <GraduationCap className="h-5 w-5 text-primary" />
-          Subject pressure
-        </CardTitle>
-        <CardDescription>
-          Mistake volume by subject, ordered by review pressure.
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="grid gap-3">
-        {visibleSubjects.length ? (
-          visibleSubjects.map((subject) => {
-            const width = Math.round((subject.total / maxTotal) * 100);
-
-            return (
-              <Link
-                className="grid min-w-0 gap-2 rounded-lg border border-border/70 bg-background/75 p-3 transition-colors hover:bg-secondary/35"
-                href="/study/mistakes"
-                key={subject.id}
-              >
-                <div className="flex min-w-0 items-center justify-between gap-3">
-                  <div className="flex min-w-0 items-center gap-2">
-                    <span
-                      className="h-3 w-3 shrink-0 rounded-full"
-                      style={{ backgroundColor: subject.color ?? "#38bdf8" }}
-                    />
-                    <span className="truncate font-medium">{subject.name}</span>
-                  </div>
-                  <Badge variant="outline">{subject.total}</Badge>
-                </div>
-                <div className="h-2 overflow-hidden rounded-full bg-secondary">
-                  <div
-                    className={cn("h-full rounded-full", getPressureTone(subject.total))}
-                    style={{ width: `${width}%` }}
-                  />
-                </div>
-              </Link>
-            );
-          })
-        ) : (
-          <p className="rounded-lg bg-secondary/35 p-4 text-sm text-muted-foreground">
-            No subject pressure yet.
-          </p>
-        )}
-        <CompactPagination
-          itemLabel="subjects"
-          onPageChange={setPage}
-          page={currentPage}
-          pageSize={pageSize}
-          totalItems={pressureSubjects.length}
-        />
-      </CardContent>
-    </Card>
-  );
-}
-
-function ReviewQueuePanel({
-  isLoading,
-  mistakes,
-  period,
-}: {
-  isLoading: boolean;
-  mistakes: StudyMistake[];
-  period: StudyQuestionPeriod;
-}) {
-  const pageSize = 5;
-  const [page, setPage] = useState(0);
-  const totalPages = Math.max(1, Math.ceil(mistakes.length / pageSize));
-  const currentPage = Math.min(page, totalPages - 1);
-  const visibleMistakes = mistakes.slice(
-    currentPage * pageSize,
-    (currentPage + 1) * pageSize
-  );
-
-  return (
-    <Card className="min-w-0 border-border/70 shadow-sm">
-      <CardHeader className="gap-2">
-        <div className="flex flex-wrap items-center justify-between gap-2">
-          <div>
-            <CardTitle>Due for review</CardTitle>
-            <CardDescription>
-              Non-mastered reviews due in the current calendar {period}.
-            </CardDescription>
-          </div>
-          <Badge variant="outline">{mistakes.length} due</Badge>
-        </div>
-      </CardHeader>
-      <CardContent className="grid gap-3">
-        {isLoading ? (
-          <p className="rounded-lg bg-secondary/35 p-4 text-sm text-muted-foreground">
-            Loading study review queue...
-          </p>
-        ) : visibleMistakes.length ? (
-          visibleMistakes.map((mistake) => (
-            <Link
-              className="grid min-w-0 gap-2 rounded-lg border border-border/70 bg-background/75 p-4 transition-colors hover:bg-secondary/35"
-              href="/study/mistakes"
-              key={mistake.id}
-            >
-              <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
-                <Badge>{mistake.subject?.name ?? "Subject"}</Badge>
-                <span>{formatDate(mistake.reviewDate)}</span>
-                <span>{mistake.errorType}</span>
-              </div>
-              <div className="break-words text-sm font-semibold [overflow-wrap:anywhere]">
-                {mistake.question}
-              </div>
-              <div className="break-words text-xs text-muted-foreground [overflow-wrap:anywhere]">
-                Rule: {mistake.correctRule}
-              </div>
-            </Link>
-          ))
-        ) : (
-          <p className="rounded-lg bg-secondary/35 p-4 text-sm text-muted-foreground">
-            No due mistakes.
-          </p>
-        )}
-        <CompactPagination
-          itemLabel="reviews"
-          onPageChange={setPage}
-          page={currentPage}
-          pageSize={pageSize}
-          totalItems={mistakes.length}
-        />
-      </CardContent>
-    </Card>
-  );
-}
-
-export default function StudyDashboardPage() {
-  const [dashboardPeriod, setDashboardPeriod] =
-    useState<StudyQuestionPeriod>("week");
-  const [questionSubjectId, setQuestionSubjectId] = useState("all");
-  const { data: mistakes = [], isLoading: isMistakesLoading } =
-    useStudyMistakes();
-  const { data: subjects = [] } = useStudySubjects();
-  const { data: studySessions = [] } = useStudySessions();
-  const dashboardQuestionFilters = useMemo(
-    () => ({
-      ...getStudyQuestionPeriodRange(dashboardPeriod),
-      ...(questionSubjectId === "all"
-        ? {}
-        : { subjectId: questionSubjectId }),
-    }),
-    [dashboardPeriod, questionSubjectId]
-  );
-  const { data: filteredQuestionPractice = [] } = useStudyQuestionPractice(
-    dashboardQuestionFilters
-  );
-  const allSubjectQuestionFilters = useMemo(
-    () => getStudyQuestionPeriodRange(dashboardPeriod),
-    [dashboardPeriod]
-  );
-  const { data: allSubjectQuestionPractice = [] } = useStudyQuestionPractice(
-    allSubjectQuestionFilters
-  );
-
-  const periodMistakes = filterStudyMistakesByPeriod(
-    mistakes,
-    dashboardPeriod
-  );
-  const periodSessions = filterStudySessionsByPeriod(
-    studySessions,
-    dashboardPeriod
-  );
-  const mastered = periodMistakes.filter(
-    (mistake) => mistake.status === "mastered"
-  );
-  const dueMistakes = getStudyReviewsForPeriod(mistakes, dashboardPeriod);
-  const subjectCounts = subjects
-    .map((subject) => ({
-      color: subject.color,
-      id: subject.id,
-      name: subject.name,
-      total: periodMistakes.filter(
-        (mistake) => mistake.subjectId === subject.id
-      ).length,
-    }))
-    .sort((a, b) => b.total - a.total);
-  const masteryRate = periodMistakes.length
-    ? Math.round((mastered.length / periodMistakes.length) * 100)
-    : 0;
-  const questionTrend = buildStudyQuestionTrend(
-    allSubjectQuestionPractice,
-    dashboardPeriod
-  );
-  const questionPerformanceSummary = getStudyQuestionSummary(
-    allSubjectQuestionPractice
-  );
-  const questionsBySubject = buildStudyQuestionsBySubject(
-    filteredQuestionPractice
-  );
-  const studiedTimeBySubject = buildStudiedTimeBySubject(
-    periodSessions,
-    subjects
-  );
-  const studiedMinutes = periodSessions
-    .reduce((total, session) => total + session.durationMinutes, 0);
-  const activeSubjectCount = new Set(
-    periodSessions.map((session) => session.subjectId)
-  ).size;
-  const periodLabel =
-    dashboardPeriod === "week"
-      ? "This week"
-      : dashboardPeriod === "month"
-        ? "This month"
-        : "This year";
-  const heroRecommendation =
-    dueMistakes.length > 0
-      ? `Start with ${dueMistakes.length} due review${dueMistakes.length === 1 ? "" : "s"} before opening a new study block.`
-      : questionPerformanceSummary.totalQuestions === 0
-        ? `Register a question session for this ${dashboardPeriod} to keep your study history current.`
-        : "Your review queue is clear. Continue with the next planned study block.";
-
-  return (
-    <DashboardViewport contentClassName="space-y-4">
-      <Card className="overflow-hidden border-primary/20 bg-gradient-to-br from-primary/12 via-card to-accent/20 shadow-sm">
-        <CardContent className="grid gap-6 p-5 sm:p-6 xl:grid-cols-[minmax(0,1fr)_auto] xl:items-center">
+  return <DashboardViewport contentClassName="overflow-hidden pb-4" header={<MenuPageHeader eyebrow="Hoje" title="Estudos" action={<Button size="sm" variant="ghost" disabled={!data?.subjects.some((subject) => subject.isActive)} onClick={() => setDialog("session")}><BookOpen className="size-4" />Sessao livre</Button>} />}>
+    {workspace.isLoading ? <LoadingState title="Preparando seus estudos" /> : workspace.isError || !data ? <ErrorState title="Nao foi possivel carregar Estudos" description="Tente novamente para recalcular sua proxima acao." action={<RetryButton onClick={() => workspace.refetch()} />} /> : <div className="grid h-full min-h-0 grid-rows-[auto_minmax(0,1fr)] gap-3 md:gap-4">
+      <div className="min-h-0 overflow-y-auto pr-1 md:contents">
+        {data.recommendation ? <section className="grid shrink-0 items-center gap-5 rounded-[20px] border border-primary/30 bg-panel p-5 shadow-snow-1 md:grid-cols-[minmax(0,1fr)_auto] md:p-6">
           <div className="min-w-0">
-            <div className="flex flex-wrap items-center gap-3">
-              <div className="flex items-center gap-2 text-sm font-semibold text-primary">
-                <Sparkles className="h-4 w-4" />
-                Study command center
-              </div>
-              <Select
-                onValueChange={(value) =>
-                  setDashboardPeriod(value as StudyQuestionPeriod)
-                }
-                value={dashboardPeriod}
-              >
-                <SelectTrigger
-                  aria-label="Study dashboard period"
-                  className="h-9 w-36 bg-background/75"
-                >
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="week">This week</SelectItem>
-                  <SelectItem value="month">This month</SelectItem>
-                  <SelectItem value="year">This year</SelectItem>
-                </SelectContent>
-              </Select>
+            <div className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.13em] text-primary"><Target className="size-4" />Proxima acao</div>
+            <h2 className="mt-2 truncate text-2xl font-bold leading-tight tracking-[-0.035em] text-foreground">{data.recommendation.subjectName}{data.recommendation.topicName ? ` - ${data.recommendation.topicName}` : ""}</h2>
+            <p className="mt-2 text-sm text-text-secondary">{data.recommendation.reason}</p>
+            <div className="mt-4 flex flex-wrap gap-x-5 gap-y-2 text-xs text-text-tertiary">
+              <span><strong className="text-foreground">{data.recommendation.durationMinutes} min</strong> sugeridos</span>
+              <span><strong className="text-foreground">{formatMinutes(data.metrics.studiedMinutes)}</strong> nesta semana</span>
             </div>
-            <h1 className="mt-2 text-2xl font-semibold tracking-tight sm:text-3xl md:text-4xl">
-              Study Dashboard
-            </h1>
-            <p className="mt-2 max-w-3xl text-sm leading-6 text-muted-foreground sm:text-base">
-              {heroRecommendation}
-            </p>
+          </div>
+          <Button className="h-[42px] w-full rounded-xl px-5 font-bold md:w-auto" onClick={() => setDialog("session")}><BookOpen className="size-4" />Comecar</Button>
+        </section> : <EmptyState className="shrink-0 rounded-[20px] border border-border bg-panel" title="Crie sua primeira materia" description="Uma materia ativa e suficiente para gerar a primeira recomendacao." action={<Button onClick={() => setDialog("subject")}><Plus className="size-4" />Criar materia</Button>} />}
 
-            <div className="mt-5 grid gap-2 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-6">
-              {[
-                {
-                  label: `${periodLabel} questions`,
-                  value: questionPerformanceSummary.totalQuestions,
-                },
-                {
-                  label: `${periodLabel} accuracy`,
-                  value: `${questionPerformanceSummary.accuracyRate}%`,
-                },
-                {
-                  label: `${periodLabel} studied`,
-                  value: formatMinutes(studiedMinutes),
-                },
-                {
-                  label: "Due reviews",
-                  value: dueMistakes.length,
-                },
-                {
-                  label: "Mastery",
-                  value: `${masteryRate}%`,
-                },
-                {
-                  label: "Active subjects",
-                  value: `${activeSubjectCount}/${subjects.length}`,
-                },
-              ].map((item) => (
-                <div
-                  className="min-w-0 rounded-lg border border-border/60 bg-background/65 px-3 py-2.5 backdrop-blur-sm"
-                  key={item.label}
-                >
-                  <div className="truncate text-xs text-muted-foreground">
-                    {item.label}
-                  </div>
-                  <div className="mt-1 truncate text-lg font-semibold tabular-nums">
-                    {item.value}
+        <section className="mt-3 grid min-h-0 gap-3 md:mt-0 md:grid-cols-[minmax(0,1.55fr)_minmax(290px,0.75fr)] md:gap-4">
+          <div className="grid min-h-0 gap-3 md:grid-rows-[auto_minmax(0,1fr)]">
+            <MetricStrip data={data} />
+            <article className="flex min-h-[320px] flex-col overflow-hidden rounded-[18px] border border-border bg-panel md:min-h-0">
+              <header className="flex items-start justify-between gap-3 px-4 py-4">
+                <div className="min-w-0">
+                  <h3 className="text-sm font-semibold">Foco da semana</h3>
+                  <p className="mt-1 text-[11px] text-text-tertiary">Somente o que precisa de atencao.</p>
+                </div>
+                <div className="flex shrink-0 gap-1">
+                  <Button size="sm" variant="ghost" onClick={() => setDialog("subject")}>Materia</Button>
+                  <Button size="sm" variant="ghost" disabled={!data.subjects.length} onClick={() => setDialog("topic")}>Topico</Button>
+                </div>
+              </header>
+              <div className="min-h-0 flex-1 overflow-y-auto px-3 pb-3">
+                {attention.length === 0 ? <EmptyState title="Nada para priorizar" description="Ative ou crie uma materia para comecar." /> : attention.map((item) => <AttentionRow item={item} key={item.subjectId} />)}
+                <StudyPlanLinks />
+              </div>
+            </article>
+          </div>
+
+          <aside className="grid min-h-0 gap-3 md:grid-rows-[auto_minmax(0,1fr)]">
+            <section className="flex min-h-[70px] items-center justify-between gap-3 rounded-[18px] border border-border bg-panel px-4 py-3">
+              <div className="flex items-baseline gap-2">
+                <strong className="text-3xl font-bold tracking-[-0.05em]">{data.metrics.overdueReviews}</strong>
+                <span className="text-xs text-text-tertiary">vencidas</span>
+              </div>
+              <Button size="sm" variant="ghost" disabled={!data.subjects.length} onClick={() => setDialog("review")}><Plus className="size-4" />Capturar</Button>
+            </section>
+
+            <article className="flex min-h-[320px] flex-col overflow-hidden rounded-[18px] border border-border bg-panel md:min-h-0">
+              <header className="px-4 py-4">
+                <h3 className="text-sm font-semibold">Proximas revisoes</h3>
+                <p className="mt-1 text-[11px] text-text-tertiary">O que entra na fila agora.</p>
+              </header>
+              <div className="min-h-0 flex-1 overflow-y-auto px-3 pb-3">
+                {pendingReviews.length ? pendingReviews.map((review) => <ReviewItem key={review.id} review={review} />) : <div className="grid min-h-[130px] place-items-center px-6 text-center text-xs text-text-tertiary">Nenhuma revisao pendente.</div>}
+                <div className="border-t border-border px-2 py-3">
+                  <h4 className="text-xs font-semibold text-text-secondary">Historico recente</h4>
+                  <div className="mt-2 grid gap-2">
+                    {recentSessions.map((session) => <div className="flex items-center justify-between gap-3 rounded-lg bg-secondary/30 px-3 py-2" key={session.id}>
+                      <div className="min-w-0">
+                        <p className="truncate text-xs font-medium">{session.subject?.name}{session.topic ? ` - ${session.topic.name}` : ""}</p>
+                        <p className="text-[10px] text-text-tertiary">{date.format(new Date(session.startedAt))}{session.totalQuestions !== null && session.totalQuestions !== undefined ? ` - ${session.correctQuestions ?? 0}/${session.totalQuestions} acertos` : ""}</p>
+                      </div>
+                      <span className="shrink-0 text-[11px] font-semibold">{formatMinutes(session.durationMinutes)}</span>
+                    </div>)}
+                    {!recentSessions.length ? <p className="text-xs text-text-tertiary">Nenhuma sessao concluida.</p> : null}
                   </div>
                 </div>
-              ))}
-            </div>
-          </div>
-
-          <div className="flex flex-wrap gap-2 xl:max-w-48 xl:flex-col">
-            <Button asChild className="flex-1 xl:w-full">
-              <Link href="/study/planner">
-                <ListChecks className="h-4 w-4" />
-                Open study plan
-              </Link>
-            </Button>
-            <Button asChild className="flex-1 xl:w-full" variant="outline">
-              <Link href="/study/mistakes">
-                <AlertCircle className="h-4 w-4" />
-                Review mistakes
-              </Link>
-            </Button>
-            <Button asChild className="flex-1 xl:w-full" variant="outline">
-              <Link href="/pomodoro">
-                <TimerReset className="h-4 w-4" />
-                Start focus
-              </Link>
-            </Button>
-            <Button asChild className="flex-1 xl:w-full" variant="outline">
-              <Link href="/study/trt-plan">
-                <BookOpenCheck className="h-4 w-4" />
-                Dataprev plan
-              </Link>
-            </Button>
-            <Button asChild className="flex-1 xl:w-full" variant="outline">
-              <Link href="/study/trt-audit-plan">
-                <ShieldCheck className="h-4 w-4" />
-                Audit plan
-              </Link>
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
-
-      <section className="space-y-4">
-        <DashboardSectionHeader
-          description="Track recent volume, accuracy, and subject-level performance."
-          icon={Target}
-          title="Question performance"
-        />
-        <div className="grid min-w-0 gap-4 xl:grid-cols-[minmax(0,1.35fr)_minmax(0,0.65fr)]">
-          <StudyQuestionsChart
-            accuracyRate={questionPerformanceSummary.accuracyRate}
-            data={questionTrend}
-            period={dashboardPeriod}
-            title="Question practice"
-            totalQuestions={questionPerformanceSummary.totalQuestions}
-          />
-          <AccuracyPanel
-            correct={questionPerformanceSummary.correctQuestions}
-            period={dashboardPeriod}
-            rate={questionPerformanceSummary.accuracyRate}
-            total={questionPerformanceSummary.totalQuestions}
-            wrong={questionPerformanceSummary.wrongQuestions}
-          />
-        </div>
-        <div className="grid min-w-0 gap-3">
-          <div className="flex flex-col gap-4 rounded-xl border border-border/70 bg-card p-4 shadow-sm sm:flex-row sm:items-end sm:justify-between">
-            <div>
-              <div className="font-semibold">Compare subjects</div>
-              <p className="mt-1 text-sm text-muted-foreground">
-                Narrow the subject comparison inside the selected dashboard period.
-              </p>
-            </div>
-            <div className="grid gap-3">
-              <label className="grid gap-1.5 text-sm font-medium">
-                Subject
-                <Select
-                  value={questionSubjectId}
-                  onValueChange={setQuestionSubjectId}
-                >
-                  <SelectTrigger className="sm:w-56">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All subjects</SelectItem>
-                    {subjects.map((subject) => (
-                      <SelectItem key={subject.id} value={subject.id}>
-                        {subject.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </label>
-            </div>
-          </div>
-          <div className="grid min-w-0 items-stretch gap-4 lg:grid-cols-2">
-            <StudyQuestionsBySubjectChart data={questionsBySubject} />
-            <StudyFocusBySubjectChart data={studiedTimeBySubject} />
-          </div>
-        </div>
-      </section>
-
-      <section className="space-y-4">
-        <DashboardSectionHeader
-          description="Prioritize overdue reviews and subjects with the most correction pressure."
-          icon={AlertCircle}
-          title="Review priorities"
-        />
-        <div className="grid min-w-0 gap-4 xl:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
-          <ReviewQueuePanel
-            isLoading={isMistakesLoading}
-            mistakes={dueMistakes}
-            period={dashboardPeriod}
-          />
-          <SubjectPressurePanel subjects={subjectCounts} />
-        </div>
-      </section>
-    </DashboardViewport>
-  );
+              </div>
+            </article>
+          </aside>
+        </section>
+      </div>
+      <StudyDialog data={data} mode={dialog} onClose={() => setDialog(null)} />
+    </div>}
+  </DashboardViewport>;
 }

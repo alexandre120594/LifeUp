@@ -27,7 +27,7 @@ export function PageHero({
 
   return (
     <Card
-      className={`overflow-hidden border-0 bg-gradient-to-br from-[var(--primary-yevox)]/15 via-card to-[var(--secondary-yevox)]/70 shadow-sm ${className ?? ""}`.trim()}
+      className={`overflow-hidden border-border bg-panel shadow-snow-1 ${className ?? ""}`.trim()}
     >
       <CardContent
         className={

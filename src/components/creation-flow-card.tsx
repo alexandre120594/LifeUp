@@ -15,7 +15,7 @@ export function CreationFlowCard({
   children: React.ReactNode;
 }) {
   return (
-    <Card className="overflow-hidden border-0 bg-gradient-to-br from-[var(--primary-yevox)]/8 via-card to-card shadow-sm">
+    <Card className="overflow-hidden border-border bg-panel shadow-snow-1">
       <CardHeader className="space-y-3 border-b border-border/60 pb-4">
         <div className="inline-flex w-fit items-center gap-2 rounded-full border border-border/60 bg-background/80 px-2.5 py-1 text-[10px] font-medium uppercase tracking-[0.18em] text-muted-foreground">
           <BadgeIcon className="h-3.5 w-3.5 text-primary" />

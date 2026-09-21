@@ -1,11 +1,11 @@
-import { GoalServices } from "@/services/GoalServices";
+import { GoalQuery, GoalServices } from "@/services/GoalServices";
 import type { GoalUpdateInput } from "@/types/Goal";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
-export function useGoals() {
+export function useGoals(query?: GoalQuery) {
   return useQuery({
-    queryKey: ["goals"],
-    queryFn: GoalServices.getAll,
+    queryKey: ["goals", query],
+    queryFn: () => GoalServices.getAll(query),
   });
 }
 

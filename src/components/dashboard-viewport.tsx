@@ -16,15 +16,19 @@ export function DashboardViewport({
   return (
     <div
       className={cn(
-        "flex h-full min-h-0 w-full min-w-0 flex-col overflow-hidden p-3 md:p-4",
+        "flex h-full min-h-0 w-full min-w-0 flex-col overflow-hidden bg-background",
         className,
       )}
     >
-      {header ? <div className="shrink-0">{header}</div> : null}
+      {header ? (
+        <div className="w-full shrink-0 px-4 pt-4 md:px-7 md:pt-5">
+          {header}
+        </div>
+      ) : null}
       <div
         className={cn(
-          "min-h-0 min-w-0 flex-1 overflow-y-auto overflow-x-hidden pr-1",
-          header ? "mt-3" : null,
+          "min-h-0 w-full min-w-0 flex-1 overflow-y-auto overflow-x-hidden px-4 pb-4 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-border md:px-7",
+          header ? "mt-3 pt-0" : "pt-4 md:pt-5",
           contentClassName,
         )}
       >

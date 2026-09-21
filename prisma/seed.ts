@@ -40,6 +40,7 @@ async function main() {
   await prisma.goal.createMany({
     data: [
       {
+        area: "BODY",
         color: "#22c55e",
         description: "Rebuild energy, sleep, and daily health rhythm.",
         progress: 62,
@@ -49,6 +50,7 @@ async function main() {
         userId: devUser.id,
       },
       {
+        area: "MIND",
         color: "#3b82f6",
         description: "Polish front-end architecture and ship consistently.",
         progress: 78,
@@ -58,6 +60,7 @@ async function main() {
         userId: devUser.id,
       },
       {
+        area: "MIND",
         color: "#f97316",
         description: "Improve vocabulary and speaking confidence.",
         progress: 100,
@@ -70,9 +73,9 @@ async function main() {
   });
 
   const studySubjectSeeds = [
-    { color: "#3b82f6", name: "Demo - Constitutional Law", plannedHoursPerWeek: 5 },
-    { color: "#22c55e", name: "Demo - Portuguese", plannedHoursPerWeek: 4 },
-    { color: "#f97316", name: "Demo - Administrative Law", plannedHoursPerWeek: 4 },
+{ color: "#3b82f6", name: "Demo - Constitutional Law", plannedMinutesPerWeek: 300 },
+{ color: "#22c55e", name: "Demo - Portuguese", plannedMinutesPerWeek: 240 },
+{ color: "#f97316", name: "Demo - Administrative Law", plannedMinutesPerWeek: 240 },
   ];
   const dailyQuestionTotals = [
     [
@@ -127,25 +130,27 @@ async function main() {
           update: {
             color: subject.color,
             notes: "Demo subject for Study Dashboard analytics.",
-            plannedHoursPerWeek: subject.plannedHoursPerWeek,
+plannedMinutesPerWeek: subject.plannedMinutesPerWeek,
           },
         })
       )
     );
 
-    await prisma.studyQuestionPractice.deleteMany({
+    await prisma.studySession.deleteMany({
       where: {
         notes: STUDY_QUESTION_SEED_NOTE,
         userId: seedUser.id,
       },
     });
 
-    await prisma.studyQuestionPractice.createMany({
+    await prisma.studySession.createMany({
       data: studySubjects.flatMap((subject, subjectIndex) =>
         dailyQuestionTotals[subjectIndex].map((questions, daysAgo) => ({
-          ...questions,
+          correctQuestions: questions.correctQuestions,
           notes: STUDY_QUESTION_SEED_NOTE,
-          practiceDate: dayOffset(daysAgo, 12),
+          durationMinutes: 25,
+          endedAt: dayOffset(daysAgo, 12),
+          startedAt: dayOffset(daysAgo, 11),
           subjectId: subject.id,
           totalQuestions: questions.correctQuestions + questions.wrongQuestions,
           userId: seedUser.id,
@@ -163,7 +168,7 @@ async function main() {
   console.log(
     JSON.stringify(
       {
-        seededQuestionPracticesPerUser: studySubjectSeeds.length * dailyQuestionTotals[0].length,
+        seededStudySessionsPerUser: studySubjectSeeds.length * dailyQuestionTotals[0].length,
         seededUsers: seedUsers.map((user) => user.email),
         subjects: studySubjectSeeds.map((subject) => subject.name),
       },

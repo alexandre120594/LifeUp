@@ -6,20 +6,17 @@ type SubjectPayload = {
   color?: unknown;
   name?: unknown;
   notes?: unknown;
-  plannedHoursPerWeek?: unknown;
+  plannedMinutesPerWeek?: unknown;
 };
 
 function normalizeSubjectPayload(body: SubjectPayload) {
-  const plannedHoursPerWeek = Math.max(
-    1,
-    Math.floor(Number(body.plannedHoursPerWeek) || 1)
-  );
+  const plannedMinutesPerWeek = Math.max(0, Math.floor(Number(body.plannedMinutesPerWeek) || 0));
 
   return {
     color: typeof body.color === "string" && body.color ? body.color : null,
     name: typeof body.name === "string" ? body.name.trim() : "",
     notes: typeof body.notes === "string" && body.notes ? body.notes : null,
-    plannedHoursPerWeek,
+    plannedMinutesPerWeek,
   };
 }
 
@@ -60,11 +57,7 @@ export async function PATCH(
     const updatedSubject = await prisma.studySubject.update({
       where: { id },
       data: payload,
-      include: {
-        scheduleBlocks: {
-          orderBy: [{ dayIndex: "asc" }, { hour: "asc" }],
-        },
-      },
+      include: { topics: { orderBy: { name: "asc" } } },
     });
 
     return NextResponse.json(updatedSubject);

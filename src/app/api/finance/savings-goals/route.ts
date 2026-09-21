@@ -10,8 +10,7 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const { currentAmount, targetAmount, targetDate, title } = await req.json();
-    const parsedCurrentAmount = Number(currentAmount ?? 0);
+    const { targetAmount, targetDate, title } = await req.json();
     const parsedTargetAmount = Number(targetAmount);
     const parsedTargetDate = targetDate ? new Date(targetDate) : null;
 
@@ -19,8 +18,6 @@ export async function POST(req: NextRequest) {
       !title ||
       !Number.isFinite(parsedTargetAmount) ||
       parsedTargetAmount <= 0 ||
-      !Number.isFinite(parsedCurrentAmount) ||
-      parsedCurrentAmount < 0 ||
       (parsedTargetDate && Number.isNaN(parsedTargetDate.getTime()))
     ) {
       return NextResponse.json(
@@ -31,8 +28,6 @@ export async function POST(req: NextRequest) {
 
     const goal = await prisma.savingsGoal.create({
       data: {
-        currentAmount: parsedCurrentAmount,
-        isCompleted: parsedCurrentAmount >= parsedTargetAmount,
         targetAmount: parsedTargetAmount,
         targetDate: parsedTargetDate,
         title,
@@ -43,7 +38,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json(
       {
         ...goal,
-        currentAmount: Number(goal.currentAmount),
+        currentAmount: 0,
         targetAmount: Number(goal.targetAmount),
       },
       { status: 201 }

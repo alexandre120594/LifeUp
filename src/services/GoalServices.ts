@@ -1,8 +1,28 @@
-import type { Goal, GoalCreateInput, GoalUpdateInput } from "@/types/Goal";
+import type { Goal, GoalArea, GoalCreateInput, GoalStatus, GoalUpdateInput } from "@/types/Goal";
 import { apiClient } from "./api-client";
 
+export type GoalQuery = {
+  area?: GoalArea;
+  status?: GoalStatus;
+};
+
+function goalQueryString(query?: GoalQuery) {
+  const params = new URLSearchParams();
+
+  if (query?.area) {
+    params.set("area", query.area);
+  }
+
+  if (query?.status) {
+    params.set("status", query.status);
+  }
+
+  const value = params.toString();
+  return value ? `?${value}` : "";
+}
+
 export const GoalServices = {
-  getAll: () => apiClient<Goal[]>("/api/goals"),
+  getAll: (query?: GoalQuery) => apiClient<Goal[]>(`/api/goals${goalQueryString(query)}`),
   getById: (id: string) => apiClient<Goal>(`/api/goals/${id}`),
   create: (data: GoalCreateInput) =>
     apiClient<Goal>("/api/goals", {

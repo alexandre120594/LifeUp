@@ -8,33 +8,27 @@ generator client {
 }
 
 model User {
-  id Int @id @default(autoincrement())
-  email String @unique
-  name String?
-  goals Goal[]
-  financialCategories FinancialCategory[]
+  id                    Int                    @id @default(autoincrement())
+  email                 String                 @unique
+  name                  String?
+  goals                 Goal[]
+  financialCategories   FinancialCategory[]
+  financialAccounts     FinancialAccount[]
   financialTransactions FinancialTransaction[]
-  budgets Budget[]
-  recurringBills RecurringBill[]
-  plannedExpenses PlannedExpense[]
-  savingsGoals SavingsGoal[]
-  savingsContributions SavingsContribution[]
-  financialSummaries FinancialSummary[]
-  accountSpendImports AccountSpendImport[]
-  accountSpendEntries AccountSpendEntry[]
-  pomodoroSessions PomodoroSession[]
-  inboxItems InboxItem[]
-  notes Note[]
-  lifeHabits LifeHabit[]
-  notifications Notification[]
-  studySubjects StudySubject[]
-  studyScheduleBlocks StudyScheduleBlock[]
-  studyPlanBoards StudyPlanBoard[]
-  studyMistakes StudyMistake[]
-  studySessions StudySession[]
-  studyQuestionPractices StudyQuestionPractice[]
-  studyPlanProgress StudyPlanProgress[]
-  createdAt DateTime @default(now())
+  financialCommitments  FinancialCommitment[]
+  financialImports      FinancialImport[]
+  savingsGoals          SavingsGoal[]
+  savingsContributions  SavingsContribution[]
+  pomodoroSessions      PomodoroSession[]
+  inboxItems            InboxItem[]
+  notes                 Note[]
+  lifeHabits            LifeHabit[]
+  notifications         Notification[]
+  studySubjects         StudySubject[]
+  studyTopics           StudyTopic[]
+  studyReviews          StudyReview[]
+  studySessions         StudySession[]
+  createdAt             DateTime               @default(now())
 }
 
 enum GoalStatus {
@@ -43,386 +37,299 @@ enum GoalStatus {
   COMPLETED
 }
 
+enum GoalArea {
+  BODY
+  MIND
+  HOME
+}
+
 model Goal {
-  id        String   @id @default(cuid())
-  title     String
+  id          String     @id @default(cuid())
+  title       String
   description String?
-  status    GoalStatus @default(ACTIVE)
-  progress  Int        @default(0)
-  targetDate DateTime?
-  color     String?
-  userId Int
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  area        GoalArea   @default(MIND)
+  status      GoalStatus @default(ACTIVE)
+  progress    Int        @default(0)
+  targetDate  DateTime?
+  color       String?
+  userId      Int
+  user        User       @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
 
   @@index([userId, status])
+  @@index([userId, area])
   @@index([userId, targetDate])
 }
 
 model LifeHabit {
-  id              String   @id @default(cuid())
-  title           String
-  kind            String   // good or bad
-  color           String?
-  notes           String?
-  targetDays      Int      @default(30)
-  reward          String?
-  checkins        String[] @default([])
-  badEvents       String[] @default([])
-  lastBadAt       DateTime?
-  userId          Int
-  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  id         String    @id @default(cuid())
+  title      String
+  kind       String // good or bad
+  color      String?
+  notes      String?
+  targetDays Int       @default(30)
+  reward     String?
+  checkins   String[]  @default([])
+  badEvents  String[]  @default([])
+  lastBadAt  DateTime?
+  userId     Int
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
 
   @@index([userId, kind])
   @@index([userId, updatedAt])
 }
 
 model StudySubject {
-  id                  String   @id @default(cuid())
-  name                String
-  color               String?
-  plannedHoursPerWeek Int      @default(1)
-  notes               String?
-  userId              Int
-  user                User     @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  scheduleBlocks      StudyScheduleBlock[]
-  planBlocks          StudyPlanBlock[]
-  mistakes            StudyMistake[]
-  sessions            StudySession[]
-  pomodoroSessions    PomodoroSession[]
-  questionPractices   StudyQuestionPractice[]
-  createdAt           DateTime @default(now())
-  updatedAt           DateTime @updatedAt
+  id                    String            @id @default(cuid())
+  name                  String
+  color                 String?
+  plannedMinutesPerWeek Int               @default(60)
+  notes                 String?
+  isActive              Boolean           @default(true)
+  userId                Int
+  user                  User              @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  sessions              StudySession[]
+  pomodoroSessions      PomodoroSession[]
+  topics                StudyTopic[]
+  reviews               StudyReview[]
+  createdAt             DateTime          @default(now())
+  updatedAt             DateTime          @updatedAt
 
   @@unique([userId, name])
 }
 
+model StudyTopic {
+  id               String            @id @default(cuid())
+  name             String
+  isActive         Boolean           @default(true)
+  subjectId        String
+  subject          StudySubject      @relation(fields: [subjectId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  userId           Int
+  user             User              @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  sessions         StudySession[]
+  reviews          StudyReview[]
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+  pomodoroSessions PomodoroSession[]
+
+  @@unique([subjectId, name])
+  @@index([userId, isActive])
+}
+
 model StudySession {
-  id              String   @id @default(cuid())
-  startedAt       DateTime
-  endedAt         DateTime
-  durationMinutes Int
-  notes           String?
-  subjectId       String
-  subject         StudySubject @relation(fields: [subjectId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  userId          Int
-  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
-
-  @@index([userId, startedAt])
-  @@index([userId, subjectId])
-}
-
-model StudyMistake {
-  id            String   @id @default(cuid())
-  question      String
-  myAnswer      String
-  correctAnswer String
-  errorType     String
-  correctRule   String
-  examBoard     String?
-  result        String?
-  initialTopic  String?
-  comment       String?
-  correctionStatus String?
-  generalSubject String?
-  topic         String?
-  microTopic    String?
-  errorReason   String?
-  chargedDetail String?
-  trap          String?
-  memorizationPhrase String?
-  correctiveAction String?
-  errorLevel    String?
-  trapWord      String?
-  reviewDate    DateTime?
-  status        String   @default("unresolved") // unresolved, reviewed, mastered
-  subjectId     String
-  subject       StudySubject @relation(fields: [subjectId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  userId        Int
-  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-
-  @@index([userId, status, reviewDate])
-  @@index([userId, subjectId])
-}
-
-model StudyQuestionPractice {
-  id               String   @id @default(cuid())
-  practiceDate     DateTime
-  totalQuestions   Int
-  correctQuestions Int
-  wrongQuestions   Int
+  id               String       @id @default(cuid())
+  startedAt        DateTime
+  endedAt          DateTime
+  durationMinutes  Int
   notes            String?
+  totalQuestions   Int?
+  correctQuestions Int?
   subjectId        String
   subject          StudySubject @relation(fields: [subjectId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   userId           Int
-  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
+  user             User         @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  topicId          String?
+  topic            StudyTopic?  @relation(fields: [topicId], references: [id], onDelete: SetNull, onUpdate: Cascade)
+  createdAt        DateTime     @default(now())
+  updatedAt        DateTime     @updatedAt
 
-  @@index([userId, practiceDate])
+  @@index([userId, startedAt])
   @@index([userId, subjectId])
-}
-
-model StudyScheduleBlock {
-  id        String       @id @default(cuid())
-  dayIndex  Int
-  hour      Int
-  subjectId String
-  subject   StudySubject @relation(fields: [subjectId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  userId    Int
-  user      User         @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  createdAt DateTime     @default(now())
-
-  @@unique([userId, subjectId, dayIndex, hour])
-  @@index([userId, dayIndex, hour])
-}
-
-model StudyPlanBoard {
-  id           String   @id @default(cuid())
-  weekStartKey String
-  userId       Int
-  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  blocks       StudyPlanBlock[]
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
-
-  @@unique([userId, weekStartKey])
-}
-
-model StudyPlanBlock {
-  id              String   @id @default(cuid())
-  dayIndex        Int
-  startTime       String
-  durationMinutes Int
-  notes           String?
-  boardId         String
-  board           StudyPlanBoard @relation(fields: [boardId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  subjectId       String
-  subject         StudySubject   @relation(fields: [subjectId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
-
-  @@index([boardId, dayIndex, startTime])
-  @@index([subjectId])
-}
-
-model StudyPlanProgress {
-  id        String   @id @default(cuid())
-  planKey   String
-  itemId    String
-  userId    Int
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  createdAt DateTime @default(now())
-
-  @@unique([userId, planKey, itemId])
-  @@index([userId, planKey])
+  @@index([userId, topicId])
 }
 
 model InboxItem {
-  id          String   @id @default(cuid())
-  title       String
-  content     String?
-  type        String   @default("idea")
-  status      String   @default("unprocessed")
-  noteId      String?
-  note        Note?    @relation(fields: [noteId], references: [id], onDelete: SetNull, onUpdate: Cascade)
-  userId      Int
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id        String   @id @default(cuid())
+  title     String
+  content   String?
+  type      String   @default("idea")
+  status    String   @default("unprocessed")
+  noteId    String?
+  note      Note?    @relation(fields: [noteId], references: [id], onDelete: SetNull, onUpdate: Cascade)
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Note {
-  id          String   @id @default(cuid())
-  title       String
-  content     String
-  category    String?
-  inboxItems  InboxItem[]
-  userId      Int
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id         String      @id @default(cuid())
+  title      String
+  content    String
+  category   String?
+  inboxItems InboxItem[]
+  userId     Int
+  user       User        @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
 }
 
 model PomodoroSession {
-  id              String   @id @default(cuid())
+  id              String        @id @default(cuid())
   title           String?
   durationMinutes Int
-  focusType       String   @default("study") // study focus sessions
+  focusType       String        @default("study") // study focus sessions
   startedAt       DateTime
   endedAt         DateTime
   notes           String?
   subjectId       String?
   subject         StudySubject? @relation(fields: [subjectId], references: [id], onDelete: SetNull, onUpdate: Cascade)
   userId          Int
-  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  user            User          @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  studyTopic      StudyTopic?   @relation(fields: [studyTopicId], references: [id])
+  studyTopicId    String?
 
   @@index([userId, endedAt])
   @@index([userId, subjectId])
 }
 
+model StudyReview {
+  id             String       @id @default(cuid())
+  prompt         String
+  answer         String?
+  notes          String?
+  dueAt          DateTime
+  status         String       @default("pending")
+  lastReviewedAt DateTime?
+  subjectId      String
+  subject        StudySubject @relation(fields: [subjectId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  topicId        String?
+  topic          StudyTopic?  @relation(fields: [topicId], references: [id], onDelete: SetNull, onUpdate: Cascade)
+  userId         Int
+  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  @@index([userId, status, dueAt])
+  @@index([userId, subjectId])
+}
+
 model FinancialCategory {
-  id          String   @id @default(cuid())
-  name        String
-  type        String   // income or expense
-  color       String?
-  icon        String?
-  isDefault   Boolean  @default(false)
-  userId      Int
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  id           String                 @id @default(cuid())
+  name         String
+  type         String // income or expense
+  color        String?
+  icon         String?
+  isDefault    Boolean                @default(false)
+  userId       Int
+  user         User                   @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   transactions FinancialTransaction[]
-  budgets     Budget[]
-  recurringBills RecurringBill[]
-  plannedExpenses PlannedExpense[]
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  commitments  FinancialCommitment[]
+  createdAt    DateTime               @default(now())
+  updatedAt    DateTime               @updatedAt
 
   @@unique([userId, name, type])
 }
 
+model FinancialAccount {
+  id             String                 @id @default(cuid())
+  name           String
+  openingBalance Decimal                @default(0) @db.Decimal(12, 2)
+  isActive       Boolean                @default(true)
+  userId         Int
+  user           User                   @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  transactions   FinancialTransaction[]
+  commitments    FinancialCommitment[]
+  imports        FinancialImport[]
+  createdAt      DateTime               @default(now())
+  updatedAt      DateTime               @updatedAt
+
+  @@unique([userId, name])
+  @@index([userId, isActive])
+}
+
 model FinancialTransaction {
-  id          String   @id @default(cuid())
-  title       String
-  amount      Decimal  @db.Decimal(12, 2)
-  type        String   // income or expense
-  date        DateTime
-  notes       String?
-  categoryId  String
-  category    FinancialCategory @relation(fields: [categoryId], references: [id], onDelete: Restrict, onUpdate: Cascade)
-  userId      Int
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id           String               @id @default(cuid())
+  title        String
+  amount       Decimal              @db.Decimal(12, 2)
+  type         String // income or expense
+  date         DateTime
+  notes        String?
+  categoryId   String?
+  category     FinancialCategory?   @relation(fields: [categoryId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  accountId    String?
+  account      FinancialAccount?    @relation(fields: [accountId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  commitmentId String?
+  commitment   FinancialCommitment? @relation(fields: [commitmentId], references: [id], onDelete: SetNull, onUpdate: Cascade)
+  importId     String?
+  import       FinancialImport?     @relation(fields: [importId], references: [id], onDelete: SetNull, onUpdate: Cascade)
+  userId       Int
+  user         User                 @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  createdAt    DateTime             @default(now())
+  updatedAt    DateTime             @updatedAt
+
+  @@index([userId, accountId, date])
+  @@index([userId, commitmentId])
+  @@index([userId, importId])
 }
 
-model Budget {
-  id          String   @id @default(cuid())
-  title       String
-  amount      Decimal  @db.Decimal(12, 2)
-  month       String   // YYYY-MM
-  categoryId  String
-  category    FinancialCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  userId      Int
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+model FinancialCommitment {
+  id           String                 @id @default(cuid())
+  title        String
+  amount       Decimal                @db.Decimal(12, 2)
+  type         String                 @default("expense")
+  dueDate      DateTime
+  recurrence   String                 @default("none")
+  status       String                 @default("active")
+  notes        String?
+  categoryId   String?
+  category     FinancialCategory?     @relation(fields: [categoryId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  accountId    String?
+  account      FinancialAccount?      @relation(fields: [accountId], references: [id], onDelete: SetNull, onUpdate: Cascade)
+  transactions FinancialTransaction[]
+  userId       Int
+  user         User                   @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  createdAt    DateTime               @default(now())
+  updatedAt    DateTime               @updatedAt
 
-  @@unique([userId, categoryId, month])
+  @@index([userId, status, dueDate])
 }
 
-model RecurringBill {
-  id          String   @id @default(cuid())
-  title       String
-  amount      Decimal  @db.Decimal(12, 2)
-  dueDay      Int
-  frequency   String   @default("monthly")
-  isActive    Boolean  @default(true)
-  categoryId  String
-  category    FinancialCategory @relation(fields: [categoryId], references: [id], onDelete: Restrict, onUpdate: Cascade)
-  userId      Int
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-}
+model FinancialImport {
+  id           String                 @id @default(cuid())
+  name         String
+  sourceType   String                 @default("statement")
+  rowCount     Int                    @default(0)
+  accountId    String
+  account      FinancialAccount       @relation(fields: [accountId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  transactions FinancialTransaction[]
+  userId       Int
+  user         User                   @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  createdAt    DateTime               @default(now())
+  updatedAt    DateTime               @updatedAt
 
-model PlannedExpense {
-  id          String   @id @default(cuid())
-  title       String
-  amount      Decimal  @db.Decimal(12, 2)
-  type        String   @default("expense") // income or expense
-  plannedDate DateTime
-  isPaid      Boolean  @default(false)
-  notes       String?
-  categoryId  String
-  category    FinancialCategory @relation(fields: [categoryId], references: [id], onDelete: Restrict, onUpdate: Cascade)
-  userId      Int
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  @@index([userId, createdAt])
 }
 
 model SavingsGoal {
-  id            String   @id @default(cuid())
+  id            String                @id @default(cuid())
   title         String
-  targetAmount  Decimal  @db.Decimal(12, 2)
-  currentAmount Decimal  @default(0) @db.Decimal(12, 2)
+  targetAmount  Decimal               @db.Decimal(12, 2)
   targetDate    DateTime?
-  isCompleted   Boolean  @default(false)
+  status        String                @default("active")
   userId        Int
-  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  user          User                  @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   contributions SavingsContribution[]
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  createdAt     DateTime              @default(now())
+  updatedAt     DateTime              @updatedAt
 }
 
 model SavingsContribution {
-  id        String   @id @default(cuid())
-  amount    Decimal  @db.Decimal(12, 2)
-  date      DateTime @default(now())
+  id        String      @id @default(cuid())
+  amount    Decimal     @db.Decimal(12, 2)
+  date      DateTime    @default(now())
   notes     String?
   goalId    String
   goal      SavingsGoal @relation(fields: [goalId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   userId    Int
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
-
-model FinancialSummary {
-  id            String   @id @default(cuid())
-  month         String   // YYYY-MM
-  totalIncome   Decimal  @default(0) @db.Decimal(12, 2)
-  totalExpenses Decimal  @default(0) @db.Decimal(12, 2)
-  netCashFlow   Decimal  @default(0) @db.Decimal(12, 2)
-  userId        Int
-  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-
-  @@unique([userId, month])
-}
-
-model AccountSpendImport {
-  id        String   @id @default(cuid())
-  name      String
-  month     String   // YYYY-MM
-  sourceType String  @default("extrato") // extrato or fatura
-  rowCount  Int      @default(0)
-  userId    Int
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  entries   AccountSpendEntry[]
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@index([userId, sourceType, month])
-  @@index([userId, createdAt])
-}
-
-model AccountSpendEntry {
-  id          String   @id @default(cuid())
-  date        DateTime
-  month       String   // YYYY-MM, denormalized for fast month pagination
-  sourceType  String   @default("extrato") // extrato or fatura
-  amount      Decimal  @db.Decimal(12, 2)
-  type        String   @default("expense")
-  description String
-  importId    String
-  import      AccountSpendImport @relation(fields: [importId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  userId      Int
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  createdAt   DateTime @default(now())
-
-  @@index([userId, sourceType, month, date])
-  @@index([importId])
+  user      User        @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
 }
 
 model Notification {

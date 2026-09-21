@@ -102,7 +102,7 @@ export function OverviewPanel({
         </CardContent>
       </Card>
 
-      <Card className="min-w-0 border-border/70 bg-gradient-to-br from-[var(--primary-yevox)]/12 via-card to-card shadow-sm">
+      <Card className="min-w-0 border-border bg-panel shadow-snow-1">
         <CardContent className="flex h-full min-w-0 flex-col justify-between gap-6 p-4 sm:p-6">
           <div className="min-w-0">
             <p className="text-xs font-medium uppercase tracking-[0.14em] text-muted-foreground sm:text-sm sm:tracking-[0.18em]">

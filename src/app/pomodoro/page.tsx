@@ -6,22 +6,21 @@ import { PomodoroPanel } from "@/components/pomodoro-panel";
 export default function PomodoroPage() {
   return (
     <DashboardViewport contentClassName="overflow-hidden pr-0">
-      <section className="relative grid h-full min-h-0 content-start gap-4 overflow-y-auto rounded-lg border border-border/70 bg-[radial-gradient(circle_at_top_left,hsl(var(--primary)/0.16),transparent_34%),linear-gradient(135deg,hsl(var(--secondary)/0.72),hsl(var(--background))_48%,hsl(var(--accent)/0.16))] p-3 sm:p-5">
-        <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent" />
-        <header className="flex min-w-0 flex-col gap-3 rounded-lg border border-border/60 bg-background/55 p-4 backdrop-blur sm:flex-row sm:items-end sm:justify-between sm:p-5">
+      <section className="grid h-full min-h-0 content-start gap-4 overflow-y-auto rounded-[var(--r-16)] border border-border bg-panel-subtle p-3 sm:p-5">
+        <header className="flex min-w-0 flex-col gap-3 rounded-[var(--r-16)] border border-border bg-panel p-4 shadow-snow-1 sm:flex-row sm:items-end sm:justify-between sm:p-5">
           <div className="min-w-0">
             <div className="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">
-              Study focus
+              Foco de estudo
             </div>
             <h1 className="mt-1 break-words text-2xl font-semibold leading-tight text-foreground [overflow-wrap:anywhere] sm:text-3xl">
-              Pomodoro
+              Foco
             </h1>
             <p className="mt-2 max-w-3xl break-words text-sm text-muted-foreground [overflow-wrap:anywhere]">
-              Run study sessions with a large timer, quick controls, and focus history without linking the session to projects, tasks, or habits.
+              Rode sessoes com timer amplo, controles rapidos e historico sem vincular a projetos, tarefas ou habitos.
             </p>
           </div>
-          <div className="shrink-0 rounded-full bg-background/75 px-3 py-1 text-xs font-medium text-muted-foreground">
-            Timer persists while navigating
+          <div className="shrink-0 rounded-full bg-secondary px-3 py-1 text-xs font-medium text-text-secondary">
+            Timer persiste ao navegar
           </div>
         </header>
 

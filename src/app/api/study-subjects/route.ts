@@ -6,20 +6,20 @@ type SubjectPayload = {
   color?: unknown;
   name?: unknown;
   notes?: unknown;
-  plannedHoursPerWeek?: unknown;
+  plannedMinutesPerWeek?: unknown;
 };
 
 function normalizeSubjectPayload(body: SubjectPayload) {
-  const plannedHoursPerWeek = Math.max(
-    1,
-    Math.floor(Number(body.plannedHoursPerWeek) || 1)
-  );
+  const requestedMinutes = Number(body.plannedMinutesPerWeek);
+  const plannedMinutesPerWeek = Number.isFinite(requestedMinutes)
+    ? Math.max(0, Math.floor(requestedMinutes))
+    : 0;
 
   return {
     color: typeof body.color === "string" && body.color ? body.color : null,
     name: typeof body.name === "string" ? body.name.trim() : "",
     notes: typeof body.notes === "string" && body.notes ? body.notes : null,
-    plannedHoursPerWeek,
+    plannedMinutesPerWeek,
   };
 }
 
@@ -32,11 +32,7 @@ export async function GET() {
 
   const subjects = await prisma.studySubject.findMany({
     where: { userId },
-    include: {
-      scheduleBlocks: {
-        orderBy: [{ dayIndex: "asc" }, { hour: "asc" }],
-      },
-    },
+    include: { topics: { orderBy: { name: "asc" } } },
     orderBy: { name: "asc" },
   });
 
@@ -67,9 +63,7 @@ export async function POST(req: NextRequest) {
         name: { equals: payload.name, mode: "insensitive" },
         userId,
       },
-      include: {
-        scheduleBlocks: true,
-      },
+      include: { topics: true },
     });
 
     if (existingSubject) {
@@ -81,9 +75,7 @@ export async function POST(req: NextRequest) {
         ...payload,
         userId,
       },
-      include: {
-        scheduleBlocks: true,
-      },
+      include: { topics: true },
     });
 
     return NextResponse.json(subject, { status: 201 });

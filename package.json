@@ -7,9 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "db:seed": "tsx prisma/seed.ts",
-    "study:import-trt-plan": "node scripts/import-trt-study-plan.mjs",
-    "study:import-trt-audit-plan": "node scripts/import-trt-audit-study-plan.mjs"
+"db:seed": "tsx prisma/seed.ts"
   },
   "dependencies": {
     "@prisma/adapter-pg": "^7.2.0",

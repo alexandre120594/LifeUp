@@ -61,7 +61,7 @@ export function SelectRHF<FormType extends FieldValues>({
                 <SelectValue placeholder={placeholder} />
                 {isLoading && (
                   <div className="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none">
-                    <Loader className="animate-spin h-5 w-5 text-gray-500" />
+        <Loader className="h-5 w-5 animate-spin text-text-secondary" />
                   </div>
                 )}
               </SelectTrigger>
@@ -74,7 +74,7 @@ export function SelectRHF<FormType extends FieldValues>({
                       className={
                         typeof item?.label === "string" &&
                         item?.label?.includes("Inativo")
-                          ? "text-red-500"
+            ? "text-danger"
                           : ""
                       }
                     >
@@ -93,7 +93,7 @@ export function SelectRHF<FormType extends FieldValues>({
               </SelectContent>
             </Select>
             {!!error?.message && (
-              <p className="text-[12px] py-1 text-red-500">{error?.message}</p>
+      <p className="py-1 text-[12px] text-danger">{error?.message}</p>
             )}
           </div>
         </div>

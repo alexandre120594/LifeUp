@@ -13,12 +13,8 @@ function normalizeSession(session: {
   title: string | null;
   subject: {
     color: string | null;
-    createdAt: Date;
     id: string;
     name: string;
-    notes: string | null;
-    plannedHoursPerWeek: number;
-    updatedAt: Date;
   } | null;
   subjectId: string | null;
 }) {

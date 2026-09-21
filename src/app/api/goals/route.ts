@@ -1,18 +1,36 @@
 import { requireCurrentUserId } from "@/lib/auth";
-import { normalizeGoalInput } from "@/lib/goals";
+import { isGoalArea, isGoalStatus, normalizeGoalInput } from "@/lib/goals";
 import prisma from "@/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
 
-export async function GET() {
+export async function GET(req: NextRequest) {
   const { response, userId } = await requireCurrentUserId();
 
   if (response) {
     return response;
   }
 
+  const area = req.nextUrl.searchParams.get("area");
+  const status = req.nextUrl.searchParams.get("status");
+
+  if (area && !isGoalArea(area)) {
+    return NextResponse.json({ error: "Invalid area." }, { status: 400 });
+  }
+
+  if (status && !isGoalStatus(status)) {
+    return NextResponse.json({ error: "Invalid status." }, { status: 400 });
+  }
+
+  const areaFilter = area && isGoalArea(area) ? area : undefined;
+  const statusFilter = status && isGoalStatus(status) ? status : undefined;
+
   const goals = await prisma.goal.findMany({
-    where: { userId },
-    orderBy: [{ status: "asc" }, { updatedAt: "desc" }],
+    where: {
+      area: areaFilter,
+      status: statusFilter,
+      userId,
+    },
+    orderBy: [{ area: "asc" }, { status: "asc" }, { updatedAt: "desc" }],
   });
 
   return NextResponse.json(goals);

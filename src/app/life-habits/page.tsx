@@ -16,6 +16,7 @@ import {
   Trophy,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { StatCard, StreakCard } from "@/components/productivity";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -641,8 +642,7 @@ function FocusPanel({
 
       <div className="grid min-h-0 flex-1 gap-4 overflow-y-auto p-4 xl:grid-rows-[auto_minmax(0,1fr)]">
         <div className="grid gap-3 sm:grid-cols-3">
-          <StatCard
-            icon={Flame}
+          <StreakCard
             label="Sequencia atual"
             value={`${metrics.currentStreak} dias`}
           />
@@ -817,26 +817,6 @@ function MetricTile({
   return (
     <div className="rounded-lg border border-border/70 bg-card p-3">
       <div className="flex items-center gap-2 text-xs text-muted-foreground">
-        <Icon className="h-4 w-4 text-primary" />
-        {label}
-      </div>
-      <div className="mt-2 text-2xl font-semibold">{value}</div>
-    </div>
-  );
-}
-
-function StatCard({
-  icon: Icon,
-  label,
-  value,
-}: {
-  icon: ComponentType<{ className?: string }>;
-  label: string;
-  value: string;
-}) {
-  return (
-    <div className="rounded-lg border border-border/70 bg-background p-4">
-      <div className="flex items-center gap-2 text-sm text-muted-foreground">
         <Icon className="h-4 w-4 text-primary" />
         {label}
       </div>

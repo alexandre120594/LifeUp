@@ -1,194 +1,89 @@
-import prisma from "@/lib/prisma";
-import { DEFAULT_FINANCE_CATEGORIES } from "@/lib/finance-defaults";
-import { buildFinanceSummary } from "@/lib/finance";
-import { requireCurrentUserId } from "@/lib/auth";
-import { isMissingSavingsContributionsTableError } from "@/lib/prisma-errors";
-import type {
-  FinanceRecordType,
-  FinancialCategory,
-  SavingsGoal,
-} from "@/types/BaseInterfaces";
 import { NextResponse } from "next/server";
+import { requireCurrentUserId } from "@/lib/auth";
+import { DEFAULT_FINANCE_CATEGORIES } from "@/lib/finance-defaults";
+import { calculateAccountBalance, calculateFinanceSummary, getMonthRange } from "@/lib/finance-core";
+import prisma from "@/lib/prisma";
+import type { FinanceRecordType } from "@/types/Finance";
 
-async function ensureDefaultCategories(userId: number) {
-  await Promise.all(
-    DEFAULT_FINANCE_CATEGORIES.map((category) =>
-      prisma.financialCategory.upsert({
-        where: {
-          userId_name_type: {
-            userId,
-            name: category.name,
-            type: category.type,
-          },
-        },
-        create: {
-          ...category,
-          isDefault: true,
-          userId,
-        },
-        update: {
-          color: category.color,
-          isDefault: true,
-        },
-      })
-    )
-  );
-}
+async function ensureFinanceFoundation(userId: number) {
+  await Promise.all(DEFAULT_FINANCE_CATEGORIES.map((category) =>
+    prisma.financialCategory.upsert({
+      where: { userId_name_type: { userId, name: category.name, type: category.type } },
+      create: { ...category, isDefault: true, userId },
+      update: { color: category.color, isDefault: true },
+    })
+  ));
 
-function normalizeCategory(category: {
-  color: string | null;
-  icon: string | null;
-  id: string;
-  isDefault: boolean;
-  name: string;
-  type: string;
-}): FinancialCategory {
-  return {
-    color: category.color,
-    icon: category.icon,
-    id: category.id,
-    isDefault: category.isDefault,
-    name: category.name,
-    type: category.type as FinanceRecordType,
-  };
-}
+  const account = await prisma.financialAccount.upsert({
+    where: { userId_name: { userId, name: "Conta principal" } },
+    create: { name: "Conta principal", userId },
+    update: {},
+  });
+  await prisma.financialTransaction.updateMany({
+    where: { accountId: null, userId },
+    data: { accountId: account.id },
+  });
 
-async function getSavingsGoals(userId: number): Promise<SavingsGoal[]> {
-  try {
-    const savingsGoals = await prisma.savingsGoal.findMany({
-      where: { userId },
-      include: {
-        contributions: {
-          orderBy: { date: "desc" },
-        },
-      },
-      orderBy: { createdAt: "desc" },
-    });
-
-    return savingsGoals.map((goal) => ({
-      ...goal,
-      contributions: goal.contributions.map((contribution) => ({
-        amount: Number(contribution.amount),
-        date: contribution.date,
-        goalId: contribution.goalId,
-        id: contribution.id,
-        notes: contribution.notes,
-      })),
-      currentAmount: Number(goal.currentAmount),
-      targetAmount: Number(goal.targetAmount),
-    }));
-  } catch (error) {
-    if (!isMissingSavingsContributionsTableError(error)) {
-      throw error;
-    }
-
-    const savingsGoals = await prisma.savingsGoal.findMany({
-      where: { userId },
-      orderBy: { createdAt: "desc" },
-    });
-
-    return savingsGoals.map((goal) => ({
-      ...goal,
-      contributions:
-        Number(goal.currentAmount) > 0
-          ? [
-              {
-                amount: Number(goal.currentAmount),
-                date: goal.updatedAt,
-                goalId: goal.id,
-                id: `legacy-balance-${goal.id}`,
-                isLegacyBalance: true,
-                notes: "Current saved balance",
-              },
-            ]
-          : [],
-      currentAmount: Number(goal.currentAmount),
-      targetAmount: Number(goal.targetAmount),
-    }));
-  }
 }
 
 export async function GET() {
   const { response, userId } = await requireCurrentUserId();
+  if (response) return response;
 
-  if (response) {
-    return response;
-  }
-
-  await ensureDefaultCategories(userId);
-
-  const [
-    categories,
-    transactions,
-    budgets,
-    plannedExpenses,
-    normalizedGoals,
-  ] =
-    await Promise.all([
-      prisma.financialCategory.findMany({
-        where: { userId },
-        orderBy: [{ type: "asc" }, { name: "asc" }],
-      }),
-      prisma.financialTransaction.findMany({
-        where: { userId },
-        include: { category: true },
-        orderBy: { date: "desc" },
-      }),
-      prisma.budget.findMany({
-        where: { userId },
-        include: { category: true },
-        orderBy: { month: "desc" },
-      }),
-      prisma.plannedExpense.findMany({
-        where: { userId },
-        include: { category: true },
-        orderBy: { plannedDate: "asc" },
-      }),
-      getSavingsGoals(userId),
-    ]);
-
-  const normalizedCategories = categories.map(normalizeCategory);
-  const normalizedTransactions = transactions.map((transaction) => ({
-    amount: Number(transaction.amount),
-    category: normalizeCategory(transaction.category),
-    categoryId: transaction.categoryId,
-    date: transaction.date,
-    id: transaction.id,
-    notes: transaction.notes,
-    title: transaction.title,
-    type: transaction.type as FinanceRecordType,
-  }));
-  const normalizedBudgets = budgets.map((budget) => ({
-    amount: Number(budget.amount),
-    category: normalizeCategory(budget.category),
-    categoryId: budget.categoryId,
-    id: budget.id,
-    month: budget.month,
-    title: budget.title,
-  }));
-  const normalizedPlannedExpenses = plannedExpenses.map((expense) => ({
-    amount: Number(expense.amount),
-    category: normalizeCategory(expense.category),
-    categoryId: expense.categoryId,
-    id: expense.id,
-    isPaid: expense.isPaid,
-    notes: expense.notes,
-    plannedDate: expense.plannedDate,
-    title: expense.title,
-    type: expense.type as FinanceRecordType,
-  }));
-  return NextResponse.json({
-    categories: normalizedCategories,
-    transactions: normalizedTransactions,
-    budgets: normalizedBudgets,
-    recurringBills: [],
-    plannedExpenses: normalizedPlannedExpenses,
-    savingsGoals: normalizedGoals,
-    summary: buildFinanceSummary({
-      transactions: normalizedTransactions,
-      budgets: normalizedBudgets,
-      recurringBills: [],
-      savingsGoals: normalizedGoals,
+  await ensureFinanceFoundation(userId);
+  const { start, end } = getMonthRange();
+  const [accounts, categories, transactions, periodTransactions, commitments, goals] = await Promise.all([
+    prisma.financialAccount.findMany({
+      where: { userId },
+      include: { transactions: { select: { amount: true, type: true } } },
+      orderBy: [{ isActive: "desc" }, { name: "asc" }],
     }),
+    prisma.financialCategory.findMany({ where: { userId }, orderBy: [{ type: "asc" }, { name: "asc" }] }),
+    prisma.financialTransaction.findMany({
+      where: { accountId: { not: null }, userId }, include: { account: true, category: true },
+      orderBy: { date: "desc" }, take: 30,
+    }),
+    prisma.financialTransaction.findMany({
+      where: { accountId: { not: null }, date: { gte: start, lt: end }, userId },
+      select: { amount: true, type: true },
+    }),
+    prisma.financialCommitment.findMany({
+      where: { userId }, include: { account: true, category: true }, orderBy: { dueDate: "asc" },
+    }),
+    prisma.savingsGoal.findMany({
+      where: { userId }, include: { contributions: { select: { amount: true } } },
+      orderBy: { createdAt: "desc" },
+    }),
+  ]);
+
+  const normalizedAccounts = accounts.map((account) => ({
+    balance: calculateAccountBalance(Number(account.openingBalance), account.transactions.map((transaction) => ({
+      amount: Number(transaction.amount), type: transaction.type as FinanceRecordType,
+    }))),
+    id: account.id, isActive: account.isActive, name: account.name,
+    openingBalance: Number(account.openingBalance),
+  }));
+  const periodSummary = calculateFinanceSummary(periodTransactions.map((transaction) => ({
+    amount: Number(transaction.amount), type: transaction.type as FinanceRecordType,
+  })));
+
+  return NextResponse.json({
+    accounts: normalizedAccounts,
+    categories,
+    commitments: commitments.map((commitment) => ({ ...commitment, amount: Number(commitment.amount) })),
+    goals: goals.map((goal) => {
+      const currentAmount = goal.contributions.reduce((total, item) => total + Number(item.amount), 0);
+      const targetAmount = Number(goal.targetAmount);
+      return {
+        id: goal.id, title: goal.title, targetAmount, currentAmount, targetDate: goal.targetDate,
+        status: currentAmount >= targetAmount ? "completed" : goal.status,
+        progress: targetAmount ? Math.min(100, Math.round((currentAmount / targetAmount) * 100)) : 0,
+      };
+    }),
+    summary: {
+      balance: normalizedAccounts.reduce((total, account) => total + account.balance, 0),
+      ...periodSummary,
+    },
+    transactions: transactions.map((transaction) => ({ ...transaction, amount: Number(transaction.amount) })),
   });
 }

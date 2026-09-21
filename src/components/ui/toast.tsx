@@ -57,7 +57,7 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
     const nextToast: ToastItem = {
       id,
       message: input.message,
-      title: input.title ?? (input.type === "error" ? "Action failed" : "Saved"),
+      title: input.title ?? (input.type === "error" ? "Nao foi possivel concluir" : "Salvo"),
       type: input.type ?? "success",
     };
 
@@ -78,7 +78,7 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
   return (
     <ToastContext.Provider value={value}>
       {children}
-      <div className="fixed right-4 top-4 z-[100] grid w-[min(360px,calc(100vw-2rem))] gap-2">
+      <div className="fixed right-4 top-4 z-[100] grid w-[min(390px,calc(100vw-2rem))] gap-2">
         {toasts.map((currentToast) => {
           const Icon =
             currentToast.type === "error" ? CircleAlert : CheckCircle2;
@@ -87,34 +87,36 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
             <div
               key={currentToast.id}
               className={cn(
-                "flex items-start gap-3 rounded-lg border bg-card p-3 text-card-foreground shadow-lg",
+                "flex items-start gap-2.5 rounded-xl border bg-panel-elevated p-3 text-card-foreground shadow-snow-2 backdrop-blur-xl",
                 currentToast.type === "error"
                   ? "border-destructive/40"
                   : "border-primary/30"
               )}
-              role="status"
+              role={currentToast.type === "error" ? "alert" : "status"}
             >
-              <Icon
+              <span
                 className={cn(
-                  "mt-0.5 h-4 w-4 shrink-0",
+                  "grid size-[30px] shrink-0 place-items-center rounded-[9px]",
                   currentToast.type === "error"
-                    ? "text-destructive"
-                    : "text-primary"
+                    ? "bg-destructive/10 text-destructive"
+                    : "bg-success/10 text-success"
                 )}
-              />
+              >
+                <Icon className="size-4" />
+              </span>
               <div className="min-w-0 flex-1">
-                <div className="text-sm font-semibold">
+                <div className="text-xs font-semibold">
                   {currentToast.title}
                 </div>
-                <div className="break-words text-sm text-muted-foreground">
+                <div className="mt-0.5 break-words text-[11px] leading-[1.45] text-text-secondary">
                   {currentToast.message}
                 </div>
               </div>
               <Button
-                aria-label="Dismiss notification"
-                className="h-7 w-7 shrink-0"
+                aria-label="Fechar notificacao"
+                className="size-[30px] shrink-0"
                 onClick={() => dismiss(currentToast.id)}
-                size="icon"
+                size="icon-sm"
                 type="button"
                 variant="ghost"
               >

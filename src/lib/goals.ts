@@ -1,9 +1,11 @@
-import { GoalStatus } from "@/generated/client";
+import { GoalArea, GoalStatus } from "@/generated/client";
 
 const statuses = new Set<string>(Object.values(GoalStatus));
+const areas = new Set<string>(Object.values(GoalArea));
 
 export function normalizeGoalInput(input: Record<string, unknown>, partial = false) {
   const data: {
+    area?: GoalArea;
     color?: string | null;
     description?: string | null;
     progress?: number;
@@ -19,6 +21,15 @@ export function normalizeGoalInput(input: Record<string, unknown>, partial = fal
     data.title = input.title.trim();
   } else if (!partial) {
     return { error: "Title is required." };
+  }
+
+  if ("area" in input) {
+    if (typeof input.area !== "string" || !areas.has(input.area)) {
+      return { error: "Invalid area." };
+    }
+    data.area = input.area as GoalArea;
+  } else if (!partial) {
+    return { error: "Area is required." };
   }
 
   if ("description" in input) {
@@ -65,4 +76,12 @@ export function normalizeGoalInput(input: Record<string, unknown>, partial = fal
   }
 
   return { data };
+}
+
+export function isGoalArea(value: unknown): value is GoalArea {
+  return typeof value === "string" && areas.has(value);
+}
+
+export function isGoalStatus(value: unknown): value is GoalStatus {
+  return typeof value === "string" && statuses.has(value);
 }

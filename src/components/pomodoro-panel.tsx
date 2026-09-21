@@ -1,6 +1,6 @@
 "use client";
 
-import { type FormEvent, useCallback, useEffect, useRef, useState } from "react";
+import { type FormEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   BookOpen,
   ChevronLeft,
@@ -18,6 +18,8 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import { EmptyState, ErrorState, FieldError, LoadingState, RetryButton } from "@/components/ui/app-state";
 import {
   Dialog,
   DialogContent,
@@ -41,10 +43,7 @@ import {
   usePomodoroDashboard,
   useUpdatePomodoroSession,
 } from "@/hooks/usePomodoroMutations";
-import {
-  useCreateStudySubject,
-  useStudySubjects,
-} from "@/hooks/useStudyMutations";
+import { useCreateStudySubject, useStudyWorkspace } from "@/hooks/useStudyWorkspace";
 import { formatFocusDuration } from "@/lib/pomodoro";
 import type {
   PomodoroSession,
@@ -103,14 +102,22 @@ export function PomodoroPanel() {
   const [isSetupDialogOpen, setIsSetupDialogOpen] = useState(false);
   const [isSubjectDialogOpen, setIsSubjectDialogOpen] = useState(false);
   const [newSubjectName, setNewSubjectName] = useState("");
-  const [newSubjectNotes, setNewSubjectNotes] = useState("");
+  const [setupNameError, setSetupNameError] = useState("");
+  const [subjectNameError, setSubjectNameError] = useState("");
   const [hasRestoredTimer, setHasRestoredTimer] = useState(false);
   const focusStartedAtRef = useRef<Date | null>(null);
   const phaseEndsAtRef = useRef<Date | null>(null);
   const autoSaveInProgressRef = useRef(false);
-  const { data: subjects = [] } = useStudySubjects();
+  const studyWorkspace = useStudyWorkspace();
+  const subjects = useMemo(() => studyWorkspace.data?.subjects ?? [], [studyWorkspace.data?.subjects]);
+  const areSubjectsLoading = studyWorkspace.isLoading;
   const createSubject = useCreateStudySubject();
-  const { data: pomodoro } = usePomodoroDashboard();
+  const {
+    data: pomodoro,
+    isError: isPomodoroError,
+    isLoading: isPomodoroLoading,
+    refetch: refetchPomodoro,
+  } = usePomodoroDashboard();
   const { mutate: createSession, isPending } = useCreatePomodoroSession();
 
   const phaseTotalSeconds =
@@ -282,7 +289,7 @@ export function PomodoroPanel() {
           title:
             sessionName.trim() ||
             subjects.find((subject) => subject.id === selectedSubjectId)?.name ||
-            "Study focus",
+            "Foco de estudo",
           startedAt: startedAt.toISOString(),
           subjectId: selectedSubjectId,
         },
@@ -438,10 +445,16 @@ export function PomodoroPanel() {
   const startConfiguredSession = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    if (!sessionName.trim() || !canSaveFocus) {
+    if (!sessionName.trim()) {
+      setSetupNameError("Informe um nome para a sessao.");
       return;
     }
 
+    if (!canSaveFocus) {
+      return;
+    }
+
+    setSetupNameError("");
     setIsSetupDialogOpen(false);
     startTimer();
   };
@@ -469,18 +482,18 @@ export function PomodoroPanel() {
     const name = newSubjectName.trim();
 
     if (!name) {
+      setSubjectNameError("Informe o nome da materia.");
       return;
     }
 
+    setSubjectNameError("");
     const subject = await createSubject.mutateAsync({
       name,
-      notes: newSubjectNotes.trim() || null,
-      plannedHoursPerWeek: 1,
+      plannedMinutesPerWeek: 60,
     });
 
     setSelectedSubjectId(subject.id);
     setNewSubjectName("");
-    setNewSubjectNotes("");
     setIsSubjectDialogOpen(false);
   };
 
@@ -490,10 +503,10 @@ export function PomodoroPanel() {
         <div className="flex min-w-0 flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           <CardTitle className="flex min-w-0 items-center gap-2">
             <TimerReset className="h-5 w-5 text-primary" />
-            <span className="min-w-0 truncate">Study focus timer</span>
+            <span className="min-w-0 truncate">Timer de foco</span>
           </CardTitle>
           <div className="min-w-0 truncate text-sm text-muted-foreground">
-            Subject-based study sessions
+            Sessoes de estudo organizadas por materia
           </div>
         </div>
       </CardHeader>
@@ -508,14 +521,14 @@ export function PomodoroPanel() {
                   <Pause className="h-3.5 w-3.5 text-primary" />
                 )}
                 <span className="min-w-0 truncate">
-                  {phase === "focus" ? "Study focus" : "Break"}
+                  {phase === "focus" ? "Foco" : "Pausa"}
                 </span>
               </div>
               <div className="mt-4 text-5xl font-semibold tabular-nums tracking-tight sm:text-6xl lg:text-7xl">
                 {formatTimer(remainingSeconds)}
               </div>
               <p className="mx-auto mt-4 max-w-2xl break-words text-sm text-muted-foreground [overflow-wrap:anywhere]">
-                Save study time by subject.
+                Salve tempo de estudo por materia.
               </p>
               <div className="mt-4 h-2 overflow-hidden rounded-full bg-background">
                 <div
@@ -524,8 +537,8 @@ export function PomodoroPanel() {
                 />
               </div>
               <div className="mt-2 text-xs text-muted-foreground">
-                Cycle {Math.min(completedCycles + 1, targetCycles)} of{" "}
-                {targetCycles} / {completedCycles} completed
+                Ciclo {Math.min(completedCycles + 1, targetCycles)} de{" "}
+                {targetCycles} / {completedCycles} concluidos
               </div>
             </div>
 
@@ -537,7 +550,7 @@ export function PomodoroPanel() {
                 type="button"
               >
                 <Play className="h-4 w-4" />
-                <span className="min-w-0 truncate">Start</span>
+                <span className="min-w-0 truncate">Iniciar</span>
               </Button>
               <Button
                 className="min-w-0 gap-2"
@@ -547,7 +560,7 @@ export function PomodoroPanel() {
                 variant="outline"
               >
                 <Pause className="h-4 w-4" />
-                <span className="min-w-0 truncate">Pause</span>
+                <span className="min-w-0 truncate">Pausar</span>
               </Button>
               <Button
                 className="min-w-0 gap-2"
@@ -559,7 +572,7 @@ export function PomodoroPanel() {
                 variant="outline"
               >
                 <RotateCcw className="h-4 w-4" />
-                <span className="min-w-0 truncate">Reset</span>
+                <span className="min-w-0 truncate">Reiniciar</span>
               </Button>
               <Button
                 className="min-w-0 gap-2"
@@ -569,89 +582,127 @@ export function PomodoroPanel() {
                 variant="secondary"
               >
                 <Save className="h-4 w-4" />
-                <span className="min-w-0 truncate">Save</span>
+                <span className="min-w-0 truncate">Salvar</span>
               </Button>
             </div>
           </section>
 
           <aside className="min-w-0">
-            <SubjectHoursChart subjects={pomodoro?.bySubject ?? []} />
+            {isPomodoroLoading ? (
+              <LoadingState title="Carregando horas" />
+            ) : isPomodoroError ? (
+              <ErrorState
+                action={<RetryButton onClick={() => refetchPomodoro()} />}
+                description="Nao foi possivel buscar o resumo de foco."
+                title="Resumo indisponivel."
+              />
+            ) : (
+              <SubjectHoursChart subjects={pomodoro?.bySubject ?? []} />
+            )}
           </aside>
         </div>
 
         <section className="grid min-w-0 gap-4">
           <div className="grid min-w-0 gap-3 sm:grid-cols-2">
             <FocusMetric
-              label="Total focused"
+              label="Total focado"
               value={formatFocusDuration(pomodoro?.totalMinutes ?? 0)}
             />
             <FocusMetric
-              label="Studied"
+              label="Estudado"
               value={formatFocusDuration(pomodoro?.studyMinutes ?? 0)}
             />
           </div>
 
-          <FocusHistory
-            sessions={pomodoro?.sessions ?? []}
-            subjectSummaries={pomodoro?.bySubject ?? []}
-            subjects={subjects}
-          />
+          {isPomodoroLoading ? (
+            <LoadingState title="Carregando historico" />
+          ) : isPomodoroError ? (
+            <ErrorState
+              action={<RetryButton onClick={() => refetchPomodoro()} />}
+              description="As sessoes salvas nao puderam ser carregadas."
+              title="Historico indisponivel."
+            />
+          ) : (
+            <FocusHistory
+              sessions={pomodoro?.sessions ?? []}
+              subjectSummaries={pomodoro?.bySubject ?? []}
+              subjects={subjects}
+            />
+          )}
         </section>
       </CardContent>
       <Dialog open={isSetupDialogOpen} onOpenChange={setIsSetupDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Set up focus session</DialogTitle>
+            <DialogTitle>Configurar sessao de foco</DialogTitle>
             <DialogDescription>
-              Choose the name, subject, timing, and cycle target before starting.
+              Escolha nome, materia, tempos e ciclos antes de iniciar.
             </DialogDescription>
           </DialogHeader>
           <form className="grid gap-4" onSubmit={startConfiguredSession}>
             <label className="grid gap-1.5 text-sm">
-              <span className="font-medium">Session name</span>
+              <span className="font-medium">Nome da sessao</span>
               <Input
+                aria-describedby={setupNameError ? "focus-session-name-error" : undefined}
+                aria-invalid={Boolean(setupNameError)}
                 autoFocus
                 maxLength={120}
-                onChange={(event) => setSessionName(event.target.value)}
-                placeholder="Example: Calculus chapter 4"
+                onChange={(event) => {
+                  setSessionName(event.target.value);
+                  if (setupNameError) {
+                    setSetupNameError("");
+                  }
+                }}
+                placeholder="Ex.: Capitulo 4 de calculo"
                 value={sessionName}
               />
+              <FieldError id="focus-session-name-error">{setupNameError}</FieldError>
             </label>
             <div className="grid gap-2">
               <div className="flex items-center justify-between gap-2">
-                <label className="text-sm font-medium">Subject</label>
+                <label className="text-sm font-medium" htmlFor="focus-subject">
+                  Materia
+                </label>
                 <Dialog
                   open={isSubjectDialogOpen}
-                  onOpenChange={setIsSubjectDialogOpen}
+                  onOpenChange={(open) => {
+                    setIsSubjectDialogOpen(open);
+                    if (!open) {
+                      setSubjectNameError("");
+                    }
+                  }}
                 >
                   <DialogTrigger asChild>
                     <Button className="h-8 gap-1 px-2" type="button" variant="outline">
                       <Plus className="h-3.5 w-3.5" />
-                      Add subject
+                      Adicionar
                     </Button>
                   </DialogTrigger>
                   <DialogContent>
                     <DialogHeader>
-                      <DialogTitle>Add subject</DialogTitle>
+                      <DialogTitle>Adicionar materia</DialogTitle>
                     </DialogHeader>
                     <form className="grid gap-3" onSubmit={handleCreateSubject}>
                       <Input
-                        onChange={(event) => setNewSubjectName(event.target.value)}
-                        placeholder="Subject name"
+                        aria-describedby={subjectNameError ? "focus-subject-name-error" : undefined}
+                        aria-invalid={Boolean(subjectNameError)}
+                        onChange={(event) => {
+                          setNewSubjectName(event.target.value);
+                          if (subjectNameError) {
+                            setSubjectNameError("");
+                          }
+                        }}
+                        placeholder="Nome da materia"
                         value={newSubjectName}
                       />
-                      <Input
-                        onChange={(event) => setNewSubjectNotes(event.target.value)}
-                        placeholder="Notes"
-                        value={newSubjectNotes}
-                      />
+                      <FieldError id="focus-subject-name-error">{subjectNameError}</FieldError>
                       <DialogFooter>
                         <Button
                           disabled={!newSubjectName.trim() || createSubject.isPending}
                           type="submit"
                         >
                           <Plus className="h-4 w-4" />
-                          Add subject
+                          Adicionar materia
                         </Button>
                       </DialogFooter>
                     </form>
@@ -663,8 +714,8 @@ export function PomodoroPanel() {
                 onValueChange={setSelectedSubjectId}
                 value={selectedSubjectId}
               >
-                <SelectTrigger>
-                  <SelectValue placeholder="Choose subject" />
+                <SelectTrigger id="focus-subject">
+                  <SelectValue placeholder="Escolha uma materia" />
                 </SelectTrigger>
                 <SelectContent>
                   {subjects.map((subject) => (
@@ -677,21 +728,21 @@ export function PomodoroPanel() {
             </div>
             <div className="grid gap-3 sm:grid-cols-3">
               <NumberSetting
-                label="Focus"
+                label="Foco"
                 max={180}
                 min={1}
                 onChange={updateFocusMinutes}
                 value={focusMinutes}
               />
               <NumberSetting
-                label="Break"
+                label="Pausa"
                 max={60}
                 min={1}
                 onChange={updateBreakMinutes}
                 value={breakMinutes}
               />
               <NumberSetting
-                label="Cycles"
+                label="Ciclos"
                 max={12}
                 min={1}
                 onChange={updateTargetCycles}
@@ -699,17 +750,21 @@ export function PomodoroPanel() {
               />
             </div>
             <label className="grid gap-1.5 text-sm">
-              <span className="font-medium">Note</span>
+              <span className="font-medium">Nota</span>
               <Input
                 onChange={(event) => setNotes(event.target.value)}
-                placeholder="Optional note"
+                placeholder="Nota opcional"
                 value={notes}
               />
             </label>
-            {!subjects.length ? (
-              <div className="rounded-md bg-secondary/35 p-3 text-sm text-muted-foreground">
-                Add a subject before starting.
-              </div>
+            {areSubjectsLoading ? (
+              <LoadingState className="min-h-16" title="Carregando materias" />
+            ) : !subjects.length ? (
+              <EmptyState
+                className="p-3"
+                description="Crie uma materia para salvar sessoes de foco."
+                title="Nenhuma materia cadastrada."
+              />
             ) : null}
             <DialogFooter>
               <Button
@@ -717,7 +772,7 @@ export function PomodoroPanel() {
                 type="submit"
               >
                 <Play className="h-4 w-4" />
-                Start session
+                Iniciar sessao
               </Button>
             </DialogFooter>
           </form>
@@ -753,7 +808,7 @@ function SubjectHoursChart({ subjects }: { subjects: PomodoroSummaryItem[] }) {
       <div className="mb-4 flex min-w-0 flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex min-w-0 items-center gap-2 text-sm font-medium">
           <GraduationCap className="h-4 w-4 text-primary" />
-          <span className="min-w-0 truncate">Hours by subject</span>
+          <span className="min-w-0 truncate">Horas por materia</span>
         </div>
         <div className="shrink-0 rounded-md bg-secondary/50 px-2.5 py-1 text-xs font-medium text-muted-foreground">
           {formatFocusDuration(totalMinutes)} total
@@ -796,7 +851,7 @@ function SubjectHoursChart({ subjects }: { subjects: PomodoroSummaryItem[] }) {
                     />
                   </div>
                   <div className="flex items-center justify-between text-xs text-muted-foreground">
-                    <span>{share}% of saved focus</span>
+                    <span>{share}% do foco salvo</span>
                     <span>{Math.round(subject.minutes / 60 * 10) / 10}h</span>
                   </div>
                 </div>
@@ -811,11 +866,11 @@ function SubjectHoursChart({ subjects }: { subjects: PomodoroSummaryItem[] }) {
                   (currentPage + 1) * subjectHoursPageSize,
                   sortedSubjects.length
                 )}{" "}
-                of {sortedSubjects.length}
+                de {sortedSubjects.length}
               </span>
               <div className="flex items-center gap-1">
                 <Button
-                  aria-label="Previous subject hours page"
+                  aria-label="Pagina anterior de horas por materia"
                   className="h-8 w-8"
                   disabled={currentPage === 0}
                   onClick={() =>
@@ -831,7 +886,7 @@ function SubjectHoursChart({ subjects }: { subjects: PomodoroSummaryItem[] }) {
                   {currentPage + 1}/{totalPages}
                 </span>
                 <Button
-                  aria-label="Next subject hours page"
+                  aria-label="Proxima pagina de horas por materia"
                   className="h-8 w-8"
                   disabled={currentPage >= totalPages - 1}
                   onClick={() =>
@@ -851,7 +906,7 @@ function SubjectHoursChart({ subjects }: { subjects: PomodoroSummaryItem[] }) {
         </div>
       ) : (
         <div className="rounded-lg bg-secondary/35 p-3 text-sm text-muted-foreground">
-          Save a focus session to see subject hours.
+          Salve uma sessao de foco para ver horas por materia.
         </div>
       )}
     </div>
@@ -919,8 +974,12 @@ function FocusHistory({
   const [editingSession, setEditingSession] = useState<PomodoroSession | null>(
     null
   );
+  const [sessionToDelete, setSessionToDelete] = useState<PomodoroSession | null>(
+    null
+  );
   const [editedTitle, setEditedTitle] = useState("");
   const [editedSubjectId, setEditedSubjectId] = useState("");
+  const [editedTitleError, setEditedTitleError] = useState("");
   const { mutate: deleteSession, isPending: isDeleting } =
     useDeletePomodoroSession();
   const updateSession = useUpdatePomodoroSession();
@@ -940,22 +999,20 @@ function FocusHistory({
     currentPage * focusHistoryPageSize
   );
 
-  const handleDeleteSession = (session: PomodoroSession) => {
-    const confirmed = window.confirm(
-      `Delete ${formatFocusDuration(session.durationMinutes)} from ${
-        session.subject?.name ?? "No subject"
-      }?`
-    );
-
-    if (confirmed) {
-      deleteSession(session.id);
+  const handleDeleteSession = () => {
+    if (!sessionToDelete) {
+      return;
     }
+
+    deleteSession(sessionToDelete.id, {
+      onSuccess: () => setSessionToDelete(null),
+    });
   };
 
   const openEditSession = (session: PomodoroSession) => {
     setEditingSession(session);
     setEditedTitle(
-      session.title?.trim() || session.subject?.name || "Study focus"
+      session.title?.trim() || session.subject?.name || "Foco de estudo"
     );
     setEditedSubjectId(session.subjectId ?? "");
   };
@@ -963,10 +1020,16 @@ function FocusHistory({
   const handleUpdateSession = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    if (!editingSession || !editedTitle.trim() || !editedSubjectId) {
+    if (!editingSession || !editedSubjectId) {
       return;
     }
 
+    if (!editedTitle.trim()) {
+      setEditedTitleError("Informe um nome para a sessao.");
+      return;
+    }
+
+    setEditedTitleError("");
     updateSession.mutate(
       {
         id: editingSession.id,
@@ -989,22 +1052,22 @@ function FocusHistory({
         <div className="min-w-0">
           <div className="flex min-w-0 items-center gap-2 text-sm font-medium">
             <Clock3 className="h-4 w-4 text-primary" />
-            <span className="truncate">Study focus history</span>
+            <span className="truncate">Historico de foco</span>
           </div>
           <div className="mt-1 text-xs text-muted-foreground">
             {filteredSessions.length
-              ? `${filteredSessions.length} saved sessions`
-              : "No saved sessions yet"}
+              ? `${filteredSessions.length} sessoes salvas`
+              : "Nenhuma sessao salva ainda"}
           </div>
         </div>
         {filteredSessions.length ? (
           <div className="flex shrink-0 items-center gap-2 text-xs text-muted-foreground">
             <span>
-              Page {currentPage} of {totalPages}
+              Pagina {currentPage} de {totalPages}
             </span>
             <div className="flex gap-1">
               <Button
-                aria-label="Previous study focus history page"
+                aria-label="Pagina anterior do historico de foco"
                 className="h-8 w-8"
                 disabled={currentPage <= 1}
                 onClick={() => setPage(Math.max(currentPage - 1, 1))}
@@ -1015,7 +1078,7 @@ function FocusHistory({
                 <ChevronLeft className="h-4 w-4" />
               </Button>
               <Button
-                aria-label="Next study focus history page"
+                aria-label="Proxima pagina do historico de foco"
                 className="h-8 w-8"
                 disabled={currentPage >= totalPages}
                 onClick={() => setPage(Math.min(currentPage + 1, totalPages))}
@@ -1040,7 +1103,7 @@ function FocusHistory({
             type="button"
             variant={selectedSubjectId === "all" ? "default" : "outline"}
           >
-            All
+            Todas
           </Button>
           {subjectSummaries.map((subject) => (
             <Button
@@ -1074,10 +1137,10 @@ function FocusHistory({
                   <span className="min-w-0 truncate font-medium">
                     {session.title?.trim() ||
                       session.subject?.name ||
-                      "Study focus"}
+                      "Foco de estudo"}
                   </span>
                   <span className="rounded-md bg-background/75 px-2 py-0.5 text-xs font-medium text-muted-foreground">
-                    {session.subject?.name ?? "No subject"}
+                    {session.subject?.name ?? "Sem materia"}
                   </span>
                 </div>
                 <div className="mt-1 min-w-0 truncate text-xs text-muted-foreground">
@@ -1098,7 +1161,7 @@ function FocusHistory({
               </div>
               <Button
                 aria-label={`Edit ${
-                  session.title?.trim() || session.subject?.name || "focus session"
+                  session.title?.trim() || session.subject?.name || "sessao de foco"
                 }`}
                 className="h-9 w-full sm:w-9"
                 disabled={updateSession.isPending}
@@ -1110,12 +1173,12 @@ function FocusHistory({
                 <Pencil className="h-4 w-4" />
               </Button>
               <Button
-                aria-label={`Delete focus session from ${
-                  session.subject?.name ?? "No subject"
+                aria-label={`Excluir sessao de foco de ${
+                  session.subject?.name ?? "sem materia"
                 }`}
                 className="h-9 w-full sm:w-9"
                 disabled={isDeleting}
-                onClick={() => handleDeleteSession(session)}
+                onClick={() => setSessionToDelete(session)}
                 size="icon"
                 type="button"
                 variant="outline"
@@ -1126,7 +1189,7 @@ function FocusHistory({
           ))
         ) : (
           <p className="rounded-lg bg-secondary/35 p-3 text-sm text-muted-foreground">
-            Complete a study focus cycle to build your history.
+            Complete um ciclo de foco para montar o historico.
           </p>
         )}
       </div>
@@ -1137,34 +1200,43 @@ function FocusHistory({
             setEditingSession(null);
             setEditedTitle("");
             setEditedSubjectId("");
+            setEditedTitleError("");
           }
         }}
       >
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Edit focus session</DialogTitle>
+            <DialogTitle>Editar sessao de foco</DialogTitle>
             <DialogDescription>
-              Change the session name and the subject used in study totals.
+              Altere o nome e a materia usada nos totais de estudo.
             </DialogDescription>
           </DialogHeader>
           <form className="grid gap-4" onSubmit={handleUpdateSession}>
             <label className="grid gap-1.5 text-sm">
-              <span className="font-medium">Session name</span>
+              <span className="font-medium">Nome da sessao</span>
               <Input
+                aria-describedby={editedTitleError ? "focus-edit-title-error" : undefined}
+                aria-invalid={Boolean(editedTitleError)}
                 autoFocus
                 maxLength={120}
-                onChange={(event) => setEditedTitle(event.target.value)}
+                onChange={(event) => {
+                  setEditedTitle(event.target.value);
+                  if (editedTitleError) {
+                    setEditedTitleError("");
+                  }
+                }}
                 value={editedTitle}
               />
+              <FieldError id="focus-edit-title-error">{editedTitleError}</FieldError>
             </label>
             <label className="grid gap-1.5 text-sm">
-              <span className="font-medium">Subject</span>
+              <span className="font-medium">Materia</span>
               <Select
                 onValueChange={setEditedSubjectId}
                 value={editedSubjectId}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="Choose subject" />
+                  <SelectValue placeholder="Escolha uma materia" />
                 </SelectTrigger>
                 <SelectContent>
                   {subjects.map((subject) => (
@@ -1184,12 +1256,30 @@ function FocusHistory({
                 }
                 type="submit"
               >
-                Save changes
+                Salvar alteracoes
               </Button>
             </DialogFooter>
           </form>
         </DialogContent>
       </Dialog>
+      <ConfirmDialog
+        description={
+          sessionToDelete
+            ? `A sessao de ${formatFocusDuration(
+                sessionToDelete.durationMinutes
+              )} sera removida do historico.`
+            : "Esta sessao sera removida do historico."
+        }
+        isPending={isDeleting}
+        onConfirm={handleDeleteSession}
+        onOpenChange={(open) => {
+          if (!open) {
+            setSessionToDelete(null);
+          }
+        }}
+        open={Boolean(sessionToDelete)}
+        title="Excluir sessao?"
+      />
     </div>
   );
 }

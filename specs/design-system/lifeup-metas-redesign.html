@@ -1,0 +1,864 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>LifeUp · Metas</title>
+  <style>
+    :root {
+      --bg: #191919;
+      --sidebar: #242424;
+      --surface: #242424;
+      --surface-2: #2a2a2a;
+      --surface-3: #303030;
+      --border: #3a3a3a;
+      --border-soft: #313131;
+      --text: #f5f5f7;
+      --muted: #9d9da5;
+      --muted-2: #76767d;
+      --primary: #9d92ff;
+      --primary-2: #b2a9ff;
+      --accent: #20c5bb;
+      --danger: #ff7a8d;
+      --warning: #f2c261;
+      --success: #6fd49a;
+      --radius: 14px;
+      --shadow: 0 22px 70px rgba(0,0,0,.46);
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      overflow: hidden;
+    }
+
+    button, input, select, textarea { font: inherit; }
+    button { color: inherit; }
+
+    .app {
+      height: 100vh;
+      display: grid;
+      grid-template-columns: 228px minmax(0, 1fr);
+      background: var(--bg);
+    }
+
+    /* Sidebar */
+    .sidebar {
+      min-width: 0;
+      background: var(--sidebar);
+      border-right: 1px solid var(--border-soft);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .brand {
+      height: 58px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 0 18px;
+      border-bottom: 1px solid var(--border-soft);
+    }
+    .brand-mark {
+      width: 29px;
+      height: 29px;
+      border-radius: 9px;
+      display: grid;
+      place-items: center;
+      color: #466fe7;
+      background: #eef3ff;
+      box-shadow: inset 0 0 0 1px rgba(65, 89, 180, .18);
+    }
+    .brand-title { font-weight: 800; font-size: 13px; letter-spacing: -.01em; }
+    .brand-sub { color: var(--muted); font-size: 9px; margin-top: 2px; }
+
+    .side-scroll {
+      padding: 14px 12px 18px;
+      overflow-y: auto;
+      scrollbar-width: thin;
+      scrollbar-color: #3a3a3a transparent;
+    }
+    .side-section { margin-bottom: 18px; }
+    .side-label {
+      color: #c8c8cc;
+      font-weight: 700;
+      font-size: 10px;
+      margin: 0 8px 7px;
+    }
+    .nav-item {
+      width: 100%;
+      min-height: 42px;
+      border: 0;
+      background: transparent;
+      border-radius: 9px;
+      display: grid;
+      grid-template-columns: 24px minmax(0,1fr) auto;
+      align-items: center;
+      text-align: left;
+      gap: 8px;
+      padding: 7px 9px;
+      cursor: pointer;
+      color: #e6e6e8;
+      transition: .16s ease;
+    }
+    .nav-item:hover { background: #2f2f2f; }
+    .nav-item.active { background: #454545; }
+    .nav-icon { opacity: .78; display: grid; place-items: center; }
+    .nav-title { font-size: 11px; font-weight: 650; }
+    .nav-sub { font-size: 8.5px; color: var(--muted); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .nav-count { font-size: 9px; color: #c7c7cc; padding-right: 2px; }
+
+    .side-footer {
+      margin-top: auto;
+      border-top: 1px solid var(--border-soft);
+      padding: 12px 16px;
+      color: var(--muted);
+      font-size: 9px;
+    }
+
+    /* Workspace */
+    .workspace { min-width: 0; display: grid; grid-template-rows: 58px minmax(0,1fr); }
+    .topbar {
+      height: 58px;
+      border-bottom: 1px solid var(--border-soft);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 24px;
+      background: rgba(28,28,28,.92);
+    }
+    .crumb { display: flex; align-items: center; gap: 12px; }
+    .crumb-icon { color: #d4d4d8; }
+    .eyebrow { font-size: 9px; text-transform: uppercase; letter-spacing: .14em; color: var(--muted-2); font-weight: 800; }
+    .crumb-title { margin-top: 2px; font-weight: 800; font-size: 13px; }
+    .top-actions { display: flex; align-items: center; gap: 8px; }
+    .icon-btn, .ghost-btn {
+      border: 1px solid var(--border);
+      background: #232323;
+      min-height: 34px;
+      border-radius: 10px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      color: #d8d8dc;
+      transition: .16s ease;
+    }
+    .icon-btn { width: 34px; padding: 0; }
+    .ghost-btn { padding: 0 12px; font-size: 11px; font-weight: 700; }
+    .icon-btn:hover, .ghost-btn:hover { background: #2d2d2d; border-color: #4a4a4a; }
+
+    main {
+      min-width: 0;
+      min-height: 0;
+      overflow: auto;
+      padding: 22px 24px 30px;
+      scrollbar-width: thin;
+      scrollbar-color: #3b3b3b transparent;
+    }
+    .content { max-width: 1540px; margin: 0 auto; }
+
+    .page-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      gap: 16px;
+      margin-bottom: 18px;
+    }
+    .section-kicker { color: #7f899f; text-transform: uppercase; letter-spacing: .16em; font-size: 9px; font-weight: 800; }
+    h1 { font-size: 25px; line-height: 1; letter-spacing: -.035em; margin: 7px 0 0; }
+    .page-note { color: var(--muted); font-size: 11px; margin-top: 8px; }
+    .primary-btn {
+      height: 38px;
+      padding: 0 15px;
+      border: 0;
+      border-radius: 10px;
+      background: var(--primary);
+      color: #15141c;
+      font-weight: 800;
+      font-size: 11px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      box-shadow: 0 7px 24px rgba(157,146,255,.17);
+      transition: .16s ease;
+    }
+    .primary-btn:hover { background: var(--primary-2); transform: translateY(-1px); }
+
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0,1fr));
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .metric-card {
+      min-height: 98px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+    }
+    .metric-label { color: #b3b3ba; font-size: 10px; }
+    .metric-value { font-size: 22px; font-weight: 850; letter-spacing: -.04em; margin-top: 7px; }
+    .metric-hint { color: var(--muted-2); font-size: 9px; margin-top: 3px; }
+    .metric-icon {
+      width: 34px; height: 34px; border-radius: 10px; display: grid; place-items:center;
+      background: #2f2f2f; color: #aeaeff;
+    }
+
+    .toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 14px;
+      flex-wrap: wrap;
+    }
+    .filters { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+    .segmented {
+      display: inline-flex;
+      padding: 3px;
+      border-radius: 11px;
+      background: #202020;
+      border: 1px solid #2b2b2b;
+    }
+    .seg-btn {
+      border: 0;
+      background: transparent;
+      color: #c5c5ca;
+      padding: 7px 11px;
+      border-radius: 8px;
+      font-size: 10px;
+      cursor: pointer;
+    }
+    .seg-btn.active { background: #323232; color: white; font-weight: 750; }
+
+    .search {
+      min-width: 250px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 0 10px;
+      background: #222;
+      color: var(--muted);
+    }
+    .search input {
+      width: 100%;
+      min-width: 0;
+      border: 0;
+      outline: 0;
+      background: transparent;
+      color: var(--text);
+      font-size: 10px;
+    }
+    .search input::placeholder { color: #77777d; }
+
+    .goal-panel {
+      min-height: 410px;
+      border: 1px solid var(--border-soft);
+      border-radius: var(--radius);
+      background: #1f1f1f;
+      overflow: hidden;
+    }
+    .goal-panel-head {
+      min-height: 48px;
+      padding: 0 14px;
+      border-bottom: 1px solid var(--border-soft);
+      display: grid;
+      grid-template-columns: minmax(240px,1.5fr) minmax(140px,.7fr) minmax(120px,.6fr) minmax(130px,.7fr) 110px;
+      align-items: center;
+      gap: 12px;
+      color: #85858c;
+      font-size: 9px;
+      text-transform: uppercase;
+      letter-spacing: .07em;
+    }
+    .goal-list { min-height: 360px; }
+    .goal-row {
+      display: grid;
+      grid-template-columns: minmax(240px,1.5fr) minmax(140px,.7fr) minmax(120px,.6fr) minmax(130px,.7fr) 110px;
+      gap: 12px;
+      align-items: center;
+      padding: 13px 14px;
+      border-bottom: 1px solid #292929;
+      font-size: 10px;
+    }
+    .goal-row:hover { background: #242424; }
+    .goal-name { display: flex; align-items: center; gap: 10px; min-width: 0; }
+    .goal-color { width: 8px; height: 32px; border-radius: 999px; background: var(--goal-color, var(--accent)); }
+    .goal-title { font-size: 11px; font-weight: 750; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .goal-description { color: var(--muted); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .pill {
+      display: inline-flex; align-items: center; gap: 6px; width: fit-content;
+      border: 1px solid #3b3b3b; border-radius: 999px; padding: 5px 8px; color: #c6c6cb;
+      background: #292929;
+    }
+    .dot { width: 6px; height: 6px; border-radius: 999px; background: currentColor; }
+    .progress-wrap { display: flex; align-items: center; gap: 8px; }
+    .progress-track { height: 6px; min-width: 88px; max-width: 140px; flex: 1; border-radius: 999px; background: #383838; overflow:hidden; }
+    .progress-fill { height: 100%; width: var(--progress,0%); background: var(--primary); border-radius: inherit; }
+    .row-actions { display: flex; justify-content:flex-end; gap: 6px; }
+    .tiny-btn { width: 30px; height: 30px; border: 1px solid #383838; border-radius: 8px; background: #252525; cursor:pointer; color:#bcbcc1; }
+    .tiny-btn:hover { background:#303030; color:#fff; }
+
+    .empty-state {
+      min-height: 360px;
+      display: grid;
+      place-items: center;
+      text-align: center;
+      padding: 42px 20px;
+    }
+    .empty-icon {
+      width: 52px; height: 52px; border-radius: 16px;
+      background: #292929; border: 1px solid #383838; display:grid; place-items:center;
+      margin: 0 auto 14px; color: var(--primary);
+    }
+    .empty-title { font-size: 14px; font-weight: 800; }
+    .empty-text { max-width: 360px; margin: 7px auto 16px; color: var(--muted); font-size: 10px; line-height: 1.55; }
+
+    /* Modal */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 50;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      background: rgba(7,7,8,.72);
+      backdrop-filter: blur(8px);
+    }
+    .modal-backdrop.open { display: flex; }
+    .modal {
+      width: min(640px, 100%);
+      max-height: calc(100vh - 48px);
+      overflow: auto;
+      border: 1px solid #454545;
+      background: #222;
+      border-radius: 18px;
+      box-shadow: var(--shadow);
+    }
+    .modal-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 20px 20px 14px;
+      border-bottom: 1px solid #323232;
+    }
+    .modal-title { margin: 0; font-size: 18px; letter-spacing: -.02em; }
+    .modal-sub { margin: 5px 0 0; color: var(--muted); font-size: 10px; }
+    .close-btn {
+      width: 34px; height: 34px; border: 1px solid #3b3b3b; border-radius: 10px;
+      background:#292929; color:#d0d0d4; cursor:pointer;
+    }
+    .close-btn:hover { background:#333; }
+
+    .form { padding: 18px 20px 20px; }
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .field { display: flex; flex-direction: column; gap: 7px; }
+    .field.full { grid-column: 1 / -1; }
+    label { font-size: 10px; color: #c9c9ce; font-weight: 700; }
+    .control {
+      width: 100%;
+      min-height: 40px;
+      border: 1px solid #414141;
+      background: #292929;
+      color: var(--text);
+      border-radius: 10px;
+      padding: 0 11px;
+      outline: none;
+      transition: .15s ease;
+    }
+    textarea.control { min-height: 86px; resize: vertical; padding-top: 10px; }
+    .control:focus { border-color: #756be1; box-shadow: 0 0 0 3px rgba(157,146,255,.11); }
+    .hint { font-size: 9px; color: var(--muted-2); }
+
+    .progress-field {
+      display: grid;
+      grid-template-columns: 1fr 48px;
+      align-items: center;
+      gap: 10px;
+    }
+    input[type="range"] { width:100%; accent-color: var(--primary); }
+    .progress-value {
+      height: 36px;
+      border:1px solid #414141;
+      border-radius: 9px;
+      display:grid;
+      place-items:center;
+      font-size:10px;
+      color:#d8d8dc;
+      background:#292929;
+    }
+
+    .color-palette { display: flex; gap: 8px; flex-wrap: wrap; }
+    .color-choice {
+      width: 30px; height: 30px; border-radius: 9px; border: 2px solid transparent;
+      background: var(--choice); cursor:pointer; box-shadow: inset 0 0 0 1px rgba(255,255,255,.15);
+    }
+    .color-choice.selected { border-color:#fff; outline: 2px solid #555; outline-offset: 2px; }
+
+    .modal-actions {
+      display:flex;
+      justify-content:flex-end;
+      gap:8px;
+      margin-top:20px;
+      padding-top:16px;
+      border-top:1px solid #313131;
+    }
+    .secondary-btn {
+      height: 38px; padding: 0 14px; border-radius:10px; border:1px solid #414141;
+      background:#292929; color:#dedee2; font-size:10px; font-weight:750; cursor:pointer;
+    }
+    .secondary-btn:hover { background:#333; }
+
+    @media (max-width: 1100px) {
+      .app { grid-template-columns: 78px minmax(0,1fr); }
+      .brand { justify-content:center; padding:0; }
+      .brand-copy, .side-label, .nav-copy, .nav-count, .side-footer { display:none; }
+      .side-scroll { padding: 12px 10px; }
+      .nav-item { grid-template-columns: 1fr; place-items:center; padding:8px; min-height:44px; }
+      .metrics { grid-template-columns: repeat(2, minmax(0,1fr)); }
+    }
+
+    @media (max-width: 760px) {
+      .app { grid-template-columns: 1fr; }
+      .sidebar { display:none; }
+      .topbar, main { padding-left:16px; padding-right:16px; }
+      .metrics { grid-template-columns: 1fr 1fr; }
+      .page-note { display:none; }
+      .goal-panel-head { display:none; }
+      .goal-row { grid-template-columns:1fr; gap:10px; }
+      .row-actions { justify-content:flex-start; }
+      .search { min-width: 100%; }
+      .form-grid { grid-template-columns:1fr; }
+      .field.full { grid-column:auto; }
+    }
+
+    @media (max-width: 500px) {
+      .metrics { grid-template-columns:1fr; }
+      .page-head { align-items:flex-start; flex-direction:column; }
+      .primary-btn { width:100%; justify-content:center; }
+      .top-actions .icon-btn:first-child { display:none; }
+      .ghost-btn span { display:none; }
+      .toolbar { align-items:stretch; }
+      .filters { width:100%; }
+      .segmented { width:100%; overflow-x:auto; }
+      .seg-btn { flex:1; white-space:nowrap; }
+      .modal-backdrop { padding:12px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3l1.5 4.3L18 9l-4.5 1.7L12 15l-1.5-4.3L6 9l4.5-1.7L12 3Z"/><path d="M18.5 14.5l.8 2.2 2.2.8-2.2.8-.8 2.2-.8-2.2-2.2-.8 2.2-.8.8-2.2Z"/></svg>
+        </div>
+        <div class="brand-copy">
+          <div class="brand-title">LifeUp</div>
+          <div class="brand-sub">Seu espaço produtivo</div>
+        </div>
+      </div>
+
+      <div class="side-scroll">
+        <div class="side-section">
+          <div class="side-label">Principal</div>
+          <button class="nav-item">
+            <span class="nav-icon">⌂</span>
+            <span class="nav-copy"><div class="nav-title">Hoje</div><div class="nav-sub">Progresso e próximas ações</div></span>
+          </button>
+          <button class="nav-item active">
+            <span class="nav-icon">◎</span>
+            <span class="nav-copy"><div class="nav-title">Metas</div><div class="nav-sub">Gestão de objetivos</div></span>
+          </button>
+          <button class="nav-item">
+            <span class="nav-icon">⌑</span>
+            <span class="nav-copy"><div class="nav-title">Captura</div><div class="nav-sub">Entrada rápida</div></span>
+            <span class="nav-count">2</span>
+          </button>
+          <button class="nav-item">
+            <span class="nav-icon">◴</span>
+            <span class="nav-copy"><div class="nav-title">Foco</div><div class="nav-sub">Timer e histórico</div></span>
+          </button>
+          <button class="nav-item">
+            <span class="nav-icon">▦</span>
+            <span class="nav-copy"><div class="nav-title">Notas</div><div class="nav-sub">Biblioteca</div></span>
+            <span class="nav-count">8</span>
+          </button>
+        </div>
+
+        <div class="side-section">
+          <div class="side-label">Estudos</div>
+          <button class="nav-item"><span class="nav-icon">⌁</span><span class="nav-copy"><div class="nav-title">Estudos</div><div class="nav-sub">Materiais e revisões</div></span><span class="nav-count">26</span></button>
+          <button class="nav-item"><span class="nav-icon">◉</span><span class="nav-copy"><div class="nav-title">Caderno de erros</div><div class="nav-sub">Questões e regras</div></span><span class="nav-count">23</span></button>
+          <button class="nav-item"><span class="nav-icon">▣</span><span class="nav-copy"><div class="nav-title">Plano de estudos</div><div class="nav-sub">Agenda semanal</div></span><span class="nav-count">26</span></button>
+          <button class="nav-item"><span class="nav-icon">♧</span><span class="nav-copy"><div class="nav-title">Plano Dataprev</div><div class="nav-sub">Roteiro perfil 3</div></span><span class="nav-count">12</span></button>
+          <button class="nav-item"><span class="nav-icon">⬡</span><span class="nav-copy"><div class="nav-title">Auditoria TRT</div><div class="nav-sub">Analista e técnico</div></span><span class="nav-count">3</span></button>
+        </div>
+
+        <div class="side-section">
+          <div class="side-label">Finanças</div>
+          <button class="nav-item"><span class="nav-icon">▤</span><span class="nav-copy"><div class="nav-title">Finanças</div><div class="nav-sub">Fluxo e planos</div></span></button>
+          <button class="nav-item"><span class="nav-icon">▧</span><span class="nav-copy"><div class="nav-title">Gastos importados</div><div class="nav-sub">Extratos e faturas</div></span></button>
+        </div>
+      </div>
+
+      <div class="side-footer">Planeje, acompanhe, revise.</div>
+    </aside>
+
+    <section class="workspace">
+      <header class="topbar">
+        <div class="crumb">
+          <span class="crumb-icon">▣</span>
+          <div>
+            <div class="eyebrow">Principal</div>
+            <div class="crumb-title">Metas</div>
+          </div>
+        </div>
+        <div class="top-actions">
+          <button class="icon-btn" title="Tema">☼</button>
+          <button class="icon-btn" title="Modo escuro">☾</button>
+          <button class="ghost-btn"><span>↪</span> <span>Sair</span></button>
+        </div>
+      </header>
+
+      <main>
+        <div class="content">
+          <div class="page-head">
+            <div>
+              <div class="section-kicker">Gestão</div>
+              <h1>Metas</h1>
+              <div class="page-note">Crie objetivos, acompanhe o progresso e mantenha o foco no que importa.</div>
+            </div>
+            <button class="primary-btn" id="openModal"><span style="font-size:18px;line-height:1">＋</span> Nova meta</button>
+          </div>
+
+          <section class="metrics" aria-label="Resumo das metas">
+            <article class="metric-card">
+              <div><div class="metric-label">Metas ativas</div><div class="metric-value" id="metricActive">0</div><div class="metric-hint">Em andamento</div></div>
+              <div class="metric-icon">◎</div>
+            </article>
+            <article class="metric-card">
+              <div><div class="metric-label">Metas concluídas</div><div class="metric-value" id="metricDone">0</div><div class="metric-hint">Finalizadas</div></div>
+              <div class="metric-icon">✓</div>
+            </article>
+            <article class="metric-card">
+              <div><div class="metric-label">Progresso médio</div><div class="metric-value" id="metricProgress">0%</div><div class="metric-hint">Considerando metas visíveis</div></div>
+              <div class="metric-icon">◒</div>
+            </article>
+            <article class="metric-card">
+              <div><div class="metric-label">Perto do prazo</div><div class="metric-value" id="metricDeadline">0</div><div class="metric-hint">Próximos 7 dias</div></div>
+              <div class="metric-icon">◷</div>
+            </article>
+          </section>
+
+          <section class="toolbar">
+            <div class="filters">
+              <div class="segmented" data-filter-group="area">
+                <button class="seg-btn active" data-value="all">Todas</button>
+                <button class="seg-btn" data-value="Corpo">Corpo</button>
+                <button class="seg-btn" data-value="Mente">Mente</button>
+                <button class="seg-btn" data-value="Casa">Casa</button>
+              </div>
+              <div class="segmented" data-filter-group="status">
+                <button class="seg-btn active" data-value="all">Todos status</button>
+                <button class="seg-btn" data-value="Ativa">Ativa</button>
+                <button class="seg-btn" data-value="Pausada">Pausada</button>
+                <button class="seg-btn" data-value="Concluída">Concluída</button>
+              </div>
+            </div>
+
+            <label class="search" aria-label="Buscar meta">
+              <span>⌕</span>
+              <input id="searchInput" type="search" placeholder="Buscar meta..." />
+            </label>
+          </section>
+
+          <section class="goal-panel">
+            <div class="goal-panel-head">
+              <span>Meta</span><span>Área</span><span>Status</span><span>Progresso</span><span></span>
+            </div>
+            <div class="goal-list" id="goalList">
+              <div class="empty-state" id="emptyState">
+                <div>
+                  <div class="empty-icon">◎</div>
+                  <div class="empty-title">Nenhuma meta por aqui</div>
+                  <div class="empty-text">Comece criando uma meta. O formulário agora fica em um modal, deixando esta tela mais limpa e focada no acompanhamento.</div>
+                  <button class="primary-btn" id="emptyOpen"><span style="font-size:18px">＋</span> Criar primeira meta</button>
+                </div>
+              </div>
+            </div>
+          </section>
+        </div>
+      </main>
+    </section>
+  </div>
+
+  <div class="modal-backdrop" id="modalBackdrop" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="modal">
+      <div class="modal-head">
+        <div>
+          <h2 class="modal-title" id="modalTitle">Nova meta</h2>
+          <p class="modal-sub">Defina o objetivo e o progresso inicial. Você poderá editar depois.</p>
+        </div>
+        <button class="close-btn" id="closeModal" aria-label="Fechar">✕</button>
+      </div>
+
+      <form class="form" id="goalForm">
+        <div class="form-grid">
+          <div class="field full">
+            <label for="title">Título</label>
+            <input class="control" id="title" name="title" required maxlength="80" placeholder="Ex.: Cuidar da saúde e perder 8 kg" />
+          </div>
+
+          <div class="field">
+            <label for="area">Área</label>
+            <select class="control" id="area" name="area">
+              <option>Mente</option>
+              <option>Corpo</option>
+              <option>Casa</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="deadline">Prazo</label>
+            <input class="control" id="deadline" name="deadline" type="date" />
+          </div>
+
+          <div class="field full">
+            <label for="description">Descrição</label>
+            <textarea class="control" id="description" name="description" maxlength="240" placeholder="Por que essa meta é importante? Qual resultado você quer alcançar?"></textarea>
+            <div class="hint">Use uma descrição curta, clara e orientada a resultado.</div>
+          </div>
+
+          <div class="field">
+            <label for="status">Status inicial</label>
+            <select class="control" id="status" name="status">
+              <option>Ativa</option>
+              <option>Pausada</option>
+              <option>Concluída</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label>Cor</label>
+            <div class="color-palette" id="colorPalette">
+              <button type="button" class="color-choice selected" data-color="#20c5bb" style="--choice:#20c5bb" aria-label="Turquesa"></button>
+              <button type="button" class="color-choice" data-color="#9d92ff" style="--choice:#9d92ff" aria-label="Roxo"></button>
+              <button type="button" class="color-choice" data-color="#f2c261" style="--choice:#f2c261" aria-label="Amarelo"></button>
+              <button type="button" class="color-choice" data-color="#ff7a8d" style="--choice:#ff7a8d" aria-label="Rosa"></button>
+              <button type="button" class="color-choice" data-color="#6fd49a" style="--choice:#6fd49a" aria-label="Verde"></button>
+            </div>
+          </div>
+
+          <div class="field full">
+            <label for="progress">Progresso inicial</label>
+            <div class="progress-field">
+              <input id="progress" name="progress" type="range" min="0" max="100" value="0" />
+              <div class="progress-value" id="progressValue">0%</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-actions">
+          <button type="button" class="secondary-btn" id="cancelModal">Cancelar</button>
+          <button type="submit" class="primary-btn"><span style="font-size:17px">＋</span> Criar meta</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    const backdrop = document.getElementById('modalBackdrop');
+    const form = document.getElementById('goalForm');
+    const list = document.getElementById('goalList');
+    const emptyState = document.getElementById('emptyState');
+    const progress = document.getElementById('progress');
+    const progressValue = document.getElementById('progressValue');
+    const searchInput = document.getElementById('searchInput');
+
+    const goals = [];
+    let selectedColor = '#20c5bb';
+    let filters = { area: 'all', status: 'all' };
+
+    function openModal() {
+      backdrop.classList.add('open');
+      setTimeout(() => document.getElementById('title').focus(), 30);
+    }
+
+    function closeModal() {
+      backdrop.classList.remove('open');
+      form.reset();
+      progress.value = 0;
+      progressValue.textContent = '0%';
+      selectedColor = '#20c5bb';
+      document.querySelectorAll('.color-choice').forEach((b, i) => b.classList.toggle('selected', i === 0));
+    }
+
+    document.getElementById('openModal').addEventListener('click', openModal);
+    document.getElementById('emptyOpen').addEventListener('click', openModal);
+    document.getElementById('closeModal').addEventListener('click', closeModal);
+    document.getElementById('cancelModal').addEventListener('click', closeModal);
+    backdrop.addEventListener('click', (e) => { if (e.target === backdrop) closeModal(); });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && backdrop.classList.contains('open')) closeModal(); });
+
+    progress.addEventListener('input', () => progressValue.textContent = progress.value + '%');
+
+    document.querySelectorAll('.color-choice').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.color-choice').forEach(b => b.classList.remove('selected'));
+        btn.classList.add('selected');
+        selectedColor = btn.dataset.color;
+      });
+    });
+
+    document.querySelectorAll('[data-filter-group]').forEach(group => {
+      const key = group.dataset.filterGroup;
+      group.querySelectorAll('.seg-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          group.querySelectorAll('.seg-btn').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          filters[key] = btn.dataset.value;
+          renderGoals();
+        });
+      });
+    });
+
+    searchInput.addEventListener('input', renderGoals);
+
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const data = new FormData(form);
+      const title = String(data.get('title') || '').trim();
+      if (!title) return;
+
+      const status = String(data.get('status'));
+      let p = Number(data.get('progress') || 0);
+      if (status === 'Concluída') p = 100;
+
+      goals.unshift({
+        id: Date.now(),
+        title,
+        description: String(data.get('description') || '').trim(),
+        area: String(data.get('area')),
+        deadline: String(data.get('deadline') || ''),
+        status,
+        progress: p,
+        color: selectedColor
+      });
+
+      closeModal();
+      renderGoals();
+    });
+
+    function statusColor(status) {
+      return status === 'Concluída' ? '#6fd49a' : status === 'Pausada' ? '#f2c261' : '#b2a9ff';
+    }
+
+    function formatDate(value) {
+      if (!value) return 'Sem prazo';
+      const [y,m,d] = value.split('-');
+      return `${d}/${m}/${y}`;
+    }
+
+    function renderGoals() {
+      const q = searchInput.value.trim().toLowerCase();
+      const visible = goals.filter(g => {
+        const areaOk = filters.area === 'all' || g.area === filters.area;
+        const statusOk = filters.status === 'all' || g.status === filters.status;
+        const textOk = !q || `${g.title} ${g.description}`.toLowerCase().includes(q);
+        return areaOk && statusOk && textOk;
+      });
+
+      updateMetrics(visible);
+
+      if (!visible.length) {
+        list.innerHTML = `
+          <div class="empty-state">
+            <div>
+              <div class="empty-icon">◎</div>
+              <div class="empty-title">Nenhuma meta encontrada</div>
+              <div class="empty-text">Ajuste os filtros ou crie uma nova meta para começar seu acompanhamento.</div>
+              <button class="primary-btn" onclick="openModal()"><span style="font-size:18px">＋</span> Nova meta</button>
+            </div>
+          </div>`;
+        return;
+      }
+
+      list.innerHTML = visible.map(g => `
+        <article class="goal-row" style="--goal-color:${g.color}">
+          <div class="goal-name">
+            <div class="goal-color"></div>
+            <div style="min-width:0">
+              <div class="goal-title">${escapeHtml(g.title)}</div>
+              <div class="goal-description">${escapeHtml(g.description || formatDate(g.deadline))}</div>
+            </div>
+          </div>
+          <div><span class="pill"><span class="dot" style="color:${g.color}"></span>${g.area}</span></div>
+          <div><span class="pill" style="color:${statusColor(g.status)}"><span class="dot"></span>${g.status}</span></div>
+          <div class="progress-wrap">
+            <div class="progress-track"><div class="progress-fill" style="--progress:${g.progress}%"></div></div>
+            <span>${g.progress}%</span>
+          </div>
+          <div class="row-actions">
+            <button class="tiny-btn" title="Concluir" onclick="completeGoal(${g.id})">✓</button>
+            <button class="tiny-btn" title="Excluir" onclick="deleteGoal(${g.id})">⌫</button>
+          </div>
+        </article>
+      `).join('');
+    }
+
+    function updateMetrics(items) {
+      const active = items.filter(g => g.status === 'Ativa').length;
+      const done = items.filter(g => g.status === 'Concluída').length;
+      const avg = items.length ? Math.round(items.reduce((sum,g) => sum + g.progress, 0) / items.length) : 0;
+      const now = new Date();
+      const limit = new Date(); limit.setDate(limit.getDate() + 7);
+      const deadline = items.filter(g => {
+        if (!g.deadline || g.status === 'Concluída') return false;
+        const d = new Date(g.deadline + 'T23:59:59');
+        return d >= now && d <= limit;
+      }).length;
+      document.getElementById('metricActive').textContent = active;
+      document.getElementById('metricDone').textContent = done;
+      document.getElementById('metricProgress').textContent = avg + '%';
+      document.getElementById('metricDeadline').textContent = deadline;
+    }
+
+    window.completeGoal = function(id) {
+      const goal = goals.find(g => g.id === id);
+      if (!goal) return;
+      goal.status = 'Concluída'; goal.progress = 100;
+      renderGoals();
+    }
+
+    window.deleteGoal = function(id) {
+      const index = goals.findIndex(g => g.id === id);
+      if (index >= 0) goals.splice(index, 1);
+      renderGoals();
+    }
+
+    function escapeHtml(str) {
+      return str.replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#039;','"':'&quot;'}[c]));
+    }
+
+    renderGoals();
+  </script>
+</body>
+</html>

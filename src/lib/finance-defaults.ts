@@ -1,4 +1,4 @@
-import type { FinanceRecordType } from "@/types/BaseInterfaces";
+import type { FinanceRecordType } from "@/types/Finance";
 
 export const DEFAULT_FINANCE_CATEGORIES: Array<{
   name: string;
