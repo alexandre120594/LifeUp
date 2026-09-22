@@ -144,12 +144,12 @@ export default function DashboardPage() {
           </Card>
 
           <div className="grid content-start gap-3">
-            <FocusCard
-              actions={<Button asChild size="sm" variant="secondary"><Link href="/pomodoro">Iniciar foco</Link></Button>}
+            {/* <FocusCard
+              actions={<Button asChild size="sm" variant="outline"><Link href="/pomodoro">Iniciar foco</Link></Button>}
               label="Proxima sessao de foco"
               meta="O timer continua ativo durante a navegacao."
               time="25:00"
-            />
+            /> */}
             <Card className="border-border shadow-none">
               <CardHeader className="p-3 pb-2"><CardTitle className="text-sm">Atalhos</CardTitle></CardHeader>
               <CardContent className="grid grid-cols-2 gap-2 p-3 pt-0">

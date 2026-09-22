@@ -8,6 +8,7 @@ import {
   Home,
   Inbox,
   NotebookText,
+  Repeat2,
   TimerReset,
   WalletCards,
   Sparkles,
@@ -52,16 +53,16 @@ const lifeItems: SidebarItem[] = [
     description: "Gestao de objetivos",
   },
   {
+    title: "Hábitos",
+    url: "/life-habits",
+    icon: Repeat2,
+    description: "Consistência diária",
+  },
+  {
     title: "Captura",
     url: "/inbox",
     icon: Inbox,
     description: "Entrada rapida",
-  },
-  {
-    title: "Foco",
-    url: "/pomodoro",
-    icon: TimerReset,
-    description: "Timer e historico",
   },
   {
     title: "Notas",
@@ -78,6 +79,12 @@ const studyItems: SidebarItem[] = [
     icon: GraduationCap,
     description: "Materias e revisoes",
   },
+  {
+    title: "Foco",
+    url: "/pomodoro",
+    icon: TimerReset,
+    description: "Timer de estudo",
+  },
 ];
 
 const financeItems: SidebarItem[] = [
@@ -90,7 +97,7 @@ const financeItems: SidebarItem[] = [
 ];
 
 function isSidebarItemActive(pathname: string, url: string) {
-  if (url === "/finance" || url === "/study") {
+  if (url === "/finance" || url === "/study" || url === "/pomodoro") {
     return pathname === url;
   }
 
@@ -157,6 +164,7 @@ export function AppSidebar() {
 
   const badges: Record<string, number> = {
     "/goals": goals?.length ?? 0,
+    "/life-habits": 0,
     "/inbox": inboxItems?.length ?? 0,
     "/notes": notes?.length ?? 0,
     "/pomodoro": 0,

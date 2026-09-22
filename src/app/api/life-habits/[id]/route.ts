@@ -122,8 +122,11 @@ export async function PATCH(
       const updatedHabit = await prisma.lifeHabit.update({
         where: { id },
         data: {
-          badEvents: [...habit.badEvents, dayKey],
-          lastBadAt: new Date(),
+          badEvents: [...new Set([...habit.badEvents, dayKey])],
+          checkins: habit.checkins.includes(dayKey)
+            ? habit.checkins
+            : [...habit.checkins, dayKey],
+          lastBadAt: new Date(`${dayKey}T12:00:00`),
         },
       });
 
@@ -141,11 +144,7 @@ export async function PATCH(
 
     const updatedHabit = await prisma.lifeHabit.update({
       where: { id },
-      data: {
-        ...data,
-        checkins: data.kind === "bad" ? [] : undefined,
-        lastBadAt: data.kind === "bad" ? habit.lastBadAt ?? new Date() : null,
-      },
+      data,
     });
 
     return NextResponse.json(updatedHabit);

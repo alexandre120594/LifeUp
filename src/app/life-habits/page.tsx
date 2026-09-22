@@ -1,834 +1,185 @@
 "use client";
 
-import { type ComponentType, type FormEvent, useMemo, useState } from "react";
-import {
-  Award,
-  CalendarCheck2,
-  CheckCircle2,
-  Flame,
-  Medal,
-  Pencil,
-  Plus,
-  RotateCcw,
-  ShieldCheck,
-  Target,
-  Trash,
-  Trophy,
-} from "lucide-react";
-import { Badge } from "@/components/ui/badge";
-import { StatCard, StreakCard } from "@/components/productivity";
+import { CheckCircle2, Flame, Plus, Trophy } from "lucide-react";
+import { useState, type ReactNode } from "react";
+
+import { DashboardViewport } from "@/components/dashboard-viewport";
+import { HabitCard } from "@/components/habits/habit-card";
+import { HabitDetailsDialog } from "@/components/habits/habit-details-dialog";
+import { HabitDialog } from "@/components/habits/habit-dialog";
+import { MenuPageHeader } from "@/components/menu-page-header";
+import { EmptyState, ErrorState, LoadingState, RetryButton } from "@/components/ui/app-state";
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
+import { Card, CardContent } from "@/components/ui/card";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import { SegmentedControl } from "@/components/ui/segmented-control";
 import {
-  Dialog,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import {
-  useCreateLifeHabit,
   useDeleteLifeHabit,
   useLifeHabitAction,
   useLifeHabits,
-  useUpdateLifeHabit,
 } from "@/hooks/useLifeHabitMutations";
-import { cn } from "@/lib/utils";
-import type { LifeHabit } from "@/types/BaseInterfaces";
+import { getHabitMetrics, getTodayKey } from "@/lib/life-habits";
+import type { LifeHabit, LifeHabitKind } from "@/types/BaseInterfaces";
 
-type HabitFormState = {
-  color: string;
-  notes: string;
-  reward: string;
-  rewardConfirmed: boolean;
-  targetDays: string;
-  title: string;
-};
-
-type HabitMetrics = {
-  bestStreak: number;
-  checkedToday: boolean;
-  currentStreak: number;
-  lastRelapseLabel: string;
-  nextRewardAt: number;
-  progress: number;
-  rewardsUnlocked: number;
-  targetDays: number;
-  targetReached: boolean;
-};
-
-const defaultForm: HabitFormState = {
-  color: "#0f766e",
-  notes: "",
-  reward: "",
-  rewardConfirmed: false,
-  targetDays: "30",
-  title: "",
-};
-
-const fallbackRewards = [
-  "Sessao de cinema",
-  "Livro novo",
-  "Passeio ao ar livre",
-  "Equipamento de treino",
-];
-
-function getTodayKey() {
-  return getDayKey(new Date());
-}
-
-function getDayKey(date: Date) {
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  const day = String(date.getDate()).padStart(2, "0");
-
-  return `${year}-${month}-${day}`;
-}
-
-function getPreviousDayKey(dayKey: string) {
-  const date = new Date(`${dayKey}T00:00:00`);
-  date.setDate(date.getDate() - 1);
-
-  return getDayKey(date);
-}
-
-function normalizeTargetDays(value: number | null | undefined) {
-  if (!value || !Number.isFinite(value)) {
-    return 30;
-  }
-
-  return Math.min(Math.max(Math.round(value), 10), 365);
-}
-
-function getLastRelapseKey(habit: LifeHabit) {
-  const lastEvent = habit.badEvents.at(-1);
-
-  if (lastEvent) {
-    return lastEvent;
-  }
-
-  if (!habit.lastBadAt) {
-    return null;
-  }
-
-  return getDayKey(new Date(habit.lastBadAt));
-}
-
-function getEligibleCheckins(habit: LifeHabit) {
-  const lastRelapseKey = getLastRelapseKey(habit);
-
-  return [...new Set(habit.checkins)]
-    .filter((dayKey) => !lastRelapseKey || dayKey > lastRelapseKey)
-    .sort();
-}
-
-function getCurrentStreak(checkins: string[], todayKey: string) {
-  const checkinSet = new Set(checkins);
-  let cursor = checkinSet.has(todayKey) ? todayKey : getPreviousDayKey(todayKey);
-  let streak = 0;
-
-  while (checkinSet.has(cursor)) {
-    streak += 1;
-    cursor = getPreviousDayKey(cursor);
-  }
-
-  return streak;
-}
-
-function getBestStreak(checkins: string[]) {
-  const uniqueCheckins = [...new Set(checkins)].sort();
-  let best = 0;
-  let current = 0;
-  let previous = "";
-
-  for (const dayKey of uniqueCheckins) {
-    current =
-      previous && getPreviousDayKey(dayKey) === previous ? current + 1 : 1;
-    best = Math.max(best, current);
-    previous = dayKey;
-  }
-
-  return best;
-}
-
-function getHabitMetrics(habit: LifeHabit, todayKey: string): HabitMetrics {
-  const targetDays = normalizeTargetDays(habit.targetDays);
-  const eligibleCheckins = getEligibleCheckins(habit);
-  const currentStreak = getCurrentStreak(eligibleCheckins, todayKey);
-  const rewardsUnlocked = Math.floor(currentStreak / 10);
-  const nextRewardAt = Math.min((rewardsUnlocked + 1) * 10, targetDays);
-  const lastRelapseKey = getLastRelapseKey(habit);
-
-  return {
-    bestStreak: getBestStreak(habit.checkins),
-    checkedToday: eligibleCheckins.includes(todayKey),
-    currentStreak,
-    lastRelapseLabel: lastRelapseKey
-      ? formatDayKey(lastRelapseKey)
-      : "Sem recaidas",
-    nextRewardAt,
-    progress: Math.min((currentStreak / targetDays) * 100, 100),
-    rewardsUnlocked,
-    targetDays,
-    targetReached: currentStreak >= targetDays,
-  };
-}
-
-function formatDayKey(dayKey: string) {
-  const [year, month, day] = dayKey.split("-").map(Number);
-
-  return new Date(year, month - 1, day).toLocaleDateString(undefined, {
-    day: "2-digit",
-    month: "short",
-  });
-}
-
-function getFormFromHabit(habit: LifeHabit): HabitFormState {
-  return {
-    color: habit.color ?? "#0f766e",
-    notes: habit.notes ?? "",
-    reward: habit.reward ?? "",
-    rewardConfirmed: true,
-    targetDays: String(normalizeTargetDays(habit.targetDays)),
-    title: habit.title,
-  };
-}
-
-function rewardLooksRisky(title: string, reward: string) {
-  const normalizedTitle = title.trim().toLowerCase();
-  const normalizedReward = reward.trim().toLowerCase();
-
-  return Boolean(
-    normalizedTitle &&
-      normalizedReward &&
-      normalizedReward.includes(normalizedTitle)
-  );
-}
+type HabitTab = "today" | LifeHabitKind;
+type Confirmation = { habit: LifeHabit; type: "delete" | "relapse" } | null;
 
 export default function LifeHabitsPage() {
-  "use no memo";
-
   const todayKey = getTodayKey();
-  const { data: habits = [], isLoading } = useLifeHabits();
-  const createHabit = useCreateLifeHabit();
-  const updateHabit = useUpdateLifeHabit();
-  const deleteHabit = useDeleteLifeHabit();
+  const { data: habits = [], isError, isLoading, refetch } = useLifeHabits();
   const trackHabit = useLifeHabitAction();
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [editingHabit, setEditingHabit] = useState<LifeHabit | null>(null);
-  const [selectedHabitId, setSelectedHabitId] = useState<string | null>(null);
-  const [form, setForm] = useState<HabitFormState>(defaultForm);
+  const deleteHabit = useDeleteLifeHabit();
+  const [activeTab, setActiveTab] = useState<HabitTab>("today");
+  const [editor, setEditor] = useState<{ habit: LifeHabit | null; initialKind: LifeHabitKind } | null>(null);
+  const [detailsHabitId, setDetailsHabitId] = useState<string | null>(null);
+  const [confirmation, setConfirmation] = useState<Confirmation>(null);
 
-  const quitHabits = useMemo(
-    () => habits.filter((habit) => habit.kind === "bad"),
-    [habits]
-  );
+  const items = habits.map((habit) => ({ habit, metrics: getHabitMetrics(habit, todayKey) }));
+  const visibleItems = activeTab === "today"
+    ? [...items].sort((a, b) => Number(a.metrics.checkedToday) - Number(b.metrics.checkedToday))
+    : items.filter(({ habit }) => habit.kind === activeTab);
+  const completedToday = items.filter(({ metrics }) => metrics.checkedToday).length;
+  const largestCurrentStreak = items.reduce((largest, { metrics }) => Math.max(largest, metrics.currentStreak), 0);
+  const bestRecord = items.reduce((largest, { metrics }) => Math.max(largest, metrics.bestStreak), 0);
+  const allDone = items.length > 0 && completedToday === items.length;
+  const detailsItem = items.find(({ habit }) => habit.id === detailsHabitId) ?? null;
 
-  const habitCards = useMemo(
-    () =>
-      quitHabits.map((habit) => ({
-        habit,
-        metrics: getHabitMetrics(habit, todayKey),
-      })),
-    [quitHabits, todayKey]
-  );
+  function openCreate(initialKind: LifeHabitKind = activeTab === "bad" ? "bad" : "good") {
+    setEditor({ habit: null, initialKind });
+  }
 
-  const selectedHabit =
-    habitCards.find(({ habit }) => habit.id === selectedHabitId) ??
-    habitCards[0] ??
-    null;
+  function openEdit(habit: LifeHabit) {
+    setDetailsHabitId(null);
+    setEditor({ habit, initialKind: habit.kind });
+  }
 
-  const totalRewards = habitCards.reduce(
-    (total, item) => total + item.metrics.rewardsUnlocked,
-    0
-  );
-  const activeStreaks = habitCards.filter(
-    (item) => item.metrics.currentStreak > 0
-  ).length;
-  const bestRecord = habitCards.reduce(
-    (best, item) => Math.max(best, item.metrics.bestStreak),
-    0
-  );
-  const checkinsToday = habitCards.filter(
-    (item) => item.metrics.checkedToday
-  ).length;
-
-  const openCreateDialog = () => {
-    setEditingHabit(null);
-    setForm(defaultForm);
-    setIsDialogOpen(true);
-  };
-
-  const openEditDialog = (habit: LifeHabit) => {
-    setEditingHabit(habit);
-    setForm(getFormFromHabit(habit));
-    setIsDialogOpen(true);
-  };
-
-  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-
-    const targetDays = normalizeTargetDays(Number.parseInt(form.targetDays, 10));
-    const payload = {
-      color: form.color,
-      kind: "bad" as const,
-      notes: form.notes.trim() || null,
-      reward: form.reward.trim(),
-      targetDays,
-      title: form.title.trim(),
-    };
-
-    if (
-      !payload.title ||
-      !payload.reward ||
-      !form.rewardConfirmed ||
-      rewardLooksRisky(payload.title, payload.reward)
-    ) {
+  function handleConfirmation() {
+    if (!confirmation) return;
+    if (confirmation.type === "delete") {
+      deleteHabit.mutate(confirmation.habit.id, {
+        onSuccess: () => {
+          if (detailsHabitId === confirmation.habit.id) setDetailsHabitId(null);
+          setConfirmation(null);
+        },
+      });
       return;
     }
-
-    if (editingHabit) {
-      await updateHabit.mutateAsync({ data: payload, id: editingHabit.id });
-      setSelectedHabitId(editingHabit.id);
-    } else {
-      const createdHabit = await createHabit.mutateAsync(payload);
-      setSelectedHabitId(createdHabit.id);
-    }
-
-    setIsDialogOpen(false);
-    setEditingHabit(null);
-    setForm(defaultForm);
-  };
-
-  const handleDelete = async (habit: LifeHabit) => {
-    const confirmed = window.confirm(`Excluir ${habit.title}?`);
-
-    if (!confirmed) {
-      return;
-    }
-
-    await deleteHabit.mutateAsync(habit.id);
-
-    if (selectedHabitId === habit.id) {
-      setSelectedHabitId(null);
-    }
-  };
-
-  const isSaving = createHabit.isPending || updateHabit.isPending;
-  const rewardRisky = rewardLooksRisky(form.title, form.reward);
-  const canSubmit =
-    Boolean(form.title.trim()) &&
-    Boolean(form.reward.trim()) &&
-    form.rewardConfirmed &&
-    !rewardRisky &&
-    !isSaving;
+    trackHabit.mutate(
+      { data: { action: "reset-bad", dayKey: todayKey }, id: confirmation.habit.id },
+      { onSuccess: () => setConfirmation(null) },
+    );
+  }
 
   return (
-    <div className="flex h-full min-h-0 w-full flex-col overflow-hidden p-3 sm:p-4 lg:p-5">
-      <section className="grid min-h-0 flex-1 grid-rows-[minmax(0,0.95fr)_minmax(0,1.2fr)_minmax(0,0.85fr)] gap-3 lg:grid-cols-[minmax(19rem,0.72fr)_minmax(0,1.55fr)_minmax(17rem,0.7fr)] lg:grid-rows-none">
-        <aside className="flex min-h-0 flex-col gap-3 overflow-hidden">
-          <div className="rounded-lg border border-border/70 bg-card p-4 shadow-sm">
-            <div className="flex items-start justify-between gap-3">
-              <div className="min-w-0">
-                <Badge className="gap-1" variant="outline">
-                  <ShieldCheck className="h-3.5 w-3.5" />
-                  Habit Tracker
-                </Badge>
-                <h2 className="mt-3 text-2xl font-semibold tracking-normal">
-                  Abandone um habito por dia
-                </h2>
-              </div>
-              <Button
-                aria-label="Criar habito"
-                className="h-10 w-10 shrink-0"
-                onClick={openCreateDialog}
-                size="icon"
-                type="button"
-              >
-                <Plus className="h-5 w-5" />
-              </Button>
-            </div>
-            <p className="mt-3 text-sm leading-6 text-muted-foreground">
-              Defina o habito, a meta em dias e uma recompensa saudavel. O
-              check diario mantem a sequencia ativa e libera uma recompensa a
-              cada 10 dias.
-            </p>
-          </div>
+    <DashboardViewport
+      contentClassName="flex flex-col overflow-hidden pb-4"
+      header={
+        <MenuPageHeader
+          action={<Button onClick={() => openCreate()} type="button"><Plus className="size-4" />Novo hábito</Button>}
+          eyebrow="Construa consistência, um dia de cada vez."
+          title="Hábitos"
+        />
+      }
+    >
+      <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-hidden">
+        <section className="grid shrink-0 grid-cols-3 gap-2 sm:gap-3" aria-label="Resumo dos hábitos">
+          <SummaryMetric icon={<CheckCircle2 className="size-4" />} label="Hoje" primary value={`${completedToday}/${items.length}`} />
+          <SummaryMetric icon={<Flame className="size-4" />} label="Maior streak atual" value={`${largestCurrentStreak}d`} />
+          <SummaryMetric icon={<Trophy className="size-4" />} label="Recorde" value={`${bestRecord}d`} />
+        </section>
 
-          <div className="grid grid-cols-2 gap-2">
-            <MetricTile
-              icon={CalendarCheck2}
-              label="Hoje"
-              value={`${checkinsToday}/${quitHabits.length}`}
+        <div className="flex shrink-0 items-center justify-between gap-3">
+          <SegmentedControl
+            aria-label="Filtrar hábitos"
+            onValueChange={setActiveTab}
+            options={[
+              { label: "Hoje", value: "today" },
+              { label: "Construir", value: "good" },
+              { label: "Evitar", value: "bad" },
+            ]}
+            value={activeTab}
+          />
+          <span className="hidden text-xs text-text-tertiary sm:block">{visibleItems.length} hábito{visibleItems.length === 1 ? "" : "s"}</span>
+        </div>
+
+        <section className="min-h-0 flex-1 overflow-y-auto pr-1" aria-label="Lista de hábitos">
+          {isLoading ? (
+            <LoadingState className="h-full" title="Carregando hábitos" />
+          ) : isError ? (
+            <ErrorState
+              action={<RetryButton onClick={() => refetch()} />}
+              className="h-full"
+              description="Verifique a conexão e tente novamente."
+              title="Não foi possível carregar seus hábitos."
             />
-            <MetricTile icon={Flame} label="Ativas" value={String(activeStreaks)} />
-            <MetricTile icon={Trophy} label="Recorde" value={`${bestRecord}d`} />
-            <MetricTile icon={Award} label="Recompensas" value={String(totalRewards)} />
-          </div>
-
-          <div className="min-h-0 flex-1 overflow-hidden rounded-lg border border-border/70 bg-card">
-            <div className="flex items-center justify-between gap-3 border-b border-border/70 p-3">
-              <div className="text-sm font-semibold">Habitos em andamento</div>
-              <Badge variant="secondary">{quitHabits.length}</Badge>
-            </div>
-            <div className="grid max-h-full gap-2 overflow-y-auto p-3">
-              {isLoading ? (
-                <EmptyState text="Carregando habitos..." />
-              ) : habitCards.length ? (
-                habitCards.map(({ habit, metrics }) => (
-                  <button
-                    className={cn(
-                      "min-w-0 rounded-lg border p-3 text-left transition-colors",
-                      selectedHabit?.habit.id === habit.id
-                        ? "border-primary bg-primary/10"
-                        : "border-border/70 bg-background hover:bg-secondary/50"
-                    )}
+          ) : visibleItems.length ? (
+            <div className="space-y-3">
+              {activeTab === "today" && allDone ? (
+                <div className="flex items-center gap-3 rounded-xl border border-primary/20 bg-primary/5 p-3 text-sm">
+                  <span className="grid size-8 shrink-0 place-items-center rounded-full bg-primary text-primary-foreground"><CheckCircle2 className="size-4" /></span>
+                  <div><p className="font-semibold">Tudo feito por hoje</p><p className="text-xs text-text-secondary">Seus registros continuam disponíveis abaixo caso queira revisá-los.</p></div>
+                </div>
+              ) : null}
+              <div className="grid gap-3 md:grid-cols-2 2xl:grid-cols-3">
+                {visibleItems.map(({ habit, metrics }) => (
+                  <HabitCard
+                    habit={habit}
+                    isPending={trackHabit.isPending && trackHabit.variables?.id === habit.id}
                     key={habit.id}
-                    onClick={() => setSelectedHabitId(habit.id)}
-                    type="button"
-                  >
-                    <div className="flex items-center justify-between gap-2">
-                      <span className="truncate font-medium">{habit.title}</span>
-                      <span className="text-xs text-muted-foreground">
-                        {metrics.currentStreak}d
-                      </span>
-                    </div>
-                    <div className="mt-2 h-2 overflow-hidden rounded-full bg-secondary">
-                      <div
-                        className="h-full rounded-full bg-primary"
-                        style={{ width: `${metrics.progress}%` }}
-                      />
-                    </div>
-                  </button>
-                ))
-              ) : (
-                <EmptyState text="Crie o primeiro habito que deseja abandonar." />
-              )}
+                    metrics={metrics}
+                    onDelete={() => setConfirmation({ habit, type: "delete" })}
+                    onDetails={() => setDetailsHabitId(habit.id)}
+                    onEdit={() => openEdit(habit)}
+                    onRelapse={() => setConfirmation({ habit, type: "relapse" })}
+                    onToggleToday={() => trackHabit.mutate({ data: { action: "toggle-checkin", dayKey: todayKey }, id: habit.id })}
+                    todayKey={todayKey}
+                  />
+                ))}
+              </div>
             </div>
-          </div>
-        </aside>
-
-        <main className="min-h-0 overflow-hidden rounded-lg border border-border/70 bg-card shadow-sm">
-          {selectedHabit ? (
-            <FocusPanel
-              habit={selectedHabit.habit}
-              isTracking={trackHabit.isPending}
-              metrics={selectedHabit.metrics}
-              onDelete={handleDelete}
-              onEdit={openEditDialog}
-              onRelapse={() =>
-                trackHabit.mutate({
-                  data: { action: "reset-bad", dayKey: todayKey },
-                  id: selectedHabit.habit.id,
-                })
-              }
-              onToggleToday={() =>
-                trackHabit.mutate({
-                  data: { action: "toggle-checkin", dayKey: todayKey },
-                  id: selectedHabit.habit.id,
-                })
-              }
-            />
           ) : (
-            <div className="grid h-full place-items-center p-6 text-center">
-              <div className="max-w-sm">
-                <ShieldCheck className="mx-auto h-12 w-12 text-primary" />
-                <h3 className="mt-4 text-xl font-semibold">
-                  Comece com um habito
-                </h3>
-                <p className="mt-2 text-sm text-muted-foreground">
-                  Escolha algo que deseja abandonar, defina uma meta e mantenha
-                  o check diario para construir sequencia.
-                </p>
-                <Button className="mt-5" onClick={openCreateDialog} type="button">
-                  <Plus className="h-4 w-4" />
-                  Criar habito
-                </Button>
-              </div>
-            </div>
+            <EmptyState
+              action={<Button onClick={() => openCreate(activeTab === "bad" ? "bad" : "good")} size="sm" type="button"><Plus className="size-4" />{activeTab === "good" ? "Criar primeiro hábito" : "Adicionar hábito"}</Button>}
+              className="h-full"
+              description={activeTab === "bad" ? "Adicione algo que deseja deixar de fazer e acompanhe sua nova sequência." : activeTab === "good" ? "Crie uma rotina simples para começar a construir consistência." : "Crie um hábito para ter sua lista diária sempre à mão."}
+              title={activeTab === "bad" ? "Nenhum hábito sendo evitado." : activeTab === "good" ? "Nenhum hábito para construir ainda." : "Sua rotina diária está vazia."}
+            />
           )}
-        </main>
+        </section>
+      </div>
 
-        <RewardPanel selectedHabit={selectedHabit} />
-      </section>
-
-      <Dialog
-        open={isDialogOpen}
-        onOpenChange={(open) => {
-          setIsDialogOpen(open);
-          if (!open) {
-            setEditingHabit(null);
-            setForm(defaultForm);
-          }
-        }}
-      >
-        <DialogContent className="sm:max-w-xl">
-          <DialogHeader>
-            <DialogTitle>
-              {editingHabit ? "Editar plano" : "Novo habito para abandonar"}
-            </DialogTitle>
-          </DialogHeader>
-          <form className="grid gap-4" onSubmit={handleSubmit}>
-            <div className="grid gap-3 sm:grid-cols-[minmax(0,1fr)_8rem]">
-              <label className="grid gap-2 text-sm font-medium">
-                Habito
-                <Input
-                  onChange={(event) =>
-                    setForm((current) => ({
-                      ...current,
-                      title: event.target.value,
-                    }))
-                  }
-                  placeholder="Ex.: comprar por impulso"
-                  value={form.title}
-                />
-              </label>
-              <label className="grid gap-2 text-sm font-medium">
-                Meta
-                <Input
-                  max={365}
-                  min={10}
-                  onChange={(event) =>
-                    setForm((current) => ({
-                      ...current,
-                      targetDays: event.target.value,
-                    }))
-                  }
-                  type="number"
-                  value={form.targetDays}
-                />
-              </label>
-            </div>
-            <label className="grid gap-2 text-sm font-medium">
-              Recompensa a cada 10 dias
-              <Input
-                onChange={(event) =>
-                  setForm((current) => ({
-                    ...current,
-                    reward: event.target.value,
-                  }))
-                }
-                placeholder={fallbackRewards[0]}
-                value={form.reward}
-              />
-            </label>
-            {rewardRisky ? (
-              <div className="rounded-lg border border-destructive/30 bg-destructive/10 p-3 text-sm text-destructive">
-                A recompensa parece repetir o habito. Escolha algo que nao
-                incentive a recaida.
-              </div>
-            ) : null}
-            <div className="grid gap-3 sm:grid-cols-[minmax(0,1fr)_7rem]">
-              <label className="grid gap-2 text-sm font-medium">
-                Observacao
-                <Input
-                  onChange={(event) =>
-                    setForm((current) => ({
-                      ...current,
-                      notes: event.target.value,
-                    }))
-                  }
-                  placeholder="Gatilhos, motivo, regra pessoal"
-                  value={form.notes}
-                />
-              </label>
-              <label className="grid gap-2 text-sm font-medium">
-                Cor
-                <Input
-                  onChange={(event) =>
-                    setForm((current) => ({
-                      ...current,
-                      color: event.target.value,
-                    }))
-                  }
-                  type="color"
-                  value={form.color}
-                />
-              </label>
-            </div>
-            <label className="flex items-start gap-3 rounded-lg border border-border/70 bg-secondary/35 p-3 text-sm">
-              <Checkbox
-                checked={form.rewardConfirmed}
-                className="mt-0.5"
-                onCheckedChange={(checked) =>
-                  setForm((current) => ({
-                    ...current,
-                    rewardConfirmed: checked === true,
-                  }))
-                }
-              />
-              <span>
-                Confirmo que a recompensa escolhida nao envolve nem incentiva o
-                habito que estou tentando abandonar.
-              </span>
-            </label>
-            <DialogFooter>
-              <Button disabled={!canSubmit} type="submit">
-                {editingHabit ? (
-                  <CheckCircle2 className="h-4 w-4" />
-                ) : (
-                  <Plus className="h-4 w-4" />
-                )}
-                {editingHabit ? "Salvar" : "Criar plano"}
-              </Button>
-            </DialogFooter>
-          </form>
-        </DialogContent>
-      </Dialog>
-    </div>
+      {editor ? <HabitDialog habit={editor.habit} initialKind={editor.initialKind} onOpenChange={(open) => { if (!open) setEditor(null); }} /> : null}
+      {detailsItem ? (
+        <HabitDetailsDialog
+          habit={detailsItem.habit}
+          metrics={detailsItem.metrics}
+          onEdit={() => openEdit(detailsItem.habit)}
+          onOpenChange={(open) => { if (!open) setDetailsHabitId(null); }}
+          todayKey={todayKey}
+        />
+      ) : null}
+      <ConfirmDialog
+        confirmLabel={confirmation?.type === "relapse" ? "Registrar recaída" : "Excluir hábito"}
+        description={confirmation?.type === "relapse"
+          ? "A sequência atual será encerrada, mas seu recorde e histórico serão preservados. Você pode começar novamente hoje."
+          : confirmation ? `O hábito “${confirmation.habit.title}” e seu histórico serão removidos permanentemente.` : "Este hábito será removido permanentemente."}
+        isPending={deleteHabit.isPending || trackHabit.isPending}
+        onConfirm={handleConfirmation}
+        onOpenChange={(open) => { if (!open) setConfirmation(null); }}
+        open={Boolean(confirmation)}
+        title={confirmation?.type === "relapse" ? "Registrar recaída hoje?" : "Excluir hábito?"}
+      />
+    </DashboardViewport>
   );
 }
 
-function FocusPanel({
-  habit,
-  isTracking,
-  metrics,
-  onDelete,
-  onEdit,
-  onRelapse,
-  onToggleToday,
-}: {
-  habit: LifeHabit;
-  isTracking: boolean;
-  metrics: HabitMetrics;
-  onDelete: (habit: LifeHabit) => void;
-  onEdit: (habit: LifeHabit) => void;
-  onRelapse: () => void;
-  onToggleToday: () => void;
-}) {
+function SummaryMetric({ icon, label, primary = false, value }: { icon: ReactNode; label: string; primary?: boolean; value: string }) {
   return (
-    <div className="flex h-full min-h-0 flex-col overflow-hidden">
-      <div
-        className="border-b border-border/70 p-4 text-primary-foreground"
-        style={{ backgroundColor: habit.color ?? "#0f766e" }}
-      >
-        <div className="flex items-start justify-between gap-3">
-          <div className="min-w-0">
-            <Badge className="bg-white/18 text-white" variant="outline">
-              Meta de {metrics.targetDays} dias
-            </Badge>
-            <h2 className="mt-3 truncate text-3xl font-semibold tracking-normal">
-              {habit.title}
-            </h2>
-            <p className="mt-2 line-clamp-2 text-sm text-white/85">
-              {habit.notes || "Mantenha a sequencia ativa com um check por dia."}
-            </p>
-          </div>
-          <div className="flex shrink-0 gap-1">
-            <Button
-              aria-label="Editar"
-              className="h-9 w-9 bg-white/15 text-white hover:bg-white/25"
-              onClick={() => onEdit(habit)}
-              size="icon"
-              type="button"
-              variant="ghost"
-            >
-              <Pencil className="h-4 w-4" />
-            </Button>
-            <Button
-              aria-label="Excluir"
-              className="h-9 w-9 bg-white/15 text-white hover:bg-white/25"
-              onClick={() => onDelete(habit)}
-              size="icon"
-              type="button"
-              variant="ghost"
-            >
-              <Trash className="h-4 w-4" />
-            </Button>
-          </div>
-        </div>
-      </div>
-
-      <div className="grid min-h-0 flex-1 gap-4 overflow-y-auto p-4 xl:grid-rows-[auto_minmax(0,1fr)]">
-        <div className="grid gap-3 sm:grid-cols-3">
-          <StreakCard
-            label="Sequencia atual"
-            value={`${metrics.currentStreak} dias`}
-          />
-          <StatCard
-            icon={Trophy}
-            label="Recorde pessoal"
-            value={`${metrics.bestStreak} dias`}
-          />
-          <StatCard
-            icon={Award}
-            label="Recompensas liberadas"
-            value={String(metrics.rewardsUnlocked)}
-          />
-        </div>
-
-        <div className="grid min-h-0 gap-4 xl:grid-cols-[minmax(0,1fr)_16rem]">
-          <div className="rounded-lg border border-border/70 bg-background p-4">
-            <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-              <div>
-                <div className="text-sm font-medium text-muted-foreground">
-                  Progresso da meta
-                </div>
-                <div className="mt-1 text-4xl font-semibold tracking-normal">
-                  {Math.round(metrics.progress)}%
-                </div>
-              </div>
-              <Badge variant={metrics.targetReached ? "default" : "secondary"}>
-                {metrics.currentStreak}/{metrics.targetDays} dias
-              </Badge>
-            </div>
-            <div className="mt-5 h-4 overflow-hidden rounded-full bg-secondary">
-              <div
-                className="h-full rounded-full bg-primary transition-all"
-                style={{ width: `${metrics.progress}%` }}
-              />
-            </div>
-            <div className="mt-5 grid gap-3 sm:grid-cols-2">
-              <Button
-                className="h-14 gap-2"
-                disabled={isTracking}
-                onClick={onToggleToday}
-                type="button"
-                variant={metrics.checkedToday ? "secondary" : "default"}
-              >
-                <CheckCircle2 className="h-5 w-5" />
-                {metrics.checkedToday ? "Check feito hoje" : "Fazer check diario"}
-              </Button>
-              <Button
-                className="h-14 gap-2"
-                disabled={isTracking}
-                onClick={onRelapse}
-                type="button"
-                variant="destructive"
-              >
-                <RotateCcw className="h-5 w-5" />
-                Registrar recaida
-              </Button>
-            </div>
-          </div>
-
-          <div className="grid gap-3 rounded-lg border border-border/70 bg-background p-4">
-            <div className="flex items-center gap-2 text-sm font-semibold">
-              <Target className="h-4 w-4 text-primary" />
-              Proximo marco
-            </div>
-            <div>
-              <div className="text-3xl font-semibold">
-                {metrics.targetReached
-                  ? "Meta concluida"
-                  : `${Math.max(metrics.nextRewardAt - metrics.currentStreak, 0)} dias`}
-              </div>
-              <p className="mt-2 text-sm text-muted-foreground">
-                {metrics.targetReached
-                  ? "A sequencia ja bateu a meta definida."
-                  : `Faltam para liberar a recompensa dos ${metrics.nextRewardAt} dias.`}
-              </p>
-            </div>
-            <div className="rounded-lg bg-secondary/60 p-3 text-sm">
-              Ultima recaida: {metrics.lastRelapseLabel}
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function RewardPanel({
-  selectedHabit,
-}: {
-  selectedHabit: { habit: LifeHabit; metrics: HabitMetrics } | null;
-}) {
-  const targetRewards = selectedHabit
-    ? Math.ceil(selectedHabit.metrics.targetDays / 10)
-    : 3;
-  const rewardRows = Array.from(
-    { length: Math.max(targetRewards, 1) },
-    (_, index) => {
-      const day = (index + 1) * 10;
-      const unlocked = selectedHabit
-        ? selectedHabit.metrics.currentStreak >= day
-        : false;
-
-      return { day, unlocked };
-    }
-  );
-
-  return (
-    <aside className="flex min-h-0 flex-col overflow-hidden rounded-lg border border-border/70 bg-card shadow-sm">
-      <div className="border-b border-border/70 p-4">
-        <div className="flex items-center gap-2 font-semibold">
-          <Medal className="h-5 w-5 text-primary" />
-          Recompensas
-        </div>
-        <p className="mt-2 text-sm text-muted-foreground">
-          A cada 10 dias, desbloqueie a recompensa escolhida sem reforcar o
-          habito abandonado.
-        </p>
-      </div>
-      <div className="min-h-0 flex-1 overflow-y-auto p-3">
-        {selectedHabit ? (
-          <div className="grid gap-3">
-            <div className="rounded-lg border border-border/70 bg-background p-3">
-              <div className="text-xs font-medium text-muted-foreground">
-                Recompensa definida
-              </div>
-              <div className="mt-2 text-sm font-semibold">
-                {selectedHabit.habit.reward || fallbackRewards[1]}
-              </div>
-            </div>
-            {rewardRows.map((reward) => (
-              <div
-                className={cn(
-                  "rounded-lg border p-3",
-                  reward.unlocked
-                    ? "border-primary/40 bg-primary/10"
-                    : "border-border/70 bg-background"
-                )}
-                key={reward.day}
-              >
-                <div className="flex items-center justify-between gap-2">
-                  <div className="font-medium">{reward.day} dias</div>
-                  <Badge variant={reward.unlocked ? "default" : "outline"}>
-                    {reward.unlocked ? "Liberada" : "Bloqueada"}
-                  </Badge>
-                </div>
-                <div className="mt-2 text-xs text-muted-foreground">
-                  {reward.unlocked
-                    ? "Voce conquistou este marco."
-                    : "Mantenha os checks diarios para chegar aqui."}
-                </div>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <EmptyState text="Selecione ou crie um habito para ver as recompensas." />
-        )}
-      </div>
-    </aside>
-  );
-}
-
-function MetricTile({
-  icon: Icon,
-  label,
-  value,
-}: {
-  icon: ComponentType<{ className?: string }>;
-  label: string;
-  value: string;
-}) {
-  return (
-    <div className="rounded-lg border border-border/70 bg-card p-3">
-      <div className="flex items-center gap-2 text-xs text-muted-foreground">
-        <Icon className="h-4 w-4 text-primary" />
-        {label}
-      </div>
-      <div className="mt-2 text-2xl font-semibold">{value}</div>
-    </div>
-  );
-}
-
-function EmptyState({ text }: { text: string }) {
-  return (
-    <div className="rounded-lg border border-dashed border-border/70 bg-secondary/25 p-4 text-sm text-muted-foreground">
-      {text}
-    </div>
+    <Card className="gap-0 py-0">
+      <CardContent className="flex items-center gap-2 p-3 sm:gap-3 sm:p-4">
+        <span className={`grid size-8 shrink-0 place-items-center rounded-lg sm:size-9 ${primary ? "bg-primary/10 text-primary" : "bg-secondary text-text-secondary"}`}>{icon}</span>
+        <div className="min-w-0"><p className="text-lg font-bold leading-none sm:text-xl">{value}</p><p className="mt-1 truncate text-[10px] text-text-secondary sm:text-xs">{label}</p></div>
+      </CardContent>
+    </Card>
   );
 }

@@ -2,6 +2,11 @@ export type FinanceRecordType = "income" | "expense";
 export type FinancialCommitmentRecurrence = "none" | "monthly";
 export type FinancialCommitmentStatus = "active" | "completed" | "cancelled";
 
+export interface FinancePeriod {
+  month?: number;
+  year: number;
+}
+
 export interface FinancialAccount {
   id: string;
   name: string;
@@ -102,6 +107,7 @@ export interface FinancialGoalInput {
   title: string;
   targetAmount: number;
   targetDate?: string | null;
+  status?: FinancialGoal["status"];
 }
 
 export interface FinancialContributionInput {

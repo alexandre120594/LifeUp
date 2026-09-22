@@ -44,6 +44,37 @@ export function calculateStudyMetrics(sessions: StudySessionCore[], reviews: Stu
   };
 }
 
+export function calculateStudyTodaySummary(
+  subjects: StudySubjectCore[], sessions: StudySessionCore[], reviews: StudyReview[], value = new Date()
+) {
+  const dayStart = new Date(value);
+  dayStart.setHours(0, 0, 0, 0);
+  const todaySessions = sessions.filter((session) => {
+    const startedAt = new Date(session.startedAt);
+    return startedAt >= dayStart && startedAt <= value;
+  });
+  const studiedMinutes = todaySessions.reduce((total, session) => total + session.durationMinutes, 0);
+  const totalQuestions = todaySessions.reduce((total, session) => total + (session.totalQuestions ?? 0), 0);
+  const correctQuestions = todaySessions.reduce((total, session) => total + (session.correctQuestions ?? 0), 0);
+  const goalMinutes = Math.round(
+    subjects
+      .filter((subject) => subject.isActive)
+      .reduce((total, subject) => total + subject.plannedMinutesPerWeek, 0) / 7,
+  );
+  const overdueReviews = reviews
+    .filter((review) => review.status === "pending" && new Date(review.dueAt) <= value)
+    .sort((a, b) => new Date(a.dueAt).getTime() - new Date(b.dueAt).getTime());
+
+  return {
+    accuracy: totalQuestions ? Math.round((correctQuestions / totalQuestions) * 100) : null,
+    goalMinutes,
+    goalProgress: goalMinutes ? Math.min(100, Math.round((studiedMinutes / goalMinutes) * 100)) : 0,
+    overdueReviews,
+    studiedMinutes,
+    totalQuestions,
+  };
+}
+
 export function deriveStudyRecommendation(
   subjects: StudySubjectCore[], sessions: StudySessionCore[], reviews: StudyReview[]
 ): StudyRecommendation | null {

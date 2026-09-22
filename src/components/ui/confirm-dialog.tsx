@@ -15,6 +15,7 @@ type ConfirmDialogProps = {
   cancelLabel?: string;
   confirmLabel?: string;
   description: string;
+  error?: string | null;
   isPending?: boolean;
   onConfirm: () => void;
   onOpenChange: (open: boolean) => void;
@@ -26,6 +27,7 @@ export function ConfirmDialog({
   cancelLabel = "Cancelar",
   confirmLabel = "Excluir",
   description,
+  error,
   isPending = false,
   onConfirm,
   onOpenChange,
@@ -41,6 +43,7 @@ export function ConfirmDialog({
           </div>
           <DialogTitle>{title}</DialogTitle>
           <DialogDescription>{description}</DialogDescription>
+          {error ? <p className="text-sm text-destructive" role="alert">{error}</p> : null}
         </DialogHeader>
         <DialogFooter>
           <Button

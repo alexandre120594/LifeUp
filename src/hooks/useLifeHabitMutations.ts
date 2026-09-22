@@ -1,5 +1,6 @@
 import { LifeHabitServices } from "@/services/LifeHabitServices";
 import type {
+  LifeHabit,
   LifeHabitActionInput,
   LifeHabitCreateInput,
   LifeHabitUpdateInput,
@@ -50,10 +51,43 @@ export function useLifeHabitAction() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    meta: { successMessage: "Habit tracked.", successTitle: "Saved" },
+    meta: { successMessage: "Hábito atualizado.", successTitle: "Salvo" },
     mutationFn: ({ data, id }: { data: LifeHabitActionInput; id: string }) =>
       LifeHabitServices.action(id, data),
-    onSuccess: async () => {
+    onMutate: async ({ data, id }) => {
+      await queryClient.cancelQueries({ queryKey: lifeHabitQueryKey });
+      const previous = queryClient.getQueryData<LifeHabit[]>(lifeHabitQueryKey);
+      const dayKey = data.dayKey ?? new Date().toISOString().slice(0, 10);
+
+      queryClient.setQueryData<LifeHabit[]>(lifeHabitQueryKey, (current = []) =>
+        current.map((habit) => {
+          if (habit.id !== id) return habit;
+          if (data.action === "toggle-checkin") {
+            const checkins = habit.checkins.includes(dayKey)
+              ? habit.checkins.filter((item) => item !== dayKey)
+              : [...habit.checkins, dayKey];
+            return { ...habit, checkins };
+          }
+
+          return {
+            ...habit,
+            badEvents: [...new Set([...habit.badEvents, dayKey])],
+            checkins: habit.checkins.includes(dayKey)
+              ? habit.checkins
+              : [...habit.checkins, dayKey],
+            lastBadAt: `${dayKey}T12:00:00`,
+          };
+        }),
+      );
+
+      return { previous };
+    },
+    onError: (_error, _variables, context) => {
+      if (context?.previous) {
+        queryClient.setQueryData(lifeHabitQueryKey, context.previous);
+      }
+    },
+    onSettled: async () => {
       await queryClient.invalidateQueries({
         queryKey: lifeHabitQueryKey,
         refetchType: "all",

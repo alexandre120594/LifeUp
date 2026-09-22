@@ -71,7 +71,7 @@ export async function POST(req: NextRequest) {
     const habit = await prisma.lifeHabit.create({
       data: {
         ...payload,
-        lastBadAt: payload.kind === "bad" ? new Date() : null,
+        lastBadAt: null,
         userId,
       },
     });

@@ -26,12 +26,22 @@ async function ensureFinanceFoundation(userId: number) {
 
 }
 
-export async function GET() {
+export async function GET(req: Request) {
   const { response, userId } = await requireCurrentUserId();
   if (response) return response;
 
   await ensureFinanceFoundation(userId);
-  const { start, end } = getMonthRange();
+  const url = new URL(req.url);
+  const now = new Date();
+  const year = Number(url.searchParams.get("year") ?? now.getFullYear());
+  const monthParam = url.searchParams.get("month");
+  const month = monthParam ? Number(monthParam) : undefined;
+  if (!Number.isInteger(year) || year < 1900 || year > 2200 || (month !== undefined && (!Number.isInteger(month) || month < 1 || month > 12))) {
+    return NextResponse.json({ message: "Periodo invalido." }, { status: 400 });
+  }
+  const { start, end } = month
+    ? getMonthRange(new Date(year, month - 1, 1))
+    : { start: new Date(year, 0, 1), end: new Date(year + 1, 0, 1) };
   const [accounts, categories, transactions, periodTransactions, commitments, goals] = await Promise.all([
     prisma.financialAccount.findMany({
       where: { userId },
@@ -40,15 +50,15 @@ export async function GET() {
     }),
     prisma.financialCategory.findMany({ where: { userId }, orderBy: [{ type: "asc" }, { name: "asc" }] }),
     prisma.financialTransaction.findMany({
-      where: { accountId: { not: null }, userId }, include: { account: true, category: true },
-      orderBy: { date: "desc" }, take: 30,
+      where: { accountId: { not: null }, date: { gte: start, lt: end }, userId }, include: { account: true, category: true },
+      orderBy: [{ date: "desc" }, { createdAt: "desc" }],
     }),
     prisma.financialTransaction.findMany({
       where: { accountId: { not: null }, date: { gte: start, lt: end }, userId },
       select: { amount: true, type: true },
     }),
     prisma.financialCommitment.findMany({
-      where: { userId }, include: { account: true, category: true }, orderBy: { dueDate: "asc" },
+      where: { dueDate: { gte: start, lt: end }, userId }, include: { account: true, category: true }, orderBy: { dueDate: "asc" },
     }),
     prisma.savingsGoal.findMany({
       where: { userId }, include: { contributions: { select: { amount: true } } },

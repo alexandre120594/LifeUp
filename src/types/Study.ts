@@ -70,7 +70,12 @@ export interface StudyWorkspace {
 }
 
 export interface StudyTopicInput { name: string; subjectId: string; }
-export interface StudySubjectInput { name: string; plannedMinutesPerWeek?: number; }
+export interface StudySubjectInput {
+  name: string;
+  plannedMinutesPerWeek?: number;
+  color?: string | null;
+  notes?: string | null;
+}
 export interface StudyReviewInput {
   prompt: string;
   answer?: string | null;

@@ -10,13 +10,13 @@ LifeUp is a Next.js productivity app whose main Life domain is now `Goal`.
 - SnowUI is the canonical visual layer for tokens, light/dark themes, the app shell, and core UI primitives
 - reusable SnowUI productivity patterns (`StatCard`, `GoalCard`, `TaskRow`, `FocusCard`, and `StreakCard`)
 - "Hoje" dashboard separated from Goal management, focused on progress and next actions
-- independent Inbox capture
+- full-viewport Inbox capture with internal list scrolling and view/edit dialogs
 - full-viewport Notes dashboard with internal scrolling, search, category filters, modal create/edit, and dedicated note viewing
-- clean operational Study workspace with an explainable next action, unified sessions/results, weekly metric strip, focused subject attention, reviews, and Dataprev/TRT plan links
-- independent Study Focus Timer
+- clean operational Study workspace with an explainable next action, unified sessions/results, weekly metric strip, focused subject attention, reviews, and native Dataprev/TRT plan dashboards
+- clean full-viewport Study Focus workspace with a compact operational timer above subject analytics and session history, available inside the Studies navigation group
 - reusable loading, empty, error, field-error, and confirmation UI states across redesigned Focus and Notes flows
 - operational Finance workspace with accounts, transactions, commitments, and savings goals
-- legacy/separate LifeHabit quit-habit tracker kept outside main navigation and not connected to Goal
+- independent Habit Tracker for daily positive habits and habits to avoid, available from the main navigation and not connected to Goal
 
 ## Main Domain
 
@@ -71,7 +71,7 @@ User -> FinancialCommitment -> FinancialTransaction
 User -> SavingsGoal -> SavingsContribution
 ```
 
-`/finance` is a full-viewport operational workspace. `Nova movimentacao` is the primary action; commitments and goals are contextual. Account balance is derived from opening balance plus transactions, commitment settlement creates a linked transaction atomically, and goal progress is derived only from contributions. The former tracker, budget, planned-expense, and recurring-bill surfaces were removed after consolidation.
+`/finance` is a full-viewport operational workspace with month/year navigation, an annual `Todos os meses` view, a light summary strip, and full-width tabs for transactions, commitments, and savings goals. Each tab keeps its individual actions and adds confirmed bulk selection/deletion; transaction period deletion is server-side and always scoped by both the active period and authenticated user. Account balance is derived from opening balance plus transactions, commitment settlement creates a linked transaction atomically, and goal progress is derived only from contributions. The former tracker, budget, planned-expense, and recurring-bill surfaces were removed after consolidation.
 
 ## Study Domain
 
@@ -81,7 +81,7 @@ User -> StudySession (time + optional question result)
 User -> StudyReview
 ```
 
-`/study` is a clean full-viewport operational workspace centered on `O que devo estudar agora?`: next-action hero, weekly metric strip, subject-attention list, review queue, and compact recent history. `GET /api/study` returns canonical weekly metrics, subject attention, pending reviews, recent history, and an explainable next-action recommendation. The session dialog keeps setup and result in one flow and can save question totals plus review items atomically. Dataprev and TRT study plans are exposed as static HTML references from the Study dashboard; planner, mistake-log, plan APIs, and parallel question-practice surfaces remain removed after migration.
+`/study` is a full-viewport workspace organized into Hoje, Matérias, Revisões, and Histórico. Hoje combines a compact daily summary, explainable next-subject recommendation, daily-goal progress, overdue reviews, and a direct handoff to the existing `/pomodoro` timer. Matérias exposes weekly goals, progress, linked topics and CRUD; Revisões presents one pending item at a time while preserving the existing scheduling actions; Histórico adds month/year filters, period metrics, subject totals and session CRUD. `GET /api/study` remains the canonical workspace source.
 
 ## Main File Map
 
@@ -121,6 +121,10 @@ User -> StudyReview
 - `src/app/life-habits/page.tsx`
 
 Inbox, Notes, and Pomodoro are independent and do not require Goal IDs.
+
+## Habit Tracker
+
+`/life-habits` is an independent daily tracker for habits to build and habits to avoid. It reuses the existing `LifeHabit` CRUD and actions, provides one-click daily check-ins, preserved relapse history, current and best streaks, goals, milestones, user-defined rewards, a seven-day view, and a compact 28-day history. Habit metrics are derived in `src/lib/life-habits.ts`; no Goal relation is required.
 
 ## Removed Main-Life Legacy
 
@@ -193,3 +197,4 @@ Goal area specs live in `specs/goal-areas/`.
 UX redesign and design-system specs live in `specs/ux-redesign/`.
 The canonical SnowUI contract and phased implementation plan live in `specs/design-system/`.
 Finance and Study simplification specs live in `specs/simplification/`.
+The phased Study workspace UX spec lives in `specs/study-ux/`.

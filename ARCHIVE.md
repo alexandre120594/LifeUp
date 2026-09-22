@@ -5,7 +5,7 @@ Running handoff log for LifeUp.
 ## Current Snapshot
 
 Date of latest update:
-- 2026-09-21
+- 2026-09-22
 
 Current app position:
 - `/` is a full-viewport Goal dashboard.
@@ -18,15 +18,149 @@ Current app position:
 - Goal list scrolls internally; page-level vertical scroll is disabled by layout.
 - Design System Foundation is active: SnowUI-compatible semantic tokens are layered over the existing Yevox theme system.
 - App Shell redesign is active: PT-BR route-aware topbar, compact theme controls, clearer sidebar active states, and tokenized shared viewport/header.
-- Information Architecture now centers primary navigation on Hoje, Metas, Captura, Foco, and Notas, with Estudos and Financas secondary.
+- Information Architecture centers primary navigation on Hoje, Metas, Hábitos, Captura, and Notas; the Studies group contains Estudos and Foco, with Finanças remaining separate.
 - Inbox/Captura is independent.
 - Notes are independent.
 - Pomodoro is independent and study-subject based.
 - Study and finance areas remain available.
-- Estudos exposes Dataprev and TRT static plan references inside the full-viewport dashboard.
-- LifeHabit remains a separate legacy quit-habit tool, outside main navigation and not integrated with Goal.
+- Estudos exposes Dataprev and TRT as native full-viewport plan dashboards.
+- LifeHabit is an independent daily Habit Tracker for habits to build and avoid, available in main navigation and not integrated with Goal.
 
 ## Completed Recently
+
+### Study UX — Etapas 2 a 4
+
+Implemented:
+- rebuilt Matérias as responsive cards with weekly progress, studied/goal time, accuracy, overdue-review context, linked topics, contextual topic creation, and the existing edit/delete flows.
+- changed Revisões to a focused one-at-a-time queue with previous/next navigation, answer reveal, explicit `Rever amanhã`, `Rever em 7 dias`, and `Dominei` outcomes, plus edit/delete actions.
+- preserved the review persistence algorithm: results still call the existing explicit reschedule and master operations without introducing a new interval rule.
+- refined Histórico with month/year filters, period summaries, question accuracy, time by subject, richer session rows, and the existing session CRUD.
+- completed responsive composition for mobile and desktop while retaining the full-viewport/internal-scroll contract.
+
+Validation:
+- `npx tsc --noEmit`
+- `npm run lint` (passes with one pre-existing warning in `src/app/page.tsx`)
+- `npm run build`
+
+Remaining:
+- no work remains in the phased `specs/study-ux/implementation.md` plan.
+
+### Study UX — Etapa 1
+
+Implemented:
+- created the Spec-Driven Development contract in `specs/study-ux/`.
+- organized `/study` into full-width Hoje, Matérias, Revisões, and Histórico tabs.
+- rebuilt Hoje around daily time, overdue reviews, available accuracy, derived daily-goal progress, the explainable recommendation, and direct navigation to the existing `/pomodoro` timer.
+- preserved the existing subject/topic, review, and session dialogs, edits, confirmed deletes, review actions, and native study-plan links in the remaining tabs.
+- kept page overflow locked and moved scrolling to the active tab content.
+
+Validation:
+- `npx tsc --noEmit`
+- `npm run lint` (passes with one pre-existing warning in `src/app/page.tsx`)
+- `npm run build`
+
+Remaining:
+- Etapa 2: refine Matérias and its CRUD UX.
+- Etapa 3: refine the one-at-a-time review flow without changing scheduling rules.
+- Etapa 4: refine Histórico with month/year filters and complete responsive QA.
+
+### Finance Full-Width Tabs and Bulk Actions
+
+Implemented:
+- replaced the compressed simultaneous Finance columns with full-width tabs for Movimentações, Compromissos, and Objetivos.
+- added month/year navigation, previous/next period controls, and a `Todos os meses` annual view backed by period-aware workspace queries.
+- kept the lightweight summary and individual create/edit/delete, commitment settlement, and savings contribution flows.
+- added opt-in selection mode, select-all for the visible period, clear/cancel controls, and confirmed bulk deletion across all three tabs.
+- added authenticated `deleteMany` endpoints for transactions, commitments, and goals; transaction deletion by month or year always includes `userId` and an exact date interval.
+- preserved the full-viewport contract with page overflow hidden and scrolling owned by the active list/grid.
+
+Validation:
+- `npx tsc --noEmit`
+- `npm run lint` (passes with one pre-existing warning in `src/app/page.tsx`)
+
+Remaining:
+- final production build and responsive browser smoke-check are pending at this handoff point.
+
+### Study CRUD and Finance Operational Redesign
+
+Implemented:
+- added compact edit/delete menus for Study subjects, reviews, and recent sessions while preserving the existing Study layout, recommendation, metrics, colors, and primary review actions.
+- reused the Study dialog for subject edits and added in-place dialogs for session and review edits; every delete uses the shared confirmation dialog.
+- completed authenticated Finance CRUD for transactions, commitments, and savings goals, including nullable transaction categories and ownership validation for linked accounts/categories.
+- rebuilt `/finance` as a cleaner full-viewport operational workspace with a compact summary, dominant internally scrolling transaction list, and compact commitments/goals column.
+- reused `FinanceDialog` for create/edit flows, kept transaction details progressive, and preserved commitment settlement, savings contributions, and secondary account creation.
+
+Validation:
+- `npx tsc --noEmit`
+- `npm run lint` (passes with one pre-existing warning in `src/app/page.tsx`)
+- `npm run build`
+
+### Focus Clean Full-Viewport Layout
+
+Implemented:
+- rebuilt `/pomodoro` from `specs/design-system/foco-clean-reference.html` with the timer as the primary surface and compact desktop analytics ordered as metrics, subject hours, and recent history.
+- removed the duplicated outer card/header composition and made the workspace own the full available app height without page-level vertical scrolling.
+- kept the timer fully usable on narrow screens, while desktop-only analytics use constrained panels and internal history scrolling.
+- exposed subject selection and subject creation directly in the timer header without changing timer persistence or session data flow.
+- refactored the complete screen into a compact operational timer row above a balanced analytics/history workspace, reducing visual weight while keeping the primary controls immediately accessible.
+
+Validation:
+- `npx tsc --noEmit`
+- `npx eslint src/app/pomodoro/page.tsx src/components/pomodoro-panel.tsx`
+
+### Complete Daily Habit Tracker
+
+Implemented:
+- rebuilt `/life-habits` as a full-viewport daily tracker for both positive habits and habits to avoid.
+- added one-click optimistic daily check-ins, current/best streaks, target progress, milestones, self-defined rewards, seven-day status, and a 28-day detail heatmap.
+- added relapse confirmation and recovery that preserve historical check-ins and records while starting a new sequence today.
+- extracted reusable habit metrics and reward-safety validation to `src/lib/life-habits.ts` and split the page into focused habit components.
+- added Hábitos to the Principal navigation group and replaced destructive browser confirmations with the shared confirmation dialog.
+- kept the existing LifeHabit schema, service, hooks, API routes, and query key.
+
+Validation:
+- `npx tsc --noEmit`
+- `npm run lint` (passes with one pre-existing warning in `src/app/page.tsx`)
+- `npm run build`
+
+### Focus Navigation and Full-Viewport Layout
+
+Implemented:
+- moved Foco from the Principal navigation group into Estudos without changing the `/pomodoro` route or its data flow.
+- made Estudos and Foco mutually exclusive active sidebar destinations while preserving their badges.
+- refactored `/pomodoro` to use the shared page header and full available viewport without page-level vertical scrolling.
+- kept the timer and controls prioritized while analytics and session history own the internal overflow on constrained screens.
+
+Validation:
+- `npx tsc --noEmit`
+- `npm run lint`
+
+### Inbox Full-Viewport View and Edit
+
+Implemented:
+- made `/inbox` fill the available app viewport without page-level vertical scrolling.
+- kept overflow owned by the captured-items list and responsive dialog bodies.
+- added complete capture viewing with type, status, content, and timestamps.
+- added prefilled capture editing through the existing Inbox update mutation and `PATCH /api/inbox/[id]` flow.
+
+Validation:
+- `npx tsc --noEmit`
+- `npx eslint src/app/inbox/page.tsx`
+- `npm run lint` (passes with one pre-existing warning in `src/app/page.tsx`)
+- `npm run build`
+
+### Native Study Plan Dashboards
+
+Implemented:
+- migrated the complete Dataprev and TRT plan content out of public HTML references into native LifeUp plan data.
+- added `/study/dataprev` and `/study/trt` as responsive, full-viewport dashboards under the existing app shell.
+- kept plan content inside a single owned internal-scroll region, with track controls, collapsible weeks, progress summaries, and per-study-day completion persisted locally.
+- changed the Studies dashboard cards to internal app navigation instead of opening separate HTML files.
+
+Validation:
+- `npx tsc --noEmit`
+- `npm run lint`
+- `npm run build`
 
 ### Study Clean Dashboard Refactor
 

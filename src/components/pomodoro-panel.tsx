@@ -13,11 +13,9 @@ import {
   Plus,
   RotateCcw,
   Save,
-  TimerReset,
   Trash2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { EmptyState, ErrorState, FieldError, LoadingState, RetryButton } from "@/components/ui/app-state";
 import {
@@ -27,7 +25,6 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import {
@@ -498,96 +495,136 @@ export function PomodoroPanel() {
   };
 
   return (
-    <Card className="min-w-0 overflow-hidden border-border/70 bg-background/85 shadow-sm backdrop-blur">
-      <CardHeader className="px-4 sm:px-6">
-        <div className="flex min-w-0 flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-          <CardTitle className="flex min-w-0 items-center gap-2">
-            <TimerReset className="h-5 w-5 text-primary" />
-            <span className="min-w-0 truncate">Timer de foco</span>
-          </CardTitle>
-          <div className="min-w-0 truncate text-sm text-muted-foreground">
-            Sessoes de estudo organizadas por materia
-          </div>
-        </div>
-      </CardHeader>
-      <CardContent className="grid min-w-0 gap-5 px-4 sm:px-6">
-        <div className="grid min-w-0 gap-4 xl:grid-cols-[minmax(0,1.35fr)_minmax(280px,0.65fr)]">
-          <section className="grid min-h-[420px] min-w-0 content-start gap-3 overflow-hidden rounded-lg border border-border/70 bg-background/70 p-4 sm:p-5">
-            <div className="min-w-0 overflow-hidden rounded-lg bg-secondary/40 p-5 text-center sm:p-7">
-              <div className="inline-flex max-w-full items-center gap-2 rounded-full bg-background/75 px-3 py-1 text-xs font-medium text-muted-foreground">
-                {phase === "focus" ? (
-                  <BookOpen className="h-3.5 w-3.5 text-primary" />
-                ) : (
-                  <Pause className="h-3.5 w-3.5 text-primary" />
-                )}
-                <span className="min-w-0 truncate">
-                  {phase === "focus" ? "Foco" : "Pausa"}
-                </span>
+    <>
+      <div className="grid h-full min-h-0 min-w-0 grid-rows-[auto_minmax(0,1fr)] gap-3 overflow-hidden">
+        <section className="grid min-w-0 overflow-hidden rounded-xl border border-border bg-panel shadow-snow-1 lg:grid-cols-[minmax(0,1fr)_minmax(19rem,0.42fr)]">
+          <div className="min-w-0 p-3 sm:p-4">
+            <div className="flex min-w-0 items-center justify-between gap-3">
+              <div className="flex min-w-0 items-center gap-2 text-sm font-semibold">
+                <span className="size-2 shrink-0 rounded-full bg-primary" />
+                <span className="truncate">Timer de foco</span>
               </div>
-              <div className="mt-4 text-5xl font-semibold tabular-nums tracking-tight sm:text-6xl lg:text-7xl">
+              <div className="flex min-w-0 items-center gap-1.5">
+                <Select
+                  disabled={!subjects.length || isRunning}
+                  onValueChange={setSelectedSubjectId}
+                  value={selectedSubjectId}
+                >
+                  <SelectTrigger
+                    aria-label="Matéria da sessão"
+                    className="h-8 w-[48vw] min-w-0 max-w-52 bg-surface-subtle text-xs"
+                  >
+                    <SelectValue placeholder="Escolha uma matéria" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {subjects.map((subject) => (
+                      <SelectItem key={subject.id} value={subject.id}>
+                        {subject.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <Button
+                  aria-label="Adicionar matéria"
+                  className="size-8 shrink-0"
+                  onClick={() => setIsSubjectDialogOpen(true)}
+                  size="icon"
+                  type="button"
+                  variant="outline"
+                >
+                  <Plus className="size-3.5" />
+                </Button>
+              </div>
+            </div>
+
+            <div className="mt-4 grid min-w-0 gap-3 sm:grid-cols-[auto_minmax(0,1fr)] sm:items-center sm:gap-6">
+              <div className="text-[clamp(3.25rem,6vw,5rem)] font-semibold leading-none tabular-nums tracking-[-0.055em]">
                 {formatTimer(remainingSeconds)}
               </div>
-              <p className="mx-auto mt-4 max-w-2xl break-words text-sm text-muted-foreground [overflow-wrap:anywhere]">
-                Salve tempo de estudo por materia.
-              </p>
-              <div className="mt-4 h-2 overflow-hidden rounded-full bg-background">
-                <div
-                  className="h-full rounded-full bg-primary"
-                  style={{ width: `${Math.min(progressPercent, 100)}%` }}
-                />
-              </div>
-              <div className="mt-2 text-xs text-muted-foreground">
-                Ciclo {Math.min(completedCycles + 1, targetCycles)} de{" "}
-                {targetCycles} / {completedCycles} concluidos
+              <div className="min-w-0">
+                <div className="flex items-center justify-between gap-3 text-xs">
+                  <span className="inline-flex items-center gap-1.5 font-medium text-text-secondary">
+                    {phase === "focus" ? (
+                      <BookOpen className="size-3.5 text-primary" />
+                    ) : (
+                      <Pause className="size-3.5 text-primary" />
+                    )}
+                    {phase === "focus" ? "Foco" : "Pausa"}
+                  </span>
+                  <span className="text-text-tertiary">
+                    Ciclo {Math.min(completedCycles + 1, targetCycles)} de {targetCycles}
+                  </span>
+                </div>
+                <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-surface-subtle">
+                  <div
+                    className="h-full rounded-full bg-primary transition-[width] duration-500"
+                    style={{ width: `${Math.min(progressPercent, 100)}%` }}
+                  />
+                </div>
+                <p className="mt-2 text-xs text-text-tertiary">
+                  {completedCycles} {completedCycles === 1 ? "ciclo concluído" : "ciclos concluídos"}
+                </p>
               </div>
             </div>
+          </div>
 
-            <div className="grid min-w-0 gap-2 pt-1 sm:grid-cols-4">
-              <Button
-                className="min-w-0 gap-2"
-                disabled={isRunning || isPending}
-                onClick={handleStartClick}
-                type="button"
-              >
-                <Play className="h-4 w-4" />
-                <span className="min-w-0 truncate">Iniciar</span>
-              </Button>
-              <Button
-                className="min-w-0 gap-2"
-                disabled={!isRunning}
-                onClick={pauseTimer}
-                type="button"
-                variant="outline"
-              >
-                <Pause className="h-4 w-4" />
-                <span className="min-w-0 truncate">Pausar</span>
-              </Button>
-              <Button
-                className="min-w-0 gap-2"
-                onClick={() => {
-                  setCompletedCycles(0);
-                  resetTimer("focus");
-                }}
-                type="button"
-                variant="outline"
-              >
-                <RotateCcw className="h-4 w-4" />
-                <span className="min-w-0 truncate">Reiniciar</span>
-              </Button>
-              <Button
-                className="min-w-0 gap-2"
-                disabled={!canSavePartial || isPending || !canSaveFocus}
-                onClick={savePartialSession}
-                type="button"
-                variant="secondary"
-              >
-                <Save className="h-4 w-4" />
-                <span className="min-w-0 truncate">Salvar</span>
-              </Button>
+          <div className="grid min-w-0 grid-cols-2 gap-2 border-t border-border bg-surface-subtle/40 p-3 lg:border-l lg:border-t-0 lg:p-4">
+            <Button
+              className="min-w-0 gap-2"
+              disabled={isRunning || isPending}
+              onClick={handleStartClick}
+              type="button"
+            >
+              <Play className="h-4 w-4" />
+              <span className="min-w-0 truncate">Iniciar</span>
+            </Button>
+            <Button
+              className="min-w-0 gap-2"
+              disabled={!isRunning}
+              onClick={pauseTimer}
+              type="button"
+              variant="outline"
+            >
+              <Pause className="h-4 w-4" />
+              <span className="min-w-0 truncate">Pausar</span>
+            </Button>
+            <Button
+              className="min-w-0 gap-2"
+              onClick={() => {
+                setCompletedCycles(0);
+                resetTimer("focus");
+              }}
+              type="button"
+              variant="outline"
+            >
+              <RotateCcw className="h-4 w-4" />
+              <span className="min-w-0 truncate">Reiniciar</span>
+            </Button>
+            <Button
+              className="min-w-0 gap-2"
+              disabled={!canSavePartial || isPending || !canSaveFocus}
+              onClick={savePartialSession}
+              type="button"
+              variant="secondary"
+            >
+              <Save className="h-4 w-4" />
+              <span className="min-w-0 truncate">Salvar</span>
+            </Button>
+          </div>
+        </section>
+
+        <div className="hidden min-h-0 min-w-0 gap-3 md:grid md:grid-cols-[minmax(17rem,0.42fr)_minmax(0,1fr)]">
+          <aside className="grid min-h-0 min-w-0 grid-rows-[auto_minmax(0,1fr)] gap-2.5">
+            <div className="grid min-w-0 grid-cols-2 gap-2.5">
+              <FocusMetric
+                label="Total focado"
+                value={formatFocusDuration(pomodoro?.totalMinutes ?? 0)}
+              />
+              <FocusMetric
+                label="Sessões"
+                value={pomodoro?.sessions.length ?? 0}
+              />
             </div>
-          </section>
-
-          <aside className="min-w-0">
             {isPomodoroLoading ? (
               <LoadingState title="Carregando horas" />
             ) : isPomodoroError ? (
@@ -600,24 +637,12 @@ export function PomodoroPanel() {
               <SubjectHoursChart subjects={pomodoro?.bySubject ?? []} />
             )}
           </aside>
-        </div>
-
-        <section className="grid min-w-0 gap-4">
-          <div className="grid min-w-0 gap-3 sm:grid-cols-2">
-            <FocusMetric
-              label="Total focado"
-              value={formatFocusDuration(pomodoro?.totalMinutes ?? 0)}
-            />
-            <FocusMetric
-              label="Estudado"
-              value={formatFocusDuration(pomodoro?.studyMinutes ?? 0)}
-            />
-          </div>
 
           {isPomodoroLoading ? (
-            <LoadingState title="Carregando historico" />
+            <LoadingState className="min-h-0" title="Carregando historico" />
           ) : isPomodoroError ? (
             <ErrorState
+              className="min-h-0"
               action={<RetryButton onClick={() => refetchPomodoro()} />}
               description="As sessoes salvas nao puderam ser carregadas."
               title="Historico indisponivel."
@@ -629,8 +654,8 @@ export function PomodoroPanel() {
               subjects={subjects}
             />
           )}
-        </section>
-      </CardContent>
+        </div>
+      </div>
       <Dialog open={isSetupDialogOpen} onOpenChange={setIsSetupDialogOpen}>
         <DialogContent>
           <DialogHeader>
@@ -663,51 +688,15 @@ export function PomodoroPanel() {
                 <label className="text-sm font-medium" htmlFor="focus-subject">
                   Materia
                 </label>
-                <Dialog
-                  open={isSubjectDialogOpen}
-                  onOpenChange={(open) => {
-                    setIsSubjectDialogOpen(open);
-                    if (!open) {
-                      setSubjectNameError("");
-                    }
-                  }}
+                <Button
+                  className="h-8 gap-1 px-2"
+                  onClick={() => setIsSubjectDialogOpen(true)}
+                  type="button"
+                  variant="outline"
                 >
-                  <DialogTrigger asChild>
-                    <Button className="h-8 gap-1 px-2" type="button" variant="outline">
-                      <Plus className="h-3.5 w-3.5" />
-                      Adicionar
-                    </Button>
-                  </DialogTrigger>
-                  <DialogContent>
-                    <DialogHeader>
-                      <DialogTitle>Adicionar materia</DialogTitle>
-                    </DialogHeader>
-                    <form className="grid gap-3" onSubmit={handleCreateSubject}>
-                      <Input
-                        aria-describedby={subjectNameError ? "focus-subject-name-error" : undefined}
-                        aria-invalid={Boolean(subjectNameError)}
-                        onChange={(event) => {
-                          setNewSubjectName(event.target.value);
-                          if (subjectNameError) {
-                            setSubjectNameError("");
-                          }
-                        }}
-                        placeholder="Nome da materia"
-                        value={newSubjectName}
-                      />
-                      <FieldError id="focus-subject-name-error">{subjectNameError}</FieldError>
-                      <DialogFooter>
-                        <Button
-                          disabled={!newSubjectName.trim() || createSubject.isPending}
-                          type="submit"
-                        >
-                          <Plus className="h-4 w-4" />
-                          Adicionar materia
-                        </Button>
-                      </DialogFooter>
-                    </form>
-                  </DialogContent>
-                </Dialog>
+                  <Plus className="h-3.5 w-3.5" />
+                  Adicionar
+                </Button>
               </div>
               <Select
                 disabled={!subjects.length}
@@ -778,7 +767,50 @@ export function PomodoroPanel() {
           </form>
         </DialogContent>
       </Dialog>
-    </Card>
+      <Dialog
+        open={isSubjectDialogOpen}
+        onOpenChange={(open) => {
+          setIsSubjectDialogOpen(open);
+          if (!open) {
+            setSubjectNameError("");
+          }
+        }}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Adicionar matéria</DialogTitle>
+            <DialogDescription>
+              A nova matéria ficará disponível para esta sessão de foco.
+            </DialogDescription>
+          </DialogHeader>
+          <form className="grid gap-3" onSubmit={handleCreateSubject}>
+            <Input
+              aria-describedby={subjectNameError ? "focus-subject-name-error" : undefined}
+              aria-invalid={Boolean(subjectNameError)}
+              autoFocus
+              onChange={(event) => {
+                setNewSubjectName(event.target.value);
+                if (subjectNameError) {
+                  setSubjectNameError("");
+                }
+              }}
+              placeholder="Nome da matéria"
+              value={newSubjectName}
+            />
+            <FieldError id="focus-subject-name-error">{subjectNameError}</FieldError>
+            <DialogFooter>
+              <Button
+                disabled={!newSubjectName.trim() || createSubject.isPending}
+                type="submit"
+              >
+                <Plus className="h-4 w-4" />
+                Adicionar matéria
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }
 
@@ -804,18 +836,18 @@ function SubjectHoursChart({ subjects }: { subjects: PomodoroSummaryItem[] }) {
   );
 
   return (
-    <div className="min-w-0 overflow-hidden rounded-lg border border-border/70 bg-background/70 p-4">
-      <div className="mb-4 flex min-w-0 flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+    <div className="flex h-full min-h-0 min-w-0 flex-col overflow-hidden rounded-xl border border-border bg-panel p-3 shadow-snow-1">
+      <div className="mb-2.5 flex min-w-0 items-center justify-between gap-2">
         <div className="flex min-w-0 items-center gap-2 text-sm font-medium">
           <GraduationCap className="h-4 w-4 text-primary" />
           <span className="min-w-0 truncate">Horas por materia</span>
         </div>
-        <div className="shrink-0 rounded-md bg-secondary/50 px-2.5 py-1 text-xs font-medium text-muted-foreground">
+        <div className="shrink-0 text-xs text-text-tertiary">
           {formatFocusDuration(totalMinutes)} total
         </div>
       </div>
       {sortedSubjects.length ? (
-        <div className="grid min-w-0 gap-2">
+        <div className="grid min-h-0 min-w-0 flex-1 content-start gap-1.5 overflow-y-auto pr-1 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-border">
           {visibleSubjects.map((subject, index) => {
             const share = totalMinutes
               ? Math.round((subject.minutes / totalMinutes) * 100)
@@ -824,12 +856,12 @@ function SubjectHoursChart({ subjects }: { subjects: PomodoroSummaryItem[] }) {
 
             return (
               <div
-                className="grid min-w-0 gap-1.5 rounded-lg border border-border/50 bg-secondary/20 p-2.5 transition hover:border-primary/30 hover:bg-secondary/30"
+                className="grid min-w-0 gap-1.5 border-t border-border/70 py-2 first:border-t-0 first:pt-0"
                 key={subject.id}
               >
                 <div className="flex min-w-0 items-center justify-between gap-3">
                   <div className="flex min-w-0 items-center gap-2">
-                    <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-background text-xs font-semibold text-muted-foreground">
+                    <span className="w-4 shrink-0 text-xs text-text-tertiary">
                       {currentPage * subjectHoursPageSize + index + 1}
                     </span>
                     <span className="min-w-0 truncate text-sm font-medium">
@@ -841,7 +873,7 @@ function SubjectHoursChart({ subjects }: { subjects: PomodoroSummaryItem[] }) {
                   </div>
                 </div>
                 <div className="grid min-w-0 gap-1.5">
-                  <div className="h-1.5 overflow-hidden rounded-full bg-background">
+                  <div className="h-1 overflow-hidden rounded-full bg-surface-subtle">
                     <div
                       className="h-full rounded-full bg-primary"
                       style={{
@@ -850,10 +882,7 @@ function SubjectHoursChart({ subjects }: { subjects: PomodoroSummaryItem[] }) {
                       }}
                     />
                   </div>
-                  <div className="flex items-center justify-between text-xs text-muted-foreground">
-                    <span>{share}% do foco salvo</span>
-                    <span>{Math.round(subject.minutes / 60 * 10) / 10}h</span>
-                  </div>
+                  <span className="sr-only">{share}% do foco salvo</span>
                 </div>
               </div>
             );
@@ -951,9 +980,9 @@ function FocusMetric({
   value: number | string;
 }) {
   return (
-    <div className="min-w-0 overflow-hidden rounded-lg border border-border/70 bg-background/70 p-3">
+    <div className="min-w-0 overflow-hidden rounded-xl border border-border bg-panel px-3 py-2.5 shadow-snow-1">
       <div className="truncate text-xs text-muted-foreground">{label}</div>
-      <div className="mt-1 break-words text-xl font-semibold [overflow-wrap:anywhere]">
+      <div className="mt-0.5 break-words text-xl font-semibold [overflow-wrap:anywhere]">
         {value}
       </div>
     </div>
@@ -1047,14 +1076,14 @@ function FocusHistory({
   };
 
   return (
-    <div className="min-w-0 overflow-hidden rounded-lg border border-border/70 bg-background/70">
-      <div className="flex flex-col gap-3 border-b border-border/70 p-3 sm:flex-row sm:items-center sm:justify-between">
+    <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden rounded-xl border border-border bg-panel shadow-snow-1">
+      <div className="flex shrink-0 items-center justify-between gap-3 border-b border-border px-3 py-2.5">
         <div className="min-w-0">
           <div className="flex min-w-0 items-center gap-2 text-sm font-medium">
             <Clock3 className="h-4 w-4 text-primary" />
             <span className="truncate">Historico de foco</span>
           </div>
-          <div className="mt-1 text-xs text-muted-foreground">
+          <div className="mt-0.5 text-xs text-muted-foreground">
             {filteredSessions.length
               ? `${filteredSessions.length} sessoes salvas`
               : "Nenhuma sessao salva ainda"}
@@ -1093,9 +1122,9 @@ function FocusHistory({
         ) : null}
       </div>
       {subjectSummaries.length > 1 ? (
-        <div className="flex min-w-0 gap-2 overflow-x-auto border-b border-border/70 p-3">
+        <div className="flex min-w-0 shrink-0 gap-1.5 overflow-x-auto border-b border-border px-3 py-2">
           <Button
-            className="h-8 shrink-0"
+            className="h-7 shrink-0 px-2.5 text-xs"
             onClick={() => {
               setSelectedSubjectId("all");
               setPage(1);
@@ -1107,7 +1136,7 @@ function FocusHistory({
           </Button>
           {subjectSummaries.map((subject) => (
             <Button
-              className="h-8 shrink-0"
+              className="h-7 shrink-0 px-2.5 text-xs"
               key={subject.id}
               onClick={() => {
                 setSelectedSubjectId(subject.id);
@@ -1125,11 +1154,11 @@ function FocusHistory({
           ))}
         </div>
       ) : null}
-      <div className="grid min-w-0 gap-2 p-3">
+      <div className="grid min-h-0 min-w-0 flex-1 content-start overflow-y-auto px-3 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-border">
         {filteredSessions.length ? (
           visibleSessions.map((session) => (
             <div
-              className="grid min-w-0 gap-3 rounded-lg border border-border/50 bg-secondary/30 px-3 py-3 text-sm sm:grid-cols-[minmax(0,1fr)_auto_auto_auto] sm:items-center"
+              className="grid min-w-0 gap-2 border-t border-border/70 py-2.5 text-sm first:border-t-0 sm:grid-cols-[minmax(0,1fr)_auto_auto_auto] sm:items-center"
               key={session.id}
             >
               <div className="min-w-0">
@@ -1156,14 +1185,14 @@ function FocusHistory({
                   </div>
                 ) : null}
               </div>
-              <div className="rounded-md bg-background/75 px-3 py-2 text-right font-semibold tabular-nums">
+              <div className="px-1 text-right text-xs font-semibold tabular-nums">
                 {formatFocusDuration(session.durationMinutes)}
               </div>
               <Button
                 aria-label={`Edit ${
                   session.title?.trim() || session.subject?.name || "sessao de foco"
                 }`}
-                className="h-9 w-full sm:w-9"
+                className="h-8 w-full sm:w-8"
                 disabled={updateSession.isPending}
                 onClick={() => openEditSession(session)}
                 size="icon"
@@ -1176,7 +1205,7 @@ function FocusHistory({
                 aria-label={`Excluir sessao de foco de ${
                   session.subject?.name ?? "sem materia"
                 }`}
-                className="h-9 w-full sm:w-9"
+                className="h-8 w-full sm:w-8"
                 disabled={isDeleting}
                 onClick={() => setSessionToDelete(session)}
                 size="icon"
