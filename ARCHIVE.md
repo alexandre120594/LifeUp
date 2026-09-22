@@ -23,10 +23,27 @@ Current app position:
 - Notes are independent.
 - Pomodoro is independent and study-subject based.
 - Study and finance areas remain available.
+- Estudos Hoje and Foco use the hierarchy from `specs/design-system/lifeup-estudos-foco-redesign-v2.html`; the other Estudos tabs remain unchanged.
 - Estudos exposes Dataprev and TRT as native full-viewport plan dashboards.
 - LifeHabit is an independent daily Habit Tracker for habits to build and avoid, available in main navigation and not integrated with Goal.
 
 ## Completed Recently
+
+### Estudos Hoje and Foco Redesign V2
+
+Implemented:
+- rebuilt only the Hoje tab in `/study` around a dominant next-priority hero, an ordered subject-attention plan, daily progress ring, compact supporting metrics, and an internally scrolling urgent-review rail.
+- preserved the existing Matérias, Revisões, and Histórico tabs and their CRUD/review behavior.
+- reorganized `/pomodoro` into a dominant timer column with focus totals and subject distribution beside a larger focus-history workspace.
+- replaced competing history pagination with subject filters and month-group navigation while preserving session edit/delete actions.
+- retained timer persistence, partial-session saving, subject creation, focus-cycle configuration, and responsive internal scrolling.
+
+Validation:
+- `npm run lint` (passes with one pre-existing warning in `src/app/page.tsx`)
+- `npm run build`
+
+Remaining:
+- optional browser visual QA against seeded data at narrow and wide viewport sizes.
 
 ### Study UX — Etapas 2 a 4
 

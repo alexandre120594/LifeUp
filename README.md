@@ -12,8 +12,8 @@ LifeUp is a Next.js productivity app whose main Life domain is now `Goal`.
 - "Hoje" dashboard separated from Goal management, focused on progress and next actions
 - full-viewport Inbox capture with internal list scrolling and view/edit dialogs
 - full-viewport Notes dashboard with internal scrolling, search, category filters, modal create/edit, and dedicated note viewing
-- clean operational Study workspace with an explainable next action, unified sessions/results, weekly metric strip, focused subject attention, reviews, and native Dataprev/TRT plan dashboards
-- clean full-viewport Study Focus workspace with a compact operational timer above subject analytics and session history, available inside the Studies navigation group
+- clean operational Study workspace whose Hoje tab prioritizes the next subject, ordered daily plan, daily progress, compact metrics, and urgent reviews; Matérias, Revisões, and Histórico retain their dedicated flows
+- clean full-viewport Study Focus workspace with a dominant timer, three-part focus summary, subject distribution, and session history grouped by month, available inside the Studies navigation group
 - reusable loading, empty, error, field-error, and confirmation UI states across redesigned Focus and Notes flows
 - operational Finance workspace with accounts, transactions, commitments, and savings goals
 - independent Habit Tracker for daily positive habits and habits to avoid, available from the main navigation and not connected to Goal
@@ -81,7 +81,7 @@ User -> StudySession (time + optional question result)
 User -> StudyReview
 ```
 
-`/study` is a full-viewport workspace organized into Hoje, Matérias, Revisões, and Histórico. Hoje combines a compact daily summary, explainable next-subject recommendation, daily-goal progress, overdue reviews, and a direct handoff to the existing `/pomodoro` timer. Matérias exposes weekly goals, progress, linked topics and CRUD; Revisões presents one pending item at a time while preserving the existing scheduling actions; Histórico adds month/year filters, period metrics, subject totals and session CRUD. `GET /api/study` remains the canonical workspace source.
+`/study` is a full-viewport workspace organized into Hoje, Matérias, Revisões, and Histórico. Hoje uses the hierarchy from `specs/design-system/lifeup-estudos-foco-redesign-v2.html`: a dominant recommended priority, an ordered plan derived from subject attention, daily progress, compact metrics, and urgent reviews with a direct handoff to `/pomodoro`. The other three tabs retain their existing composition and behavior. Matérias exposes weekly goals, progress, linked topics and CRUD; Revisões presents one pending item at a time while preserving the existing scheduling actions; Histórico adds month/year filters, period metrics, subject totals and session CRUD. `GET /api/study` remains the canonical workspace source.
 
 ## Main File Map
 

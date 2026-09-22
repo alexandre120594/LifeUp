@@ -54,7 +54,6 @@ const defaultBreakMinutes = 5;
 const defaultTargetCycles = 4;
 const focusTimerStorageKey = "lifeup:study-focus-timer";
 const legacyPomodoroStorageKey = "lifeup:pomodoro-timer";
-const focusHistoryPageSize = 6;
 const subjectHoursPageSize = 3;
 
 type PersistedFocusTimer = {
@@ -120,10 +119,6 @@ export function PomodoroPanel() {
   const phaseTotalSeconds =
     phase === "focus" ? focusMinutes * 60 : breakMinutes * 60;
   const elapsedPhaseSeconds = Math.max(phaseTotalSeconds - remainingSeconds, 0);
-  const progressPercent =
-    phaseTotalSeconds > 0
-      ? Math.round((elapsedPhaseSeconds / phaseTotalSeconds) * 100)
-      : 0;
   const canSavePartial = phase === "focus" && elapsedPhaseSeconds >= 60;
   const hasSubjects = subjects.length > 0;
   const canSaveFocus = Boolean(selectedSubjectId) && hasSubjects;
@@ -494,166 +489,56 @@ export function PomodoroPanel() {
     setIsSubjectDialogOpen(false);
   };
 
+  const todayFocusMinutes = (pomodoro?.sessions ?? [])
+    .filter((session) => new Date(session.startedAt).toDateString() === new Date().toDateString())
+    .reduce((total, session) => total + session.durationMinutes, 0);
+  const averageFocusMinutes = pomodoro?.sessions.length
+    ? Math.round((pomodoro.totalMinutes ?? 0) / pomodoro.sessions.length)
+    : 0;
+
   return (
     <>
-      <div className="grid h-full min-h-0 min-w-0 grid-rows-[auto_minmax(0,1fr)] gap-3 overflow-hidden">
-        <section className="grid min-w-0 overflow-hidden rounded-xl border border-border bg-panel shadow-snow-1 lg:grid-cols-[minmax(0,1fr)_minmax(19rem,0.42fr)]">
-          <div className="min-w-0 p-3 sm:p-4">
+      <div className="grid h-full min-h-0 min-w-0 gap-3 overflow-y-auto xl:grid-cols-[minmax(25rem,0.88fr)_minmax(34rem,1.35fr)] xl:overflow-hidden">
+        <div className="grid min-h-0 min-w-0 gap-3 xl:grid-rows-[330px_112px_minmax(0,1fr)]">
+          <section className="flex min-h-[330px] min-w-0 flex-col overflow-hidden rounded-2xl border border-primary/25 bg-[radial-gradient(circle_at_70%_20%,color-mix(in_srgb,var(--primary)_13%,transparent),transparent_42%)] p-4 shadow-snow-1">
             <div className="flex min-w-0 items-center justify-between gap-3">
-              <div className="flex min-w-0 items-center gap-2 text-sm font-semibold">
-                <span className="size-2 shrink-0 rounded-full bg-primary" />
-                <span className="truncate">Timer de foco</span>
-              </div>
+              <div className="flex shrink-0 items-center gap-2 text-[10px] font-bold uppercase tracking-[0.12em]"><span className="size-2 rounded-full bg-primary" />Timer de foco</div>
               <div className="flex min-w-0 items-center gap-1.5">
-                <Select
-                  disabled={!subjects.length || isRunning}
-                  onValueChange={setSelectedSubjectId}
-                  value={selectedSubjectId}
-                >
-                  <SelectTrigger
-                    aria-label="Matéria da sessão"
-                    className="h-8 w-[48vw] min-w-0 max-w-52 bg-surface-subtle text-xs"
-                  >
-                    <SelectValue placeholder="Escolha uma matéria" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {subjects.map((subject) => (
-                      <SelectItem key={subject.id} value={subject.id}>
-                        {subject.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
+                <Select disabled={!subjects.length || isRunning} onValueChange={setSelectedSubjectId} value={selectedSubjectId}>
+                  <SelectTrigger aria-label="Matéria da sessão" className="h-8 w-[48vw] min-w-0 max-w-52 bg-secondary/35 text-xs"><SelectValue placeholder="Escolha uma matéria" /></SelectTrigger>
+                  <SelectContent>{subjects.map((subject) => <SelectItem key={subject.id} value={subject.id}>{subject.name}</SelectItem>)}</SelectContent>
                 </Select>
-                <Button
-                  aria-label="Adicionar matéria"
-                  className="size-8 shrink-0"
-                  onClick={() => setIsSubjectDialogOpen(true)}
-                  size="icon"
-                  type="button"
-                  variant="outline"
-                >
-                  <Plus className="size-3.5" />
-                </Button>
+                <Button aria-label="Adicionar matéria" className="size-8 shrink-0" onClick={() => setIsSubjectDialogOpen(true)} size="icon" type="button" variant="outline"><Plus className="size-3.5" /></Button>
               </div>
             </div>
 
-            <div className="mt-4 grid min-w-0 gap-3 sm:grid-cols-[auto_minmax(0,1fr)] sm:items-center sm:gap-6">
-              <div className="text-[clamp(3.25rem,6vw,5rem)] font-semibold leading-none tabular-nums tracking-[-0.055em]">
-                {formatTimer(remainingSeconds)}
-              </div>
-              <div className="min-w-0">
-                <div className="flex items-center justify-between gap-3 text-xs">
-                  <span className="inline-flex items-center gap-1.5 font-medium text-text-secondary">
-                    {phase === "focus" ? (
-                      <BookOpen className="size-3.5 text-primary" />
-                    ) : (
-                      <Pause className="size-3.5 text-primary" />
-                    )}
-                    {phase === "focus" ? "Foco" : "Pausa"}
-                  </span>
-                  <span className="text-text-tertiary">
-                    Ciclo {Math.min(completedCycles + 1, targetCycles)} de {targetCycles}
-                  </span>
-                </div>
-                <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-surface-subtle">
-                  <div
-                    className="h-full rounded-full bg-primary transition-[width] duration-500"
-                    style={{ width: `${Math.min(progressPercent, 100)}%` }}
-                  />
-                </div>
-                <p className="mt-2 text-xs text-text-tertiary">
-                  {completedCycles} {completedCycles === 1 ? "ciclo concluído" : "ciclos concluídos"}
-                </p>
+            <div className="flex flex-1 flex-col items-center justify-center py-4">
+              <div className="text-[clamp(4.5rem,8vw,5.5rem)] font-semibold leading-[0.9] tabular-nums tracking-[-0.065em]">{formatTimer(remainingSeconds)}</div>
+              <div className="mt-3 flex items-center gap-1.5 text-[10px] text-text-tertiary">{phase === "focus" ? <BookOpen className="size-3.5 text-primary" /> : <Pause className="size-3.5 text-primary" />}Ciclo {Math.min(completedCycles + 1, targetCycles)} de {targetCycles} · {phase === "focus" ? "Foco" : "Pausa"}</div>
+              <div className="mt-3 flex gap-1.5" aria-label={`${completedCycles} ciclos concluídos`}>
+                {Array.from({ length: targetCycles }, (_, index) => <span className={`h-1 w-6 rounded-full ${index <= completedCycles ? "bg-primary" : "bg-border"}`} key={index} />)}
               </div>
             </div>
-          </div>
 
-          <div className="grid min-w-0 grid-cols-2 gap-2 border-t border-border bg-surface-subtle/40 p-3 lg:border-l lg:border-t-0 lg:p-4">
-            <Button
-              className="min-w-0 gap-2"
-              disabled={isRunning || isPending}
-              onClick={handleStartClick}
-              type="button"
-            >
-              <Play className="h-4 w-4" />
-              <span className="min-w-0 truncate">Iniciar</span>
-            </Button>
-            <Button
-              className="min-w-0 gap-2"
-              disabled={!isRunning}
-              onClick={pauseTimer}
-              type="button"
-              variant="outline"
-            >
-              <Pause className="h-4 w-4" />
-              <span className="min-w-0 truncate">Pausar</span>
-            </Button>
-            <Button
-              className="min-w-0 gap-2"
-              onClick={() => {
-                setCompletedCycles(0);
-                resetTimer("focus");
-              }}
-              type="button"
-              variant="outline"
-            >
-              <RotateCcw className="h-4 w-4" />
-              <span className="min-w-0 truncate">Reiniciar</span>
-            </Button>
-            <Button
-              className="min-w-0 gap-2"
-              disabled={!canSavePartial || isPending || !canSaveFocus}
-              onClick={savePartialSession}
-              type="button"
-              variant="secondary"
-            >
-              <Save className="h-4 w-4" />
-              <span className="min-w-0 truncate">Salvar</span>
-            </Button>
-          </div>
-        </section>
-
-        <div className="hidden min-h-0 min-w-0 gap-3 md:grid md:grid-cols-[minmax(17rem,0.42fr)_minmax(0,1fr)]">
-          <aside className="grid min-h-0 min-w-0 grid-rows-[auto_minmax(0,1fr)] gap-2.5">
-            <div className="grid min-w-0 grid-cols-2 gap-2.5">
-              <FocusMetric
-                label="Total focado"
-                value={formatFocusDuration(pomodoro?.totalMinutes ?? 0)}
-              />
-              <FocusMetric
-                label="Sessões"
-                value={pomodoro?.sessions.length ?? 0}
-              />
+            <div className="grid grid-cols-[1.7fr_1fr_1fr] gap-2">
+              <Button disabled={isRunning || isPending} onClick={handleStartClick} type="button"><Play className="size-4" />{phase === "break" ? "Continuar" : "Iniciar foco"}</Button>
+              <Button disabled={!isRunning} onClick={pauseTimer} type="button" variant="outline"><Pause className="size-4" />Pausar</Button>
+              <Button onClick={() => { setCompletedCycles(0); resetTimer("focus"); }} type="button" variant="outline"><RotateCcw className="size-4" />Reiniciar</Button>
             </div>
-            {isPomodoroLoading ? (
-              <LoadingState title="Carregando horas" />
-            ) : isPomodoroError ? (
-              <ErrorState
-                action={<RetryButton onClick={() => refetchPomodoro()} />}
-                description="Nao foi possivel buscar o resumo de foco."
-                title="Resumo indisponivel."
-              />
-            ) : (
-              <SubjectHoursChart subjects={pomodoro?.bySubject ?? []} />
-            )}
-          </aside>
+            {canSavePartial ? <Button className="mt-2 h-8" disabled={isPending || !canSaveFocus} onClick={savePartialSession} size="sm" type="button" variant="ghost"><Save className="size-3.5" />Salvar sessão parcial</Button> : null}
+          </section>
 
-          {isPomodoroLoading ? (
-            <LoadingState className="min-h-0" title="Carregando historico" />
-          ) : isPomodoroError ? (
-            <ErrorState
-              className="min-h-0"
-              action={<RetryButton onClick={() => refetchPomodoro()} />}
-              description="As sessoes salvas nao puderam ser carregadas."
-              title="Historico indisponivel."
-            />
-          ) : (
-            <FocusHistory
-              sessions={pomodoro?.sessions ?? []}
-              subjectSummaries={pomodoro?.bySubject ?? []}
-              subjects={subjects}
-            />
-          )}
+          <section className="grid grid-cols-3 gap-2.5">
+            <FocusMetric label="Total focado" value={formatFocusDuration(pomodoro?.totalMinutes ?? 0)} caption={`${pomodoro?.sessions.length ?? 0} sessões`} />
+            <FocusMetric label="Hoje" value={formatFocusDuration(todayFocusMinutes)} caption={`${completedCycles} ciclos neste timer`} />
+            <FocusMetric label="Média" value={formatFocusDuration(averageFocusMinutes)} caption="por sessão" />
+          </section>
+
+          {isPomodoroLoading ? <LoadingState title="Carregando horas" /> : isPomodoroError ? <ErrorState action={<RetryButton onClick={() => refetchPomodoro()} />} description="Não foi possível buscar o resumo de foco." title="Resumo indisponível." /> : <SubjectHoursChart subjects={pomodoro?.bySubject ?? []} />}
+        </div>
+
+        <div className="min-h-[520px] min-w-0 xl:min-h-0">
+          {isPomodoroLoading ? <LoadingState className="min-h-0" title="Carregando histórico" /> : isPomodoroError ? <ErrorState className="min-h-0" action={<RetryButton onClick={() => refetchPomodoro()} />} description="As sessões salvas não puderam ser carregadas." title="Histórico indisponível." /> : <FocusHistory sessions={pomodoro?.sessions ?? []} subjectSummaries={pomodoro?.bySubject ?? []} subjects={subjects} />}
         </div>
       </div>
       <Dialog open={isSetupDialogOpen} onOpenChange={setIsSetupDialogOpen}>
@@ -973,18 +858,21 @@ function NumberSetting({
 }
 
 function FocusMetric({
+  caption,
   label,
   value,
 }: {
+  caption: string;
   label: string;
   value: number | string;
 }) {
   return (
-    <div className="min-w-0 overflow-hidden rounded-xl border border-border bg-panel px-3 py-2.5 shadow-snow-1">
-      <div className="truncate text-xs text-muted-foreground">{label}</div>
-      <div className="mt-0.5 break-words text-xl font-semibold [overflow-wrap:anywhere]">
+    <div className="min-w-0 overflow-hidden rounded-xl border border-border bg-panel p-3.5 shadow-snow-1">
+      <div className="truncate text-[9px] uppercase tracking-[0.08em] text-text-tertiary">{label}</div>
+      <div className="mt-1.5 break-words text-lg font-semibold [overflow-wrap:anywhere]">
         {value}
       </div>
+      <div className="mt-0.5 truncate text-[9px] text-text-tertiary">{caption}</div>
     </div>
   );
 }
@@ -998,7 +886,7 @@ function FocusHistory({
   subjectSummaries: PomodoroSummaryItem[];
   subjects: Array<{ id: string; name: string }>;
 }) {
-  const [page, setPage] = useState(1);
+  const [selectedMonth, setSelectedMonth] = useState("all");
   const [selectedSubjectId, setSelectedSubjectId] = useState("all");
   const [editingSession, setEditingSession] = useState<PomodoroSession | null>(
     null
@@ -1012,21 +900,27 @@ function FocusHistory({
   const { mutate: deleteSession, isPending: isDeleting } =
     useDeletePomodoroSession();
   const updateSession = useUpdatePomodoroSession();
-  const filteredSessions =
+  const subjectFilteredSessions =
     selectedSubjectId === "all"
       ? sessions
       : sessions.filter(
           (session) => (session.subjectId ?? "unknown") === selectedSubjectId
         );
-  const totalPages = Math.max(
-    Math.ceil(filteredSessions.length / focusHistoryPageSize),
-    1
-  );
-  const currentPage = Math.min(page, totalPages);
-  const visibleSessions = filteredSessions.slice(
-    (currentPage - 1) * focusHistoryPageSize,
-    currentPage * focusHistoryPageSize
-  );
+  const monthGroups = Array.from(subjectFilteredSessions.reduce((groups, session) => {
+    const startedAt = new Date(session.startedAt);
+    const key = `${startedAt.getFullYear()}-${String(startedAt.getMonth() + 1).padStart(2, "0")}`;
+    const current = groups.get(key) ?? { key, label: new Intl.DateTimeFormat("pt-BR", { month: "long", year: "numeric" }).format(startedAt), minutes: 0, sessions: 0 };
+    current.minutes += session.durationMinutes;
+    current.sessions += 1;
+    groups.set(key, current);
+    return groups;
+  }, new Map<string, { key: string; label: string; minutes: number; sessions: number }>()).values()).sort((a, b) => b.key.localeCompare(a.key));
+  const visibleSessions = selectedMonth === "all"
+    ? subjectFilteredSessions
+    : subjectFilteredSessions.filter((session) => {
+        const startedAt = new Date(session.startedAt);
+        return `${startedAt.getFullYear()}-${String(startedAt.getMonth() + 1).padStart(2, "0")}` === selectedMonth;
+      });
 
   const handleDeleteSession = () => {
     if (!sessionToDelete) {
@@ -1076,152 +970,40 @@ function FocusHistory({
   };
 
   return (
-    <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden rounded-xl border border-border bg-panel shadow-snow-1">
-      <div className="flex shrink-0 items-center justify-between gap-3 border-b border-border px-3 py-2.5">
+    <div className="grid h-full min-h-0 min-w-0 grid-rows-[auto_minmax(0,1fr)] gap-3">
+      <section className="flex min-w-0 flex-col gap-3 rounded-2xl border border-border bg-panel p-3 shadow-snow-1 sm:flex-row sm:items-center sm:justify-between">
         <div className="min-w-0">
-          <div className="flex min-w-0 items-center gap-2 text-sm font-medium">
-            <Clock3 className="h-4 w-4 text-primary" />
-            <span className="truncate">Historico de foco</span>
-          </div>
-          <div className="mt-0.5 text-xs text-muted-foreground">
-            {filteredSessions.length
-              ? `${filteredSessions.length} sessoes salvas`
-              : "Nenhuma sessao salva ainda"}
-          </div>
+          <div className="flex min-w-0 items-center gap-2 text-sm font-semibold"><Clock3 className="size-4 text-primary" /><span className="truncate">Histórico de foco</span></div>
+          <p className="mt-1 text-[10px] text-text-tertiary">{subjectFilteredSessions.length ? `${subjectFilteredSessions.length} sessões salvas` : "Nenhuma sessão salva ainda"}</p>
         </div>
-        {filteredSessions.length ? (
-          <div className="flex shrink-0 items-center gap-2 text-xs text-muted-foreground">
-            <span>
-              Pagina {currentPage} de {totalPages}
-            </span>
-            <div className="flex gap-1">
-              <Button
-                aria-label="Pagina anterior do historico de foco"
-                className="h-8 w-8"
-                disabled={currentPage <= 1}
-                onClick={() => setPage(Math.max(currentPage - 1, 1))}
-                size="icon"
-                type="button"
-                variant="outline"
-              >
-                <ChevronLeft className="h-4 w-4" />
-              </Button>
-              <Button
-                aria-label="Proxima pagina do historico de foco"
-                className="h-8 w-8"
-                disabled={currentPage >= totalPages}
-                onClick={() => setPage(Math.min(currentPage + 1, totalPages))}
-                size="icon"
-                type="button"
-                variant="outline"
-              >
-                <ChevronRight className="h-4 w-4" />
-              </Button>
-            </div>
-          </div>
-        ) : null}
-      </div>
-      {subjectSummaries.length > 1 ? (
-        <div className="flex min-w-0 shrink-0 gap-1.5 overflow-x-auto border-b border-border px-3 py-2">
-          <Button
-            className="h-7 shrink-0 px-2.5 text-xs"
-            onClick={() => {
-              setSelectedSubjectId("all");
-              setPage(1);
-            }}
-            type="button"
-            variant={selectedSubjectId === "all" ? "default" : "outline"}
-          >
-            Todas
-          </Button>
-          {subjectSummaries.map((subject) => (
-            <Button
-              className="h-7 shrink-0 px-2.5 text-xs"
-              key={subject.id}
-              onClick={() => {
-                setSelectedSubjectId(subject.id);
-                setPage(1);
-              }}
-              type="button"
-              variant={selectedSubjectId === subject.id ? "default" : "outline"}
-            >
-              <span
-                className="h-2 w-2 rounded-full"
-                style={{ backgroundColor: subject.color ?? undefined }}
-              />
-              {subject.title}
-            </Button>
-          ))}
+        <div className="flex min-w-0 gap-1.5 overflow-x-auto pb-0.5">
+          <Button className="h-7 shrink-0 px-2.5 text-[10px]" onClick={() => { setSelectedSubjectId("all"); setSelectedMonth("all"); }} type="button" variant={selectedSubjectId === "all" ? "default" : "outline"}>Todas</Button>
+          {subjectSummaries.map((subject) => <Button className="h-7 shrink-0 px-2.5 text-[10px]" key={subject.id} onClick={() => { setSelectedSubjectId(subject.id); setSelectedMonth("all"); }} type="button" variant={selectedSubjectId === subject.id ? "default" : "outline"}><span className="size-2 rounded-full" style={{ backgroundColor: subject.color ?? undefined }} />{subject.title}</Button>)}
         </div>
-      ) : null}
-      <div className="grid min-h-0 min-w-0 flex-1 content-start overflow-y-auto px-3 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-border">
-        {filteredSessions.length ? (
-          visibleSessions.map((session) => (
-            <div
-              className="grid min-w-0 gap-2 border-t border-border/70 py-2.5 text-sm first:border-t-0 sm:grid-cols-[minmax(0,1fr)_auto_auto_auto] sm:items-center"
-              key={session.id}
-            >
-              <div className="min-w-0">
-                <div className="flex min-w-0 flex-wrap items-center gap-2">
-                  <span className="min-w-0 truncate font-medium">
-                    {session.title?.trim() ||
-                      session.subject?.name ||
-                      "Foco de estudo"}
-                  </span>
-                  <span className="rounded-md bg-background/75 px-2 py-0.5 text-xs font-medium text-muted-foreground">
-                    {session.subject?.name ?? "Sem materia"}
-                  </span>
-                </div>
-                <div className="mt-1 min-w-0 truncate text-xs text-muted-foreground">
-                  {new Date(session.startedAt).toLocaleString()} -{" "}
-                  {new Date(session.endedAt).toLocaleTimeString([], {
-                    hour: "2-digit",
-                    minute: "2-digit",
-                  })}
-                </div>
-                {session.notes ? (
-                  <div className="mt-1 line-clamp-2 text-xs text-muted-foreground">
-                    {session.notes}
-                  </div>
-                ) : null}
-              </div>
-              <div className="px-1 text-right text-xs font-semibold tabular-nums">
-                {formatFocusDuration(session.durationMinutes)}
-              </div>
-              <Button
-                aria-label={`Edit ${
-                  session.title?.trim() || session.subject?.name || "sessao de foco"
-                }`}
-                className="h-8 w-full sm:w-8"
-                disabled={updateSession.isPending}
-                onClick={() => openEditSession(session)}
-                size="icon"
-                type="button"
-                variant="outline"
-              >
-                <Pencil className="h-4 w-4" />
-              </Button>
-              <Button
-                aria-label={`Excluir sessao de foco de ${
-                  session.subject?.name ?? "sem materia"
-                }`}
-                className="h-8 w-full sm:w-8"
-                disabled={isDeleting}
-                onClick={() => setSessionToDelete(session)}
-                size="icon"
-                type="button"
-                variant="outline"
-              >
-                <Trash2 className="h-4 w-4" />
-              </Button>
+      </section>
+
+      <section className="grid min-h-0 overflow-hidden rounded-2xl border border-border bg-panel shadow-snow-1 md:grid-cols-[190px_minmax(0,1fr)]">
+        <aside className="min-h-0 border-b border-border p-3 md:border-b-0 md:border-r">
+          <h3 className="mb-2 text-xs font-semibold">Período</h3>
+          <div className="flex gap-2 overflow-x-auto md:grid md:overflow-y-auto">
+            <button className={`min-w-36 rounded-lg border p-2 text-left transition-colors md:min-w-0 ${selectedMonth === "all" ? "border-primary/30 bg-primary/10" : "border-transparent bg-secondary/25 hover:bg-hover"}`} onClick={() => setSelectedMonth("all")} type="button"><strong className="block text-[10px]">Todo o histórico</strong><span className="mt-1 block text-[9px] text-text-tertiary">{subjectFilteredSessions.length} sessões</span></button>
+            {monthGroups.map((group) => <button className={`min-w-36 rounded-lg border p-2 text-left transition-colors md:min-w-0 ${selectedMonth === group.key ? "border-primary/30 bg-primary/10" : "border-transparent bg-secondary/25 hover:bg-hover"}`} key={group.key} onClick={() => setSelectedMonth(group.key)} type="button"><strong className="block text-[10px] capitalize">{group.label}</strong><span className="mt-1 block text-[9px] text-text-tertiary">{group.sessions} sessões · {formatFocusDuration(group.minutes)}</span></button>)}
+          </div>
+        </aside>
+
+        <div className="grid min-h-0 content-start overflow-y-auto scrollbar-thin scrollbar-track-transparent scrollbar-thumb-border">
+          {visibleSessions.length ? visibleSessions.map((session) => <div className="grid min-w-0 grid-cols-[minmax(0,1fr)_auto_auto_auto] items-center gap-2 border-b border-border px-3 py-3 text-sm last:border-b-0" key={session.id}>
+            <div className="min-w-0">
+              <div className="flex min-w-0 flex-wrap items-center gap-2"><span className="min-w-0 truncate text-xs font-semibold">{session.title?.trim() || session.subject?.name || "Foco de estudo"}</span><span className="rounded-md border border-border bg-secondary/35 px-1.5 py-0.5 text-[8px] font-semibold uppercase tracking-[0.06em] text-text-tertiary">{session.subject?.name ?? "Sem matéria"}</span></div>
+              <div className="mt-1 truncate text-[10px] text-text-tertiary">{new Date(session.startedAt).toLocaleDateString("pt-BR")} · {new Date(session.startedAt).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })} — {new Date(session.endedAt).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}</div>
+              {session.notes ? <div className="mt-1 line-clamp-1 text-[10px] text-text-secondary">{session.notes}</div> : null}
             </div>
-          ))
-        ) : (
-          <p className="rounded-lg bg-secondary/35 p-3 text-sm text-muted-foreground">
-            Complete um ciclo de foco para montar o historico.
-          </p>
-        )}
-      </div>
+            <strong className="px-1 text-xs tabular-nums">{formatFocusDuration(session.durationMinutes)}</strong>
+            <Button aria-label={`Editar ${session.title?.trim() || session.subject?.name || "sessão de foco"}`} className="size-8" disabled={updateSession.isPending} onClick={() => openEditSession(session)} size="icon" type="button" variant="outline"><Pencil className="size-3.5" /></Button>
+            <Button aria-label={`Excluir sessão de foco de ${session.subject?.name ?? "sem matéria"}`} className="size-8" disabled={isDeleting} onClick={() => setSessionToDelete(session)} size="icon" type="button" variant="outline"><Trash2 className="size-3.5" /></Button>
+          </div>) : <EmptyState className="h-full" title="Nenhuma sessão neste período" description="Conclua um ciclo de foco ou escolha outro filtro." />}
+        </div>
+      </section>
       <Dialog
         open={Boolean(editingSession)}
         onOpenChange={(open) => {

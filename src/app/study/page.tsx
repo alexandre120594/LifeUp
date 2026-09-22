@@ -2,7 +2,7 @@
 
 import { useMemo, useState, type FormEvent } from "react";
 import Link from "next/link";
-import { BookOpen, Brain, CalendarClock, CheckCircle2, ChevronLeft, ChevronRight, Clock3, Eye, FileText, MoreHorizontal, Pencil, Plus, RotateCcw, Target, Trash2 } from "lucide-react";
+import { BookOpen, CalendarClock, CheckCircle2, ChevronLeft, ChevronRight, Eye, FileText, MoreHorizontal, Pencil, Plus, RotateCcw, Target, Trash2 } from "lucide-react";
 import { DashboardViewport } from "@/components/dashboard-viewport";
 import { MenuPageHeader } from "@/components/menu-page-header";
 import { EmptyState, ErrorState, LoadingState, RetryButton } from "@/components/ui/app-state";
@@ -168,37 +168,101 @@ function StudyDialog({ data, editingItem, initialSubjectId, mode, onClose }: { d
   </form></DialogContent></Dialog>;
 }
 
-function TodayMetricStrip({ summary }: { summary: ReturnType<typeof calculateStudyTodaySummary> }) {
-  const metrics = [
-    { label: "Estudado hoje", value: formatMinutes(summary.studiedMinutes), icon: Clock3 },
-    { label: "Revisões vencidas", value: summary.overdueReviews.length, icon: CalendarClock },
-    { label: "Taxa de acertos", value: summary.accuracy === null ? "Sem dados" : `${summary.accuracy}%`, icon: Brain },
-  ];
+function StudyTodayDashboard({
+  attention,
+  data,
+  onCreateSubject,
+  onDeleteReview,
+  onEditReview,
+  summary,
+}: {
+  attention: StudyAttention[];
+  data: StudyWorkspace;
+  onCreateSubject: () => void;
+  onDeleteReview: (review: StudyReview) => void;
+  onEditReview: (review: StudyReview) => void;
+  summary: ReturnType<typeof calculateStudyTodaySummary>;
+}) {
+  const recommendation = data.recommendation;
+  const recommendedSubject = recommendation
+    ? attention.find((item) => item.subjectId === recommendation.subjectId)
+    : undefined;
+  const plan = attention.slice(0, 4);
+  const completedItems = plan.filter((item) => item.goalMinutes > 0 && item.studiedMinutes >= item.goalMinutes).length;
+  const weekMinutes = attention.reduce((total, item) => total + item.studiedMinutes, 0);
+  const activeSubjects = data.subjects.filter((subject) => subject.isActive).length;
 
-  return <section className="grid shrink-0 overflow-hidden rounded-2xl border border-border bg-panel sm:grid-cols-[repeat(3,minmax(0,1fr))_minmax(220px,1.25fr)]">
-    {metrics.map((metric) => {
-      const Icon = metric.icon;
-      return <div className="min-w-0 border-b border-border p-4 sm:border-b-0 sm:border-r" key={metric.label}>
-        <div className="flex items-center gap-1.5 text-[10px] text-text-tertiary">
-          <Icon className="size-3.5" />
-          <span>{metric.label}</span>
+  return <div className="grid h-full min-h-0 gap-3 overflow-y-auto xl:grid-cols-[minmax(0,1.45fr)_minmax(19rem,0.8fr)] xl:overflow-hidden">
+    <div className="grid min-h-0 gap-3 xl:grid-rows-[205px_minmax(0,1fr)]">
+      {recommendation ? <section className="relative min-h-[205px] overflow-hidden rounded-2xl border border-primary/30 bg-[radial-gradient(circle_at_100%_0%,color-mix(in_srgb,var(--primary)_16%,transparent),transparent_42%)] p-5 shadow-snow-1 sm:p-6">
+        <div className="pointer-events-none absolute -bottom-28 -right-20 size-64 rounded-full border border-primary/10" />
+        <div className="relative flex h-full min-w-0 flex-col">
+          <div className="flex items-start justify-between gap-4">
+            <div className="min-w-0">
+              <p className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.14em] text-primary"><Target className="size-3.5" />Próxima prioridade</p>
+              <h2 className="mt-3 break-words text-2xl font-bold leading-tight tracking-[-0.035em] sm:text-[28px]">{recommendation.subjectName}{recommendation.topicName ? ` · ${recommendation.topicName}` : ""}</h2>
+              <p className="mt-1.5 text-xs text-text-secondary">{recommendation.reason}</p>
+            </div>
+            <Badge className="hidden shrink-0 sm:inline-flex" variant="outline">Hoje · prioridade alta</Badge>
+          </div>
+          <div className="mt-auto flex flex-col gap-4 pt-5 sm:flex-row sm:items-end sm:justify-between">
+            <div className="grid grid-cols-3 gap-5">
+              <div><span className="block text-[9px] text-text-tertiary">Sessão sugerida</span><strong className="mt-1 block text-sm">{recommendation.durationMinutes} min</strong></div>
+              <div><span className="block text-[9px] text-text-tertiary">Meta semanal</span><strong className="mt-1 block text-sm">{formatMinutes(recommendedSubject?.goalMinutes ?? 0)}</strong></div>
+              <div><span className="block text-[9px] text-text-tertiary">Já estudado</span><strong className="mt-1 block text-sm">{formatMinutes(recommendedSubject?.studiedMinutes ?? 0)}</strong></div>
+            </div>
+            <Button asChild className="shrink-0"><Link href="/pomodoro"><BookOpen className="size-4" />Estudar agora</Link></Button>
+          </div>
         </div>
-        <div className="mt-1 truncate text-xl font-bold tracking-[-0.04em] text-foreground md:text-[22px]">{metric.value}</div>
-      </div>;
-    })}
-    <div className="min-w-0 p-4">
-      <div className="flex items-center justify-between gap-3 text-[10px] text-text-tertiary">
-        <span>Meta diária</span>
-        <strong className="text-xs text-foreground">{summary.goalProgress}%</strong>
-      </div>
-      <Progress className="mt-2" value={summary.goalProgress} />
-      <p className="mt-1.5 truncate text-[10px] text-text-tertiary">
-        {summary.goalMinutes > 0
-          ? `${formatMinutes(summary.studiedMinutes)} de ${formatMinutes(summary.goalMinutes)}`
-          : "Defina metas semanais nas matérias"}
-      </p>
+      </section> : <EmptyState className="min-h-[205px] rounded-2xl border border-border bg-panel" title="Crie sua primeira matéria" description="Uma matéria ativa é suficiente para gerar sua próxima recomendação." action={<Button onClick={onCreateSubject}><Plus className="size-4" />Criar matéria</Button>} />}
+
+      <section className="flex min-h-[300px] flex-col overflow-hidden rounded-2xl border border-border bg-panel p-4 shadow-snow-1">
+        <header className="mb-3 flex items-start justify-between gap-3">
+          <div><h3 className="text-sm font-semibold">Plano de hoje</h3><p className="mt-1 text-[11px] text-text-tertiary">O que merece sua atenção, em ordem.</p></div>
+          <span className="shrink-0 text-[10px] text-text-tertiary">{completedItems} de {plan.length} concluídos</span>
+        </header>
+        <div className="grid min-h-0 flex-1 content-start gap-2 overflow-y-auto pr-1">
+          {plan.length ? plan.map((item, index) => {
+            const done = item.goalMinutes > 0 && item.studiedMinutes >= item.goalMinutes;
+            return <Link className={`grid min-h-[60px] grid-cols-[7px_minmax(0,1fr)_auto] items-center gap-3 rounded-xl border border-border bg-secondary/25 px-3 py-2.5 transition-colors hover:border-border-strong hover:bg-hover ${done ? "opacity-60" : ""}`} href="/pomodoro" key={item.subjectId}>
+              <span className="h-9 w-[7px] rounded-full" style={{ backgroundColor: done ? "var(--success)" : item.color ?? "var(--primary)" }} />
+              <span className="min-w-0"><strong className="block truncate text-xs">{item.subjectName}</strong><span className="mt-1 block truncate text-[10px] text-text-tertiary">{done ? "Meta semanal concluída" : item.reason}</span></span>
+              <span className="text-right"><strong className="block text-xs">{done ? "Concluído" : `${Math.min(30, Math.max(15, item.goalMinutes - item.studiedMinutes))} min`}</strong><span className="mt-1 block text-[9px] text-text-tertiary">{index === 0 ? "agora" : index === 1 ? "depois" : "opcional"}</span></span>
+            </Link>;
+          }) : <EmptyState title="Plano em branco" description="Crie uma matéria ativa para montar o plano de hoje." />}
+        </div>
+        <footer className="mt-3 flex items-center justify-between gap-3 border-t border-border pt-3 text-[10px] text-text-tertiary">
+          <span>Tempo planejado: {formatMinutes(plan.reduce((total, item) => total + Math.min(30, Math.max(15, item.goalMinutes - item.studiedMinutes)), 0))}</span>
+          <span>{activeSubjects} matéria{activeSubjects === 1 ? "" : "s"} ativa{activeSubjects === 1 ? "" : "s"}</span>
+        </footer>
+      </section>
     </div>
-  </section>;
+
+    <aside className="grid min-h-0 gap-3 xl:grid-rows-[132px_160px_minmax(0,1fr)]">
+      <section className="rounded-2xl border border-border bg-panel p-4 shadow-snow-1">
+        <div className="flex items-start justify-between gap-4">
+          <div><h3 className="text-sm font-semibold">Hoje</h3><strong className="mt-2 block text-[32px] leading-none tracking-[-0.05em]">{formatMinutes(summary.studiedMinutes)}</strong><p className="mt-1.5 text-[10px] text-text-tertiary">de {formatMinutes(summary.goalMinutes)} planejados</p></div>
+          <div className="relative grid size-16 shrink-0 place-items-center rounded-full" style={{ background: `conic-gradient(var(--primary) ${summary.goalProgress}%, var(--border) 0)` }}><span className="absolute size-12 rounded-full bg-panel" /><strong className="relative text-xs">{summary.goalProgress}%</strong></div>
+        </div>
+      </section>
+
+      <section className="grid grid-cols-2 gap-2">
+        {[
+          ["Revisões vencidas", String(summary.overdueReviews.length), summary.overdueReviews.length ? "Exigem atenção" : "Tudo em dia"],
+          ["Taxa de acertos", summary.accuracy === null ? "—" : `${summary.accuracy}%`, summary.accuracy === null ? "Aguardando dados" : `${summary.totalQuestions} questões hoje`],
+          ["Matérias ativas", String(activeSubjects), "No plano atual"],
+          ["Esta semana", formatMinutes(weekMinutes), "Tempo acumulado"],
+        ].map(([label, value, caption]) => <article className="rounded-xl border border-border bg-panel p-3 shadow-snow-1" key={label}><span className="block truncate text-[9px] uppercase tracking-[0.08em] text-text-tertiary">{label}</span><strong className="mt-1.5 block truncate text-base">{value}</strong><small className="mt-0.5 block truncate text-[9px] text-text-tertiary">{caption}</small></article>)}
+      </section>
+
+      <section className="flex min-h-[240px] flex-col overflow-hidden rounded-2xl border border-border bg-panel shadow-snow-1 xl:min-h-0">
+        <header className="flex shrink-0 items-center justify-between border-b border-border px-4 py-3"><h3 className="text-sm font-semibold">Revisões</h3><span className="text-[9px] text-text-tertiary">Próximas 24h</span></header>
+        <div className="min-h-0 flex-1 overflow-y-auto px-3 pb-3">
+          {summary.overdueReviews.length ? summary.overdueReviews.map((review) => <ReviewItem key={review.id} review={review} onEdit={() => onEditReview(review)} onDelete={() => onDeleteReview(review)} />) : <EmptyState title="Nenhuma revisão urgente" description="Tudo em dia. Use este espaço quando algo exigir ação." />}
+        </div>
+      </section>
+    </aside>
+  </div>;
 }
 
 function SubjectCard({ item, onAddTopic, onDelete, onEdit, subject }: { item: StudyAttention; onAddTopic: () => void; onDelete: () => void; onEdit: () => void; subject: StudySubjectCore }) {
@@ -440,45 +504,32 @@ export default function StudyPage() {
 
   const hasActiveSubject = data?.subjects.some((subject) => subject.isActive) ?? false;
   const headerAction = activeTab === "today"
-    ? hasActiveSubject
-      ? <Button asChild size="sm"><Link href="/pomodoro"><BookOpen className="size-4" />Iniciar foco</Link></Button>
-      : <Button disabled size="sm"><BookOpen className="size-4" />Iniciar foco</Button>
+    ? <div className="flex items-center gap-2">
+        <Button size="sm" variant="ghost" onClick={() => setActiveTab("history")}>Ver histórico</Button>
+        {hasActiveSubject
+          ? <Button asChild size="sm"><Link href="/pomodoro"><BookOpen className="size-4" />Iniciar sessão</Link></Button>
+          : <Button disabled size="sm"><BookOpen className="size-4" />Iniciar sessão</Button>}
+      </div>
     : activeTab === "subjects"
       ? <Button size="sm" onClick={() => setDialog("subject")}><Plus className="size-4" />Nova matéria</Button>
       : activeTab === "reviews"
         ? <Button disabled={!hasActiveSubject} size="sm" onClick={() => setDialog("review")}><Plus className="size-4" />Nova revisão</Button>
         : <Button disabled={!hasActiveSubject} size="sm" onClick={() => setDialog("session")}><Plus className="size-4" />Registrar sessão</Button>;
 
-  return <DashboardViewport className="w-full max-w-none" contentClassName="overflow-hidden pb-4" header={<MenuPageHeader eyebrow="Workspace" title="Estudos" action={headerAction} />}>
+  return <DashboardViewport className="w-full max-w-none" contentClassName="overflow-hidden pb-4" header={<MenuPageHeader eyebrow={activeTab === "today" ? "Seu plano de hoje" : "Workspace"} title="Estudos" action={headerAction} />}>
     <div className="flex h-full min-h-0 w-full min-w-0 flex-col gap-3 overflow-hidden">
       <SegmentedControl aria-label="Áreas de Estudos" className="grid w-full shrink-0 grid-cols-4 [&>button]:min-w-0 [&>button]:px-2" options={studyTabs} value={activeTab} onValueChange={setActiveTab} />
 
       <div className="min-h-0 min-w-0 flex-1 overflow-hidden" role="tabpanel">
         {workspace.isLoading ? <LoadingState title="Preparando seus estudos" /> : workspace.isError || !data || !todaySummary ? <ErrorState title="Não foi possível carregar Estudos" description="Tente novamente para recalcular sua próxima ação." action={<RetryButton onClick={() => workspace.refetch()} />} /> : <>
-          {activeTab === "today" ? <div className="flex h-full min-h-0 flex-col gap-3 overflow-y-auto lg:overflow-hidden">
-            <TodayMetricStrip summary={todaySummary} />
-            <div className="grid shrink-0 gap-3 lg:min-h-0 lg:flex-1 lg:grid-cols-[minmax(0,1.35fr)_minmax(300px,0.65fr)]">
-              {data.recommendation ? <section className="flex min-h-0 flex-col justify-between rounded-[20px] border border-primary/30 bg-panel p-5 shadow-snow-1 lg:overflow-y-auto lg:p-6">
-                <div className="min-w-0">
-                  <div className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.13em] text-primary"><Target className="size-4" />Próxima matéria recomendada</div>
-                  <h2 className="mt-3 break-words text-2xl font-bold leading-tight tracking-[-0.035em] text-foreground">{data.recommendation.subjectName}{data.recommendation.topicName ? ` · ${data.recommendation.topicName}` : ""}</h2>
-                  <p className="mt-2 text-sm text-text-secondary">{data.recommendation.reason}</p>
-                  <p className="mt-4 text-xs text-text-tertiary"><strong className="text-foreground">{data.recommendation.durationMinutes} min</strong> sugeridos para a próxima sessão</p>
-                </div>
-                <Button asChild className="mt-6 w-full sm:w-fit"><Link href="/pomodoro"><BookOpen className="size-4" />Iniciar foco</Link></Button>
-              </section> : <EmptyState className="rounded-[20px] border border-border bg-panel" title="Crie sua primeira matéria" description="Uma matéria ativa é suficiente para gerar sua próxima recomendação." action={<Button onClick={() => setDialog("subject")}><Plus className="size-4" />Criar matéria</Button>} />}
-
-              <article className="flex min-h-0 flex-col overflow-hidden rounded-[18px] border border-border bg-panel">
-                <header className="shrink-0 border-b border-border px-4 py-3">
-                  <h3 className="text-sm font-semibold">Revisões vencidas</h3>
-                  <p className="mt-1 text-[11px] text-text-tertiary">Resolva primeiro o que já passou do prazo.</p>
-                </header>
-                <div className="min-h-0 flex-1 overflow-y-auto px-3 pb-3">
-                  {todaySummary.overdueReviews.length ? todaySummary.overdueReviews.map((review) => <ReviewItem key={review.id} review={review} onEdit={() => edit("edit-review", review)} onDelete={() => { setDeleteError(null); setDeleteTarget({ kind: "review", item: review }); }} />) : <EmptyState title="Tudo em dia" description="Nenhuma revisão vencida por enquanto." />}
-                </div>
-              </article>
-            </div>
-          </div> : null}
+          {activeTab === "today" ? <StudyTodayDashboard
+            attention={attention}
+            data={data}
+            summary={todaySummary}
+            onCreateSubject={() => setDialog("subject")}
+            onEditReview={(review) => edit("edit-review", review)}
+            onDeleteReview={(review) => { setDeleteError(null); setDeleteTarget({ kind: "review", item: review }); }}
+          /> : null}
 
           {activeTab === "subjects" ? <div className="flex h-full min-h-0 flex-col gap-3 overflow-y-auto">
             <section className="grid shrink-0 grid-cols-2 overflow-hidden rounded-2xl border border-border bg-panel sm:grid-cols-4">
