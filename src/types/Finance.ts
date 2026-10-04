@@ -71,6 +71,13 @@ export interface FinanceWorkspace {
   goals: FinancialGoal[];
   summary: {
     balance: number;
+    commitments: {
+      committed: number;
+      futureCommitted: number;
+      income: number;
+      percentage: number | null;
+      remaining: number;
+    };
     income: number;
     expenses: number;
     net: number;

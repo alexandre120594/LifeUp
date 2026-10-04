@@ -5,7 +5,7 @@ import { ArrowRight, CalendarClock, CheckCircle2, ClipboardList, Plus, Target } 
 import { CurrentUserName } from "@/components/current-user-name";
 import { DashboardViewport } from "@/components/dashboard-viewport";
 import { MenuPageHeader } from "@/components/menu-page-header";
-import { FocusCard, GoalCard, StatCard } from "@/components/productivity";
+import { GoalCard, StatCard } from "@/components/productivity";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -82,6 +82,7 @@ export default function DashboardPage() {
 
   return (
     <DashboardViewport
+      contentClassName="overflow-hidden pb-4"
       header={
         <MenuPageHeader
           eyebrow="Bem-vindo de volta"
@@ -97,20 +98,20 @@ export default function DashboardPage() {
         />
       }
     >
-      <div className="grid gap-3">
-        <section className="grid gap-2 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="grid h-full min-h-0 grid-rows-[auto_minmax(0,1fr)] gap-3">
+        <section className="grid grid-cols-2 gap-2 xl:grid-cols-4">
           <StatCard icon={Target} label="Metas ativas" value={String(activeGoals.length)} />
           <StatCard icon={CheckCircle2} label="Concluidas" value={String(completedGoals.length)} />
           <StatCard icon={ClipboardList} label="Progresso medio" value={`${averageProgress}%`} />
           <StatCard icon={CalendarClock} label="Com prazo" value={String(upcomingGoals.length)} />
         </section>
 
-        <div className="grid min-h-0 gap-3 xl:grid-cols-[minmax(0,1fr)_minmax(18rem,0.38fr)]">
-          <Card className="border-border/70 shadow-sm">
-            <CardHeader className="p-3 pb-2">
+        <div className="grid min-h-0 grid-rows-[minmax(0,1fr)_auto] gap-3 xl:grid-cols-[minmax(0,1fr)_minmax(18rem,0.38fr)] xl:grid-rows-1">
+          <Card className="min-h-0 gap-0 overflow-hidden border-border/70 py-0 shadow-sm">
+            <CardHeader className="shrink-0 p-3 pb-2">
               <CardTitle className="text-base">Proxima acao</CardTitle>
             </CardHeader>
-            <CardContent className="grid gap-2 p-3 pt-0">
+            <CardContent className="grid min-h-0 flex-1 content-start gap-2 overflow-y-auto overscroll-contain p-3 pt-0 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-border">
               {isLoading ? (
                 <p className="rounded-md border border-dashed border-border/80 p-3 text-sm text-text-secondary">
                   Carregando metas.
@@ -143,14 +144,8 @@ export default function DashboardPage() {
             </CardContent>
           </Card>
 
-          <div className="grid content-start gap-3">
-            {/* <FocusCard
-              actions={<Button asChild size="sm" variant="outline"><Link href="/pomodoro">Iniciar foco</Link></Button>}
-              label="Proxima sessao de foco"
-              meta="O timer continua ativo durante a navegacao."
-              time="25:00"
-            /> */}
-            <Card className="border-border shadow-none">
+          <div className="grid min-h-0 content-start gap-3">
+            <Card className="gap-0 border-border py-0 shadow-none">
               <CardHeader className="p-3 pb-2"><CardTitle className="text-sm">Atalhos</CardTitle></CardHeader>
               <CardContent className="grid grid-cols-2 gap-2 p-3 pt-0">
                 <Button asChild size="sm" variant="outline"><Link href="/inbox">Capturar ideia</Link></Button>

@@ -35,6 +35,28 @@ export function calculateFinanceSummary(
   return { income, expenses, net: income - expenses };
 }
 
+export function calculateCommitmentSummary(
+  income: number,
+  commitments: Array<{
+    amount: number;
+    status: string;
+    type: FinanceRecordType;
+  }>,
+  futureCommitted: number
+) {
+  const committed = commitments
+    .filter((commitment) => commitment.status === "active" && commitment.type === "expense")
+    .reduce((total, commitment) => total + commitment.amount, 0);
+
+  return {
+    committed,
+    futureCommitted,
+    income,
+    percentage: income > 0 ? (committed / income) * 100 : null,
+    remaining: income - committed,
+  };
+}
+
 export function addOneMonth(value: Date) {
   const next = new Date(value);
   const originalDay = next.getDate();

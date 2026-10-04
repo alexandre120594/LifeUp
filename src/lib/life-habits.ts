@@ -21,6 +21,14 @@ export type HabitMetrics = {
   targetReached: boolean;
 };
 
+export type HabitWeekSummary = {
+  availableDays: number;
+  completedDays: number;
+  label: string;
+  rate: number;
+  relapseCount: number;
+};
+
 export function getDayKey(date: Date) {
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, "0");
@@ -182,6 +190,34 @@ export function getHabitDays(
 
 export function getLastSevenDays(habit: LifeHabit, todayKey = getTodayKey()) {
   return getHabitDays(habit, 7, todayKey);
+}
+
+export function getHabitWeekSummaries(
+  habit: LifeHabit,
+  todayKey = getTodayKey(),
+): HabitWeekSummary[] {
+  const days = getHabitDays(habit, 28, todayKey);
+  const createdKey = getDayKey(new Date(habit.createdAt));
+
+  return Array.from({ length: 4 }, (_, index) => {
+    const weekDays = days.slice(index * 7, index * 7 + 7);
+    const availableDays = weekDays.filter((day) => day.dayKey >= createdKey).length;
+    const completedDays = weekDays.filter(
+      (day) => day.dayKey >= createdKey && day.isCompleted,
+    ).length;
+    const relapseCount = weekDays.filter(
+      (day) => day.dayKey >= createdKey && day.isRelapse,
+    ).length;
+    const weeksAgo = 3 - index;
+
+    return {
+      availableDays,
+      completedDays,
+      label: weeksAgo === 0 ? "Esta semana" : weeksAgo === 1 ? "Semana anterior" : `${weeksAgo} semanas atrás`,
+      rate: availableDays ? Math.round((completedDays / availableDays) * 100) : 0,
+      relapseCount,
+    };
+  });
 }
 
 export function getStreakMessage(streak: number) {

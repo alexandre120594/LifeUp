@@ -514,7 +514,9 @@ export default function StudyPage() {
       ? <Button size="sm" onClick={() => setDialog("subject")}><Plus className="size-4" />Nova matéria</Button>
       : activeTab === "reviews"
         ? <Button disabled={!hasActiveSubject} size="sm" onClick={() => setDialog("review")}><Plus className="size-4" />Nova revisão</Button>
-        : <Button disabled={!hasActiveSubject} size="sm" onClick={() => setDialog("session")}><Plus className="size-4" />Registrar sessão</Button>;
+        : activeTab === "history"
+          ? <Button disabled={!hasActiveSubject} size="sm" onClick={() => setDialog("session")}><Plus className="size-4" />Registrar sessão</Button>
+          : null;
 
   return <DashboardViewport className="w-full max-w-none" contentClassName="overflow-hidden pb-4" header={<MenuPageHeader eyebrow={activeTab === "today" ? "Seu plano de hoje" : "Workspace"} title="Estudos" action={headerAction} />}>
     <div className="flex h-full min-h-0 w-full min-w-0 flex-col gap-3 overflow-hidden">

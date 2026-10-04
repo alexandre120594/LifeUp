@@ -58,7 +58,9 @@ export function HabitCard({
         {!isGood ? (
           <p className="-mt-1 text-xs text-text-secondary">
             {restartedToday
-              ? "Nova sequência · Dia 1"
+              ? metrics.checkedToday
+                ? "Nova sequência · Dia 1"
+                : "Sequência reiniciada hoje"
               : metrics.currentStreak > 0
               ? `${metrics.currentStreak} dia${metrics.currentStreak === 1 ? "" : "s"} preservando este hábito`
               : "Uma nova sequência pode começar hoje."}

@@ -161,7 +161,7 @@ export default function LifeHabitsPage() {
       <ConfirmDialog
         confirmLabel={confirmation?.type === "relapse" ? "Registrar recaída" : "Excluir hábito"}
         description={confirmation?.type === "relapse"
-          ? "A sequência atual será encerrada, mas seu recorde e histórico serão preservados. Você pode começar novamente hoje."
+          ? "A sequência atual será zerada, mas seu recorde e histórico serão preservados. Registre “Continuei hoje” quando iniciar a nova sequência."
           : confirmation ? `O hábito “${confirmation.habit.title}” e seu histórico serão removidos permanentemente.` : "Este hábito será removido permanentemente."}
         isPending={deleteHabit.isPending || trackHabit.isPending}
         onConfirm={handleConfirmation}

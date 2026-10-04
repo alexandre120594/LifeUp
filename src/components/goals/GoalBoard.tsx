@@ -370,7 +370,7 @@ export function GoalMetrics({ goals }: { goals: Goal[] }) {
   }, [goals]);
 
   return (
-    <div className="grid shrink-0 gap-2 sm:grid-cols-2 xl:grid-cols-4">
+    <div className="grid shrink-0 grid-cols-2 gap-2 xl:grid-cols-4">
       <StatCard delta="Em andamento" icon={Target} label="Metas ativas" value={metrics.active} />
       <StatCard delta="Finalizadas" icon={CheckCircle2} label="Metas concluidas" value={metrics.completed} />
       <StatCard delta="Metas visiveis" icon={TrendingUp} label="Progresso medio" value={`${metrics.average}%`} />
@@ -503,7 +503,7 @@ export function GoalBoard() {
 
   return (
     <>
-      <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-hidden">
+      <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-hidden md:gap-4">
         <header className="flex shrink-0 flex-col gap-3 border-b border-border pb-4 sm:flex-row sm:items-end sm:justify-between">
           <div className="min-w-0">
             <p className="text-[11px] font-semibold uppercase leading-none tracking-[0.14em] text-text-tertiary">
@@ -559,7 +559,7 @@ export function GoalBoard() {
           </label>
         </div>
 
-        <section className="min-h-0 flex-1 overflow-hidden rounded-[var(--r-14)] border border-border bg-panel shadow-snow-1">
+        <section className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-[var(--r-14)] border border-border bg-panel shadow-snow-1">
           <div className="hidden min-h-12 grid-cols-[minmax(15rem,1.5fr)_minmax(8rem,0.7fr)_minmax(8rem,0.65fr)_minmax(10rem,0.8fr)_8.5rem] items-center gap-4 border-b border-border px-3 text-[11px] font-semibold uppercase tracking-[0.07em] text-text-tertiary md:grid">
             <span>Meta</span>
             <span>Area</span>
@@ -568,7 +568,7 @@ export function GoalBoard() {
             <span className="sr-only">Acoes</span>
           </div>
 
-          <div className="h-full min-h-0 overflow-y-auto">
+          <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain scrollbar-thin scrollbar-track-transparent scrollbar-thumb-border">
             {isLoading ? (
               <div className="grid min-h-80 place-items-center p-8 text-center">
                 <div>

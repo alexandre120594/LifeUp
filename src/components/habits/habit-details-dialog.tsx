@@ -1,6 +1,6 @@
 "use client";
 
-import { Award, CalendarDays, Check, Target, Trophy } from "lucide-react";
+import { Award, BarChart3, Check, RotateCcw, Target, Trophy } from "lucide-react";
 
 import { HabitStreak } from "@/components/habits/habit-streak";
 import { Badge } from "@/components/ui/badge";
@@ -14,7 +14,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Progress } from "@/components/ui/progress";
-import { getHabitDays, type HabitMetrics } from "@/lib/life-habits";
+import { getHabitWeekSummaries, type HabitMetrics } from "@/lib/life-habits";
 import { cn } from "@/lib/utils";
 import type { LifeHabit } from "@/types/BaseInterfaces";
 
@@ -31,7 +31,7 @@ export function HabitDetailsDialog({
   onOpenChange: (open: boolean) => void;
   todayKey: string;
 }) {
-  const history = getHabitDays(habit, 28, todayKey);
+  const weeklySummaries = getHabitWeekSummaries(habit, todayKey);
   const baseMilestone = Math.max(10, Math.floor(metrics.currentStreak / 10) * 10);
   const milestones = [baseMilestone, baseMilestone + 10, baseMilestone + 20];
 
@@ -59,29 +59,26 @@ export function HabitDetailsDialog({
 
           <section className="rounded-xl border border-border p-4">
             <div className="flex items-center justify-between gap-3">
-              <div className="flex items-center gap-2 text-sm font-semibold"><CalendarDays className="size-4 text-primary" />Últimos 28 dias</div>
-              <span className="text-xs text-text-secondary">{metrics.completionRate}% concluído</span>
+              <div className="flex items-center gap-2 text-sm font-semibold"><BarChart3 className="size-4 text-primary" />Ritmo das últimas 4 semanas</div>
+              <span className="text-xs text-text-secondary">{metrics.completionRate}% de consistência</span>
             </div>
-            <div className="mt-4 grid grid-cols-7 gap-2">
-              {history.map((day) => (
-                <span
-                  aria-label={`${day.dayKey}: ${day.isCompleted ? "concluído" : day.isRelapse ? "recomeço" : "pendente"}`}
-                  className={cn(
-                    "aspect-square min-h-6 rounded-md border transition-colors",
-                    day.isCompleted ? "border-primary/40 bg-primary" : "border-border bg-secondary/55",
-                    day.isRelapse && !day.isCompleted && "border-destructive/50 bg-destructive/10",
-                    day.isToday && "ring-2 ring-primary/25 ring-offset-1 ring-offset-background",
-                  )}
-                  key={day.dayKey}
-                  title={`${day.dayKey}: ${day.isCompleted ? "concluído" : day.isRelapse ? "nova sequência" : "pendente"}`}
-                />
+            <div className="mt-4 grid gap-3">
+              {weeklySummaries.map((week) => (
+                <div className="grid gap-1.5" key={week.label}>
+                  <div className="flex items-center justify-between gap-3 text-xs">
+                    <span className="font-medium">{week.label}</span>
+                    <span className="flex items-center gap-2 text-text-secondary">
+                      {habit.kind === "bad" && week.relapseCount > 0 ? (
+                        <span className="flex items-center gap-1 text-destructive"><RotateCcw className="size-3" />{week.relapseCount} recaída{week.relapseCount === 1 ? "" : "s"}</span>
+                      ) : null}
+                      <span>{week.availableDays ? `${week.completedDays}/${week.availableDays} dias` : "Sem dados"}</span>
+                    </span>
+                  </div>
+                  <Progress value={week.rate} />
+                </div>
               ))}
             </div>
-            <div className="mt-3 flex flex-wrap gap-3 text-[10px] text-text-tertiary">
-              <span className="flex items-center gap-1"><span className="size-2.5 rounded-sm bg-primary" />Concluído</span>
-              <span className="flex items-center gap-1"><span className="size-2.5 rounded-sm border border-border bg-secondary" />Pendente</span>
-              {habit.kind === "bad" ? <span className="flex items-center gap-1"><span className="size-2.5 rounded-sm border border-destructive/50 bg-destructive/10" />Nova sequência</span> : null}
-            </div>
+            <p className="mt-3 text-[11px] text-text-tertiary">Cada barra compara os dias mantidos com os dias disponíveis naquela semana.</p>
           </section>
 
           <section className="rounded-xl border border-border p-4">

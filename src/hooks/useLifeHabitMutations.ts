@@ -72,9 +72,7 @@ export function useLifeHabitAction() {
           return {
             ...habit,
             badEvents: [...new Set([...habit.badEvents, dayKey])],
-            checkins: habit.checkins.includes(dayKey)
-              ? habit.checkins
-              : [...habit.checkins, dayKey],
+            checkins: habit.checkins.filter((item) => item !== dayKey),
             lastBadAt: `${dayKey}T12:00:00`,
           };
         }),

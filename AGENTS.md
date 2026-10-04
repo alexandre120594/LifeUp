@@ -1,142 +1,133 @@
 # AGENTS.md
 
-This file defines the default development contract for the whole repository.
-Scope: everything under the repo root.
+Este arquivo e o contrato principal para qualquer agente de IA que trabalhe no
+LifeUp. Seu escopo e todo o repositorio.
 
-## Objective
+## Regra central
 
-`LifeUp` is a Next.js productivity app centered on:
-- Projects
-- Habits
-- Tasks
-- Inbox capture
-- Notes
-- Lightweight analytics derived from those records
+Antes de alterar codigo, reconstrua o contexto a partir das fontes canonicas.
+Nao invente dominios, entidades, camadas, dependencias, rotas ou convencoes.
+Primeiro procure o padrao existente; se ele nao existir, documente a decisao
+antes de introduzir um novo padrao estrutural.
 
-Another agent should be able to continue work from here without rediscovering the system.
+## Ordem obrigatoria de leitura
 
-## Ground Truth Files
+1. `AGENTS.md` - contrato de trabalho e limites para agentes.
+2. `docs/PRODUCT.md` - visao, escopo e linguagem do produto.
+3. `docs/ARCHITECTURE.md` - fronteiras e fluxo tecnico permitido.
+4. `docs/CURRENT_STATE.md` - estado atual, dividas e proximos passos.
+5. `docs/AI_DEVELOPMENT.md` - processo de implementacao e validacao.
+6. `prisma/schema.prisma` - unica fonte de verdade para dados persistidos.
+7. Os arquivos da funcionalidade que sera alterada.
 
-Before changing anything substantial, use these files to rebuild context:
+Leia `docs/DECISIONS.md` quando a tarefa puder mudar uma decisao estrutural.
+O `README.md` e a porta de entrada para humanos, mas nao substitui as fontes
+acima.
 
-- `README.md`
-  - high-level architecture and current app map
-- `ARCHIVE.md`
-  - current status, recent completed work, open issues, and next steps
-- `prisma/schema.prisma`
-  - source of truth for relations and persisted shape
-- `src/app/page.tsx`
-  - current dashboard composition
-- `src/app/projects/[id]/page.tsx`
-  - current project-detail analytics flow
-- `src/lib/analytics.ts`
-  - shared analytics derivation logic
+## O produto em uma frase
 
-## Current Stack
+LifeUp e um gerenciador pessoal de vida que reune planejamento diario, metas,
+habitos, estudos, financas, foco, capturas e conhecimento em uma experiencia
+coerente, sem forcar acoplamento artificial entre esses modulos.
 
-- Next.js App Router
-- React 19
-- TypeScript
-- Tailwind CSS
-- Prisma + PostgreSQL
-- TanStack Query
-- Zustand
-- Recharts
+## Arquitetura obrigatoria
 
-Dev server:
-- `npm run dev`
-- app runs on `http://localhost:3001`
+Fluxo padrao de dados no cliente:
 
-## Main Structure
+```text
+Page/Component -> React Query hook -> Service -> /api route -> Prisma -> PostgreSQL
+```
 
-- `src/app`
-  - pages, layouts, route handlers
-- `src/components`
-  - reusable UI building blocks
-- `src/components/ChartsComponent`
-  - analytics and progress charts
-- `src/hooks`
-  - React Query hooks
-- `src/services`
-  - API wrappers
-- `src/lib`
-  - utilities, Prisma bootstrap, analytics helpers
-- `src/types`
-  - shared TypeScript interfaces
-- `src/store`
-  - Zustand stores
-- `prisma`
-  - schema and seed script
-- `src/generated/client`
-  - generated Prisma client, never edit manually
+Responsabilidades:
 
-## Working Rules
+- `src/app`: paginas, layouts e route handlers do App Router.
+- `src/components`: componentes visuais e composicoes reutilizaveis.
+- `src/components/ui`: primitivas visuais; estenda antes de duplicar.
+- `src/hooks`: estado remoto, mutations e invalidacao via React Query.
+- `src/services`: cliente HTTP tipado; componentes nao fazem CRUD direto.
+- `src/lib`: regras puras, validacao, autenticacao e infraestrutura compartilhada.
+- `src/types`: contratos TypeScript compartilhados entre camadas do cliente.
+- `prisma/schema.prisma`: modelos, relacoes, indices e regras de exclusao.
+- `src/generated/client`: codigo gerado; nunca editar manualmente.
 
-### General
+Excecoes ao fluxo precisam de uma justificativa registrada em
+`docs/DECISIONS.md`.
 
-- Keep changes focused and reversible.
-- Prefer fixing root causes instead of patching symptoms.
-- Do not refactor unrelated areas just because they are imperfect.
-- Do not edit generated Prisma client files.
-- Do not add dependencies unless the feature clearly requires them.
+## Invariantes do repositorio
 
-### TypeScript and React
+- Todo dado pessoal deve ser filtrado pelo `userId` autenticado no servidor.
+- Nunca aceite `userId` enviado pelo cliente como autoridade.
+- Route handlers protegidos usam `requireCurrentUserId()`.
+- Alteracoes de schema acontecem apenas em `prisma/schema.prisma` e devem manter
+  integridade referencial explicita.
+- Paginas e componentes nao importam Prisma nem acessam o banco.
+- CRUD do cliente passa por `src/services` e por hooks de React Query.
+- Regras derivadas reutilizaveis ficam em `src/lib`, nao enterradas em JSX.
+- Use os tokens e primitivas existentes de SnowUI em vez de criar estilos
+  paralelos.
+- Interfaces visiveis ao usuario sao escritas em portugues do Brasil.
+- TypeScript permanece estrito; nao introduza `any`.
+- Nao adicione dependencia quando o stack atual resolver o problema.
+- Nao recrie a antiga hierarquia `Project -> Habit -> Task`; ela foi removida.
+- Goal nao possui subitens, tarefas ou checklists sem uma nova decisao de produto.
+- Inbox, Notes, Pomodoro e Life Habits continuam independentes de Goal.
 
-- Avoid `any`.
-- Remove dead imports and dead state in files you touch.
-- Reuse existing React Query and service patterns before inventing new fetch paths.
-- Keep page-level metric shaping out of pages when it can live in `src/lib/analytics.ts`.
-- Reuse chart primitives and shared card/layout patterns where possible.
+## Antes de criar qualquer coisa
 
-### Prisma and API
+Pesquise nesta ordem:
 
-- Make schema changes only in `prisma/schema.prisma`.
-- Keep route filters aligned with service-layer and hook-layer parameters.
-- Preserve data integrity when parent-child cleanup matters.
-- When changing persisted behavior, update the markdown docs in the same task.
+1. componente ou helper equivalente;
+2. padrao do mesmo dominio;
+3. padrao de outro dominio que possa ser reutilizado;
+4. decisao registrada em `docs/DECISIONS.md`;
+5. somente entao, a menor abstracao nova necessaria.
 
-### Documentation
+Uma nova entidade, camada, dependencia, sistema de estado global ou relacao
+entre dominios exige necessidade concreta. Se mudar a arquitetura, registre a
+decisao e atualize `docs/ARCHITECTURE.md` no mesmo trabalho.
 
-When meaningful behavior changes:
-- update `README.md`
-- update `ARCHIVE.md`
-- update this file only if the repo contract or expected workflow changed
+## Regras de alteracao
 
-## Quality Bar
+- Mantenha mudancas focadas, pequenas e reversiveis.
+- Corrija a causa raiz sem refatorar areas nao relacionadas.
+- Preserve mudancas existentes do usuario no worktree.
+- Remova imports e estado mortos apenas nos arquivos tocados.
+- Mantenha filtros de API, parametros de servico e query keys alinhados.
+- Em mutations, invalide todas as queries afetadas.
+- Trate loading, vazio, erro e confirmacao em fluxos interativos.
+- Mudanca de comportamento requer atualizacao da documentacao correspondente.
+- Nao trate planos antigos em `specs/` como estado atual; valide no codigo.
 
-Run focused validation on touched areas when practical.
+## Validacao minima
 
-Useful commands:
-- `npm run dev`
-- `npm run lint`
-- `npm run db:seed`
-- `npx prisma validate`
+Escolha validacoes proporcionais ao risco:
 
-If full-repo lint is already noisy, do not make that baseline worse.
+```bash
+npm run lint
+npm run build
+npx prisma validate
+npx prisma generate
+npm run db:seed
+```
 
-## Current Known State
+- Mudanca TypeScript/UI: lint focado quando possivel e build.
+- Mudanca de schema/consulta: `prisma validate` e validacao do fluxo afetado.
+- Mudanca ampla: lint, build e testes manuais do caminho principal.
+- Se a base ja tiver erros, nao aumente o baseline e registre os erros preexistentes.
 
-- Dashboard and project-detail analytics are active.
-- Sidebar navigation sends users through Projects for habit and task workflows; direct habit/task pages still exist but are not primary menu entries.
-- Inbox and Notes are active and link back to projects, habits, and tasks.
-- Chart colors follow the current theme tokens.
-- Seed data exists for local visual testing.
-- The app still assumes a development user in some server logic.
-- Older pages such as `src/app/tasks/page.tsx` and `src/app/habits/page.tsx` are not yet fully aligned with the newer dashboard patterns.
+## Manutencao da memoria do projeto
 
-## Preferred Next Work Order
+Ao terminar uma mudanca relevante:
 
-1. Replace dev-user assumptions with real auth/session context.
-2. Normalize analytics history if the product needs more trustworthy time-series data.
-3. Bring older pages and components into the same design/data architecture as the dashboard.
-4. Improve API validation and error handling.
-5. Reduce the older lint baseline gradually in touched files.
+- atualize `docs/CURRENT_STATE.md` com o que mudou e o que ficou pendente;
+- atualize `README.md` quando capacidades ou comandos mudarem;
+- atualize `docs/PRODUCT.md` quando escopo ou linguagem de produto mudarem;
+- atualize `docs/ARCHITECTURE.md` e `docs/DECISIONS.md` quando houver decisao
+  estrutural;
+- deixe uma proxima acao concreta, sem historico narrativo desnecessario.
 
-## Stop / Resume Rule
+## Criterio de conclusao
 
-Before ending a task that changes behavior:
-- leave `README.md` accurate
-- leave `ARCHIVE.md` accurate
-- leave a clear note of what remains unfinished
-
-If you need to know where previous work stopped, start with `ARCHIVE.md`.
+Uma tarefa so esta concluida quando codigo, tipos, persistencia, estados de UI,
+validacao e documentacao afetada contam a mesma historia. Se algo ficar
+incompleto, registre claramente em `docs/CURRENT_STATE.md`.

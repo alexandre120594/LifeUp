@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { requireCurrentUserId } from "@/lib/auth";
 import { DEFAULT_FINANCE_CATEGORIES } from "@/lib/finance-defaults";
-import { calculateAccountBalance, calculateFinanceSummary, getMonthRange } from "@/lib/finance-core";
+import { calculateAccountBalance, calculateCommitmentSummary, calculateFinanceSummary, getMonthRange } from "@/lib/finance-core";
 import prisma from "@/lib/prisma";
 import type { FinanceRecordType } from "@/types/Finance";
 
@@ -42,7 +42,7 @@ export async function GET(req: Request) {
   const { start, end } = month
     ? getMonthRange(new Date(year, month - 1, 1))
     : { start: new Date(year, 0, 1), end: new Date(year + 1, 0, 1) };
-  const [accounts, categories, transactions, periodTransactions, commitments, goals] = await Promise.all([
+  const [accounts, categories, transactions, periodTransactions, commitments, goals, futureCommitments] = await Promise.all([
     prisma.financialAccount.findMany({
       where: { userId },
       include: { transactions: { select: { amount: true, type: true } } },
@@ -63,6 +63,10 @@ export async function GET(req: Request) {
     prisma.savingsGoal.findMany({
       where: { userId }, include: { contributions: { select: { amount: true } } },
       orderBy: { createdAt: "desc" },
+    }),
+    prisma.financialCommitment.aggregate({
+      where: { dueDate: { gte: end }, status: "active", type: "expense", userId },
+      _sum: { amount: true },
     }),
   ]);
 
@@ -92,6 +96,15 @@ export async function GET(req: Request) {
     }),
     summary: {
       balance: normalizedAccounts.reduce((total, account) => total + account.balance, 0),
+      commitments: calculateCommitmentSummary(
+        periodSummary.income,
+        commitments.map((commitment) => ({
+          amount: Number(commitment.amount),
+          status: commitment.status,
+          type: commitment.type as FinanceRecordType,
+        })),
+        Number(futureCommitments._sum.amount ?? 0)
+      ),
       ...periodSummary,
     },
     transactions: transactions.map((transaction) => ({ ...transaction, amount: Number(transaction.amount) })),
