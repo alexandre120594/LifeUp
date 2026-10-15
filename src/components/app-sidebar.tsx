@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
-  ClipboardList,
   Goal,
   GraduationCap,
   Home,
@@ -81,12 +80,6 @@ const studyItems: SidebarItem[] = [
     description: "Materias e revisoes",
   },
   {
-    title: "Planos",
-    url: "/study/plans",
-    icon: ClipboardList,
-    description: "Roteiros de estudo",
-  },
-  {
     title: "Foco",
     url: "/pomodoro",
     icon: TimerReset,
@@ -104,7 +97,7 @@ const financeItems: SidebarItem[] = [
 ];
 
 function isSidebarItemActive(pathname: string, url: string) {
-  if (url === "/finance" || url === "/study" || url === "/study/plans" || url === "/pomodoro") {
+  if (url === "/finance" || url === "/study" || url === "/pomodoro") {
     return pathname === url;
   }
 

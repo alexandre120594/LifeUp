@@ -53,13 +53,16 @@ checklists ou subregistros.
 
 ### Habitos
 
-Acompanhamento diario de comportamentos a construir ou evitar, com check-ins,
-recaidas, sequencias, marcos e recompensas. E independente de metas.
+Acompanhamento de comportamentos normais, de abstinencia ou quantitativos, com
+agenda flexivel, checklist, registros diarios, sequencias e consistencia. E
+independente de metas.
 
 ### Estudos e foco
 
-Organizacao de materias, topicos, sessoes e revisoes. Pomodoro registra sessoes
-de foco e pode se associar a materia/topico de estudo quando aplicavel.
+Organizacao de materias, topicos, sessoes, revisoes e cronogramas de preparacao.
+O cronograma TRT-PI oferece 150 dias de conteudo com progresso persistente por
+usuario. Pomodoro registra sessoes de foco e pode se associar a materia/topico
+de estudo quando aplicavel.
 
 ### Financas
 

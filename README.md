@@ -12,7 +12,7 @@ LifeUp is a Next.js productivity app whose main Life domain is now `Goal`.
 - "Hoje" dashboard separated from Goal management, focused on progress and next actions
 - full-viewport Inbox capture with internal list scrolling and view/edit dialogs
 - full-viewport Notes dashboard with internal scrolling, search, category filters, modal create/edit, and dedicated note viewing
-- clean operational Study workspace whose Hoje tab prioritizes the next subject, ordered daily plan, daily progress, compact metrics, and urgent reviews; Matérias, Revisões, and Histórico retain their dedicated flows
+- clean operational Study workspace whose Hoje tab prioritizes the next subject, with a TRT-PI 150-day schedule whose completion and scores persist per user; Matérias, Revisões, and Histórico retain their dedicated flows
 - clean full-viewport Study Focus workspace with a dominant timer, three-part focus summary, subject distribution, and session history grouped by month, available inside the Studies navigation group
 - reusable loading, empty, error, field-error, and confirmation UI states across redesigned Focus and Notes flows
 - operational Finance workspace with accounts, transactions, commitments, and savings goals
@@ -76,15 +76,14 @@ User -> SavingsGoal -> SavingsContribution
 
 ## Study Domain
 
-The study area has a dedicated `/study/plans` page. It selects the Dataprev and TRT plan IDs in place and starts with a concise edital checklist grouped by Ã¡rea/matÃ©ria, with an optional detailed week/day view, search, pending/completed filters, progress tracking, and local completion persistence. The standalone `/study/dataprev` and `/study/trt` routes remain available.
-
 ```text
 User -> StudySubject -> StudyTopic
 User -> StudySession (time + optional question result)
 User -> StudyReview
+User -> StudyPlanProgress
 ```
 
-`/study` is a full-viewport workspace organized into Hoje, Matérias, Revisões, and Histórico. Hoje prioritizes a recommended next subject, an ordered plan derived from subject attention, daily progress, compact metrics, and urgent reviews with a direct handoff to `/pomodoro`. The other three tabs retain their existing composition and behavior. Matérias exposes weekly goals, progress, linked topics and CRUD; Revisões presents one pending item at a time while preserving the existing scheduling actions; Histórico adds month/year filters, period metrics, subject totals and session CRUD. `GET /api/study` remains the canonical workspace source.
+`/study` is a full-viewport workspace organized into Hoje, Cronograma, Matérias, Revisões, and Histórico. Hoje prioritizes a recommended next subject, daily progress, compact metrics, and urgent reviews with a direct handoff to `/pomodoro`. Cronograma presents the fixed TRT-PI 150-day plan with search, phase/subject/status filters, daily details, completion and accuracy tracking persisted in PostgreSQL through `/api/study-plan-progress`. The other tabs retain their existing composition and behavior. Matérias exposes weekly goals, progress, linked topics and CRUD; Revisões presents one pending item at a time while preserving the existing scheduling actions; Histórico adds month/year filters, period metrics, subject totals and session CRUD. `GET /api/study` remains the canonical workspace source for the original study flows.
 
 ## Main File Map
 
@@ -127,7 +126,12 @@ Inbox, Notes, and Pomodoro are independent and do not require Goal IDs.
 
 ## Habit Tracker
 
-`/life-habits` is an independent daily tracker for habits to build and habits to avoid. It reuses the existing `LifeHabit` CRUD and actions, provides one-click daily check-ins, relapse resets that preserve prior history, current and best streaks, goals, milestones, user-defined rewards, a seven-day view, and a four-week consistency comparison. Habit metrics are derived in `src/lib/life-habits.ts`; no Goal relation is required.
+`/life-habits` e um tracker independente inspirado no modelo comportamental do
+Streak, reimplementado na arquitetura do LifeUp e no SnowUI. Ele oferece habitos
+normais, de abstinencia e quantitativos; agendas flexiveis; checklist; dias de
+descanso; configuracao de foco; registro historico; sequencia atual/recorde;
+taxa de conclusao e forca ponderada. As regras derivadas ficam em
+`src/lib/life-habits.ts` e o modulo nao depende de Goal.
 
 ## Removed Main-Life Legacy
 

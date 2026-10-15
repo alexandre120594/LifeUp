@@ -1,4 +1,4 @@
-import type { StudyReview, StudyReviewInput, StudySessionCore, StudySessionCoreInput, StudySubjectCore, StudySubjectInput, StudyTopic, StudyTopicInput, StudyWorkspace } from "@/types/Study";
+import type { StudyPlanDayProgress, StudyPlanProgressInput, StudyReview, StudyReviewInput, StudySessionCore, StudySessionCoreInput, StudySubjectCore, StudySubjectInput, StudyTopic, StudyTopicInput, StudyWorkspace } from "@/types/Study";
 
 async function request<T>(url: string, init?: RequestInit): Promise<T> {
   const response = await fetch(url, { ...init, headers: { "Content-Type": "application/json", ...init?.headers } });
@@ -23,4 +23,7 @@ export const StudyWorkspaceServices = {
   deleteReview: (id: string) => request<{ ok: boolean }>(`/api/study-reviews/${id}`, { method: "DELETE" }),
   rescheduleReview: ({ dueAt, id }: { dueAt: string; id: string }) => request<StudyReview>(`/api/study-reviews/${id}`, { method: "PATCH", body: JSON.stringify({ action: "reschedule", dueAt }) }),
   masterReview: (id: string) => request<StudyReview>(`/api/study-reviews/${id}`, { method: "PATCH", body: JSON.stringify({ action: "master" }) }),
+  getPlanProgress: (planId: string) => request<StudyPlanDayProgress[]>(`/api/study-plan-progress?planId=${encodeURIComponent(planId)}`),
+  updatePlanProgress: (data: StudyPlanProgressInput) => request<StudyPlanDayProgress>("/api/study-plan-progress", { method: "PATCH", body: JSON.stringify(data) }),
+  resetPlanProgress: (planId: string) => request<{ ok: boolean }>(`/api/study-plan-progress?planId=${encodeURIComponent(planId)}`, { method: "DELETE" }),
 };

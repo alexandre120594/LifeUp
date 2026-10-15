@@ -1,6 +1,6 @@
 # Estado atual
 
-Atualizado em: 2026-10-03
+Atualizado em: 2026-10-13
 
 Este documento descreve onde o produto esta agora. Ele nao e um historico de
 commits. Mantenha apenas fatos que ajudam o proximo desenvolvedor a continuar.
@@ -12,9 +12,12 @@ commits. Mantenha apenas fatos que ajudam o proximo desenvolvedor a continuar.
 - Captura rapida em `/inbox`.
 - Biblioteca de notas em `/notes`.
 - Timer e sessoes de foco em `/pomodoro`.
-- Tracker independente de habitos em `/life-habits`.
-- Workspace de estudos em `/study`, com materias, topicos, sessoes e revisoes.
-- Planos de estudo em `/study/plans`, alem das rotas Dataprev e TRT.
+- Tracker independente de habitos em `/life-habits`, com tipos normal,
+  abstinencia e quantidade, agendas diaria/semanal/mensal/dias escolhidos/
+  intervalo, checklists, dias de descanso, foco e metricas de sequencia e forca.
+- Workspace de estudos em `/study`, com materias, topicos, sessoes, revisoes e
+  cronograma TRT-PI de 150 dias. As marcacoes e percentuais de acerto do
+  cronograma persistem por usuario no PostgreSQL.
 - Workspace financeiro em `/finance`, com contas, transacoes, compromissos e
   objetivos de reserva. A aba Compromissos compara a renda do periodo com os
   vencimentos pendentes e explicita valor, percentual, sobra e total futuro.
@@ -42,7 +45,13 @@ commits. Mantenha apenas fatos que ajudam o proximo desenvolvedor a continuar.
 - A API ainda nao usa um formato uniforme de erro em todos os endpoints.
 - Os modelos com campos `String` para status/tipo podem precisar de enums, mas
   isso exige migracao planejada, nao uma troca oportunista.
-- A persistencia de check-ins de habitos usa arrays de strings no modelo atual.
+- Habitos usam registros diarios estruturados em `completions`; `checkins`,
+  `badEvents`, `lastBadAt`, `targetDays` e `reward` permanecem legados enquanto o
+  cliente Android ainda consome o contrato antigo.
+- O editor web persiste configuracao de foco, mas a integracao automatica entre
+  uma sessao Pomodoro e a conclusao do habito ainda nao foi implementada.
+- Lembretes, anexos/fotos, importacao, exportacao e widgets do Streak nao fazem
+  parte desta fatia web; exigem fluxos e infraestrutura proprios.
 - Nao ha suite automatizada abrangente registrada no `package.json`; build,
   lint, validacao Prisma e testes manuais sao a verificacao disponivel.
 - O diretorio `specs/` pode conter planos historicos removidos ou divergentes;
@@ -54,8 +63,9 @@ commits. Mantenha apenas fatos que ajudam o proximo desenvolvedor a continuar.
 2. Uniformizar validacao e respostas de erro da API.
 3. Consolidar idioma e corrigir strings com codificacao incorreta.
 4. Adicionar testes automatizados aos fluxos de maior risco.
-5. Evoluir analytics apenas com eventos historicos confiaveis.
-6. Avaliar normalizacao de habitos e enums somente com plano de migracao.
+5. Migrar o Android para o contrato estruturado de habitos e depois remover os
+   campos legados com uma migracao auditada.
+6. Evoluir analytics apenas com eventos historicos confiaveis.
 
 ## Trabalho em andamento no worktree
 

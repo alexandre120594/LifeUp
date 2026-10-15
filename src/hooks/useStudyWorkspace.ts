@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { StudyWorkspaceServices } from "@/services/StudyWorkspaceServices";
+import type { StudyPlanDayProgress, StudyPlanProgressInput } from "@/types/Study";
 
 const key = ["study", "workspace"] as const;
 export function useStudyWorkspace() {
@@ -21,3 +22,43 @@ export function useUpdateStudyReview() { return useWorkspaceMutation(StudyWorksp
 export function useDeleteStudyReview() { return useWorkspaceMutation(StudyWorkspaceServices.deleteReview); }
 export function useRescheduleStudyReview() { return useWorkspaceMutation(StudyWorkspaceServices.rescheduleReview); }
 export function useMasterStudyReview() { return useWorkspaceMutation(StudyWorkspaceServices.masterReview); }
+
+const planKey = (planId: string) => ["study", "plan", planId] as const;
+
+export function useStudyPlanProgress(planId: string) {
+  return useQuery({
+    queryKey: planKey(planId),
+    queryFn: () => StudyWorkspaceServices.getPlanProgress(planId),
+  });
+}
+
+export function useUpdateStudyPlanProgress(planId: string) {
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: (value: StudyPlanProgressInput) => StudyWorkspaceServices.updatePlanProgress(value),
+    onMutate: async (value) => {
+      await client.cancelQueries({ queryKey: planKey(planId) });
+      const previous = client.getQueryData<StudyPlanDayProgress[]>(planKey(planId));
+      client.setQueryData<StudyPlanDayProgress[]>(planKey(planId), (current = []) => {
+        const existing = current.find((item) => item.dayNumber === value.dayNumber) ?? { completed: false, dayNumber: value.dayNumber, score: null };
+        const next = current.filter((item) => item.dayNumber !== value.dayNumber);
+        return [...next, { ...existing, ...(value.completed === undefined ? {} : { completed: value.completed }), ...(value.score === undefined ? {} : { score: value.score }) }]
+          .sort((a, b) => a.dayNumber - b.dayNumber);
+      });
+      return { previous };
+    },
+    onError: (_error, _value, context) => {
+      if (context?.previous) client.setQueryData(planKey(planId), context.previous);
+    },
+    onSettled: () => client.invalidateQueries({ queryKey: planKey(planId) }),
+  });
+}
+
+export function useResetStudyPlanProgress(planId: string) {
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: () => StudyWorkspaceServices.resetPlanProgress(planId),
+    onSuccess: () => client.setQueryData(planKey(planId), []),
+    onSettled: () => client.invalidateQueries({ queryKey: planKey(planId) }),
+  });
+}

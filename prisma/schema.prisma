@@ -28,6 +28,7 @@ model User {
   studyTopics           StudyTopic[]
   studyReviews          StudyReview[]
   studySessions         StudySession[]
+  studyPlanProgress     StudyPlanProgress[]
   createdAt             DateTime               @default(now())
 }
 
@@ -63,11 +64,42 @@ model Goal {
 }
 
 model LifeHabit {
-  id         String    @id @default(cuid())
-  title      String
-  kind       String // good or bad
-  color      String?
-  notes      String?
+  id                String    @id @default(cuid())
+  title             String
+  kind              String    @default("positive") // positive, negative or quantitative
+  color             String?
+  icon              String    @default("🎯")
+  category          String?
+  notes             String?
+  position          Int       @default(0)
+  perDayTarget      Float     @default(1)
+  interval          String    @default("daily") // daily, weekly, monthly, weekdays or everyXDays
+  targetFrequency   Int       @default(1)
+  scheduleWeekdays  Int[]     @default([])
+  scheduleEvery     Int       @default(2)
+  scheduleUnit      String    @default("days") // days, weeks or months
+  scheduleStart     DateTime?
+  unitLabel         String?
+  incrementAmount   Float     @default(1)
+  quantKind         String    @default("generic") // generic, water, reading or time
+  dailyCost         Float     @default(0)
+  difficulty        Int       @default(0)
+  startMinute       Int       @default(-1)
+  durationMinutes   Int       @default(0)
+  focusMinutes      Int       @default(25)
+  focusBreakMinutes Int       @default(0)
+  focusOnly         Boolean   @default(false)
+  tracking          Boolean   @default(false)
+  anyAmount         Boolean   @default(false)
+  anySteps          Boolean   @default(false)
+  substeps          Json      @default("[]")
+  reminders         Json      @default("[]")
+  vacations         Json      @default("[]")
+  restDays          Int[]     @default([])
+  completions       Json      @default("{}")
+  archivedAt        DateTime?
+
+  // Campos legados mantidos durante a compatibilidade com o cliente Android.
   targetDays Int       @default(30)
   reward     String?
   checkins   String[]  @default([])
@@ -78,6 +110,7 @@ model LifeHabit {
   createdAt  DateTime  @default(now())
   updatedAt  DateTime  @updatedAt
 
+  @@index([userId, archivedAt, position])
   @@index([userId, kind])
   @@index([userId, updatedAt])
 }
@@ -139,6 +172,21 @@ model StudySession {
   @@index([userId, startedAt])
   @@index([userId, subjectId])
   @@index([userId, topicId])
+}
+
+model StudyPlanProgress {
+  id        String   @id @default(cuid())
+  planId    String
+  dayNumber Int
+  completed Boolean  @default(false)
+  score     Int?
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, planId, dayNumber])
+  @@index([userId, planId])
 }
 
 model InboxItem {

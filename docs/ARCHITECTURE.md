@@ -72,6 +72,7 @@ User
   |- Note
   |- PomodoroSession -> StudySubject/StudyTopic (opcional)
   |- StudySubject -> StudyTopic -> StudySession/StudyReview
+  |- StudyPlanProgress
   |- FinancialCategory
   |- FinancialAccount -> FinancialTransaction
   |- FinancialCommitment -> FinancialTransaction
@@ -84,11 +85,15 @@ Regras importantes:
 
 - Todo dominio pessoal pertence diretamente a `User`, mesmo quando tambem possui
   uma relacao com outro registro.
+- O conteudo do cronograma TRT-PI e estatico e versionado em
+  `src/data/trt-pi-schedule.json`; apenas conclusao e percentual de acertos sao
+  persistidos por usuario em `StudyPlanProgress`.
 - Relacoes devem declarar comportamento de exclusao conscientemente.
 - Valores financeiros usam `Decimal`, nunca ponto flutuante como fonte de verdade.
 - Saldos e progresso financeiro sao calculados a partir de movimentos.
-- Arrays de datas de `LifeHabit` sao a persistencia atual; normalize apenas com
-  migracao planejada e decisao registrada.
+- `LifeHabit.completions` guarda o mapa estruturado de registros diarios; os
+  arrays `checkins` e `badEvents` permanecem temporariamente para compatibilidade
+  com o cliente Android legado e recebem dual-write nas mutacoes atuais.
 
 ## Padrao de uma funcionalidade CRUD
 

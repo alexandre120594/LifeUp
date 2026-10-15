@@ -95,3 +95,29 @@ export interface StudySessionCoreInput {
   notes?: string | null;
   reviews?: Array<Pick<StudyReviewInput, "prompt" | "answer" | "notes" | "dueAt">>;
 }
+
+export interface StudyPlanDay {
+  n: number;
+  date: string;
+  weekday: string;
+  subject: string;
+  title: string;
+  bullets: string[];
+  tag: string;
+  phase: "Base" | "Consolidação" | "Fechamento";
+  qtarget: string;
+  checkpoint: boolean;
+}
+
+export interface StudyPlanDayProgress {
+  dayNumber: number;
+  completed: boolean;
+  score: number | null;
+}
+
+export interface StudyPlanProgressInput {
+  planId: string;
+  dayNumber: number;
+  completed?: boolean;
+  score?: number | null;
+}

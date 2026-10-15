@@ -2,9 +2,10 @@
 
 import { useMemo, useState, type FormEvent } from "react";
 import Link from "next/link";
-import { BookOpen, CalendarClock, CheckCircle2, ChevronLeft, ChevronRight, Eye, FileText, MoreHorizontal, Pencil, Plus, RotateCcw, Target, Trash2 } from "lucide-react";
+import { BookOpen, CalendarClock, CheckCircle2, ChevronLeft, ChevronRight, Eye, MoreHorizontal, Pencil, Plus, RotateCcw, Target, Trash2 } from "lucide-react";
 import { DashboardViewport } from "@/components/dashboard-viewport";
 import { MenuPageHeader } from "@/components/menu-page-header";
+import { StudySchedule } from "@/components/study/StudySchedule";
 import { EmptyState, ErrorState, LoadingState, RetryButton } from "@/components/ui/app-state";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -24,27 +25,15 @@ type EditingItem = StudyReview | StudySessionCore | StudySubjectCore | null;
 type DeleteTarget = { kind: "review"; item: StudyReview } | { kind: "session"; item: StudySessionCore } | { kind: "subject"; item: StudySubjectCore };
 type ReviewDraft = { answer: string; prompt: string };
 type StudyAttention = ReturnType<typeof buildStudySubjectAttention>[number];
-type StudyTab = "history" | "reviews" | "subjects" | "today";
+type StudyTab = "history" | "reviews" | "schedule" | "subjects" | "today";
 
 const studyTabs = [
   { label: "Hoje", value: "today" },
+  { label: "Cronograma", value: "schedule" },
   { label: "Matérias", value: "subjects" },
   { label: "Revisões", value: "reviews" },
   { label: "Histórico", value: "history" },
 ] as const;
-
-const studyPlanLinks = [
-  {
-    description: "Perfil 3, FGV, plano alternado ate 21/09.",
-    href: "/study/dataprev",
-    title: "Dataprev Plan",
-  },
-  {
-    description: "Analista e Tecnico de TI, auditoria 2017-2025.",
-    href: "/study/trt",
-    title: "TRT em estudos",
-  },
-];
 
 const date = new Intl.DateTimeFormat("pt-BR", { day: "2-digit", month: "short" });
 const dateTime = new Intl.DateTimeFormat("pt-BR", { day: "2-digit", hour: "2-digit", minute: "2-digit", month: "short" });
@@ -389,21 +378,6 @@ function ReviewFocus({ current, onDelete, onEdit, onNext, onPrevious, position, 
   </article>;
 }
 
-function StudyPlanLinks() {
-  return <div className="grid gap-2 border-t border-border px-2 py-3 md:grid-cols-2">
-    {studyPlanLinks.map((plan) => <Link className="flex min-w-0 items-center justify-between gap-3 rounded-xl bg-secondary/35 p-3 text-sm hover:bg-hover" href={plan.href} key={plan.href}>
-      <span className="flex min-w-0 items-center gap-3">
-        <span className="grid size-9 shrink-0 place-items-center rounded-lg bg-panel text-text-secondary"><FileText className="size-4" /></span>
-        <span className="min-w-0">
-          <span className="block truncate font-semibold">{plan.title}</span>
-          <span className="block truncate text-[11px] text-text-tertiary">{plan.description}</span>
-        </span>
-      </span>
-      <FileText className="size-4 shrink-0 text-text-tertiary" />
-    </Link>)}
-  </div>;
-}
-
 function StudyHistory({ data, onDelete, onEdit }: { data: StudyWorkspace; onDelete: (session: StudySessionCore) => void; onEdit: (session: StudySessionCore) => void }) {
   const [month, setMonth] = useState(() => String(new Date().getMonth() + 1));
   const [year, setYear] = useState(() => String(new Date().getFullYear()));
@@ -520,10 +494,10 @@ export default function StudyPage() {
 
   return <DashboardViewport className="w-full max-w-none" contentClassName="overflow-hidden pb-4" header={<MenuPageHeader eyebrow={activeTab === "today" ? "Seu plano de hoje" : "Workspace"} title="Estudos" action={headerAction} />}>
     <div className="flex h-full min-h-0 w-full min-w-0 flex-col gap-3 overflow-hidden">
-      <SegmentedControl aria-label="Áreas de Estudos" className="grid w-full shrink-0 grid-cols-4 [&>button]:min-w-0 [&>button]:px-2" options={studyTabs} value={activeTab} onValueChange={setActiveTab} />
+      <SegmentedControl aria-label="Áreas de Estudos" className="w-full shrink-0 [&>button]:min-w-max [&>button]:flex-1 [&>button]:px-2 sm:[&>button]:min-w-0" options={studyTabs} value={activeTab} onValueChange={setActiveTab} />
 
       <div className="min-h-0 min-w-0 flex-1 overflow-hidden" role="tabpanel">
-        {workspace.isLoading ? <LoadingState title="Preparando seus estudos" /> : workspace.isError || !data || !todaySummary ? <ErrorState title="Não foi possível carregar Estudos" description="Tente novamente para recalcular sua próxima ação." action={<RetryButton onClick={() => workspace.refetch()} />} /> : <>
+        {activeTab === "schedule" ? <StudySchedule /> : workspace.isLoading ? <LoadingState title="Preparando seus estudos" /> : workspace.isError || !data || !todaySummary ? <ErrorState title="Não foi possível carregar Estudos" description="Tente novamente para recalcular sua próxima ação." action={<RetryButton onClick={() => workspace.refetch()} />} /> : <>
           {activeTab === "today" ? <StudyTodayDashboard
             attention={attention}
             data={data}
@@ -545,7 +519,6 @@ export default function StudyPage() {
             <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
               {attention.length === 0 ? <EmptyState className="md:col-span-2 xl:col-span-3" title="Nenhuma matéria ativa" description="Crie uma matéria para começar." /> : attention.map((item) => { const subject = data.subjects.find((value) => value.id === item.subjectId)!; return <SubjectCard item={item} subject={subject} key={item.subjectId} onAddTopic={() => { setTopicSubjectId(subject.id); setDialog("topic"); }} onEdit={() => edit("edit-subject", subject)} onDelete={() => { setDeleteError(null); setDeleteTarget({ kind: "subject", item: subject }); }} />; })}
             </div>
-            <section className="shrink-0 overflow-hidden rounded-2xl border border-border bg-panel"><header className="px-4 py-3"><h2 className="text-sm font-semibold">Planos de estudo</h2><p className="mt-1 text-[11px] text-text-tertiary">Acompanhe os roteiros detalhados sem sair do workspace.</p></header><StudyPlanLinks /></section>
           </div> : null}
 
           {activeTab === "reviews" ? <div className="h-full min-h-0 overflow-y-auto px-0.5">

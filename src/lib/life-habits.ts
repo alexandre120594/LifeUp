@@ -1,261 +1,234 @@
-import type { LifeHabit } from "@/types/BaseInterfaces";
+import type { LifeHabit, LifeHabitCompletion, LifeHabitKind } from "@/types/BaseInterfaces";
 
 const DAY_IN_MS = 86_400_000;
+const DAY_KEY_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
 
-export type HabitDay = {
-  dayKey: string;
-  isCompleted: boolean;
-  isRelapse: boolean;
-  isToday: boolean;
-  label: string;
-};
-
-export type HabitMetrics = {
-  bestStreak: number;
-  checkedToday: boolean;
-  completionRate: number;
-  currentStreak: number;
-  nextMilestone: number;
-  progress: number;
-  targetDays: number;
-  targetReached: boolean;
-};
-
-export type HabitWeekSummary = {
-  availableDays: number;
-  completedDays: number;
-  label: string;
-  rate: number;
-  relapseCount: number;
-};
+export type HabitDay = { amount: number; dayKey: string; isCompleted: boolean; isPaused: boolean; isRelapse: boolean; isScheduled: boolean; isToday: boolean; label: string };
+export type HabitMetrics = { bestStreak: number; checkedToday: boolean; completionRate: number; consistency: number; currentStreak: number; moneySaved: number; progress: number; todayAmount: number; totalCompletions: number };
+export type HabitWeekSummary = { availableDays: number; completedDays: number; label: string; rate: number; relapseCount: number };
 
 export function getDayKey(date: Date) {
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, "0");
   const day = String(date.getDate()).padStart(2, "0");
-
   return `${year}-${month}-${day}`;
 }
 
-export function getTodayKey() {
-  return getDayKey(new Date());
+export function getTodayKey() { return getDayKey(new Date()); }
+
+export function parseDayKey(dayKey: string) {
+  if (!DAY_KEY_PATTERN.test(dayKey)) return new Date(Number.NaN);
+  const [year, month, day] = dayKey.split("-").map(Number);
+  return new Date(year, month - 1, day, 12);
 }
 
 export function shiftDayKey(dayKey: string, days: number) {
-  const [year, month, day] = dayKey.split("-").map(Number);
-  const date = new Date(year, month - 1, day);
+  const date = parseDayKey(dayKey);
   date.setDate(date.getDate() + days);
   return getDayKey(date);
 }
 
-export function normalizeTargetDays(value: number | null | undefined) {
-  if (!value || !Number.isFinite(value)) return 30;
-  return Math.min(Math.max(Math.round(value), 10), 365);
+export function normalizeHabitKind(kind: string): LifeHabitKind {
+  if (kind === "bad") return "negative";
+  if (kind === "good") return "positive";
+  return kind === "negative" || kind === "quantitative" ? kind : "positive";
 }
 
-export function getLastRelapseKey(habit: LifeHabit) {
-  const lastEvent = [...new Set(habit.badEvents)].sort().at(-1);
-  if (lastEvent) return lastEvent;
-  return habit.lastBadAt ? getDayKey(new Date(habit.lastBadAt)) : null;
-}
-
-function uniqueSortedDayKeys(dayKeys: string[]) {
-  return [...new Set(dayKeys)].sort();
-}
-
-function getStreakEndingNearToday(dayKeys: string[], todayKey: string) {
-  const checkins = new Set(dayKeys);
-  let cursor = checkins.has(todayKey) ? todayKey : shiftDayKey(todayKey, -1);
-  let streak = 0;
-
-  while (checkins.has(cursor)) {
-    streak += 1;
-    cursor = shiftDayKey(cursor, -1);
+export function getHabitCompletions(habit: LifeHabit) {
+  if (habit.completions && Object.keys(habit.completions).length) return habit.completions;
+  const completions: Record<string, LifeHabitCompletion> = {};
+  const legacyDays = normalizeHabitKind(habit.kind) === "negative" ? habit.badEvents ?? [] : habit.checkins ?? [];
+  for (const dayKey of legacyDays) completions[dayKey] = { count: 1, steps: [] };
+  if (normalizeHabitKind(habit.kind) === "negative" && habit.lastBadAt) {
+    completions[getDayKey(new Date(habit.lastBadAt))] = { count: 1, steps: [] };
   }
-
-  return streak;
+  return completions;
 }
 
-function getBestRun(dayKeys: string[]) {
+export function isHabitPausedOn(habit: LifeHabit, dayKey: string) {
+  const weekday = parseDayKey(dayKey).getDay() || 7;
+  if (habit.restDays.includes(weekday)) return true;
+  return habit.vacations.some(({ end, start }) => dayKey >= start && dayKey <= (end ?? getTodayKey()));
+}
+
+export function isHabitScheduledOn(habit: LifeHabit, dayKey: string) {
+  const date = parseDayKey(dayKey);
+  const weekday = date.getDay() || 7;
+  if (habit.interval === "weekdays") return habit.scheduleWeekdays.includes(weekday);
+  if (habit.interval !== "everyXDays") return true;
+
+  const startKey = habit.scheduleStart ? getDayKey(new Date(habit.scheduleStart)) : getDayKey(new Date(habit.createdAt));
+  if (dayKey < startKey) return false;
+  const start = parseDayKey(startKey);
+  if (habit.scheduleUnit === "months") {
+    const months = (date.getFullYear() - start.getFullYear()) * 12 + date.getMonth() - start.getMonth();
+    const lastDay = new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
+    return months % Math.max(1, habit.scheduleEvery) === 0 && date.getDate() === Math.min(start.getDate(), lastDay);
+  }
+  const span = Math.max(1, habit.scheduleEvery) * (habit.scheduleUnit === "weeks" ? 7 : 1);
+  return Math.round((date.getTime() - start.getTime()) / DAY_IN_MS) % span === 0;
+}
+
+function completionReachesTarget(habit: LifeHabit, entry?: LifeHabitCompletion) {
+  if (!entry) return false;
+  if (habit.substeps.length) {
+    const completed = new Set(entry.steps);
+    return habit.anySteps ? habit.substeps.some((step) => completed.has(step.id)) : habit.substeps.every((step) => completed.has(step.id));
+  }
+  if (normalizeHabitKind(habit.kind) === "quantitative" && habit.anyAmount) return entry.count > 0;
+  return entry.count >= Math.max(0.0001, habit.perDayTarget);
+}
+
+export function isHabitCompletedOn(habit: LifeHabit, dayKey: string) {
+  if (dayKey > getTodayKey()) return false;
+  const entry = getHabitCompletions(habit)[dayKey];
+  if (normalizeHabitKind(habit.kind) === "negative") return dayKey >= getHabitStartKey(habit) && !entry;
+  return completionReachesTarget(habit, entry);
+}
+
+export function getHabitStartKey(habit: LifeHabit) {
+  const keys = Object.keys(getHabitCompletions(habit)).sort();
+  const created = getDayKey(new Date(habit.createdAt));
+  return keys[0] && keys[0] < created ? keys[0] : created;
+}
+
+function isNeutral(habit: LifeHabit, dayKey: string) { return isHabitPausedOn(habit, dayKey) || !isHabitScheduledOn(habit, dayKey); }
+
+function periodKey(dayKey: string, interval: LifeHabit["interval"]) {
+  const date = parseDayKey(dayKey);
+  if (interval === "monthly") return `${date.getFullYear()}-${date.getMonth() + 1}`;
+  const monday = new Date(date);
+  monday.setDate(date.getDate() - ((date.getDay() + 6) % 7));
+  return getDayKey(monday);
+}
+
+function getPeriodRuns(habit: LifeHabit, todayKey: string) {
+  const counts = new Map<string, number>();
+  const order: string[] = [];
+  let cursor = getHabitStartKey(habit);
+  while (cursor <= todayKey) {
+    const key = periodKey(cursor, habit.interval);
+    if (!counts.has(key)) { counts.set(key, 0); order.push(key); }
+    if (isHabitCompletedOn(habit, cursor)) counts.set(key, (counts.get(key) ?? 0) + 1);
+    cursor = shiftDayKey(cursor, 1);
+  }
   let best = 0;
+  let run = 0;
+  for (const key of order) {
+    run = (counts.get(key) ?? 0) >= habit.targetFrequency ? run + 1 : 0;
+    best = Math.max(best, run);
+  }
   let current = 0;
-  let previous: string | null = null;
-
-  for (const dayKey of uniqueSortedDayKeys(dayKeys)) {
-    current = previous && shiftDayKey(dayKey, -1) === previous ? current + 1 : 1;
-    best = Math.max(best, current);
-    previous = dayKey;
+  let index = order.length - 1;
+  if (index >= 0 && (counts.get(order[index]) ?? 0) < habit.targetFrequency) index -= 1;
+  while (index >= 0 && (counts.get(order[index]) ?? 0) >= habit.targetFrequency) {
+    current += 1;
+    index -= 1;
   }
-
-  return best;
-}
-
-function getBadHabitSegments(habit: LifeHabit) {
-  const lastBadKey = habit.lastBadAt ? getDayKey(new Date(habit.lastBadAt)) : null;
-  const events = uniqueSortedDayKeys([
-    ...habit.badEvents,
-    ...(lastBadKey ? [lastBadKey] : []),
-  ]);
-  if (!events.length) return [uniqueSortedDayKeys(habit.checkins)];
-
-  const segments: string[][] = Array.from({ length: events.length + 1 }, () => []);
-  for (const dayKey of uniqueSortedDayKeys(habit.checkins)) {
-    let segmentIndex = 0;
-    while (segmentIndex < events.length && dayKey >= events[segmentIndex]) {
-      segmentIndex += 1;
-    }
-    segments[segmentIndex].push(dayKey);
-  }
-  return segments;
+  return { best, current };
 }
 
 export function getCurrentStreak(habit: LifeHabit, todayKey = getTodayKey()) {
-  if (habit.kind === "good") {
-    return getStreakEndingNearToday(habit.checkins, todayKey);
+  if (habit.interval === "weekly" || habit.interval === "monthly") return getPeriodRuns(habit, todayKey).current;
+  const startKey = getHabitStartKey(habit);
+  let cursor = todayKey;
+  let streak = 0;
+  while (cursor >= startKey) {
+    if (isNeutral(habit, cursor)) { cursor = shiftDayKey(cursor, -1); continue; }
+    if (isHabitCompletedOn(habit, cursor)) streak += 1;
+    else if (cursor !== todayKey) break;
+    cursor = shiftDayKey(cursor, -1);
   }
-
-  const lastRelapseKey = getLastRelapseKey(habit);
-  const currentCheckins = uniqueSortedDayKeys(habit.checkins).filter(
-    (dayKey) => !lastRelapseKey || dayKey >= lastRelapseKey,
-  );
-  return getStreakEndingNearToday(currentCheckins, todayKey);
+  return streak;
 }
 
-export function getBestStreak(habit: LifeHabit) {
-  if (habit.kind === "good") return getBestRun(habit.checkins);
-  return Math.max(0, ...getBadHabitSegments(habit).map(getBestRun));
-}
-
-export function getCompletionRate(
-  habit: LifeHabit,
-  days = 28,
-  todayKey = getTodayKey(),
-) {
-  const createdKey = getDayKey(new Date(habit.createdAt));
-  const availableDays = Math.max(
-    1,
-    Math.min(days, Math.floor((new Date(`${todayKey}T12:00:00`).getTime() - new Date(`${createdKey}T12:00:00`).getTime()) / DAY_IN_MS) + 1),
-  );
-  const startKey = shiftDayKey(todayKey, -(availableDays - 1));
-  const completed = new Set(habit.checkins);
-  let completedDays = 0;
-
-  for (let offset = 0; offset < availableDays; offset += 1) {
-    if (completed.has(shiftDayKey(startKey, offset))) completedDays += 1;
+export function getBestStreak(habit: LifeHabit, todayKey = getTodayKey()) {
+  if (habit.interval === "weekly" || habit.interval === "monthly") return getPeriodRuns(habit, todayKey).best;
+  let cursor = getHabitStartKey(habit);
+  let best = 0;
+  let run = 0;
+  while (cursor <= todayKey) {
+    if (!isNeutral(habit, cursor)) {
+      run = isHabitCompletedOn(habit, cursor) ? run + 1 : 0;
+      best = Math.max(best, run);
+    }
+    cursor = shiftDayKey(cursor, 1);
   }
-
-  return Math.round((completedDays / availableDays) * 100);
+  return best;
 }
 
-export function getHabitMetrics(
-  habit: LifeHabit,
-  todayKey = getTodayKey(),
-): HabitMetrics {
-  const targetDays = normalizeTargetDays(habit.targetDays);
-  const currentStreak = getCurrentStreak(habit, todayKey);
-
-  return {
-    bestStreak: getBestStreak(habit),
-    checkedToday: habit.checkins.includes(todayKey),
-    completionRate: getCompletionRate(habit, 28, todayKey),
-    currentStreak,
-    nextMilestone: Math.ceil((currentStreak + 1) / 10) * 10,
-    progress: Math.min(100, Math.round((currentStreak / targetDays) * 100)),
-    targetDays,
-    targetReached: currentStreak >= targetDays,
-  };
-}
-
-export function getHabitDays(
-  habit: LifeHabit,
-  count: number,
-  todayKey = getTodayKey(),
-): HabitDay[] {
-  const checkins = new Set(habit.checkins);
-  const relapses = new Set(habit.badEvents);
+export function getHabitDays(habit: LifeHabit, count: number, todayKey = getTodayKey()): HabitDay[] {
+  const completions = getHabitCompletions(habit);
   const formatter = new Intl.DateTimeFormat("pt-BR", { weekday: "narrow" });
-
   return Array.from({ length: count }, (_, index) => {
     const dayKey = shiftDayKey(todayKey, index - count + 1);
-    const [year, month, day] = dayKey.split("-").map(Number);
-    return {
-      dayKey,
-      isCompleted: checkins.has(dayKey),
-      isRelapse: relapses.has(dayKey),
-      isToday: dayKey === todayKey,
-      label: formatter.format(new Date(year, month - 1, day)).toUpperCase(),
-    };
+    const entry = completions[dayKey];
+    return { amount: entry?.count ?? 0, dayKey, isCompleted: isHabitCompletedOn(habit, dayKey), isPaused: isHabitPausedOn(habit, dayKey), isRelapse: normalizeHabitKind(habit.kind) === "negative" && Boolean(entry), isScheduled: isHabitScheduledOn(habit, dayKey), isToday: dayKey === todayKey, label: formatter.format(parseDayKey(dayKey)).toUpperCase() };
   });
 }
 
-export function getLastSevenDays(habit: LifeHabit, todayKey = getTodayKey()) {
-  return getHabitDays(habit, 7, todayKey);
+export function getLastSevenDays(habit: LifeHabit, todayKey = getTodayKey()) { return getHabitDays(habit, 7, todayKey); }
+
+export function getCompletionRate(habit: LifeHabit, days = 28, todayKey = getTodayKey()) {
+  const startKey = getHabitStartKey(habit);
+  let available = 0;
+  let completed = 0;
+  for (let offset = days - 1; offset >= 0; offset -= 1) {
+    const dayKey = shiftDayKey(todayKey, -offset);
+    if (dayKey < startKey || isNeutral(habit, dayKey)) continue;
+    available += 1;
+    if (isHabitCompletedOn(habit, dayKey)) completed += 1;
+  }
+  return available ? Math.round((completed / available) * 100) : 0;
 }
 
-export function getHabitWeekSummaries(
-  habit: LifeHabit,
-  todayKey = getTodayKey(),
-): HabitWeekSummary[] {
+export function getConsistency(habit: LifeHabit, todayKey = getTodayKey()) {
+  const startKey = getHabitStartKey(habit);
+  let score = 0;
+  let norm = 0;
+  for (let offset = 0; offset < 90; offset += 1) {
+    const dayKey = shiftDayKey(todayKey, -offset);
+    if (dayKey < startKey || isNeutral(habit, dayKey)) continue;
+    const weight = Math.pow(0.5, offset / 12);
+    norm += weight;
+    const entry = getHabitCompletions(habit)[dayKey];
+    const value = normalizeHabitKind(habit.kind) === "negative" ? entry ? 0 : 1 : Math.min(1, (entry?.count ?? 0) / Math.max(1, habit.substeps.length || habit.perDayTarget));
+    score += weight * value;
+  }
+  return norm ? Math.round((score / norm) * 100) : 0;
+}
+
+export function getHabitMetrics(habit: LifeHabit, todayKey = getTodayKey()): HabitMetrics {
+  const completions = getHabitCompletions(habit);
+  const todayAmount = completions[todayKey]?.count ?? 0;
+  const kind = normalizeHabitKind(habit.kind);
+  const daysSinceStart = Math.max(1, Math.floor((parseDayKey(todayKey).getTime() - parseDayKey(getHabitStartKey(habit)).getTime()) / DAY_IN_MS) + 1);
+  return { bestStreak: getBestStreak(habit, todayKey), checkedToday: isHabitCompletedOn(habit, todayKey), completionRate: getCompletionRate(habit, 28, todayKey), consistency: getConsistency(habit, todayKey), currentStreak: getCurrentStreak(habit, todayKey), moneySaved: kind === "negative" ? Math.max(0, daysSinceStart - Object.keys(completions).length) * habit.dailyCost : 0, progress: kind === "quantitative" ? Math.min(100, Math.round((todayAmount / Math.max(0.0001, habit.perDayTarget)) * 100)) : isHabitCompletedOn(habit, todayKey) ? 100 : 0, todayAmount, totalCompletions: kind === "negative" ? Object.keys(completions).length : Object.keys(completions).filter((key) => isHabitCompletedOn(habit, key)).length };
+}
+
+export function getHabitWeekSummaries(habit: LifeHabit, todayKey = getTodayKey()): HabitWeekSummary[] {
   const days = getHabitDays(habit, 28, todayKey);
-  const createdKey = getDayKey(new Date(habit.createdAt));
-
+  const startKey = getHabitStartKey(habit);
   return Array.from({ length: 4 }, (_, index) => {
-    const weekDays = days.slice(index * 7, index * 7 + 7);
-    const availableDays = weekDays.filter((day) => day.dayKey >= createdKey).length;
-    const completedDays = weekDays.filter(
-      (day) => day.dayKey >= createdKey && day.isCompleted,
-    ).length;
-    const relapseCount = weekDays.filter(
-      (day) => day.dayKey >= createdKey && day.isRelapse,
-    ).length;
+    const weekDays = days.slice(index * 7, index * 7 + 7).filter((day) => day.dayKey >= startKey && day.isScheduled && !day.isPaused);
+    const completedDays = weekDays.filter((day) => day.isCompleted).length;
     const weeksAgo = 3 - index;
-
-    return {
-      availableDays,
-      completedDays,
-      label: weeksAgo === 0 ? "Esta semana" : weeksAgo === 1 ? "Semana anterior" : `${weeksAgo} semanas atrás`,
-      rate: availableDays ? Math.round((completedDays / availableDays) * 100) : 0,
-      relapseCount,
-    };
+    return { availableDays: weekDays.length, completedDays, label: weeksAgo === 0 ? "Esta semana" : weeksAgo === 1 ? "Semana anterior" : `${weeksAgo} semanas atrás`, rate: weekDays.length ? Math.round((completedDays / weekDays.length) * 100) : 0, relapseCount: weekDays.filter((day) => day.isRelapse).length };
   });
+}
+
+export function getScheduleLabel(habit: LifeHabit) {
+  if (habit.interval === "daily") return "Todos os dias";
+  if (habit.interval === "weekly") return `${habit.targetFrequency}× por semana`;
+  if (habit.interval === "monthly") return `${habit.targetFrequency}× por mês`;
+  if (habit.interval === "weekdays") return habit.scheduleWeekdays.map((day) => ["seg", "ter", "qua", "qui", "sex", "sáb", "dom"][day - 1]).join(", ");
+  const unit = habit.scheduleUnit === "days" ? "dia(s)" : habit.scheduleUnit === "weeks" ? "semana(s)" : "mês(es)";
+  return `A cada ${habit.scheduleEvery} ${unit}`;
 }
 
 export function getStreakMessage(streak: number) {
   if (streak === 0) return "Comece hoje";
-  if (streak >= 30) return "1 mês de consistência";
-  if (streak >= 10) return "Primeiro marco";
-  if (streak >= 7) return "1 semana";
+  if (streak >= 30) return "Um mês de consistência";
+  if (streak >= 7) return "Uma semana";
   return "Sequência iniciada";
-}
-
-function normalizeText(value: string) {
-  return value
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .toLowerCase();
-}
-
-export function rewardLooksRisky(title: string, reward: string) {
-  const normalizedTitle = normalizeText(title.trim());
-  const normalizedReward = normalizeText(reward.trim());
-  if (!normalizedTitle || !normalizedReward) return false;
-  if (normalizedReward.includes(normalizedTitle)) return true;
-
-  const ignoredWords = new Set(["nao", "sem", "evitar", "parar", "de", "a", "o"]);
-  const titleWords = normalizedTitle
-    .split(/\W+/)
-    .filter((word) => word.length >= 4 && !ignoredWords.has(word));
-  if (titleWords.some((word) => normalizedReward.includes(word))) return true;
-
-  const riskyGroups = [
-    ["fumar", "cigarro", "tabaco", "nicotina"],
-    ["refrigerante", "refri"],
-    ["alcool", "cerveja", "vinho", "bebida"],
-    ["delivery", "entrega", "fast food"],
-  ];
-  return riskyGroups.some(
-    (group) =>
-      group.some((term) => normalizedTitle.includes(term)) &&
-      group.some((term) => normalizedReward.includes(term)),
-  );
 }
