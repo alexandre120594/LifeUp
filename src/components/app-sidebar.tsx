@@ -8,10 +8,12 @@ import {
   Home,
   Inbox,
   NotebookText,
+  ListTodo,
   Repeat2,
   TimerReset,
   WalletCards,
   Sparkles,
+  Settings,
 } from "lucide-react";
 import { useGoals } from "@/hooks/useGoals";
 import { useInboxItems } from "@/hooks/useInboxMutations";
@@ -45,6 +47,12 @@ const lifeItems: SidebarItem[] = [
     url: "/",
     icon: Home,
     description: "Progresso e proximas acoes",
+  },
+  {
+    title: "Planner",
+    url: "/planner",
+    icon: ListTodo,
+    description: "Tarefas e compras",
   },
   {
     title: "Metas",
@@ -93,6 +101,15 @@ const financeItems: SidebarItem[] = [
     url: "/finance",
     icon: WalletCards,
     description: "Fluxo e planos",
+  },
+];
+
+const settingsItems: SidebarItem[] = [
+  {
+    title: "Configurações",
+    url: "/settings",
+    icon: Settings,
+    description: "Perfil e aparência",
   },
 ];
 
@@ -164,12 +181,14 @@ export function AppSidebar() {
 
   const badges: Record<string, number> = {
     "/goals": goals?.length ?? 0,
+    "/planner": 0,
     "/life-habits": 0,
     "/inbox": inboxItems?.length ?? 0,
     "/notes": notes?.length ?? 0,
     "/pomodoro": 0,
     "/finance": 0,
     "/study": study?.metrics.overdueReviews ?? 0,
+    "/settings": 0,
   };
 
   return (
@@ -217,9 +236,12 @@ export function AppSidebar() {
 
       </SidebarContent>
 
-      <SidebarFooter className="border-t border-sidebar-border bg-sidebar p-3 text-sidebar-foreground group-data-[collapsible=icon]:hidden">
-        <p className="text-[11px] font-medium">Planeje, acompanhe, revise.</p>
-        <p className="text-[10px] text-sidebar-foreground/45">SnowUI para LifeUp</p>
+      <SidebarFooter className="border-t border-sidebar-border bg-sidebar p-2.5 text-sidebar-foreground">
+        <SidebarLinkList badges={badges} items={settingsItems} />
+        <div className="px-2.5 pt-1 group-data-[collapsible=icon]:hidden">
+          <p className="text-[11px] font-medium">Planeje, acompanhe, revise.</p>
+          <p className="text-[10px] text-sidebar-foreground/45">SnowUI para LifeUp</p>
+        </div>
       </SidebarFooter>
       <SidebarRail />
     </Sidebar>

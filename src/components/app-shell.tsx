@@ -1,11 +1,12 @@
 "use client";
 
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { LogOut } from "lucide-react";
 import { AppSidebar } from "@/components/app-sidebar";
 import { Button } from "@/components/ui/button";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { ThemeSwitcher } from "@/app/ThemeSwitcher";
+import { useLogout } from "@/hooks/useCurrentUser";
 
 const routeContexts = [
   { matcher: (path: string) => path === "/", title: "Hoje", area: "Principal" },
@@ -16,6 +17,7 @@ const routeContexts = [
   { matcher: (path: string) => path.startsWith("/pomodoro"), title: "Foco", area: "Principal" },
   { matcher: (path: string) => path.startsWith("/life-habits"), title: "Habitos", area: "Legado" },
   { matcher: (path: string) => path.startsWith("/study"), title: "Estudos", area: "Modulo" },
+  { matcher: (path: string) => path.startsWith("/settings"), title: "Configurações", area: "Conta" },
 ];
 
 function getRouteContext(pathname: string) {
@@ -29,7 +31,7 @@ function getRouteContext(pathname: string) {
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const router = useRouter();
+  const logout = useLogout();
   const isLoginPage = pathname === "/login";
 
   if (isLoginPage) {
@@ -37,12 +39,6 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   }
 
   const shellContext = getRouteContext(pathname);
-
-  const logout = async () => {
-    await fetch("/api/auth/logout", { method: "POST" });
-    router.replace("/login");
-    router.refresh();
-  };
 
   return (
     <SidebarProvider>
@@ -65,7 +61,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             <Button
               aria-label="Sair"
               className="h-[30px] w-[30px] gap-2 px-0 sm:w-auto sm:px-2.5"
-              onClick={logout}
+              disabled={logout.isPending}
+              onClick={() => logout.mutate()}
               size="sm"
               type="button"
               variant="outline"

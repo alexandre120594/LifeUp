@@ -67,6 +67,8 @@ identidade. Uma troca futura do mecanismo deve preservar a regra de isolamento.
 ```text
 User
   |- Goal
+  |- PlannerTask -> Goal (opcional)
+  |- PlannedPurchase -> Goal (opcional) / FinancialCommitment[]
   |- LifeHabit
   |- InboxItem -> Note (opcional)
   |- Note
@@ -91,6 +93,19 @@ Regras importantes:
 - Relacoes devem declarar comportamento de exclusao conscientemente.
 - Valores financeiros usam `Decimal`, nunca ponto flutuante como fonte de verdade.
 - Saldos e progresso financeiro sao calculados a partir de movimentos.
+- Compras parceladas sao um grupo de `FinancialTransaction`: cada parcela possui
+  valor e data proprios, alem de grupo, ordem e quantidade total. A soma em
+  centavos das parcelas preserva exatamente o valor informado, e parcelas
+  futuras so afetam o saldo quando sua data chega.
+- Compromissos parcelados seguem a mesma divisao exata, mas cada vencimento e um
+  `FinancialCommitment` do grupo. Isso permite que Finance e Planner exibam e
+  quitem cada parcela no respectivo mes.
+- `PlannedPurchase` nao armazena um segundo impacto financeiro: no estado
+  `planned`, referencia um ou mais `FinancialCommitment`; no estado `bought`, a
+  quitacao atomica desses compromissos cria as `FinancialTransaction`.
+- As relacoes opcionais de `PlannerTask` e `PlannedPurchase` com `Goal` servem
+  apenas para contexto e filtro. Nao criam hierarquia, checklist ou progresso
+  derivado em Meta.
 - `LifeHabit.completions` guarda o mapa estruturado de registros diarios; os
   arrays `checkins` e `badEvents` permanecem temporariamente para compatibilidade
   com o cliente Android legado e recebem dual-write nas mutacoes atuais.

@@ -36,6 +36,10 @@ export interface FinancialTransaction {
   category?: FinancialCategory | null;
   commitmentId?: string | null;
   importId?: string | null;
+  installmentGroupId?: string | null;
+  installmentNumber?: number | null;
+  installmentCount?: number | null;
+  reversibleSource?: "commitment" | "purchase" | null;
 }
 
 export interface FinancialCommitment {
@@ -51,6 +55,11 @@ export interface FinancialCommitment {
   account?: Pick<FinancialAccount, "id" | "name"> | null;
   categoryId?: string | null;
   category?: FinancialCategory | null;
+  paymentTransactionId?: string | null;
+  installmentGroupId?: string | null;
+  installmentNumber?: number | null;
+  installmentCount?: number | null;
+  plannedPurchaseId?: string | null;
 }
 
 export interface FinancialGoal {
@@ -97,6 +106,7 @@ export interface FinancialTransactionInput {
   accountId: string;
   categoryId?: string | null;
   notes?: string;
+  installmentCount?: number;
 }
 
 export interface FinancialCommitmentInput {
@@ -108,6 +118,7 @@ export interface FinancialCommitmentInput {
   accountId?: string | null;
   categoryId?: string | null;
   notes?: string;
+  installmentCount?: number;
 }
 
 export interface FinancialGoalInput {

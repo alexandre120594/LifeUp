@@ -58,11 +58,34 @@ export function calculateCommitmentSummary(
 }
 
 export function addOneMonth(value: Date) {
+  return addMonths(value, 1);
+}
+
+export function addMonths(value: Date, months: number) {
   const next = new Date(value);
-  const originalDay = next.getDate();
-  next.setDate(1);
-  next.setMonth(next.getMonth() + 1);
-  const lastDay = new Date(next.getFullYear(), next.getMonth() + 1, 0).getDate();
-  next.setDate(Math.min(originalDay, lastDay));
+  const originalDay = next.getUTCDate();
+  next.setUTCDate(1);
+  next.setUTCMonth(next.getUTCMonth() + months);
+  const lastDay = new Date(Date.UTC(next.getUTCFullYear(), next.getUTCMonth() + 1, 0)).getUTCDate();
+  next.setUTCDate(Math.min(originalDay, lastDay));
   return next;
+}
+
+export function splitAmountIntoInstallments(amount: number, installmentCount: number) {
+  const totalCents = Math.round(amount * 100);
+  const baseCents = Math.floor(totalCents / installmentCount);
+  const remainder = totalCents % installmentCount;
+
+  return Array.from(
+    { length: installmentCount },
+    (_, index) => (baseCents + (index < remainder ? 1 : 0)) / 100
+  );
+}
+
+export function buildInstallmentSchedule(amount: number, installmentCount: number, firstDate: Date) {
+  return splitAmountIntoInstallments(amount, installmentCount).map((installmentAmount, index) => ({
+    amount: installmentAmount,
+    date: addMonths(firstDate, index),
+    installmentNumber: index + 1,
+  }));
 }

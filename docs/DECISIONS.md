@@ -93,6 +93,64 @@ que uma nova sessao de IA reabra ou contradiga decisoes sem contexto.
   marcacoes sobrevivem a recarregamentos e dispositivos. Alterar IDs ou a ordem
   dos dias exige preservar a correspondencia com o progresso existente.
 
+### D010 - Planner operacional sem duplicar Metas ou Financas
+
+- **Data:** 2026-10-15
+- **Status:** aceita
+- **Contexto:** tarefas e intencoes de compra precisam de um lugar operacional,
+  mas `Goal` nao possui subitens e Financas ja e a fonte de verdade para
+  compromissos e transacoes.
+- **Decisao:** criar `PlannerTask` e `PlannedPurchase`. A relacao opcional com
+  `Goal` e apenas classificatoria e nao altera progresso. Uma compra `idea` nao
+  afeta Financas; originalmente, a transicao para `planned` criava exatamente
+  um `FinancialCommitment`, e a transicao para `bought` o quitava e criava uma
+  `FinancialTransaction` na mesma operacao atomica. O suporte a grupos finitos
+  de parcelas foi posteriormente definido em D012.
+- **Alternativas:** tarefas dentro de `Goal` foram descartadas por recriar a
+  hierarquia removida; valores financeiros paralelos foram descartados por
+  duplicar saldo e compromissos; chamadas HTTP internas entre APIs foram
+  descartadas em favor de uma unica transacao Prisma.
+- **Consequencias:** Planner, Metas e Financas preservam fronteiras proprias. A
+  exclusao de Meta mantem itens do Planner com `goalId = null`; cancelar uma
+  compra planejada tambem cancela seu compromisso ativo.
+
+### D011 - Parcelas como movimentacoes financeiras agrupadas
+
+- **Data:** 2026-10-15
+- **Status:** aceita
+- **Contexto:** compras parceladas precisam aparecer no fluxo de caixa de cada
+  mes, preservar o valor total da compra e continuar usando os saldos derivados
+  das movimentacoes existentes.
+- **Decisao:** representar cada parcela como uma `FinancialTransaction` com data
+  e valor proprios, ligada às demais por `installmentGroupId` e identificada por
+  `installmentNumber`/`installmentCount`. A criacao do grupo e atomica e divide o
+  total em centavos. Movimentacoes futuras nao integram o saldo atual.
+- **Alternativas:** armazenar apenas uma transacao com o valor total foi
+  descartado porque distorce o fluxo mensal; criar uma nova entidade de compra
+  parcelada foi descartado porque duplicaria os dados que ja pertencem às
+  movimentacoes.
+- **Consequencias:** filtros e resumos mensais contabilizam somente a parcela do
+  periodo. Edicao e exclusao continuam granulares por parcela; operacoes em
+  massa usam a selecao explicita existente.
+
+### D012 - Parcelas de compromissos como vencimentos agrupados
+
+- **Data:** 2026-10-16
+- **Status:** aceita
+- **Contexto:** compromissos e compras planejadas parceladas precisam reservar
+  o valor correto em cada mes antes da compra, sem distorcer o fluxo mensal nem
+  criar uma entidade financeira paralela.
+- **Decisao:** representar cada parcela como um `FinancialCommitment` com valor,
+  vencimento, grupo, ordem e quantidade total proprios. Uma `PlannedPurchase`
+  planejada referencia de um a 60 compromissos; sua compra cria, em uma unica
+  transacao atomica, as movimentacoes correspondentes e conclui todo o grupo.
+- **Alternativas:** manter apenas o primeiro vencimento em um compromisso
+  mutavel foi descartado porque ocultaria parcelas futuras; armazenar todas as
+  datas em JSON foi descartado porque impediria consultas e quitacoes normais.
+- **Consequencias:** Finance e Planner contabilizam cada vencimento no seu mes.
+  Cancelamento, compra e restauracao de uma compra planejada operam sobre todo o
+  grupo; edicao e quitacao direta em Financas continuam granulares por parcela.
+
 ## Quando adicionar uma decisao
 
 Adicione uma entrada quando a mudanca:

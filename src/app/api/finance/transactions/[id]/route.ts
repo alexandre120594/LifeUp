@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireCurrentUserId } from "@/lib/auth";
 import { isFinanceRecordType } from "@/lib/finance-core";
+import { reverseFinancialTransactions } from "@/lib/finance-reversal";
 import prisma from "@/lib/prisma";
 
 export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
@@ -15,12 +16,15 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     return NextResponse.json({ message: "Descricao, valor, tipo, conta e data validos sao obrigatorios." }, { status: 400 });
   }
   const [current, account, category] = await Promise.all([
-    prisma.financialTransaction.findFirst({ where: { id, userId }, select: { id: true } }),
+    prisma.financialTransaction.findFirst({ where: { id, userId }, select: { id: true, installmentGroupId: true } }),
     prisma.financialAccount.findFirst({ where: { id: body.accountId, isActive: true, userId }, select: { id: true } }),
     body.categoryId ? prisma.financialCategory.findFirst({ where: { id: body.categoryId, type: body.type, userId }, select: { id: true } }) : null,
   ]);
   if (!current) return NextResponse.json({ message: "Movimentacao nao encontrada." }, { status: 404 });
   if (!account || (body.categoryId && !category)) return NextResponse.json({ message: "Conta ou categoria invalida." }, { status: 400 });
+  if (current.installmentGroupId && body.type !== "expense") {
+    return NextResponse.json({ message: "Uma parcela deve permanecer como saida." }, { status: 400 });
+  }
   const transaction = await prisma.financialTransaction.update({
     where: { id },
     data: { accountId: account.id, amount, categoryId: category?.id ?? null, date, notes: typeof body.notes === "string" ? body.notes.trim() || null : null, title, type: body.type },
@@ -35,6 +39,6 @@ export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ 
   const { id } = await params;
   const current = await prisma.financialTransaction.findFirst({ where: { id, userId }, select: { id: true } });
   if (!current) return NextResponse.json({ message: "Movimentacao nao encontrada." }, { status: 404 });
-  await prisma.financialTransaction.delete({ where: { id } });
+  await prisma.$transaction((tx) => reverseFinancialTransactions(tx, [id], userId));
   return NextResponse.json({ ok: true });
 }

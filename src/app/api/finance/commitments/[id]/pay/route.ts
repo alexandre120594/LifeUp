@@ -22,6 +22,9 @@ export async function POST(req: NextRequest, context: { params: Promise<{ id: st
       data: {
         accountId: account.id, amount: commitment.amount, categoryId: commitment.categoryId,
         commitmentId: commitment.id, date, notes: commitment.notes, title: commitment.title,
+        installmentCount: commitment.installmentCount,
+        installmentGroupId: commitment.installmentGroupId,
+        installmentNumber: commitment.installmentNumber,
         type: commitment.type, userId,
       },
     });
@@ -31,6 +34,17 @@ export async function POST(req: NextRequest, context: { params: Promise<{ id: st
         ? { accountId: account.id, dueDate: addOneMonth(commitment.dueDate) }
         : { accountId: account.id, status: "completed" },
     });
+    if (commitment.recurrence !== "monthly" && commitment.plannedPurchaseId) {
+      const remaining = await tx.financialCommitment.count({
+        where: { plannedPurchaseId: commitment.plannedPurchaseId, status: "active", userId },
+      });
+      if (remaining === 0) {
+        await tx.plannedPurchase.updateMany({
+          where: { id: commitment.plannedPurchaseId, status: "planned", userId },
+          data: { status: "bought" },
+        });
+      }
+    }
     return { commitment: updatedCommitment, transaction };
   });
   return NextResponse.json({

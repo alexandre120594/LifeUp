@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireCurrentUserId } from "@/lib/auth";
 import { getMonthRange } from "@/lib/finance-core";
+import { reverseFinancialTransactions } from "@/lib/finance-reversal";
 import prisma from "@/lib/prisma";
 
 export async function POST(req: NextRequest) {
@@ -13,7 +14,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ message: "Selecione ao menos uma movimentacao." }, { status: 400 });
   }
   if (ids.length) {
-    const result = await prisma.financialTransaction.deleteMany({ where: { id: { in: ids }, userId } });
+    const result = await prisma.$transaction((tx) => reverseFinancialTransactions(tx, ids, userId));
     return NextResponse.json({ count: result.count });
   }
 
@@ -25,8 +26,12 @@ export async function POST(req: NextRequest) {
   const range = month
     ? getMonthRange(new Date(year, month - 1, 1))
     : { start: new Date(year, 0, 1), end: new Date(year + 1, 0, 1) };
-  const result = await prisma.financialTransaction.deleteMany({
+  const transactions = await prisma.financialTransaction.findMany({
     where: { date: { gte: range.start, lt: range.end }, userId },
+    select: { id: true },
   });
+  const result = await prisma.$transaction((tx) =>
+    reverseFinancialTransactions(tx, transactions.map((transaction) => transaction.id), userId)
+  );
   return NextResponse.json({ count: result.count });
 }

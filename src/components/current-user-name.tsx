@@ -1,13 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCurrentUser } from "@/hooks/useCurrentUser";
+import type { CurrentUser } from "@/types/CurrentUser";
 
-type AuthUser = {
-  email: string;
-  name: string | null;
-};
-
-function getDisplayName(user: AuthUser | null) {
+function getDisplayName(user: CurrentUser | null) {
   if (user?.name?.trim()) {
     return user.name.trim();
   }
@@ -21,37 +17,7 @@ function getDisplayName(user: AuthUser | null) {
 }
 
 export function CurrentUserName() {
-  const [user, setUser] = useState<AuthUser | null>(null);
+  const { data: user } = useCurrentUser();
 
-  useEffect(() => {
-    const controller = new AbortController();
-
-    const loadUser = async () => {
-      try {
-        const response = await fetch("/api/auth/me", {
-          signal: controller.signal,
-        });
-
-        if (!response.ok) {
-          setUser(null);
-          return;
-        }
-
-        const data = (await response.json()) as AuthUser;
-        setUser(data);
-      } catch {
-        if (!controller.signal.aborted) {
-          setUser(null);
-        }
-      }
-    };
-
-    void loadUser();
-
-    return () => {
-      controller.abort();
-    };
-  }, []);
-
-  return <>{getDisplayName(user)}</>;
+  return <>{getDisplayName(user ?? null)}</>;
 }

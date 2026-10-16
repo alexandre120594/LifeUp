@@ -51,6 +51,14 @@ Direcao de medio e longo prazo nas areas Corpo, Mente e Casa. `Goal` possui
 status, progresso e prazo opcional. No modelo atual, nao possui tarefas,
 checklists ou subregistros.
 
+### Planner
+
+Planejamento operacional de tarefas e compras futuras. Uma tarefa ou compra
+pode indicar uma Meta como contexto, sem se tornar subitem dela e sem alterar
+automaticamente seu progresso. Compras começam como ideias sem impacto
+financeiro; quando planejadas, reutilizam um ou mais `FinancialCommitment`, e
+quando compradas, geram as `FinancialTransaction` correspondentes.
+
 ### Habitos
 
 Acompanhamento de comportamentos normais, de abstinencia ou quantitativos, com
@@ -66,8 +74,10 @@ de estudo quando aplicavel.
 
 ### Financas
 
-Contas, categorias, transacoes, compromissos e objetivos de reserva. Saldos e
-progresso sao derivados dos registros financeiros, nao armazenados em paralelo.
+Contas, categorias, transacoes, compromissos e objetivos de reserva. Compras e
+compromissos parcelados distribuem o valor total em registros mensais
+identificados pela ordem da parcela. Saldos e progresso sao derivados dos
+registros financeiros, nao armazenados em paralelo.
 
 ### Inbox e notas
 

@@ -60,6 +60,9 @@ export const FinanceWorkspaceServices = {
     request<{ commitment: FinancialCommitment; transaction: FinancialTransaction }>(`/api/finance/commitments/${id}/pay`, {
       method: "POST", body: JSON.stringify({ accountId }),
     }),
+  reopenCommitment: (id: string) => request<{ ok: boolean }>(`/api/finance/commitments/${id}/reopen`, {
+    method: "POST",
+  }),
   createGoal: (data: FinancialGoalInput) => request<FinancialGoal>("/api/finance/savings-goals", {
     method: "POST", body: JSON.stringify(data),
   }),

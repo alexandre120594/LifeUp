@@ -94,7 +94,7 @@ const statusTone: Record<GoalStatus, string> = {
 
 const areaOrder: GoalArea[] = ["BODY", "MIND", "HOME"];
 const areaFilters: GoalAreaFilter[] = ["ALL", ...areaOrder];
-const statusFilters: GoalStatusFilter[] = ["ALL", "ACTIVE", "PAUSED", "COMPLETED"];
+const statusFilters: GoalStatusFilter[] = ["ALL", "PAUSED", "COMPLETED"];
 
 function createEmptyDraft(): GoalDraft {
   return {
@@ -358,7 +358,7 @@ export function GoalMetrics({ goals }: { goals: Goal[] }) {
       average: goals.length
         ? Math.round(goals.reduce((sum, goal) => sum + goal.progress, 0) / goals.length)
         : 0,
-      completed: goals.filter((goal) => goal.status === "COMPLETED").length,
+      progressing: goals.filter((goal) => goal.progress > 0).length,
       dueSoon: goals.filter((goal) => {
         if (!goal.targetDate || goal.status === "COMPLETED") {
           return false;
@@ -372,7 +372,7 @@ export function GoalMetrics({ goals }: { goals: Goal[] }) {
   return (
     <div className="grid shrink-0 grid-cols-2 gap-2 xl:grid-cols-4">
       <StatCard delta="Em andamento" icon={Target} label="Metas ativas" value={metrics.active} />
-      <StatCard delta="Finalizadas" icon={CheckCircle2} label="Metas concluidas" value={metrics.completed} />
+      <StatCard delta="Com avanço registrado" icon={CheckCircle2} label="Em progresso" value={metrics.progressing} />
       <StatCard delta="Metas visiveis" icon={TrendingUp} label="Progresso medio" value={`${metrics.average}%`} />
       <StatCard delta="Proximos 7 dias" icon={CalendarClock} label="Perto do prazo" value={metrics.dueSoon} />
     </div>
@@ -474,7 +474,7 @@ export function GoalBoard() {
   const [goalToDelete, setGoalToDelete] = useState<Goal | null>(null);
   const { data: goals = [], isError, isLoading, refetch } = useGoals({
     area: areaFilter === "ALL" ? undefined : areaFilter,
-    status: statusFilter === "ALL" ? undefined : statusFilter,
+    status: statusFilter === "ALL" ? "ACTIVE" : statusFilter,
   });
   const deleteGoal = useDeleteGoal();
 
@@ -539,7 +539,7 @@ export function GoalBoard() {
               aria-label="Filtrar metas por status"
               onValueChange={setStatusFilter}
               options={statusFilters.map((status) => ({
-                label: status === "ALL" ? "Todos status" : statusLabels[status],
+                label: status === "ALL" ? statusLabels.ACTIVE : statusLabels[status],
                 value: status,
               }))}
               value={statusFilter}

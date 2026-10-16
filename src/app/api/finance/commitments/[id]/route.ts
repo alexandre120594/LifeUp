@@ -16,12 +16,15 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     return NextResponse.json({ message: "Descricao, valor, tipo e vencimento validos sao obrigatorios." }, { status: 400 });
   }
   const [current, account, category] = await Promise.all([
-    prisma.financialCommitment.findFirst({ where: { id, userId }, select: { id: true } }),
+    prisma.financialCommitment.findFirst({ where: { id, userId }, select: { id: true, installmentGroupId: true, plannedPurchaseId: true } }),
     body.accountId ? prisma.financialAccount.findFirst({ where: { id: body.accountId, userId }, select: { id: true } }) : null,
     body.categoryId ? prisma.financialCategory.findFirst({ where: { id: body.categoryId, type: body.type, userId }, select: { id: true } }) : null,
   ]);
   if (!current) return NextResponse.json({ message: "Compromisso nao encontrado." }, { status: 404 });
   if ((body.accountId && !account) || (body.categoryId && !category)) return NextResponse.json({ message: "Conta ou categoria invalida." }, { status: 400 });
+  if (current.installmentGroupId && (body.type !== "expense" || recurrence !== "none")) {
+    return NextResponse.json({ message: "Uma parcela deve permanecer como saida sem recorrencia." }, { status: 400 });
+  }
   const commitment = await prisma.financialCommitment.update({
     where: { id },
     data: { accountId: account?.id ?? null, amount, categoryId: category?.id ?? null, dueDate, notes: typeof body.notes === "string" ? body.notes.trim() || null : null, recurrence, title, type: body.type },
@@ -34,8 +37,9 @@ export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ 
   const { response, userId } = await requireCurrentUserId();
   if (response) return response;
   const { id } = await params;
-  const current = await prisma.financialCommitment.findFirst({ where: { id, userId }, select: { id: true } });
+  const current = await prisma.financialCommitment.findFirst({ where: { id, userId }, select: { id: true, plannedPurchaseId: true } });
   if (!current) return NextResponse.json({ message: "Compromisso nao encontrado." }, { status: 404 });
+  if (current.plannedPurchaseId) return NextResponse.json({ message: "Cancele a compra vinculada pelo Planner antes de excluir este compromisso." }, { status: 409 });
   await prisma.financialCommitment.delete({ where: { id } });
   return NextResponse.json({ ok: true });
 }
